@@ -2,6 +2,8 @@
   const rootId = 'lc-root';
   const styleId = 'lc-style';
   const config = window.WP_LIVECODE_PREVIEW || {};
+  const allowedOrigin = getAllowedOrigin();
+  let isReady = false;
 
   function getAllowedOrigin() {
     if (config.allowedOrigin) return config.allowedOrigin;
@@ -14,8 +16,6 @@
     }
     return '';
   }
-
-  const allowedOrigin = getAllowedOrigin();
 
   function ensureStyleElement() {
     let styleEl = document.getElementById(styleId);
@@ -34,19 +34,31 @@
     ensureStyleElement().textContent = css || '';
   }
 
-  window.addEventListener('message', (event) => {
-    if (allowedOrigin && event.origin !== allowedOrigin) return;
-    const data = event.data || {};
-    if (data.type === 'LC_RENDER') {
-      render(data.html, data.css);
-    }
-  });
-
-  if (window.parent) {
+  function reply(type, payload) {
+    if (!window.parent) return;
     try {
-      window.parent.postMessage({ type: 'LC_READY' }, allowedOrigin || '*');
+      window.parent.postMessage(
+        Object.assign({ type: type }, payload || {}),
+        allowedOrigin || '*'
+      );
     } catch (e) {
       // noop
     }
   }
+
+  window.addEventListener('message', (event) => {
+    if (allowedOrigin && event.origin !== allowedOrigin) return;
+    const data = event.data || {};
+    if (data.type === 'LC_INIT') {
+      isReady = true;
+      reply('LC_READY', { postId: config.postId || null });
+      return;
+    }
+    if (data.type === 'LC_RENDER') {
+      if (!isReady) return;
+      render(data.canonicalHTML, data.cssText);
+    }
+  });
+
+  reply('LC_READY', { postId: config.postId || null });
 })();

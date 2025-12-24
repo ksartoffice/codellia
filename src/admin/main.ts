@@ -155,12 +155,26 @@ async function main() {
   ui.tabCss.addEventListener('click', () => setActiveTab('css'));
 
   // Preview render (MVP: そのまま送る。canonical化/ソースマップは次工程)
+  let previewReady = false;
+  let pendingRender = false;
+
+  const sendInit = () => {
+    ui.iframe.contentWindow?.postMessage({
+      type: 'LC_INIT',
+      postId: cfg.postId,
+    }, targetOrigin);
+  };
+
   const sendRender = () => {
     const payload = {
       type: 'LC_RENDER',
-      html: htmlModel.getValue(),
-      css: cssModel.getValue(),
+      canonicalHTML: htmlModel.getValue(),
+      cssText: cssModel.getValue(),
     };
+    if (!previewReady) {
+      pendingRender = true;
+      return;
+    }
     ui.iframe.contentWindow?.postMessage(payload, targetOrigin);
   };
 
@@ -171,7 +185,9 @@ async function main() {
 
   // 初回：iframe load 後に送る
   ui.iframe.addEventListener('load', () => {
-    sendRender();
+    previewReady = false;
+    pendingRender = true;
+    sendInit();
   });
 
   // Toolbar actions
@@ -209,6 +225,10 @@ async function main() {
     const data = event.data;
 
     if (data?.type === 'LC_READY') {
+      previewReady = true;
+      if (pendingRender) {
+        pendingRender = false;
+      }
       sendRender();
     }
 
