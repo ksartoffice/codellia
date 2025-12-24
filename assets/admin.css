@@ -1,0 +1,79 @@
+.wp-livecode-admin {
+	max-width: 100%;
+}
+
+.wp-livecode-title {
+	margin-bottom: 12px;
+}
+
+.wp-livecode-toolbar {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.wp-livecode-layout {
+	display: grid;
+	grid-template-columns: minmax(320px, 1fr) minmax(360px, 1.2fr);
+	gap: 16px;
+	min-height: calc(100vh - 220px);
+}
+
+.wp-livecode-editor,
+.wp-livecode-preview {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	min-height: 500px;
+}
+
+.wp-livecode-tabs {
+	display: flex;
+	border-bottom: 1px solid #dcdcde;
+	background: #f6f7f7;
+}
+
+.wp-livecode-tab {
+	border: none;
+	background: transparent;
+	padding: 10px 16px;
+	cursor: pointer;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.wp-livecode-tab.is-active {
+	background: #fff;
+	border-bottom: 2px solid #2271b1;
+}
+
+.wp-livecode-editor-panels {
+	flex: 1;
+	position: relative;
+}
+
+.wp-livecode-editor-panel {
+	position: absolute;
+	inset: 0;
+	display: none;
+}
+
+.wp-livecode-editor-panel.is-active {
+	display: block;
+}
+
+.wp-livecode-preview-frame {
+	border: none;
+	flex: 1;
+	width: 100%;
+}
+
+@media (max-width: 960px) {
+	.wp-livecode-layout {
+		grid-template-columns: 1fr;
+	}
+}
