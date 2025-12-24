@@ -7,6 +7,11 @@ export default defineConfig({
     assetsDir: '',
     emptyOutDir: true,
     target: 'es2020',
-    rollupOptions: { input: 'src/admin/main.ts' }
+    rollupOptions: { 
+        input: 'src/admin/main.ts',
+        output: {
+          entryFileNames: 'main.js',
+        }    
+    }
   }
 });
