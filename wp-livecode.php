@@ -49,3 +49,7 @@ function wp_livecode_deactivate() {
 	// Add any deactivation routines here
 }
 register_deactivation_hook( __FILE__, 'wp_livecode_deactivate' );
+
+
+wp_enqueue_script('wp-livecode-admin', plugins_url('assets/dist/main.js', __FILE__), [], null, true);
+wp_enqueue_style('wp-livecode-admin', plugins_url('assets/dist/style.css', __FILE__));
