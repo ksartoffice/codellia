@@ -1,0 +1,94 @@
+/* filepath: src/admin/style.css */
+#wp-livecode-app {
+  margin-top: 12px;
+}
+
+/* WPのwrap内でも高さを取りたいので 100vh ベース */
+.lc-app {
+  border: 1px solid #dcdcde;
+  background: #fff;
+  height: calc(100vh - 170px);
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid #dcdcde;
+  background: #f6f7f7;
+}
+
+.lc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lc-status {
+  margin-left: 10px;
+  color: #646970;
+  font-size: 12px;
+}
+
+.lc-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.lc-left, .lc-right {
+  min-height: 0;
+  flex: 1;
+}
+
+.lc-left {
+  border-right: 1px solid #dcdcde;
+  display: flex;
+  flex-direction: column;
+  min-width: 360px;
+}
+
+.lc-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-bottom: 1px solid #dcdcde;
+  background: #fff;
+}
+
+.lc-tab {
+  border: 1px solid #c3c4c7;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.lc-tab.is-active {
+  background: #f0f0f1;
+  font-weight: 600;
+}
+
+.lc-editorWrap {
+  flex: 1;
+  min-height: 0;
+}
+
+.lc-editor {
+  width: 100%;
+  height: 100%;
+}
+
+.lc-right {
+  background: #fff;
+}
+
+.lc-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
