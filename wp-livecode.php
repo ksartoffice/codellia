@@ -25,6 +25,7 @@ define( 'WP_LIVECODE_URL', plugin_dir_url( __FILE__ ) );
 
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-admin.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-rest.php';
+require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-preview.php';
 
 add_action('plugins_loaded', function () {
 	// 管理画面
@@ -32,6 +33,9 @@ add_action('plugins_loaded', function () {
 
 	// REST
 	\WPLiveCode\Rest::init();
+
+	// プレビュー
+	\WPLiveCode\Preview::init();
 });
 
 /**
