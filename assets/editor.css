@@ -1,0 +1,85 @@
+.wp-livecode-editor {
+  margin: 0;
+}
+
+.wp-livecode-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #dcdcde;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.wp-livecode-editor__body {
+  display: flex;
+  min-height: calc(100vh - 70px);
+  gap: 0;
+}
+
+.wp-livecode-editor__left,
+.wp-livecode-editor__right {
+  width: 50%;
+  min-height: calc(100vh - 70px);
+}
+
+.wp-livecode-editor__left {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #dcdcde;
+  background: #f6f7f7;
+}
+
+.wp-livecode-tabs {
+  display: flex;
+  border-bottom: 1px solid #dcdcde;
+  background: #fff;
+}
+
+.wp-livecode-tab {
+  border: none;
+  background: transparent;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.wp-livecode-tab.is-active {
+  color: #2271b1;
+  border-bottom: 2px solid #2271b1;
+}
+
+.wp-livecode-editors {
+  flex: 1;
+  position: relative;
+}
+
+.wp-livecode-editor__panel {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.wp-livecode-editor__panel.is-active {
+  display: block;
+}
+
+.wp-livecode-monaco {
+  height: 100%;
+  background: #1e1e1e;
+  color: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.wp-livecode-preview {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
+}
