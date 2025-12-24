@@ -12,7 +12,9 @@ GutenbergやクラシックエディタやElementorなどどんなエディタ�
 ・ツールバーにはundo redo 保存機能がある。
 ・HTMLタブではショートコードが利用できる。
 ・プレビュー画面ではリアルタイムDOMセレクターの機能を持つ。要素をホバーでハイライトする。ハイライト中の要素をクリックするとエディタ側該当行のハイライトを行う。
-・post_content内にコードは全て入る。クラシックエディタ、ブロックエディタ側からリンクで独自編集画面に飛ばす。
+・クラシックエディタ、ブロックエディタ側からリンクで独自編集画面に飛ばす。
+・HTML（ソース）はpost_contentコードに保存。
+・CSS（ソース）はpost_metaに保存。_lc_css
 
 ●リアルタイムDOMセレクターの実装
 ・canonical htmlをデータとして保持。
@@ -46,6 +48,7 @@ post_contentに保存するのは“素のHTML（data-lc-idなし）”
   * `postMessage` 受信用スクリプトを enqueue
 
 
+monaco editorは npm i monaco-editor して node_modules/monaco-editor/min/vs を assets/monaco/vsフォルダにコピーした。
 
 ●プラグインの対象
 中級者（制作会社、フリーランス、企業のIT担当）
