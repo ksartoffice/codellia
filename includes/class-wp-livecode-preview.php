@@ -106,6 +106,8 @@ class Preview {
 				'start' => self::MARKER_START,
 				'end'   => self::MARKER_END,
 			],
+			'renderRestUrl' => rest_url( 'wp-livecode/v1/render-shortcodes' ),
+			'restNonce'     => wp_create_nonce( 'wp_rest' ),
 		];
 
 		wp_add_inline_script(

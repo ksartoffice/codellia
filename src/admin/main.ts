@@ -31,9 +31,17 @@ type SourceRange = {
   endOffset: number;
 };
 
+type ShortcodePlaceholder = {
+  id: string;
+  shortcode: string;
+  startOffset: number;
+  endOffset: number;
+};
+
 type CanonicalResult = {
   canonicalHTML: string;
   map: Record<string, SourceRange>;
+  shortcodes: ShortcodePlaceholder[];
   error?: string;
 };
 
@@ -68,6 +76,9 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 }
 
 const LC_ATTR_NAME = 'data-lc-id';
+const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
+const SHORTCODE_REGEX =
+  /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
 
 function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
   return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
@@ -81,6 +92,15 @@ function isTemplateElement(node: DefaultTreeAdapterTypes.Element): node is Defau
   return node.tagName === 'template' && Boolean((node as DefaultTreeAdapterTypes.Template).content);
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function upsertLcAttr(el: DefaultTreeAdapterTypes.Element, lcId: string) {
   const existing = el.attrs.find((attr) => attr.name === LC_ATTR_NAME);
   if (existing) {
@@ -90,12 +110,20 @@ function upsertLcAttr(el: DefaultTreeAdapterTypes.Element, lcId: string) {
   }
 }
 
+function getExistingLcId(el: DefaultTreeAdapterTypes.Element): string | null {
+  const attr = el.attrs.find((item) => item.name === LC_ATTR_NAME);
+  return attr ? attr.value : null;
+}
+
 function resolveRange(
   loc: DefaultTreeAdapterTypes.Element['sourceCodeLocation'],
-  parentRange: SourceRange | null
+  parentRange: SourceRange | null,
+  mapOffsetToOriginal?: (offset: number) => number
 ): SourceRange | null {
   if (loc && typeof loc.startOffset === 'number' && typeof loc.endOffset === 'number') {
-    return { startOffset: loc.startOffset, endOffset: loc.endOffset };
+    const start = mapOffsetToOriginal ? mapOffsetToOriginal(loc.startOffset) : loc.startOffset;
+    const end = mapOffsetToOriginal ? mapOffsetToOriginal(loc.endOffset) : loc.endOffset;
+    return { startOffset: start, endOffset: end };
   }
   return parentRange ? { ...parentRange } : null;
 }
@@ -104,25 +132,37 @@ function walkCanonicalTree(
   node: DefaultTreeAdapterTypes.ParentNode,
   parentRange: SourceRange | null,
   map: Record<string, SourceRange>,
-  nextId: () => string
+  nextId: () => string,
+  mapOffsetToOriginal?: (offset: number) => number,
+  rangeOverride?: Record<string, SourceRange>
 ) {
   const children = node.childNodes || [];
 
   for (const child of children) {
     if (isElement(child)) {
-      const lcId = nextId();
+      const existingId = getExistingLcId(child);
+      const lcId = existingId ?? nextId();
       upsertLcAttr(child, lcId);
-      const range = resolveRange(child.sourceCodeLocation, parentRange);
+      const range =
+        (rangeOverride && rangeOverride[lcId]) ||
+        resolveRange(child.sourceCodeLocation, parentRange, mapOffsetToOriginal);
       if (range) {
         map[lcId] = range;
       }
-      walkCanonicalTree(child, range ?? parentRange, map, nextId);
+      walkCanonicalTree(child, range ?? parentRange, map, nextId, mapOffsetToOriginal, rangeOverride);
 
       if (isTemplateElement(child)) {
-        walkCanonicalTree(child.content, range ?? parentRange, map, nextId);
+        walkCanonicalTree(
+          child.content,
+          range ?? parentRange,
+          map,
+          nextId,
+          mapOffsetToOriginal,
+          rangeOverride
+        );
       }
     } else if (isParentNode(child)) {
-      walkCanonicalTree(child, parentRange, map, nextId);
+      walkCanonicalTree(child, parentRange, map, nextId, mapOffsetToOriginal, rangeOverride);
     }
   }
 }
