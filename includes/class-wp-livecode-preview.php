@@ -54,6 +54,14 @@ class Preview {
 		self::$post_id = $post_id;
 		self::$is_preview = true;
 
+		// コメントマーカーが <p> で包まれないように wpautop 等を無効化
+		if ( has_filter( 'the_content', 'wpautop' ) ) {
+			remove_filter( 'the_content', 'wpautop' );
+		}
+		if ( has_filter( 'the_content', 'shortcode_unautop' ) ) {
+			remove_filter( 'the_content', 'shortcode_unautop' );
+		}
+
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 			define( 'DONOTCACHEPAGE', true );
 		}

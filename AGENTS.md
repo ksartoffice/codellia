@@ -37,6 +37,7 @@ post_contentに保存するのは“素のHTML（data-lc-idなし）”
 * WPの実フロントを `?lc_preview=1&post_id=...&token=...` で読み込む
 * `lc_preview=1` のときだけ、**編集範囲を示す開始/終了コメント**（例：`<!--wp-livecode:start-->...<!--wp-livecode:end-->`）を用意
 * `postMessage` を受けて コメント間のDOMを `canonicalHTML` で差し替え / `<style>` 差し替え
+* コメントが `<p>` で包まれないように、プレビューモードでは `wpautop` などの自動整形フィルタを外す
 * hover/clickをイベント委譲で拾い、要素の `data-lc-id` を親へ返す
 
 ### 3) WordPress（サーバ側：プレビュー専用モードの提供）
