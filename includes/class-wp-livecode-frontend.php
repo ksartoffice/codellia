@@ -23,7 +23,7 @@ class Frontend {
 			return;
 		}
 
-		$handle = 'wp-livecode-inline';
+		$handle = 'wp-livecode';
 
 		if ( ! wp_style_is( $handle, 'registered' ) ) {
 			wp_register_style( $handle, false, [], WP_LIVECODE_VERSION );
