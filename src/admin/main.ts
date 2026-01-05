@@ -255,6 +255,7 @@ async function main() {
   let canonicalCacheHtml = '';
   let lcSourceMap: Record<string, SourceRange> = {};
   let lastCanonicalError: string | null = null;
+  let selectionDecorations: string[] = [];
 
   const getCanonical = () => {
     const html = htmlModel.getValue();
@@ -303,8 +304,41 @@ async function main() {
 
   const sendRenderDebounced = debounce(sendRender, 120);
 
+  const clearSelectionHighlight = () => {
+    selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
+  };
+
+  const highlightByLcId = (lcId: string) => {
+    const rangeInfo = lcSourceMap[lcId];
+    if (!rangeInfo) {
+      console.warn('[WP LiveCode] No source map for lc-id:', lcId);
+      return;
+    }
+    setActiveTab('html');
+    const startPos = htmlModel.getPositionAt(rangeInfo.startOffset);
+    const endPos = htmlModel.getPositionAt(rangeInfo.endOffset);
+    const monacoRange = new monaco.Range(
+      startPos.lineNumber,
+      startPos.column,
+      endPos.lineNumber,
+      endPos.column
+    );
+    selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, [
+      {
+        range: monacoRange,
+        options: {
+          className: 'lc-highlight-line',
+          inlineClassName: 'lc-highlight-inline',
+        },
+      },
+    ]);
+    editor.revealRangeInCenter(monacoRange, monaco.editor.ScrollType.Smooth);
+    editor.focus();
+  };
+
   htmlModel.onDidChangeContent(() => {
     resetCanonicalCache();
+    clearSelectionHighlight();
     sendRenderDebounced();
   });
   cssModel.onDidChangeContent(sendRenderDebounced);
@@ -358,7 +392,9 @@ async function main() {
       sendRender();
     }
 
-    // data.type === 'LC_SELECT' などは次ステップで実装
+    if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {
+      highlightByLcId(data.lcId);
+    }
   });
 }
 
