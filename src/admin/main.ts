@@ -1,5 +1,7 @@
-// filepath: src/admin/main.ts
+﻿// filepath: src/admin/main.ts
 import './style.css';
+import * as parse5 from 'parse5';
+import type { DefaultTreeAdapterTypes } from 'parse5';
 
 // wp-api-fetch は admin 側でグローバル wp.apiFetch として使える
 declare const wp: any;
@@ -23,6 +25,17 @@ declare global {
 }
 
 type Tab = 'html' | 'css';
+
+type SourceRange = {
+  startOffset: number;
+  endOffset: number;
+};
+
+type CanonicalResult = {
+  canonicalHTML: string;
+  map: Record<string, SourceRange>;
+  error?: string;
+};
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
   const e = document.createElement(tag);
@@ -54,6 +67,87 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
+const LC_ATTR_NAME = 'data-lc-id';
+
+function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
+  return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
+}
+
+function isParentNode(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.ParentNode {
+  return Array.isArray((node as DefaultTreeAdapterTypes.ParentNode).childNodes);
+}
+
+function isTemplateElement(node: DefaultTreeAdapterTypes.Element): node is DefaultTreeAdapterTypes.Template {
+  return node.tagName === 'template' && Boolean((node as DefaultTreeAdapterTypes.Template).content);
+}
+
+function upsertLcAttr(el: DefaultTreeAdapterTypes.Element, lcId: string) {
+  const existing = el.attrs.find((attr) => attr.name === LC_ATTR_NAME);
+  if (existing) {
+    existing.value = lcId;
+  } else {
+    el.attrs.push({ name: LC_ATTR_NAME, value: lcId });
+  }
+}
+
+function resolveRange(
+  loc: DefaultTreeAdapterTypes.Element['sourceCodeLocation'],
+  parentRange: SourceRange | null
+): SourceRange | null {
+  if (loc && typeof loc.startOffset === 'number' && typeof loc.endOffset === 'number') {
+    return { startOffset: loc.startOffset, endOffset: loc.endOffset };
+  }
+  return parentRange ? { ...parentRange } : null;
+}
+
+function walkCanonicalTree(
+  node: DefaultTreeAdapterTypes.ParentNode,
+  parentRange: SourceRange | null,
+  map: Record<string, SourceRange>,
+  nextId: () => string
+) {
+  const children = node.childNodes || [];
+
+  for (const child of children) {
+    if (isElement(child)) {
+      const lcId = nextId();
+      upsertLcAttr(child, lcId);
+      const range = resolveRange(child.sourceCodeLocation, parentRange);
+      if (range) {
+        map[lcId] = range;
+      }
+      walkCanonicalTree(child, range ?? parentRange, map, nextId);
+
+      if (isTemplateElement(child)) {
+        walkCanonicalTree(child.content, range ?? parentRange, map, nextId);
+      }
+    } else if (isParentNode(child)) {
+      walkCanonicalTree(child, parentRange, map, nextId);
+    }
+  }
+}
+
+// canonical HTML を生成しつつ data-lc-id とソース位置のマッピングを保持
+function canonicalizeHtml(html: string): CanonicalResult {
+  try {
+    const fragment = parse5.parseFragment(html, { sourceCodeLocationInfo: true });
+    const map: Record<string, SourceRange> = {};
+    let seq = 0;
+    const nextId = () => `lc-${++seq}`;
+
+    walkCanonicalTree(fragment, null, map, nextId);
+
+    return { canonicalHTML: parse5.serialize(fragment), map };
+  } catch (error: any) {
+    console.error('[WP LiveCode] canonicalizeHtml failed', error);
+    return {
+      canonicalHTML: html,
+      map: {},
+      error: error?.message ?? String(error),
+    };
+  }
+}
+
 function buildLayout(root: HTMLElement) {
   const app = el('div', 'lc-app');
 
@@ -64,7 +158,7 @@ function buildLayout(root: HTMLElement) {
   const btnRedo = el('button', 'button lc-btn');
   btnRedo.textContent = 'Redo';
   const btnSave = el('button', 'button button-primary lc-btn');
-  btnSave.textContent = '保存';
+  btnSave.textContent = 'Save';
   const status = el('span', 'lc-status');
   status.textContent = '';
 
@@ -154,9 +248,28 @@ async function main() {
   ui.tabHtml.addEventListener('click', () => setActiveTab('html'));
   ui.tabCss.addEventListener('click', () => setActiveTab('css'));
 
-  // Preview render (MVP: そのまま送る。canonical化/ソースマップは次工程)
+  // Preview render (canonicalize HTML + keep lc-id -> source map)
   let previewReady = false;
   let pendingRender = false;
+  let canonicalCache: CanonicalResult | null = null;
+  let canonicalCacheHtml = '';
+  let lcSourceMap: Record<string, SourceRange> = {};
+  let lastCanonicalError: string | null = null;
+
+  const getCanonical = () => {
+    const html = htmlModel.getValue();
+    if (canonicalCache && html === canonicalCacheHtml) {
+      return canonicalCache;
+    }
+    canonicalCacheHtml = html;
+    canonicalCache = canonicalizeHtml(html);
+    return canonicalCache;
+  };
+
+  const resetCanonicalCache = () => {
+    canonicalCache = null;
+    canonicalCacheHtml = '';
+  };
 
   const sendInit = () => {
     ui.iframe.contentWindow?.postMessage({
@@ -166,9 +279,19 @@ async function main() {
   };
 
   const sendRender = () => {
+    const canonical = getCanonical();
+    lcSourceMap = canonical.map;
+
+    if (canonical.error && canonical.error !== lastCanonicalError) {
+      console.error('[WP LiveCode] Falling back to raw HTML for preview:', canonical.error);
+      lastCanonicalError = canonical.error;
+    } else if (!canonical.error) {
+      lastCanonicalError = null;
+    }
+
     const payload = {
       type: 'LC_RENDER',
-      canonicalHTML: htmlModel.getValue(),
+      canonicalHTML: canonical.canonicalHTML,
       cssText: cssModel.getValue(),
     };
     if (!previewReady) {
@@ -180,10 +303,13 @@ async function main() {
 
   const sendRenderDebounced = debounce(sendRender, 120);
 
-  htmlModel.onDidChangeContent(sendRenderDebounced);
+  htmlModel.onDidChangeContent(() => {
+    resetCanonicalCache();
+    sendRenderDebounced();
+  });
   cssModel.onDidChangeContent(sendRenderDebounced);
 
-  // 初回：iframe load 後に送る
+  // 初回の iframe load 後に送る
   ui.iframe.addEventListener('load', () => {
     previewReady = false;
     pendingRender = true;
@@ -219,7 +345,7 @@ async function main() {
     }
   });
 
-  // iframe -> parent（次工程のDOMセレクタの受け皿だけ先に用意）
+  // iframe -> parent への通信：DOM セレクタの受け取りや初期化に用いる
   window.addEventListener('message', (event) => {
     if (event.origin !== targetOrigin) return;
     const data = event.data;
@@ -232,7 +358,7 @@ async function main() {
       sendRender();
     }
 
-    // data.type === 'LC_SELECT' などは次工程で実装
+    // data.type === 'LC_SELECT' などは次ステップで実装
   });
 }
 
