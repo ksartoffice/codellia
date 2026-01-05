@@ -35,8 +35,8 @@ post_contentに保存するのは“素のHTML（data-lc-idなし）”
 ### 2) フロント iframe（プレビュー表示 + DOMセレクタ）
 
 * WPの実フロントを `?lc_preview=1&post_id=...&token=...` で読み込む
-* `lc_preview=1` のときだけ、**注入用の固定ルート**（例：`<div id="lc-root"></div>`）を用意
-* `postMessage` を受けて `#lc-root.innerHTML = canonicalHTML` / `<style>` 差し替え
+* `lc_preview=1` のときだけ、**編集範囲を示す開始/終了コメント**（例：`<!--wp-livecode:start-->...<!--wp-livecode:end-->`）を用意
+* `postMessage` を受けて コメント間のDOMを `canonicalHTML` で差し替え / `<style>` 差し替え
 * hover/clickをイベント委譲で拾い、要素の `data-lc-id` を親へ返す
 
 ### 3) WordPress（サーバ側：プレビュー専用モードの提供）
@@ -44,7 +44,7 @@ post_contentに保存するのは“素のHTML（data-lc-idなし）”
 * `lc_preview=1` のときだけ
 
   * 余計なキャッシュや最適化を抑止
-  * `#lc-root` を確実に出す（テーマ差に依存させない）
+  * `<!--wp-livecode:start-->...<!--wp-livecode:end-->` を確実に出す（テーマ差に依存させない）
   * `postMessage` 受信用スクリプトを enqueue
 
 
@@ -74,7 +74,7 @@ monaco editorは npm i monaco-editor して node_modules/monaco-editor/min/vs �
 ### プレビューモードの作り方（あなたのアーキテクチャに沿う）
 
 * フロントURL：`?lc_preview=1&post_id=...&token=...`
-* `lc_preview=1` の時だけ **the_content を `<div id="lc-root"></div>` に差し替え**（テーマ差を最小化）
+* `lc_preview=1` の時だけ **the_content を `<!--wp-livecode:start-->…<!--wp-livecode:end-->` で囲む**（テーマ差を最小化）
   `the_content` フィルタは「メインループ/メインクエリのみ」等の条件付けが重要です。 ([WordPress Developer Resources][1])
 
 ---
@@ -127,9 +127,9 @@ monaco editorは npm i monaco-editor して node_modules/monaco-editor/min/vs �
 * `lc_preview=1` の時は `nocache_headers()` を呼び、プレビューの取り違えを避ける ([WordPress Developer Resources][7])
   （加えて `DONOTCACHEPAGE` 定数なども併用するとより堅いですが、まずは `nocache_headers()` でMVPは十分）
 
-### 3-4. `#lc-root` を確実に出す
+### 3-4. コメントマーカーを確実に出す
 
-* `the_content` を `<div id="lc-root"></div>` に差し替える（メインループ限定） ([WordPress Developer Resources][1])
+* `the_content` を `<!--wp-livecode:start-->...<!--wp-livecode:end-->` で囲む（メインループ限定） ([WordPress Developer Resources][1])
 * さらに `lc_preview` の時だけ、`postMessage` を受けるJSを enqueue
 
 ---
@@ -190,7 +190,7 @@ monaco editorは npm i monaco-editor して node_modules/monaco-editor/min/vs �
 
 あなたの要件だと **「HTMLタブでショートコード利用」＋「ショートコードはブロック単位で1要素扱い」** がポイントですが、注意点があります：
 
-* そのまま `#lc-root.innerHTML = canonicalHTML` すると、**ショートコードは実行されず文字列のまま**になりがちです。
+* コメント区間をそのまま `canonicalHTML` に差し替えると、**ショートコードは実行されず文字列のまま**になりがちです。
 
 ### 現実的な解決策（おすすめ順）
 
@@ -235,13 +235,13 @@ monaco editorは npm i monaco-editor して node_modules/monaco-editor/min/vs �
 
 * `the_content` フィルタで「この投稿がLiveCodeで管理されているなら」HTML/CSSを組み立てて返す
   ※ここも `the_content` の使い方（適用範囲の条件付け）が重要です。 ([WordPress Developer Resources][1])
-* CSSは `<style>` を head/footer に出す（スコープを `#lc-root` や `.lc-content` に寄せると、テーマCSSと衝突しにくい）
+* CSSは `<style>` を head/footer に出す（スコープを `.lc-content` などテーマ側コンテナに寄せると、テーマCSSと衝突しにくい）
 
 ---
 
 ## 11) テスト項目（最低限ここだけは先に潰す）
 
-* テーマ差：`the_content` の位置が崩れないか / `#lc-root` が確実に入るか
+* テーマ差：`the_content` の位置が崩れないか / コメントマーカーが確実に入るか
 * キャッシュ系：`lc_preview=1` で別投稿が出ないか（`nocache_headers` 動作） ([WordPress Developer Resources][7])
 * postMessage：`origin` チェックが正しいか ([MDN Web Docs][8])
 * parse5：不正HTMLでも落ちないか（補正ノードで位置情報が欠けるケース）

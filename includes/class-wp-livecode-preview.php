@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class Preview {
 	private static ?int $post_id = null;
 	private static bool $is_preview = false;
+	private const MARKER_START = 'wp-livecode:start';
+	private const MARKER_END   = 'wp-livecode:end';
 
 	public static function init(): void {
 		add_filter( 'query_vars', [ __CLASS__, 'register_query_vars' ] );
@@ -67,7 +69,12 @@ class Preview {
 			return $content;
 		}
 
-		return '<div id="lc-root"></div>';
+		return sprintf(
+			'<!--%s-->%s<!--%s-->',
+			self::MARKER_START,
+			$content,
+			self::MARKER_END
+		);
 	}
 
 	public static function enqueue_assets(): void {
@@ -87,6 +94,10 @@ class Preview {
 		$payload = [
 			'allowedOrigin' => $admin_origin,
 			'postId'        => self::$post_id,
+			'markers'       => [
+				'start' => self::MARKER_START,
+				'end'   => self::MARKER_END,
+			],
 		];
 
 		wp_add_inline_script(
