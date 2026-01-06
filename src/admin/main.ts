@@ -433,13 +433,15 @@ async function main() {
     ui.status.textContent = 'Saving...';
 
     try {
+      const cssForSave = tailwindEnabled ? '' : cssModel.getValue();
       const res = await wp.apiFetch({
         url: cfg.restUrl,
         method: 'POST',
         data: {
           postId: cfg.postId,
           html: htmlModel.getValue(),
-          css: cssModel.getValue(),
+          css: cssForSave,
+          tailwind: tailwindEnabled,
         },
       });
 

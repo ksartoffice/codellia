@@ -22,6 +22,11 @@ define( 'WP_LIVECODE_VERSION', '1.0.0' );
 define( 'WP_LIVECODE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_LIVECODE_URL', plugin_dir_url( __FILE__ ) );
 
+$autoload = WP_LIVECODE_PATH . 'vendor/autoload.php';
+if ( file_exists( $autoload ) ) {
+	require_once $autoload;
+}
+
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-post-type.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-admin.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-rest.php';
