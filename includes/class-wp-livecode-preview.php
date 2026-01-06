@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class Preview {
 	private static ?int $post_id = null;
 	private static bool $is_preview = false;
+	private const MARKER_START = 'wp-livecode:start';
+	private const MARKER_END   = 'wp-livecode:end';
 
 	public static function init(): void {
 		add_filter( 'query_vars', [ __CLASS__, 'register_query_vars' ] );
@@ -45,12 +47,24 @@ class Preview {
 			wp_die( 'Invalid preview token.' );
 		}
 
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			wp_die( 'Invalid post type.' );
+		}
+
 		if ( ! get_post( $post_id ) ) {
 			wp_die( 'Post not found.' );
 		}
 
 		self::$post_id = $post_id;
 		self::$is_preview = true;
+
+		// コメントマーカーが <p> で包まれないように wpautop 等を無効化
+		if ( has_filter( 'the_content', 'wpautop' ) ) {
+			remove_filter( 'the_content', 'wpautop' );
+		}
+		if ( has_filter( 'the_content', 'shortcode_unautop' ) ) {
+			remove_filter( 'the_content', 'shortcode_unautop' );
+		}
 
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 			define( 'DONOTCACHEPAGE', true );
@@ -67,7 +81,12 @@ class Preview {
 			return $content;
 		}
 
-		return '<div id="lc-root"></div>';
+		return sprintf(
+			'<!--%s-->%s<!--%s-->',
+			self::MARKER_START,
+			$content,
+			self::MARKER_END
+		);
 	}
 
 	public static function enqueue_assets(): void {
@@ -87,6 +106,12 @@ class Preview {
 		$payload = [
 			'allowedOrigin' => $admin_origin,
 			'postId'        => self::$post_id,
+			'markers'       => [
+				'start' => self::MARKER_START,
+				'end'   => self::MARKER_END,
+			],
+			'renderRestUrl' => rest_url( 'wp-livecode/v1/render-shortcodes' ),
+			'restNonce'     => wp_create_nonce( 'wp_rest' ),
 		];
 
 		wp_add_inline_script(

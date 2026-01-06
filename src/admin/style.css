@@ -92,3 +92,13 @@
   height: 100%;
   border: 0;
 }
+
+/* Monaco highlight (DOM selector -> editor) */
+.monaco-editor .lc-highlight-inline {
+  background: rgba(255, 227, 115, 0.45);
+  border-bottom: 1px solid rgba(247, 181, 0, 0.8);
+}
+
+.monaco-editor .lc-highlight-line {
+  background: rgba(255, 227, 115, 0.18);
+}
