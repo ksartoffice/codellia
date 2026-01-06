@@ -823,6 +823,7 @@ async function main() {
   let selectionDecorations: string[] = [];
   let cssSelectionDecorations: string[] = [];
   let lastSelectedLcId: string | null = null;
+  const overviewHighlightColor = 'rgba(96, 165, 250, 0.35)';
 
   const getCanonical = () => {
     const html = htmlModel.getValue();
@@ -940,6 +941,10 @@ async function main() {
           options: {
             className: 'lc-highlight-line',
             inlineClassName: 'lc-highlight-inline',
+            overviewRuler: {
+              color: overviewHighlightColor,
+              position: monaco.editor.OverviewRulerLane.Full,
+            },
           },
         };
       })
@@ -980,6 +985,10 @@ async function main() {
         options: {
           className: 'lc-highlight-line',
           inlineClassName: 'lc-highlight-inline',
+          overviewRuler: {
+            color: overviewHighlightColor,
+            position: monaco.editor.OverviewRulerLane.Full,
+          },
         },
       },
     ]);
