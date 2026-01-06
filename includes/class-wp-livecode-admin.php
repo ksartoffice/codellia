@@ -10,9 +10,6 @@ class Admin {
 		add_action( 'admin_menu', [ __CLASS__, 'register_menu' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 		add_action( 'admin_action_wp_livecode', [ __CLASS__, 'action_redirect' ] ); // admin.php?action=wp_livecode
-		add_filter( 'post_row_actions', [ __CLASS__, 'add_row_action' ], 10, 2 );
-		add_filter( 'page_row_actions', [ __CLASS__, 'add_row_action' ], 10, 2 );
-		add_action( 'add_meta_boxes', [ __CLASS__, 'register_meta_box' ], 10, 2 );
 	}
 
 	/**
@@ -129,48 +126,4 @@ class Admin {
 		);
 	}
 
-	private static function build_editor_url( int $post_id ): string {
-		return add_query_arg(
-			[
-				'action'  => 'wp_livecode',
-				'post_id' => $post_id,
-			],
-			admin_url( 'admin.php' )
-		);
-	}
-
-	public static function add_row_action( array $actions, \WP_Post $post ): array {
-		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
-			return $actions;
-		}
-
-		$url = esc_url( self::build_editor_url( $post->ID ) );
-		$actions['wp_livecode'] = '<a href="' . $url . '">' . esc_html__( 'Edit with WP LiveCode', 'wp-livecode' ) . '</a>';
-
-		return $actions;
-	}
-
-	public static function register_meta_box( string $post_type, \WP_Post $post ): void {
-		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
-			return;
-		}
-		if ( ! post_type_supports( $post_type, 'editor' ) ) {
-			return;
-		}
-
-		add_meta_box(
-			'wp-livecode-meta-box',
-			'WP LiveCode',
-			[ __CLASS__, 'render_meta_box' ],
-			$post_type,
-			'side',
-			'high'
-		);
-	}
-
-	public static function render_meta_box( \WP_Post $post ): void {
-		$url = esc_url( self::build_editor_url( $post->ID ) );
-		echo '<p><a class="button button-primary" href="' . $url . '">Edit in WP LiveCode</a></p>';
-		echo '<p class="description">Open the HTML/CSS live editor for this content.</p>';
-	}
 }
