@@ -17,6 +17,8 @@ declare global {
       previewUrl: string;
       monacoVsPath: string;
       restUrl: string;
+      restCompileUrl: string;
+      tailwindEnabled?: boolean;
       restNonce: string;
     };
     monaco?: MonacoType;
@@ -199,10 +201,17 @@ function buildLayout(root: HTMLElement) {
   btnRedo.textContent = 'Redo';
   const btnSave = el('button', 'button button-primary lc-btn');
   btnSave.textContent = 'Save';
+  const tailwindToggle = el('label', 'lc-toggle');
+  const tailwindCheckbox = document.createElement('input');
+  tailwindCheckbox.type = 'checkbox';
+  tailwindCheckbox.className = 'lc-toggleCheckbox';
+  const tailwindLabel = el('span', 'lc-toggleLabel');
+  tailwindLabel.textContent = 'TailwindCSS: Off';
+  tailwindToggle.append(tailwindCheckbox, tailwindLabel);
   const status = el('span', 'lc-status');
   status.textContent = '';
 
-  toolbar.append(btnUndo, btnRedo, btnSave, status);
+  toolbar.append(btnUndo, btnRedo, btnSave, tailwindToggle, status);
 
   // Main split
   const main = el('div', 'lc-main');
@@ -236,7 +245,19 @@ function buildLayout(root: HTMLElement) {
   app.append(toolbar, main);
   root.append(app);
 
-  return { btnUndo, btnRedo, btnSave, status, tabHtml, tabCss, editorDiv, iframe };
+  return {
+    btnUndo,
+    btnRedo,
+    btnSave,
+    tailwindCheckbox,
+    tailwindLabel,
+    tailwindToggle,
+    status,
+    tabHtml,
+    tabCss,
+    editorDiv,
+    iframe,
+  };
 }
 
 async function main() {
@@ -263,6 +284,12 @@ async function main() {
   const cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
 
   let activeTab: Tab = 'html';
+  let tailwindEnabled = false;
+  let tailwindCss = '';
+  let tailwindCompileToken = 0;
+  let tailwindCompileInFlight = false;
+  let tailwindCompileQueued = false;
+  let saveInProgress = false;
 
   const editor = monaco.editor.create(ui.editorDiv, {
     model: htmlModel,
@@ -285,8 +312,93 @@ async function main() {
     editor.focus();
   }
 
+  const setStatus = (text: string) => {
+    if (saveInProgress && text === '') {
+      return;
+    }
+    ui.status.textContent = text;
+  };
+
+  const getPreviewCss = () => (tailwindEnabled ? tailwindCss : cssModel.getValue());
+
+  const compileTailwind = async () => {
+    if (!tailwindEnabled) return;
+    if (tailwindCompileInFlight) {
+      tailwindCompileQueued = true;
+      return;
+    }
+    tailwindCompileInFlight = true;
+    tailwindCompileQueued = false;
+    const currentToken = ++tailwindCompileToken;
+
+    try {
+      const res = await wp.apiFetch({
+        url: cfg.restCompileUrl,
+        method: 'POST',
+        data: {
+          postId: cfg.postId,
+          html: htmlModel.getValue(),
+        },
+      });
+
+      if (currentToken !== tailwindCompileToken) {
+        return;
+      }
+      if (!tailwindEnabled) {
+        return;
+      }
+
+      if (res?.ok && typeof res.css === 'string') {
+        tailwindCss = res.css;
+        if (!saveInProgress) {
+          setStatus('');
+        }
+        sendRender();
+      } else {
+        setStatus('Tailwind compile failed.');
+      }
+    } catch (e: any) {
+      if (currentToken !== tailwindCompileToken) {
+        return;
+      }
+      setStatus(`Tailwind error: ${e?.message ?? e}`);
+    } finally {
+      if (currentToken === tailwindCompileToken) {
+        tailwindCompileInFlight = false;
+      }
+      if (tailwindEnabled && tailwindCompileQueued) {
+        tailwindCompileQueued = false;
+        compileTailwindDebounced();
+      }
+    }
+  };
+
+  const compileTailwindDebounced = debounce(compileTailwind, 300);
+
+  const setTailwindEnabled = (enabled: boolean) => {
+    tailwindEnabled = enabled;
+    ui.tailwindCheckbox.checked = enabled;
+    ui.tabCss.classList.toggle('is-hidden', enabled);
+    ui.tailwindToggle.classList.toggle('is-on', enabled);
+    ui.tailwindLabel.textContent = enabled ? 'TailwindCSS: On' : 'TailwindCSS: Off';
+    if (enabled && activeTab === 'css') {
+      setActiveTab('html');
+    }
+    if (enabled) {
+      tailwindCss = cssModel.getValue();
+      sendRender();
+      compileTailwind();
+    } else {
+      sendRender();
+    }
+  };
+
   ui.tabHtml.addEventListener('click', () => setActiveTab('html'));
   ui.tabCss.addEventListener('click', () => setActiveTab('css'));
+  ui.tailwindCheckbox.addEventListener('change', (event) => {
+    const checked = (event.target as HTMLInputElement)?.checked ?? false;
+    setTailwindEnabled(checked);
+  });
 
   // Preview render (canonicalize HTML + keep lc-id -> source map)
   let previewReady = false;
@@ -333,7 +445,7 @@ async function main() {
     const payload = {
       type: 'LC_RENDER',
       canonicalHTML: canonical.canonicalHTML,
-      cssText: cssModel.getValue(),
+      cssText: getPreviewCss(),
     };
     if (!previewReady) {
       pendingRender = true;
@@ -343,6 +455,7 @@ async function main() {
   };
 
   const sendRenderDebounced = debounce(sendRender, 120);
+  setTailwindEnabled(Boolean(cfg.tailwindEnabled));
 
   const clearSelectionHighlight = () => {
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
@@ -380,6 +493,9 @@ async function main() {
     resetCanonicalCache();
     clearSelectionHighlight();
     sendRenderDebounced();
+    if (tailwindEnabled) {
+      compileTailwindDebounced();
+    }
   });
   cssModel.onDidChangeContent(sendRenderDebounced);
 
@@ -395,27 +511,36 @@ async function main() {
   ui.btnRedo.addEventListener('click', () => editor.trigger('toolbar', 'redo', null));
 
   ui.btnSave.addEventListener('click', async () => {
+    saveInProgress = true;
     ui.status.textContent = 'Saving...';
 
     try {
+      const cssForSave = tailwindEnabled ? '' : cssModel.getValue();
       const res = await wp.apiFetch({
         url: cfg.restUrl,
         method: 'POST',
         data: {
           postId: cfg.postId,
           html: htmlModel.getValue(),
-          css: cssModel.getValue(),
+          css: cssForSave,
+          tailwind: tailwindEnabled,
         },
       });
 
       if (res?.ok) {
         ui.status.textContent = 'Saved.';
-        window.setTimeout(() => (ui.status.textContent = ''), 1200);
+        window.setTimeout(() => {
+          if (!tailwindCompileInFlight) {
+            ui.status.textContent = '';
+          }
+        }, 1200);
       } else {
         ui.status.textContent = 'Save failed.';
       }
     } catch (e: any) {
       ui.status.textContent = `Save error: ${e?.message ?? e}`;
+    } finally {
+      saveInProgress = false;
     }
   });
 

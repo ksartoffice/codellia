@@ -1,6 +1,8 @@
 <?php
 namespace WPLiveCode;
 
+use TailwindPHP\tw;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Rest {
@@ -30,6 +32,22 @@ class Rest {
 				],
 			],
 		] );
+
+		register_rest_route( 'wp-livecode/v1', '/compile-tailwind', [
+			'methods'             => 'POST',
+			'callback'            => [ __CLASS__, 'compile_tailwind' ],
+			'permission_callback' => [ __CLASS__, 'permission_check' ],
+			'args'                => [
+				'postId' => [
+					'type'     => 'integer',
+					'required' => true,
+				],
+				'html'   => [
+					'type'     => 'string',
+					'required' => true,
+				],
+			],
+		] );
 	}
 
 	public static function permission_check( \WP_REST_Request $request ): bool {
@@ -47,6 +65,7 @@ class Rest {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$html    = (string) $request->get_param( 'html' );
 		$css     = (string) $request->get_param( 'css' );
+		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwind' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
 			return new \WP_REST_Response( [
@@ -67,9 +86,53 @@ class Rest {
 			], 400 );
 		}
 
+		if ( $tailwind_enabled ) {
+			try {
+				$css = tw::generate( [
+					'content' => $html,
+					'css'     => '@import "tailwindcss";',
+				] );
+			} catch ( \Throwable $e ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+				], 500 );
+			}
+		}
+
 		update_post_meta( $post_id, '_lc_css', $css );
+		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 
 		return new \WP_REST_Response( [ 'ok' => true ], 200 );
+	}
+
+	public static function compile_tailwind( \WP_REST_Request $request ): \WP_REST_Response {
+		$post_id = absint( $request->get_param( 'postId' ) );
+		$html    = (string) $request->get_param( 'html' );
+
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			return new \WP_REST_Response( [
+				'ok'    => false,
+				'error' => 'Invalid post type.',
+			], 400 );
+		}
+
+		try {
+			$css = tw::generate( [
+				'content' => $html,
+				'css'     => '@import "tailwindcss";',
+			] );
+		} catch ( \Throwable $e ) {
+			return new \WP_REST_Response( [
+				'ok'    => false,
+				'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+			], 500 );
+		}
+
+		return new \WP_REST_Response( [
+			'ok'  => true,
+			'css' => $css,
+		], 200 );
 	}
 
 	/**
