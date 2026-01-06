@@ -274,6 +274,11 @@ body.admin_page_wp-livecode #wpbody-content {
   user-select: none;
 }
 
+.lc-app.is-resizing .lc-left,
+.lc-app.is-resizing .lc-resizer {
+  transition: none;
+}
+
 .lc-editorPane {
   flex: 1;
   min-height: 0;
