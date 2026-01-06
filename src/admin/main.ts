@@ -56,6 +56,30 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
   return e;
 }
 
+const ICONS = {
+  back: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>',
+  undo: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>',
+  redo: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo2-icon lucide-redo-2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg>',
+  save: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save-icon lucide-save"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>',
+  settings: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
+};
+
+function applyIconLabel(
+  target: HTMLElement,
+  label: string,
+  svg: string,
+  stacked = false
+) {
+  const icon = el('span', 'lc-btnIcon');
+  icon.innerHTML = svg;
+  const text = el('span', 'lc-btnLabel');
+  text.textContent = label;
+  target.append(icon, text);
+  if (stacked) {
+    target.classList.add('lc-btn-stack');
+  }
+}
+
 function createSettingRow(label: string, value: string, href?: string) {
   const row = el('div', 'lc-settingRow');
   const labelEl = el('div', 'lc-settingLabel');
@@ -224,17 +248,17 @@ function buildLayout(root: HTMLElement) {
   const toolbarRight = el('div', 'lc-toolbarGroup lc-toolbarRight');
 
   const backLink = el('a', 'lc-btn lc-btn-back');
-  backLink.textContent = 'Back to WordPress';
+  applyIconLabel(backLink, 'Back to WordPress', ICONS.back);
 
   const btnUndo = el('button', 'lc-btn');
   btnUndo.type = 'button';
-  btnUndo.textContent = 'Undo';
+  applyIconLabel(btnUndo, 'Undo', ICONS.undo, true);
   const btnRedo = el('button', 'lc-btn');
   btnRedo.type = 'button';
-  btnRedo.textContent = 'Redo';
+  applyIconLabel(btnRedo, 'Redo', ICONS.redo, true);
   const btnSave = el('button', 'lc-btn lc-btn-primary');
   btnSave.type = 'button';
-  btnSave.textContent = 'Save';
+  applyIconLabel(btnSave, 'Save', ICONS.save, true);
   const tailwindToggle = el('label', 'lc-toggle');
   const tailwindCheckbox = document.createElement('input');
   tailwindCheckbox.type = 'checkbox';
@@ -244,7 +268,7 @@ function buildLayout(root: HTMLElement) {
   tailwindToggle.append(tailwindCheckbox, tailwindLabel);
   const btnSettings = el('button', 'lc-btn lc-btn-settings');
   btnSettings.type = 'button';
-  btnSettings.textContent = 'Settings';
+  applyIconLabel(btnSettings, 'Settings', ICONS.settings, true);
   btnSettings.setAttribute('aria-expanded', 'false');
   btnSettings.setAttribute('aria-controls', 'lc-settings');
   const status = el('span', 'lc-status');
