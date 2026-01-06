@@ -35,6 +35,13 @@ type SourceRange = {
   endOffset: number;
 };
 
+type CssRuleInfo = {
+  selectorText: string;
+  startOffset: number;
+  endOffset: number;
+  mediaQueries: string[];
+};
+
 type ShortcodePlaceholder = {
   id: string;
   shortcode: string;
@@ -224,6 +231,224 @@ function canonicalizeHtml(html: string): CanonicalResult {
       error: error?.message ?? String(error),
     };
   }
+}
+
+function splitSelectors(selectorText: string): string[] {
+  const result: string[] = [];
+  let buffer = '';
+  let inString: string | null = null;
+  let parenDepth = 0;
+  let bracketDepth = 0;
+
+  for (let i = 0; i < selectorText.length; i++) {
+    const char = selectorText[i];
+    if (inString) {
+      if (char === '\\') {
+        buffer += char;
+        i += 1;
+        if (i < selectorText.length) {
+          buffer += selectorText[i];
+        }
+        continue;
+      }
+      if (char === inString) {
+        inString = null;
+      }
+      buffer += char;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      inString = char;
+      buffer += char;
+      continue;
+    }
+
+    if (char === '(') {
+      parenDepth += 1;
+      buffer += char;
+      continue;
+    }
+
+    if (char === ')') {
+      parenDepth = Math.max(0, parenDepth - 1);
+      buffer += char;
+      continue;
+    }
+
+    if (char === '[') {
+      bracketDepth += 1;
+      buffer += char;
+      continue;
+    }
+
+    if (char === ']') {
+      bracketDepth = Math.max(0, bracketDepth - 1);
+      buffer += char;
+      continue;
+    }
+
+    if (char === ',' && parenDepth === 0 && bracketDepth === 0) {
+      const trimmed = buffer.trim();
+      if (trimmed) {
+        result.push(trimmed);
+      }
+      buffer = '';
+      continue;
+    }
+
+    buffer += char;
+  }
+
+  const trimmed = buffer.trim();
+  if (trimmed) {
+    result.push(trimmed);
+  }
+
+  return result;
+}
+
+function parseCssRules(cssText: string): CssRuleInfo[] {
+  const rules: CssRuleInfo[] = [];
+  const stack: Array<{
+    type: 'rule' | 'at-rule';
+    selectorText?: string;
+    startOffset: number;
+    atRuleName?: string;
+    mediaQueries?: string[];
+  }> = [];
+  const mediaStack: string[] = [];
+  let preludeStart = 0;
+  let inComment = false;
+  let inString: string | null = null;
+  let ruleDepth = 0;
+
+  const pushRule = (selectorText: string, startOffset: number) => {
+    stack.push({
+      type: 'rule',
+      selectorText,
+      startOffset,
+      mediaQueries: [...mediaStack],
+    });
+    ruleDepth += 1;
+  };
+
+  const pushAtRule = (name: string, startOffset: number, params: string) => {
+    stack.push({ type: 'at-rule', atRuleName: name, startOffset });
+    if (name === 'media') {
+      mediaStack.push(params.trim());
+    }
+  };
+
+  for (let i = 0; i < cssText.length; i++) {
+    const char = cssText[i];
+    const next = cssText[i + 1];
+
+    if (inComment) {
+      if (char === '*' && next === '/') {
+        inComment = false;
+        i += 1;
+      }
+      continue;
+    }
+
+    if (inString) {
+      if (char === '\\') {
+        i += 1;
+        continue;
+      }
+      if (char === inString) {
+        inString = null;
+      }
+      continue;
+    }
+
+    if (char === '/' && next === '*') {
+      inComment = true;
+      i += 1;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      inString = char;
+      continue;
+    }
+
+    if (char === '{') {
+      const prelude = cssText.slice(preludeStart, i).trim();
+      if (prelude) {
+        if (prelude.startsWith('@')) {
+          const match = /^@([\w-]+)\s*(.*)$/.exec(prelude);
+          const name = match ? match[1].toLowerCase() : '';
+          const params = match ? match[2] : '';
+          pushAtRule(name, preludeStart, params);
+        } else {
+          pushRule(prelude, preludeStart);
+        }
+      } else {
+        stack.push({ type: 'at-rule', atRuleName: '', startOffset: preludeStart });
+      }
+      preludeStart = i + 1;
+      continue;
+    }
+
+    if (char === '}') {
+      const ctx = stack.pop();
+      if (ctx?.type === 'rule') {
+        ruleDepth = Math.max(0, ruleDepth - 1);
+        rules.push({
+          selectorText: ctx.selectorText || '',
+          startOffset: ctx.startOffset,
+          endOffset: i + 1,
+          mediaQueries: ctx.mediaQueries || [],
+        });
+      } else if (ctx?.type === 'at-rule' && ctx.atRuleName === 'media') {
+        mediaStack.pop();
+      }
+      preludeStart = i + 1;
+      continue;
+    }
+
+    if (char === ';' && ruleDepth === 0) {
+      preludeStart = i + 1;
+      continue;
+    }
+  }
+
+  return rules;
+}
+
+function selectorMatches(element: Element, selector: string): boolean {
+  const trimmed = selector.trim();
+  if (!trimmed) return false;
+  try {
+    return element.matches(trimmed);
+  } catch (error) {
+    const cleaned = trimmed.replace(
+      /::?(before|after|first-line|first-letter|selection|placeholder|marker|backdrop|file-selector-button|cue|part\([^)]*\)|slotted\([^)]*\))/gi,
+      ''
+    );
+    if (cleaned !== trimmed) {
+      try {
+        return element.matches(cleaned);
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  }
+}
+
+function mediaQueriesMatch(queries: string[]): boolean {
+  if (!queries.length) return true;
+  return queries.every((query) => {
+    if (!query) return true;
+    try {
+      return window.matchMedia(query).matches;
+    } catch {
+      return true;
+    }
+  });
 }
 
 function buildLayout(root: HTMLElement) {
@@ -591,9 +816,14 @@ async function main() {
   let pendingRender = false;
   let canonicalCache: CanonicalResult | null = null;
   let canonicalCacheHtml = '';
+  let canonicalDomCacheHtml = '';
+  let canonicalDomRoot: HTMLElement | null = null;
   let lcSourceMap: Record<string, SourceRange> = {};
   let lastCanonicalError: string | null = null;
   let selectionDecorations: string[] = [];
+  let cssSelectionDecorations: string[] = [];
+  let lastSelectedLcId: string | null = null;
+  const overviewHighlightColor = 'rgba(96, 165, 250, 0.35)';
 
   const getCanonical = () => {
     const html = htmlModel.getValue();
@@ -608,6 +838,22 @@ async function main() {
   const resetCanonicalCache = () => {
     canonicalCache = null;
     canonicalCacheHtml = '';
+    canonicalDomCacheHtml = '';
+    canonicalDomRoot = null;
+  };
+
+  const getCanonicalDomRoot = () => {
+    const canonical = getCanonical();
+    if (canonicalDomRoot && canonical.canonicalHTML === canonicalDomCacheHtml) {
+      return canonicalDomRoot;
+    }
+    const doc = document.implementation.createHTMLDocument('');
+    const wrapper = doc.createElement('div');
+    wrapper.innerHTML = canonical.canonicalHTML || '';
+    doc.body.appendChild(wrapper);
+    canonicalDomCacheHtml = canonical.canonicalHTML || '';
+    canonicalDomRoot = wrapper;
+    return wrapper;
   };
 
   const sendInit = () => {
@@ -645,6 +891,76 @@ async function main() {
 
   const clearSelectionHighlight = () => {
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
+    cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
+  };
+
+  const clearCssSelectionHighlight = () => {
+    cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
+  };
+
+  const highlightCssByLcId = (lcId: string) => {
+    lastSelectedLcId = lcId;
+    if (tailwindEnabled) {
+      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
+      return;
+    }
+    const cssText = cssModel.getValue();
+    if (!cssText.trim()) {
+      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
+      return;
+    }
+    const root = getCanonicalDomRoot();
+    const target = root?.querySelector(`[${LC_ATTR_NAME}="${lcId}"]`);
+    if (!target) {
+      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
+      return;
+    }
+    const rules = parseCssRules(cssText);
+    const matched = rules.filter((rule) => {
+      if (!mediaQueriesMatch(rule.mediaQueries)) return false;
+      const cleanedSelectorText = rule.selectorText.replace(/\/\*[\s\S]*?\*\//g, ' ');
+      const selectors = splitSelectors(cleanedSelectorText);
+      return selectors.some((selector) => selectorMatches(target, selector));
+    });
+    if (!matched.length) {
+      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
+      return;
+    }
+    cssSelectionDecorations = cssModel.deltaDecorations(
+      cssSelectionDecorations,
+      matched.map((rule) => {
+        const startPos = cssModel.getPositionAt(rule.startOffset);
+        const endPos = cssModel.getPositionAt(rule.endOffset);
+        return {
+          range: new monaco.Range(
+            startPos.lineNumber,
+            startPos.column,
+            endPos.lineNumber,
+            endPos.column
+          ),
+          options: {
+            className: 'lc-highlight-line',
+            inlineClassName: 'lc-highlight-inline',
+            overviewRuler: {
+              color: overviewHighlightColor,
+              position: monaco.editor.OverviewRulerLane.Full,
+            },
+          },
+        };
+      })
+    );
+    const first = matched[0];
+    if (first) {
+      const startPos = cssModel.getPositionAt(first.startOffset);
+      const endPos = cssModel.getPositionAt(first.endOffset);
+      const range = new monaco.Range(
+        startPos.lineNumber,
+        startPos.column,
+        endPos.lineNumber,
+        endPos.column
+      );
+      cssEditor.revealRangeInCenter(range, monaco.editor.ScrollType.Smooth);
+    }
   };
 
   const highlightByLcId = (lcId: string) => {
@@ -669,11 +985,16 @@ async function main() {
         options: {
           className: 'lc-highlight-line',
           inlineClassName: 'lc-highlight-inline',
+          overviewRuler: {
+            color: overviewHighlightColor,
+            position: monaco.editor.OverviewRulerLane.Full,
+          },
         },
       },
     ]);
     htmlEditor.revealRangeInCenter(monacoRange, monaco.editor.ScrollType.Smooth);
     htmlEditor.focus();
+    highlightCssByLcId(lcId);
   };
 
   htmlModel.onDidChangeContent(() => {
@@ -684,7 +1005,11 @@ async function main() {
       compileTailwindDebounced();
     }
   });
-  cssModel.onDidChangeContent(sendRenderDebounced);
+  cssModel.onDidChangeContent(() => {
+    sendRenderDebounced();
+    selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
+    clearCssSelectionHighlight();
+  });
 
   // 初回の iframe load 後に送る
   ui.iframe.addEventListener('load', () => {
