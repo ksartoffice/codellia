@@ -1,6 +1,8 @@
 <?php
 namespace WPLiveCode;
 
+use TailwindPHP\tw;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Frontend {
@@ -48,7 +50,27 @@ class Frontend {
 			return;
 		}
 
-		$css = (string) get_post_meta( $post_id, '_lc_css', true );
+		$is_tailwind = get_post_meta( $post_id, '_lc_tailwind', true ) === '1';
+		$stored_css  = (string) get_post_meta( $post_id, '_lc_css', true );
+		$css         = $stored_css;
+
+		$has_unescaped_arbitrary = $stored_css !== '' && strpos( $stored_css, '-[' ) !== false && strpos( $stored_css, '-\\[' ) === false;
+		$should_compile          = $is_tailwind || $has_unescaped_arbitrary;
+
+		if ( $should_compile ) {
+			$post = get_post( $post_id );
+			if ( $post instanceof \WP_Post ) {
+				try {
+					$css = tw::generate( [
+						'content' => (string) $post->post_content,
+						'css'     => '@import "tailwindcss";',
+					] );
+				} catch ( \Throwable $e ) {
+					$css = $stored_css;
+				}
+			}
+		}
+
 		if ( $css === '' ) {
 			return;
 		}

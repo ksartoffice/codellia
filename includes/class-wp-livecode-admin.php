@@ -122,6 +122,8 @@ class Admin {
 			'previewUrl'   => $preview_url,
 			'monacoVsPath' => WP_LIVECODE_URL . 'assets/monaco/vs',
 			'restUrl'      => rest_url( 'wp-livecode/v1/save' ),
+			'restCompileUrl' => rest_url( 'wp-livecode/v1/compile-tailwind' ),
+			'tailwindEnabled' => (bool) get_post_meta( $post_id, '_lc_tailwind', true ),
 			'restNonce'    => wp_create_nonce( 'wp_rest' ),
 		];
 
