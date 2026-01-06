@@ -1,5 +1,6 @@
 ﻿// filepath: src/admin/main.ts
 import './style.css';
+import { emmetCSS, emmetHTML } from 'emmet-monaco-es';
 import * as parse5 from 'parse5';
 import type { DefaultTreeAdapterTypes } from 'parse5';
 import { initSettings, type SettingsData } from './settings';
@@ -594,6 +595,9 @@ async function main() {
   // Monaco
   ui.status.textContent = 'Loading Monaco...';
   const monaco = await loadMonaco(cfg.monacoVsPath);
+
+  emmetHTML(monaco, ['html']);
+  emmetCSS(monaco, ['css']);
 
   const htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
   const cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
