@@ -282,6 +282,7 @@ function buildLayout(root: HTMLElement) {
   // Main split
   const main = el('div', 'lc-main');
   const left = el('div', 'lc-left');
+  const resizer = el('div', 'lc-resizer');
   const right = el('div', 'lc-right');
   const settings = el('aside', 'lc-settings');
   settings.id = 'lc-settings';
@@ -316,7 +317,7 @@ function buildLayout(root: HTMLElement) {
   iframe.referrerPolicy = 'no-referrer-when-downgrade';
   right.append(iframe);
 
-  main.append(left, right, settings);
+  main.append(left, resizer, right, settings);
   app.append(toolbar, main);
   root.append(app);
 
@@ -335,6 +336,10 @@ function buildLayout(root: HTMLElement) {
     cssEditorDiv,
     htmlPane,
     cssPane,
+    main,
+    left,
+    right,
+    resizer,
     iframe,
     settings,
     settingsBody,
@@ -348,6 +353,8 @@ async function main() {
 
   const ui = buildLayout(mount);
   ui.backLink.href = cfg.backUrl || '/wp-admin/';
+  ui.resizer.setAttribute('role', 'separator');
+  ui.resizer.setAttribute('aria-orientation', 'vertical');
 
   // REST nonce middleware
   if (wp?.apiFetch?.createNonceMiddleware) {
@@ -405,6 +412,55 @@ async function main() {
   ui.cssPane.addEventListener('click', () => cssEditor.focus());
   htmlEditor.onDidFocusEditorText(() => setActiveEditor(htmlEditor, ui.htmlPane));
   cssEditor.onDidFocusEditorText(() => setActiveEditor(cssEditor, ui.cssPane));
+
+  const minLeftWidth = 320;
+  const minRightWidth = 360;
+  let isResizing = false;
+  let startX = 0;
+  let startWidth = 0;
+
+  const setLeftWidth = (width: number) => {
+    const clamped = Math.max(minLeftWidth, width);
+    ui.left.style.flex = `0 0 ${clamped}px`;
+    ui.left.style.width = `${clamped}px`;
+  };
+
+  const onPointerMove = (event: PointerEvent) => {
+    if (!isResizing) return;
+    const mainRect = ui.main.getBoundingClientRect();
+    const settingsWidth = ui.settings.getBoundingClientRect().width;
+    const resizerWidth = ui.resizer.getBoundingClientRect().width;
+    const available = mainRect.width - settingsWidth - resizerWidth;
+    const maxLeftWidth = Math.max(minLeftWidth, available - minRightWidth);
+    const nextWidth = Math.min(maxLeftWidth, Math.max(minLeftWidth, startWidth + event.clientX - startX));
+    setLeftWidth(nextWidth);
+  };
+
+  const stopResizing = (event?: PointerEvent) => {
+    if (!isResizing) return;
+    isResizing = false;
+    ui.app.classList.remove('is-resizing');
+    if (event) {
+      try {
+        ui.resizer.releasePointerCapture(event.pointerId);
+      } catch {
+        // Ignore if pointer capture isn't active.
+      }
+    }
+  };
+
+  ui.resizer.addEventListener('pointerdown', (event) => {
+    isResizing = true;
+    startX = event.clientX;
+    startWidth = ui.left.getBoundingClientRect().width;
+    ui.app.classList.add('is-resizing');
+    ui.resizer.setPointerCapture(event.pointerId);
+  });
+
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', stopResizing);
+  ui.resizer.addEventListener('pointerup', stopResizing);
+  ui.resizer.addEventListener('pointercancel', stopResizing);
 
   const setStatus = (text: string) => {
     if (saveInProgress && text === '') {

@@ -219,11 +219,37 @@ body.admin_page_wp-livecode #wpbody-content {
 }
 
 .lc-left {
-  border-right: 1px solid #2b2f38;
   display: flex;
   flex-direction: column;
   min-width: 360px;
   background: #181b22;
+}
+
+.lc-resizer {
+  width: 6px;
+  cursor: col-resize;
+  background: #111318;
+  position: relative;
+}
+
+.lc-resizer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 2px;
+  background: #2b2f38;
+  transition: background 0.2s ease;
+}
+
+.lc-resizer:hover::before {
+  background: #4c84ff;
+}
+
+.lc-app.is-resizing,
+.lc-app.is-resizing * {
+  user-select: none;
 }
 
 .lc-editorPane {
@@ -375,6 +401,10 @@ body.admin_page_wp-livecode #wpbody-content {
     min-width: 0;
     border-right: 0;
     border-bottom: 1px solid #2b2f38;
+  }
+
+  .lc-resizer {
+    display: none;
   }
 
   .lc-right {
