@@ -2,6 +2,7 @@
 import './style.css';
 import * as parse5 from 'parse5';
 import type { DefaultTreeAdapterTypes } from 'parse5';
+import { initSettings, type SettingsData } from './settings';
 
 // wp-api-fetch は admin 側でグローバル wp.apiFetch として使える
 declare const wp: any;
@@ -18,11 +19,9 @@ declare global {
       monacoVsPath: string;
       restUrl: string;
       restCompileUrl: string;
+      settingsRestUrl: string;
+      settingsData: SettingsData;
       backUrl?: string;
-      postTitle?: string;
-      postStatus?: string;
-      postSlug?: string;
-      viewUrl?: string;
       tailwindEnabled?: boolean;
       restNonce: string;
     };
@@ -80,26 +79,6 @@ function applyIconLabel(
   }
 }
 
-function createSettingRow(label: string, value: string, href?: string) {
-  const row = el('div', 'lc-settingRow');
-  const labelEl = el('div', 'lc-settingLabel');
-  labelEl.textContent = label;
-  const valueEl = el('div', 'lc-settingValue');
-
-  if (href) {
-    const link = document.createElement('a');
-    link.href = href;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    link.textContent = value;
-    valueEl.append(link);
-  } else {
-    valueEl.textContent = value;
-  }
-
-  row.append(labelEl, valueEl);
-  return row;
-}
 
 // filepath: src/admin/main.ts
 async function loadMonaco(vsPath: string): Promise<MonacoType> {
@@ -360,6 +339,15 @@ async function main() {
   if (wp?.apiFetch?.createNonceMiddleware) {
     wp.apiFetch.use(wp.apiFetch.createNonceMiddleware(cfg.restNonce));
   }
+
+  initSettings({
+    container: ui.settingsBody,
+    data: cfg.settingsData,
+    restUrl: cfg.settingsRestUrl,
+    postId: cfg.postId,
+    backUrl: cfg.backUrl,
+    apiFetch: wp?.apiFetch,
+  });
 
   // iframe
   ui.iframe.src = cfg.previewUrl;
@@ -711,23 +699,6 @@ async function main() {
       highlightByLcId(data.lcId);
     }
   });
-
-  const settingsTitle = cfg.postTitle?.trim() || 'Untitled';
-  const settingsStatus = cfg.postStatus || '-';
-  const settingsSlug = cfg.postSlug || '-';
-  const settingsPostId = String(cfg.postId ?? '-');
-  const viewUrl = cfg.viewUrl || '';
-
-  ui.settingsBody.append(
-    createSettingRow('Title', settingsTitle),
-    createSettingRow('Status', settingsStatus),
-    createSettingRow('Slug', settingsSlug),
-    createSettingRow('Post ID', settingsPostId)
-  );
-
-  if (viewUrl) {
-    ui.settingsBody.append(createSettingRow('View', 'Open', viewUrl));
-  }
 
   let settingsOpen = false;
   const setSettingsOpen = (open: boolean) => {

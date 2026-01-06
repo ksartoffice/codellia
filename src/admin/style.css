@@ -350,32 +350,262 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 12px;
 }
 
-.lc-settingRow {
+.lc-settingsSection {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #242a34;
 }
 
-.lc-settingLabel {
-  font-size: 10px;
+.lc-settingsSection:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.lc-settingsSectionTitle {
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: #8f96a2;
 }
 
-.lc-settingValue {
-  font-size: 13px;
+.lc-settingsItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #1a1f27;
+  border: 1px solid #242a34;
+}
+
+.lc-settingsItem.is-clickable {
+  cursor: pointer;
+}
+
+.lc-settingsItem.is-clickable:hover {
+  border-color: #3a4252;
+  background: #202734;
+}
+
+.lc-settingsItemLabel {
+  font-size: 12px;
+  color: #c9cdd6;
+}
+
+.lc-settingsItemValue {
+  font-size: 12px;
+  color: #8f96a2;
+  text-align: right;
+}
+
+.lc-settingsItemValue img {
+  max-width: 72px;
+  max-height: 54px;
+  border-radius: 6px;
+  border: 1px solid #2a313d;
+}
+
+.lc-chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.lc-chip {
+  background: #2a303b;
+  border: 1px solid #353d4a;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  color: #d1d6df;
+}
+
+.lc-chipEmpty {
+  font-size: 11px;
+  color: #6c7480;
+}
+
+.lc-featureThumb {
+  max-width: 72px;
+  max-height: 54px;
+  border-radius: 6px;
+  border: 1px solid #2a313d;
+}
+
+.lc-settingsTrash {
+  justify-content: center;
+  margin-top: 4px;
+  border: 1px solid #a53838;
+  background: transparent;
+  color: #ffb4b4;
+}
+
+.lc-settingsTrash:hover {
+  background: rgba(165, 56, 56, 0.2);
+}
+
+.lc-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.lc-modalBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 12, 0.72);
+}
+
+.lc-modalDialog {
+  position: relative;
+  z-index: 1;
+  width: min(520px, 92vw);
+  background: #1a1f27;
+  border-radius: 12px;
+  border: 1px solid #2b3340;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.lc-modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2b3340;
+}
+
+.lc-modalTitle {
+  font-size: 14px;
+  font-weight: 600;
   color: #e6e8ea;
-  word-break: break-word;
 }
 
-.lc-settingValue a {
-  color: #6aa9ff;
-  text-decoration: none;
+.lc-modalClose {
+  background: transparent;
+  border: 0;
+  color: #9aa1ab;
+  font-size: 22px;
+  cursor: pointer;
 }
 
-.lc-settingValue a:hover {
-  text-decoration: underline;
+.lc-modalBody {
+  padding: 16px;
+  overflow: auto;
+}
+
+.lc-modalFooter,
+.lc-modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px 16px;
+}
+
+.lc-modalError {
+  color: #ff9a9a;
+  padding: 0 16px;
+  font-size: 12px;
+}
+
+.lc-modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lc-formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-formLabel {
+  font-size: 12px;
+  color: #c6cbd5;
+}
+
+.lc-formInput,
+.lc-formSelect {
+  background: #11141a;
+  border: 1px solid #2b3340;
+  color: #e6e8ea;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.lc-formInput:focus,
+.lc-formSelect:focus {
+  outline: 2px solid #4c84ff;
+  outline-offset: 1px;
+}
+
+.lc-formHint {
+  font-size: 11px;
+  color: #6c7480;
+}
+
+.lc-radioRow,
+.lc-checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #d6dae2;
+}
+
+.lc-radioRow input,
+.lc-checkboxRow input {
+  accent-color: #4c84ff;
+}
+
+.lc-formRow {
+  display: none;
+}
+
+.lc-formRow.is-visible {
+  display: flex;
+}
+
+.lc-formRow .lc-formInput {
+  width: 100%;
+}
+
+.lc-featurePreview {
+  border: 1px dashed #2b3340;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8f96a2;
+  font-size: 12px;
+}
+
+.lc-featurePreview img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.lc-btn-secondary {
+  background: transparent;
+  border: 1px solid #3a404c;
+}
+
+.lc-btn-danger {
+  background: transparent;
+  border: 1px solid #a53838;
+  color: #ffb4b4;
 }
 
 /* Monaco highlight (DOM selector -> editor) */

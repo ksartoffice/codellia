@@ -94,13 +94,13 @@ class Admin {
 
 		wp_enqueue_script( 'wp-livecode-admin' );
 		wp_enqueue_style( 'wp-livecode-admin' );
+		wp_enqueue_media();
 
 		// Inject initial data for the admin app.
 		$post = $post_id ? get_post( $post_id ) : null;
 		$html = $post ? (string) $post->post_content : '';
 		$css  = $post_id ? (string) get_post_meta( $post_id, '_lc_css', true ) : '';
 		$back_url = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
-		$view_url = $post ? get_permalink( $post_id ) : home_url( '/' );
 
 		$preview_token = $post_id ? wp_create_nonce( 'lc_preview_' . $post_id ) : '';
 		$preview_url   = $post_id
@@ -123,10 +123,8 @@ class Admin {
 			'restUrl'      => rest_url( 'wp-livecode/v1/save' ),
 			'restCompileUrl' => rest_url( 'wp-livecode/v1/compile-tailwind' ),
 			'backUrl'      => $back_url,
-			'postTitle'    => $post ? (string) $post->post_title : '',
-			'postStatus'   => $post ? (string) $post->post_status : '',
-			'postSlug'     => $post ? (string) $post->post_name : '',
-			'viewUrl'      => $view_url,
+			'settingsRestUrl' => rest_url( 'wp-livecode/v1/settings' ),
+			'settingsData' => Rest::build_settings_payload( $post_id ),
 			'tailwindEnabled' => (bool) get_post_meta( $post_id, '_lc_tailwind', true ),
 			'restNonce'    => wp_create_nonce( 'wp_rest' ),
 		];
