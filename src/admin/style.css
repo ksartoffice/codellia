@@ -210,6 +210,7 @@ body.admin_page_wp-livecode #wpbody-content {
   min-height: 0;
   display: flex;
   background: #0f1116;
+  gap: 0;
 }
 
 .lc-left,
@@ -219,10 +220,19 @@ body.admin_page_wp-livecode #wpbody-content {
 }
 
 .lc-left {
+  flex: 0 0 50%;
   display: flex;
   flex-direction: column;
   min-width: 360px;
   background: #181b22;
+  transition: width 0.25s ease, flex-basis 0.25s ease, transform 0.25s ease, opacity 0.2s ease;
+}
+
+.lc-app.is-editor-collapsed .lc-left {
+  transform: translateX(-20px);
+  opacity: 0;
+  pointer-events: none;
+  min-width: 0;
 }
 
 .lc-resizer {
@@ -230,6 +240,7 @@ body.admin_page_wp-livecode #wpbody-content {
   cursor: col-resize;
   background: #111318;
   position: relative;
+  transition: width 0.25s ease, opacity 0.2s ease;
 }
 
 .lc-resizer::before {
@@ -245,6 +256,17 @@ body.admin_page_wp-livecode #wpbody-content {
 
 .lc-resizer:hover::before {
   background: #4c84ff;
+}
+
+.lc-app.is-editor-collapsed .lc-resizer {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lc-app.is-editor-collapsed .lc-right {
+  flex: 1 1 auto;
+  width: auto;
 }
 
 .lc-app.is-resizing,
@@ -356,6 +378,42 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 8px;
   padding-bottom: 12px;
   border-bottom: 1px solid #242a34;
+}
+
+.lc-settingsTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #242a34;
+}
+
+.lc-settingsTitleLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #8f96a2;
+}
+
+.lc-settingsTitleRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.lc-settingsTitleInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.lc-settingsTitleSave {
+  min-width: 72px;
+}
+
+.lc-settingsTitleError {
+  min-height: 16px;
+  font-size: 11px;
+  color: #ff9a9a;
 }
 
 .lc-settingsSection:last-child {

@@ -240,6 +240,7 @@ class Rest {
 		}
 
 		return [
+			'title'           => (string) $post->post_title,
 			'status'          => (string) $post->post_status,
 			'visibility'      => $visibility,
 			'password'        => (string) $post->post_password,
@@ -304,6 +305,10 @@ class Rest {
 		}
 
 		$post_update = [ 'ID' => $post_id ];
+
+		if ( isset( $updates['title'] ) ) {
+			$post_update['post_title'] = sanitize_text_field( (string) $updates['title'] );
+		}
 
 		if ( isset( $updates['slug'] ) ) {
 			$post_update['post_name'] = sanitize_title( (string) $updates['slug'] );

@@ -14,6 +14,7 @@ type SettingsCategory = {
 };
 
 export type SettingsData = {
+  title: string;
   status: string;
   visibility: 'public' | 'private' | 'password';
   password?: string;
@@ -765,6 +766,51 @@ export function initSettings(config: SettingsConfig) {
   const render = () => {
     container.innerHTML = '';
 
+    const titleWrap = el('div', 'lc-settingsTitle');
+    const titleLabel = el('div', 'lc-settingsTitleLabel');
+    titleLabel.textContent = 'タイトル';
+    const titleRow = el('div', 'lc-settingsTitleRow');
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.className = 'lc-formInput lc-settingsTitleInput';
+    titleInput.value = state.title || '';
+    const titleSave = el('button', 'lc-btn lc-btn-primary lc-settingsTitleSave');
+    titleSave.type = 'button';
+    titleSave.textContent = '保存';
+    titleSave.disabled = true;
+    const titleError = el('div', 'lc-settingsTitleError');
+
+    const updateTitleState = () => {
+      const dirty = titleInput.value !== state.title;
+      titleSave.disabled = !dirty;
+      titleWrap.classList.toggle('is-dirty', dirty);
+    };
+
+    titleInput.addEventListener('input', () => {
+      titleError.textContent = '';
+      updateTitleState();
+    });
+
+    titleInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        titleSave.click();
+      }
+    });
+
+    titleSave.addEventListener('click', async () => {
+      titleError.textContent = '';
+      try {
+        await updateSettings({ title: titleInput.value });
+      } catch (err: any) {
+        titleError.textContent = err?.message || String(err);
+      }
+    });
+
+    updateTitleState();
+    titleRow.append(titleInput, titleSave);
+    titleWrap.append(titleLabel, titleRow, titleError);
+
     const postSection = createSection('投稿');
     const statusText = `${getOptionLabel(state.statusOptions, state.status)} / ${
       state.visibility === 'private'
@@ -833,7 +879,7 @@ export function initSettings(config: SettingsConfig) {
     const tagsSection = createSection('タグ');
     tagsSection.append(createItem('タグ', '', openTagsModal, createChipList(state.tags)));
 
-    container.append(postSection, imageSection, categoriesSection, tagsSection);
+    container.append(titleWrap, postSection, imageSection, categoriesSection, tagsSection);
   };
 
   render();
