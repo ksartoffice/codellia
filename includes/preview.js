@@ -156,6 +156,14 @@
       },
       true
     );
+    window.addEventListener('resize', () => {
+      if (hoverTarget) {
+        drawHighlight(hoverTarget);
+      }
+      if (selectTarget) {
+        drawSelection(selectTarget);
+      }
+    });
     document.addEventListener('click', handleClick, true);
   }
 
