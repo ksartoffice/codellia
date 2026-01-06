@@ -1,0 +1,5 @@
+{
+    "require": {
+        "tailwindphp/tailwindphp": "^1.2"
+    }
+}
