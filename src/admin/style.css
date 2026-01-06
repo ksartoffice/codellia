@@ -43,6 +43,7 @@ body.admin_page_wp-livecode #wpbody-content {
   flex-direction: column;
   background: #111318;
   color: #e6e8ea;
+  overflow: hidden;
 }
 
 .lc-toolbar {
@@ -279,16 +280,23 @@ body.admin_page_wp-livecode #wpbody-content {
 
 .lc-settings {
   width: 0;
-  flex: 0 0 0;
+  max-width: 0;
+  flex: 0 0 auto;
   overflow: hidden;
   border-left: 1px solid #2b2f38;
   background: #171a21;
-  transition: width 0.2s ease;
+  opacity: 0;
+  transform: translateX(24px);
+  transition: width 0.28s ease, max-width 0.28s ease, opacity 0.2s ease, transform 0.28s ease;
+  pointer-events: none;
 }
 
 .lc-app.is-settings-open .lc-settings {
   width: 320px;
-  flex: 0 0 320px;
+  max-width: 320px;
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 .lc-settingsInner {
