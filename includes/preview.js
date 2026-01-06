@@ -10,6 +10,8 @@
   let isReady = false;
   let hoverTarget = null;
   let highlightBox = null;
+  let selectTarget = null;
+  let selectBox = null;
   let markerNodes = null;
 
   function getAllowedOrigin() {
@@ -46,10 +48,39 @@
     return highlightBox;
   }
 
+  function ensureSelectBox() {
+    if (selectBox) return selectBox;
+    selectBox = document.createElement('div');
+    selectBox.id = 'lc-select-box';
+    Object.assign(selectBox.style, {
+      position: 'fixed',
+      border: '2px solid #a855f7',
+      background: 'rgba(168, 85, 247, 0.12)',
+      pointerEvents: 'none',
+      zIndex: 2147483645,
+      top: '0px',
+      left: '0px',
+      width: '0px',
+      height: '0px',
+      boxSizing: 'border-box',
+      transition: 'all 80ms ease-out',
+      display: 'none',
+    });
+    document.body.appendChild(selectBox);
+    return selectBox;
+  }
+
   function clearHighlight() {
     hoverTarget = null;
     if (highlightBox) {
       highlightBox.style.display = 'none';
+    }
+  }
+
+  function clearSelection() {
+    selectTarget = null;
+    if (selectBox) {
+      selectBox.style.display = 'none';
     }
   }
 
@@ -61,6 +92,21 @@
     hoverTarget = el;
     const rect = el.getBoundingClientRect();
     const box = ensureHighlightBox();
+    box.style.display = 'block';
+    box.style.top = rect.top + 'px';
+    box.style.left = rect.left + 'px';
+    box.style.width = rect.width + 'px';
+    box.style.height = rect.height + 'px';
+  }
+
+  function drawSelection(el) {
+    if (!el || !(el instanceof Element)) {
+      clearSelection();
+      return;
+    }
+    selectTarget = el;
+    const rect = el.getBoundingClientRect();
+    const box = ensureSelectBox();
     box.style.display = 'block';
     box.style.top = rect.top + 'px';
     box.style.left = rect.left + 'px';
@@ -87,6 +133,7 @@
     if (!target) return;
     event.preventDefault();
     event.stopPropagation();
+    drawSelection(target);
     const lcId = target.getAttribute(LC_ATTR_NAME);
     if (lcId) {
       reply('LC_SELECT', { lcId: lcId });
@@ -102,6 +149,9 @@
       () => {
         if (hoverTarget) {
           drawHighlight(hoverTarget);
+        }
+        if (selectTarget) {
+          drawSelection(selectTarget);
         }
       },
       true
@@ -168,6 +218,7 @@
   function render(html, css) {
     replaceEditableContent(html);
     clearHighlight();
+    clearSelection();
     ensureStyleElement().textContent = css || '';
   }
 
