@@ -55,10 +55,7 @@ class Admin {
 			wp_die( 'Permission denied.' );
 		}
 
-		echo '<div class="wrap">';
-		echo '<h1>WP LiveCode</h1>';
 		echo '<div id="wp-livecode-app" data-post-id="' . esc_attr( $post_id ) . '"></div>';
-		echo '</div>';
 	}
 
 	public static function enqueue_assets( string $hook_suffix ): void {
@@ -102,6 +99,8 @@ class Admin {
 		$post = $post_id ? get_post( $post_id ) : null;
 		$html = $post ? (string) $post->post_content : '';
 		$css  = $post_id ? (string) get_post_meta( $post_id, '_lc_css', true ) : '';
+		$back_url = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
+		$view_url = $post ? get_permalink( $post_id ) : home_url( '/' );
 
 		$preview_token = $post_id ? wp_create_nonce( 'lc_preview_' . $post_id ) : '';
 		$preview_url   = $post_id
@@ -123,6 +122,11 @@ class Admin {
 			'monacoVsPath' => WP_LIVECODE_URL . 'assets/monaco/vs',
 			'restUrl'      => rest_url( 'wp-livecode/v1/save' ),
 			'restCompileUrl' => rest_url( 'wp-livecode/v1/compile-tailwind' ),
+			'backUrl'      => $back_url,
+			'postTitle'    => $post ? (string) $post->post_title : '',
+			'postStatus'   => $post ? (string) $post->post_status : '',
+			'postSlug'     => $post ? (string) $post->post_name : '',
+			'viewUrl'      => $view_url,
 			'tailwindEnabled' => (bool) get_post_meta( $post_id, '_lc_tailwind', true ),
 			'restNonce'    => wp_create_nonce( 'wp_rest' ),
 		];

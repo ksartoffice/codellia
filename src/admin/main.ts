@@ -18,6 +18,11 @@ declare global {
       monacoVsPath: string;
       restUrl: string;
       restCompileUrl: string;
+      backUrl?: string;
+      postTitle?: string;
+      postStatus?: string;
+      postSlug?: string;
+      viewUrl?: string;
       tailwindEnabled?: boolean;
       restNonce: string;
     };
@@ -25,8 +30,6 @@ declare global {
     require?: any; // AMD loader
   }
 }
-
-type Tab = 'html' | 'css';
 
 type SourceRange = {
   startOffset: number;
@@ -51,6 +54,27 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
   return e;
+}
+
+function createSettingRow(label: string, value: string, href?: string) {
+  const row = el('div', 'lc-settingRow');
+  const labelEl = el('div', 'lc-settingLabel');
+  labelEl.textContent = label;
+  const valueEl = el('div', 'lc-settingValue');
+
+  if (href) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = value;
+    valueEl.append(link);
+  } else {
+    valueEl.textContent = value;
+  }
+
+  row.append(labelEl, valueEl);
+  return row;
 }
 
 // filepath: src/admin/main.ts
@@ -195,11 +219,21 @@ function buildLayout(root: HTMLElement) {
 
   // Toolbar
   const toolbar = el('div', 'lc-toolbar');
-  const btnUndo = el('button', 'button lc-btn');
+  const toolbarLeft = el('div', 'lc-toolbarGroup lc-toolbarLeft');
+  const toolbarCenter = el('div', 'lc-toolbarGroup lc-toolbarCenter');
+  const toolbarRight = el('div', 'lc-toolbarGroup lc-toolbarRight');
+
+  const backLink = el('a', 'lc-btn lc-btn-back');
+  backLink.textContent = 'Back to WordPress';
+
+  const btnUndo = el('button', 'lc-btn');
+  btnUndo.type = 'button';
   btnUndo.textContent = 'Undo';
-  const btnRedo = el('button', 'button lc-btn');
+  const btnRedo = el('button', 'lc-btn');
+  btnRedo.type = 'button';
   btnRedo.textContent = 'Redo';
-  const btnSave = el('button', 'button button-primary lc-btn');
+  const btnSave = el('button', 'lc-btn lc-btn-primary');
+  btnSave.type = 'button';
   btnSave.textContent = 'Save';
   const tailwindToggle = el('label', 'lc-toggle');
   const tailwindCheckbox = document.createElement('input');
@@ -208,32 +242,49 @@ function buildLayout(root: HTMLElement) {
   const tailwindLabel = el('span', 'lc-toggleLabel');
   tailwindLabel.textContent = 'TailwindCSS: Off';
   tailwindToggle.append(tailwindCheckbox, tailwindLabel);
+  const btnSettings = el('button', 'lc-btn lc-btn-settings');
+  btnSettings.type = 'button';
+  btnSettings.textContent = 'Settings';
+  btnSettings.setAttribute('aria-expanded', 'false');
+  btnSettings.setAttribute('aria-controls', 'lc-settings');
   const status = el('span', 'lc-status');
   status.textContent = '';
 
-  toolbar.append(btnUndo, btnRedo, btnSave, tailwindToggle, status);
+  toolbarLeft.append(backLink, btnUndo, btnRedo, btnSave);
+  toolbarCenter.append(status);
+  toolbarRight.append(tailwindToggle, btnSettings);
+  toolbar.append(toolbarLeft, toolbarCenter, toolbarRight);
 
   // Main split
   const main = el('div', 'lc-main');
   const left = el('div', 'lc-left');
   const right = el('div', 'lc-right');
+  const settings = el('aside', 'lc-settings');
+  settings.id = 'lc-settings';
+  const settingsInner = el('div', 'lc-settingsInner');
+  const settingsHeader = el('div', 'lc-settingsHeader');
+  settingsHeader.textContent = 'Settings';
+  const settingsBody = el('div', 'lc-settingsBody');
+  settingsInner.append(settingsHeader, settingsBody);
+  settings.append(settingsInner);
 
-  // Tabs
-  const tabs = el('div', 'lc-tabs');
-  const tabHtml = el('button', 'lc-tab is-active');
-  tabHtml.textContent = 'HTML';
-  tabHtml.dataset.tab = 'html';
-  const tabCss = el('button', 'lc-tab');
-  tabCss.textContent = 'CSS';
-  tabCss.dataset.tab = 'css';
-  tabs.append(tabHtml, tabCss);
+  const htmlPane = el('div', 'lc-editorPane lc-editorPane-html is-active');
+  const htmlHeader = el('div', 'lc-editorHeader');
+  htmlHeader.textContent = 'HTML';
+  const htmlWrap = el('div', 'lc-editorWrap');
+  const htmlEditorDiv = el('div', 'lc-editor lc-editor-html');
+  htmlWrap.append(htmlEditorDiv);
+  htmlPane.append(htmlHeader, htmlWrap);
 
-  // Editor container
-  const editorWrap = el('div', 'lc-editorWrap');
-  const editorDiv = el('div', 'lc-editor');
-  editorWrap.append(editorDiv);
+  const cssPane = el('div', 'lc-editorPane lc-editorPane-css');
+  const cssHeader = el('div', 'lc-editorHeader');
+  cssHeader.textContent = 'CSS';
+  const cssWrap = el('div', 'lc-editorWrap');
+  const cssEditorDiv = el('div', 'lc-editor lc-editor-css');
+  cssWrap.append(cssEditorDiv);
+  cssPane.append(cssHeader, cssWrap);
 
-  left.append(tabs, editorWrap);
+  left.append(htmlPane, cssPane);
 
   // Preview
   const iframe = document.createElement('iframe');
@@ -241,22 +292,28 @@ function buildLayout(root: HTMLElement) {
   iframe.referrerPolicy = 'no-referrer-when-downgrade';
   right.append(iframe);
 
-  main.append(left, right);
+  main.append(left, right, settings);
   app.append(toolbar, main);
   root.append(app);
 
   return {
+    app,
+    backLink,
     btnUndo,
     btnRedo,
     btnSave,
+    btnSettings,
     tailwindCheckbox,
     tailwindLabel,
     tailwindToggle,
     status,
-    tabHtml,
-    tabCss,
-    editorDiv,
+    htmlEditorDiv,
+    cssEditorDiv,
+    htmlPane,
+    cssPane,
     iframe,
+    settings,
+    settingsBody,
   };
 }
 
@@ -266,6 +323,7 @@ async function main() {
   if (!mount) return;
 
   const ui = buildLayout(mount);
+  ui.backLink.href = cfg.backUrl || '/wp-admin/';
 
   // REST nonce middleware
   if (wp?.apiFetch?.createNonceMiddleware) {
@@ -283,7 +341,7 @@ async function main() {
   const htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
   const cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
 
-  let activeTab: Tab = 'html';
+  let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
   let tailwindEnabled = false;
   let tailwindCss = '';
   let tailwindCompileToken = 0;
@@ -291,8 +349,16 @@ async function main() {
   let tailwindCompileQueued = false;
   let saveInProgress = false;
 
-  const editor = monaco.editor.create(ui.editorDiv, {
+  const htmlEditor = monaco.editor.create(ui.htmlEditorDiv, {
     model: htmlModel,
+    theme: 'vs-dark',
+    automaticLayout: true,
+    minimap: { enabled: false },
+    fontSize: 13,
+  });
+
+  const cssEditor = monaco.editor.create(ui.cssEditorDiv, {
+    model: cssModel,
     theme: 'vs-dark',
     automaticLayout: true,
     minimap: { enabled: false },
@@ -301,16 +367,20 @@ async function main() {
 
   ui.status.textContent = '';
 
-  function setActiveTab(tab: Tab) {
-    activeTab = tab;
+  const setActiveEditor = (
+    editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor,
+    pane: HTMLElement
+  ) => {
+    activeEditor = editorInstance;
+    ui.htmlPane.classList.toggle('is-active', pane === ui.htmlPane);
+    ui.cssPane.classList.toggle('is-active', pane === ui.cssPane);
+  };
 
-    // tab UI
-    ui.tabHtml.classList.toggle('is-active', tab === 'html');
-    ui.tabCss.classList.toggle('is-active', tab === 'css');
-
-    editor.setModel(tab === 'html' ? htmlModel : cssModel);
-    editor.focus();
-  }
+  setActiveEditor(htmlEditor, ui.htmlPane);
+  ui.htmlPane.addEventListener('click', () => htmlEditor.focus());
+  ui.cssPane.addEventListener('click', () => cssEditor.focus());
+  htmlEditor.onDidFocusEditorText(() => setActiveEditor(htmlEditor, ui.htmlPane));
+  cssEditor.onDidFocusEditorText(() => setActiveEditor(cssEditor, ui.cssPane));
 
   const setStatus = (text: string) => {
     if (saveInProgress && text === '') {
@@ -378,11 +448,12 @@ async function main() {
   const setTailwindEnabled = (enabled: boolean) => {
     tailwindEnabled = enabled;
     ui.tailwindCheckbox.checked = enabled;
-    ui.tabCss.classList.toggle('is-hidden', enabled);
+    ui.app.classList.toggle('is-tailwind', enabled);
     ui.tailwindToggle.classList.toggle('is-on', enabled);
     ui.tailwindLabel.textContent = enabled ? 'TailwindCSS: On' : 'TailwindCSS: Off';
-    if (enabled && activeTab === 'css') {
-      setActiveTab('html');
+    if (enabled && activeEditor === cssEditor) {
+      htmlEditor.focus();
+      setActiveEditor(htmlEditor, ui.htmlPane);
     }
     if (enabled) {
       tailwindCss = cssModel.getValue();
@@ -393,8 +464,6 @@ async function main() {
     }
   };
 
-  ui.tabHtml.addEventListener('click', () => setActiveTab('html'));
-  ui.tabCss.addEventListener('click', () => setActiveTab('css'));
   ui.tailwindCheckbox.addEventListener('change', (event) => {
     const checked = (event.target as HTMLInputElement)?.checked ?? false;
     setTailwindEnabled(checked);
@@ -467,7 +536,8 @@ async function main() {
       console.warn('[WP LiveCode] No source map for lc-id:', lcId);
       return;
     }
-    setActiveTab('html');
+    htmlEditor.focus();
+    setActiveEditor(htmlEditor, ui.htmlPane);
     const startPos = htmlModel.getPositionAt(rangeInfo.startOffset);
     const endPos = htmlModel.getPositionAt(rangeInfo.endOffset);
     const monacoRange = new monaco.Range(
@@ -485,8 +555,8 @@ async function main() {
         },
       },
     ]);
-    editor.revealRangeInCenter(monacoRange, monaco.editor.ScrollType.Smooth);
-    editor.focus();
+    htmlEditor.revealRangeInCenter(monacoRange, monaco.editor.ScrollType.Smooth);
+    htmlEditor.focus();
   };
 
   htmlModel.onDidChangeContent(() => {
@@ -507,8 +577,8 @@ async function main() {
   });
 
   // Toolbar actions
-  ui.btnUndo.addEventListener('click', () => editor.trigger('toolbar', 'undo', null));
-  ui.btnRedo.addEventListener('click', () => editor.trigger('toolbar', 'redo', null));
+  ui.btnUndo.addEventListener('click', () => activeEditor?.trigger('toolbar', 'undo', null));
+  ui.btnRedo.addEventListener('click', () => activeEditor?.trigger('toolbar', 'redo', null));
 
   ui.btnSave.addEventListener('click', async () => {
     saveInProgress = true;
@@ -560,6 +630,35 @@ async function main() {
     if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {
       highlightByLcId(data.lcId);
     }
+  });
+
+  const settingsTitle = cfg.postTitle?.trim() || 'Untitled';
+  const settingsStatus = cfg.postStatus || '-';
+  const settingsSlug = cfg.postSlug || '-';
+  const settingsPostId = String(cfg.postId ?? '-');
+  const viewUrl = cfg.viewUrl || '';
+
+  ui.settingsBody.append(
+    createSettingRow('Title', settingsTitle),
+    createSettingRow('Status', settingsStatus),
+    createSettingRow('Slug', settingsSlug),
+    createSettingRow('Post ID', settingsPostId)
+  );
+
+  if (viewUrl) {
+    ui.settingsBody.append(createSettingRow('View', 'Open', viewUrl));
+  }
+
+  let settingsOpen = false;
+  const setSettingsOpen = (open: boolean) => {
+    settingsOpen = open;
+    ui.app.classList.toggle('is-settings-open', open);
+    ui.btnSettings.classList.toggle('is-active', open);
+    ui.btnSettings.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+
+  ui.btnSettings.addEventListener('click', () => {
+    setSettingsOpen(!settingsOpen);
   });
 }
 

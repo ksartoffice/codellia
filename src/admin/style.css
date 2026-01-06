@@ -1,98 +1,220 @@
 /* filepath: src/admin/style.css */
-#wp-livecode-app {
-  margin-top: 12px;
+body.admin_page_wp-livecode #wpadminbar,
+body.admin_page_wp-livecode #adminmenumain,
+body.admin_page_wp-livecode #adminmenuwrap,
+body.admin_page_wp-livecode #wpfooter,
+body.admin_page_wp-livecode #screen-meta,
+body.admin_page_wp-livecode #screen-meta-links {
+  display: none;
 }
 
-/* WPのwrap内でも高さを取りたいので 100vh ベース */
+body.admin_page_wp-livecode #wpcontent,
+body.admin_page_wp-livecode #wpbody-content {
+  margin: 0;
+  padding: 0;
+}
+
+body.admin_page_wp-livecode #wpcontent {
+  margin-left: 0;
+}
+
+html.wp-toolbar,
+body.admin_page_wp-livecode {
+  padding-top: 0;
+  margin-top: 0;
+  background: #111318;
+}
+
+body.admin_page_wp-livecode #wpwrap,
+body.admin_page_wp-livecode #wpcontent,
+body.admin_page_wp-livecode #wpbody,
+body.admin_page_wp-livecode #wpbody-content {
+  height: 100%;
+}
+
+#wp-livecode-app {
+  height: 100vh;
+}
+
 .lc-app {
-  border: 1px solid #dcdcde;
-  background: #fff;
-  height: calc(100vh - 170px);
-  min-height: 560px;
+  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #111318;
+  color: #e6e8ea;
 }
 
 .lc-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #2b2f38;
+  background: #1a1d24;
+}
+
+.lc-toolbarGroup {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px;
-  border-bottom: 1px solid #dcdcde;
-  background: #f6f7f7;
 }
 
-.lc-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding-left: 8px;
-  border-left: 1px solid #dcdcde;
-  font-size: 13px;
-  color: #1d2327;
+.lc-toolbarLeft {
+  justify-self: start;
 }
 
-.lc-toggle.is-on .lc-toggleLabel {
-  font-weight: 600;
+.lc-toolbarCenter {
+  justify-self: center;
 }
 
-.lc-toggleCheckbox {
-  margin: 0;
+.lc-toolbarRight {
+  justify-self: end;
 }
 
 .lc-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #313743;
+  background: #242a34;
+  color: #e6e8ea;
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.lc-btn:hover {
+  background: #2d3440;
+}
+
+.lc-btn:active {
+  background: #1b1f27;
+}
+
+.lc-btn:focus {
+  outline: 2px solid #4c84ff;
+  outline-offset: 1px;
+}
+
+.lc-btn-primary {
+  background: #2f6feb;
+  border-color: #2f6feb;
+  color: #fff;
+}
+
+.lc-btn-primary:hover {
+  background: #3b7cff;
+}
+
+.lc-btn-settings.is-active {
+  background: #303b4f;
+  border-color: #3b4a63;
 }
 
 .lc-status {
-  margin-left: 10px;
-  color: #646970;
+  color: #9aa1ab;
   font-size: 12px;
+}
+
+.lc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #c4c9d1;
+}
+
+.lc-toggle.is-on .lc-toggleLabel {
+  color: #fff;
+  font-weight: 600;
+}
+
+.lc-toggleCheckbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid #3a404c;
+  background: #2a2f38;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.lc-toggleCheckbox::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c7ccd4;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.lc-toggleCheckbox:checked {
+  background: #2f6feb;
+  border-color: #2f6feb;
+}
+
+.lc-toggleCheckbox:checked::before {
+  transform: translateX(16px);
+  background: #fff;
 }
 
 .lc-main {
   flex: 1;
   min-height: 0;
   display: flex;
+  background: #0f1116;
 }
 
-.lc-left, .lc-right {
+.lc-left,
+.lc-right {
   min-height: 0;
   flex: 1;
 }
 
 .lc-left {
-  border-right: 1px solid #dcdcde;
+  border-right: 1px solid #2b2f38;
   display: flex;
   flex-direction: column;
   min-width: 360px;
+  background: #181b22;
 }
 
-.lc-tabs {
+.lc-editorPane {
+  flex: 1;
+  min-height: 0;
   display: flex;
-  gap: 6px;
-  padding: 8px;
-  border-bottom: 1px solid #dcdcde;
-  background: #fff;
+  flex-direction: column;
 }
 
-.lc-tab {
-  border: 1px solid #c3c4c7;
-  background: #fff;
-  border-radius: 6px;
+.lc-editorPane + .lc-editorPane {
+  border-top: 1px solid #2b2f38;
+}
+
+.lc-editorPane.is-active .lc-editorHeader {
+  color: #fff;
+}
+
+.lc-editorHeader {
+  display: flex;
+  align-items: center;
   padding: 6px 10px;
-  cursor: pointer;
-}
-
-.lc-tab.is-hidden {
-  display: none;
-}
-
-.lc-tab.is-active {
-  background: #f0f0f1;
-  font-weight: 600;
+  border-bottom: 1px solid #2b2f38;
+  background: #1f232d;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a7adb8;
 }
 
 .lc-editorWrap {
@@ -105,14 +227,86 @@
   height: 100%;
 }
 
+.lc-app.is-tailwind .lc-editorPane-css {
+  display: none;
+}
+
 .lc-right {
-  background: #fff;
+  background: #111318;
 }
 
 .lc-iframe {
   width: 100%;
   height: 100%;
   border: 0;
+  background: #fff;
+}
+
+.lc-settings {
+  width: 0;
+  flex: 0 0 0;
+  overflow: hidden;
+  border-left: 1px solid #2b2f38;
+  background: #171a21;
+  transition: width 0.2s ease;
+}
+
+.lc-app.is-settings-open .lc-settings {
+  width: 320px;
+  flex: 0 0 320px;
+}
+
+.lc-settingsInner {
+  width: 320px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-settingsHeader {
+  padding: 12px;
+  border-bottom: 1px solid #2b2f38;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e6e8ea;
+}
+
+.lc-settingsBody {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lc-settingRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-settingLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #8f96a2;
+}
+
+.lc-settingValue {
+  font-size: 13px;
+  color: #e6e8ea;
+  word-break: break-word;
+}
+
+.lc-settingValue a {
+  color: #6aa9ff;
+  text-decoration: none;
+}
+
+.lc-settingValue a:hover {
+  text-decoration: underline;
 }
 
 /* Monaco highlight (DOM selector -> editor) */
@@ -123,4 +317,33 @@
 
 .monaco-editor .lc-highlight-line {
   background: rgba(255, 227, 115, 0.18);
+}
+
+@media (max-width: 1100px) {
+  .lc-app {
+    position: relative;
+  }
+
+  .lc-main {
+    flex-direction: column;
+  }
+
+  .lc-left {
+    min-width: 0;
+    border-right: 0;
+    border-bottom: 1px solid #2b2f38;
+  }
+
+  .lc-right {
+    min-height: 40vh;
+  }
+
+  .lc-settings {
+    position: absolute;
+    top: 52px;
+    right: 0;
+    height: calc(100vh - 52px);
+    z-index: 10;
+    box-shadow: -12px 0 24px rgba(0, 0, 0, 0.35);
+  }
 }
