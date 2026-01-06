@@ -47,6 +47,10 @@ class Preview {
 			wp_die( 'Invalid preview token.' );
 		}
 
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			wp_die( 'Invalid post type.' );
+		}
+
 		if ( ! get_post( $post_id ) ) {
 			wp_die( 'Post not found.' );
 		}

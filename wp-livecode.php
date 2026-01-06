@@ -22,12 +22,16 @@ define( 'WP_LIVECODE_VERSION', '1.0.0' );
 define( 'WP_LIVECODE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_LIVECODE_URL', plugin_dir_url( __FILE__ ) );
 
+require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-post-type.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-admin.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-rest.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-preview.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-frontend.php';
 
 add_action( 'plugins_loaded', function () {
+	// Custom post type used exclusively by WP LiveCode.
+	\WPLiveCode\Post_Type::init();
+
 	// Admin UI.
 	\WPLiveCode\Admin::init();
 
@@ -57,7 +61,7 @@ add_action( 'plugins_loaded', 'wp_livecode_load_textdomain' );
  * Plugin activation hook.
  */
 function wp_livecode_activate() {
-	// Add any activation routines here.
+	\WPLiveCode\Post_Type::activation();
 }
 register_activation_hook( __FILE__, 'wp_livecode_activate' );
 
@@ -65,6 +69,6 @@ register_activation_hook( __FILE__, 'wp_livecode_activate' );
  * Plugin deactivation hook.
  */
 function wp_livecode_deactivate() {
-	// Add any deactivation routines here.
+	\WPLiveCode\Post_Type::deactivation();
 }
 register_deactivation_hook( __FILE__, 'wp_livecode_deactivate' );

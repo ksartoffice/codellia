@@ -20,20 +20,20 @@ class Admin {
 		if ( ! $post_id ) {
 			wp_die( 'post_id is required.' );
 		}
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			wp_die( 'This editor is only available for LiveCode posts.' );
+		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( 'Permission denied.' );
 		}
-		$url = add_query_arg(
-			[ 'page' => self::MENU_SLUG, 'post_id' => $post_id ],
-			admin_url( 'admin.php' )
-		);
-		wp_safe_redirect( $url );
+		wp_safe_redirect( Post_Type::get_editor_url( $post_id ) );
 		exit;
 	}
 
 	public static function register_menu(): void {
+		// Hidden admin page (no menu entry). Accessed via redirects only.
 		add_submenu_page(
-			'tools.php',
+			null,
 			'WP LiveCode',
 			'WP LiveCode',
 			'edit_posts',
@@ -48,6 +48,9 @@ class Admin {
 			echo '<div class="wrap"><h1>WP LiveCode</h1><p>post_id is required.</p></div>';
 			return;
 		}
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			wp_die( 'This editor is only available for LiveCode posts.' );
+		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( 'Permission denied.' );
 		}
@@ -59,10 +62,13 @@ class Admin {
 	}
 
 	public static function enqueue_assets( string $hook_suffix ): void {
-		// Only load on our settings page.
-		if ( $hook_suffix !== 'tools_page_' . self::MENU_SLUG ) return;
+		// Only load on our hidden page.
+		if ( $hook_suffix !== 'admin_page_' . self::MENU_SLUG ) return;
 
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
+		if ( ! $post_id || ! Post_Type::is_livecode_post( $post_id ) ) {
+			return;
+		}
 
 		// Monaco AMD loader lives in assets/monaco/vs/loader.js
 		wp_register_script(

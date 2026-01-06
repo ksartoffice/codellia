@@ -22,6 +22,10 @@ class Frontend {
 			return;
 		}
 
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			return;
+		}
+
 		if ( has_filter( 'the_content', 'wpautop' ) ) {
 			remove_filter( 'the_content', 'wpautop' );
 		}
@@ -37,6 +41,10 @@ class Frontend {
 
 		$post_id = get_queried_object_id();
 		if ( ! $post_id ) {
+			return;
+		}
+
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
 			return;
 		}
 
