@@ -199,10 +199,17 @@ function buildLayout(root: HTMLElement) {
   btnRedo.textContent = 'Redo';
   const btnSave = el('button', 'button button-primary lc-btn');
   btnSave.textContent = 'Save';
+  const tailwindToggle = el('label', 'lc-toggle');
+  const tailwindCheckbox = document.createElement('input');
+  tailwindCheckbox.type = 'checkbox';
+  tailwindCheckbox.className = 'lc-toggleCheckbox';
+  const tailwindLabel = el('span', 'lc-toggleLabel');
+  tailwindLabel.textContent = 'TailwindCSS: Off';
+  tailwindToggle.append(tailwindCheckbox, tailwindLabel);
   const status = el('span', 'lc-status');
   status.textContent = '';
 
-  toolbar.append(btnUndo, btnRedo, btnSave, status);
+  toolbar.append(btnUndo, btnRedo, btnSave, tailwindToggle, status);
 
   // Main split
   const main = el('div', 'lc-main');
@@ -236,7 +243,19 @@ function buildLayout(root: HTMLElement) {
   app.append(toolbar, main);
   root.append(app);
 
-  return { btnUndo, btnRedo, btnSave, status, tabHtml, tabCss, editorDiv, iframe };
+  return {
+    btnUndo,
+    btnRedo,
+    btnSave,
+    tailwindCheckbox,
+    tailwindLabel,
+    tailwindToggle,
+    status,
+    tabHtml,
+    tabCss,
+    editorDiv,
+    iframe,
+  };
 }
 
 async function main() {
@@ -263,6 +282,7 @@ async function main() {
   const cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
 
   let activeTab: Tab = 'html';
+  let tailwindEnabled = false;
 
   const editor = monaco.editor.create(ui.editorDiv, {
     model: htmlModel,
@@ -285,8 +305,23 @@ async function main() {
     editor.focus();
   }
 
+  const setTailwindEnabled = (enabled: boolean) => {
+    tailwindEnabled = enabled;
+    ui.tabCss.classList.toggle('is-hidden', enabled);
+    ui.tailwindToggle.classList.toggle('is-on', enabled);
+    ui.tailwindLabel.textContent = enabled ? 'TailwindCSS: On' : 'TailwindCSS: Off';
+    if (enabled && activeTab === 'css') {
+      setActiveTab('html');
+    }
+  };
+
   ui.tabHtml.addEventListener('click', () => setActiveTab('html'));
   ui.tabCss.addEventListener('click', () => setActiveTab('css'));
+  ui.tailwindCheckbox.addEventListener('change', (event) => {
+    const checked = (event.target as HTMLInputElement)?.checked ?? false;
+    setTailwindEnabled(checked);
+  });
+  setTailwindEnabled(false);
 
   // Preview render (canonicalize HTML + keep lc-id -> source map)
   let previewReady = false;
