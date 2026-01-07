@@ -4,12 +4,19 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@wordpress/components": "^31.0.0",
+    "@wordpress/element": "^6.37.0",
+    "@wordpress/icons": "^11.4.0",
     "emmet-monaco-es": "^5.6.1",
     "monaco-editor": "^0.55.1",
-    "parse5": "^8.0.0"
+    "parse5": "^8.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
     "typescript": "^5.9.3",
     "vite": "^6.4.1"
   }
