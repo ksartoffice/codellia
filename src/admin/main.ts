@@ -73,6 +73,9 @@ const ICONS = {
   settings: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
 };
 
+const TAILWIND_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 54 33"><g clip-path="url(#prefix__clip0)"><path fill="#38bdf8" fill-rule="evenodd" d="M27 0c-7.2 0-11.7 3.6-13.5 10.8 2.7-3.6 5.85-4.95 9.45-4.05 2.054.513 3.522 2.004 5.147 3.653C30.744 13.09 33.808 16.2 40.5 16.2c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C36.756 3.11 33.692 0 27 0zM13.5 16.2C6.3 16.2 1.8 19.8 0 27c2.7-3.6 5.85-4.95 9.45-4.05 2.054.514 3.522 2.004 5.147 3.653C17.244 29.29 20.308 32.4 27 32.4c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C23.256 19.31 20.192 16.2 13.5 16.2z" clip-rule="evenodd"/></g><defs><clipPath id="prefix__clip0"><path fill="#fff" d="M0 0h54v32.4H0z"/></clipPath></defs></svg>';
+
 function applyIconLabel(
   target: HTMLElement,
   label: string,
@@ -464,10 +467,10 @@ function buildLayout(root: HTMLElement) {
   const backLink = el('a', 'lc-btn lc-btn-back');
   applyIconLabel(backLink, 'Back to WordPress', ICONS.back);
 
-  const btnUndo = el('button', 'lc-btn');
+  const btnUndo = el('button', 'lc-btn lc-btn-muted');
   btnUndo.type = 'button';
   applyIconLabel(btnUndo, 'Undo', ICONS.undo, true);
-  const btnRedo = el('button', 'lc-btn');
+  const btnRedo = el('button', 'lc-btn lc-btn-muted');
   btnRedo.type = 'button';
   applyIconLabel(btnRedo, 'Redo', ICONS.redo, true);
   const btnToggleEditor = el('button', 'lc-btn');
@@ -476,13 +479,12 @@ function buildLayout(root: HTMLElement) {
   const btnSave = el('button', 'lc-btn lc-btn-primary');
   btnSave.type = 'button';
   applyIconLabel(btnSave, 'Save', ICONS.save, true);
-  const tailwindToggle = el('label', 'lc-toggle');
-  const tailwindCheckbox = document.createElement('input');
-  tailwindCheckbox.type = 'checkbox';
-  tailwindCheckbox.className = 'lc-toggleCheckbox';
-  const tailwindLabel = el('span', 'lc-toggleLabel');
-  tailwindLabel.textContent = 'TailwindCSS: Off';
-  tailwindToggle.append(tailwindCheckbox, tailwindLabel);
+  const tailwindBadge = el('span', 'lc-tailwindBadge');
+  tailwindBadge.innerHTML = TAILWIND_ICON;
+  tailwindBadge.hidden = true;
+  tailwindBadge.setAttribute('title', 'TailwindCSS enabled');
+  tailwindBadge.setAttribute('aria-label', 'TailwindCSS enabled');
+  tailwindBadge.setAttribute('role', 'img');
   const btnSettings = el('button', 'lc-btn lc-btn-settings');
   btnSettings.type = 'button';
   applyIconLabel(btnSettings, 'Settings', ICONS.settings, true);
@@ -491,9 +493,9 @@ function buildLayout(root: HTMLElement) {
   const status = el('span', 'lc-status');
   status.textContent = '';
 
-  toolbarLeft.append(backLink, btnUndo, btnRedo, btnToggleEditor, btnSave);
+  toolbarLeft.append(backLink, btnUndo, btnRedo, btnToggleEditor);
   toolbarCenter.append(status);
-  toolbarRight.append(tailwindToggle, btnSettings);
+  toolbarRight.append(tailwindBadge, btnSave, btnSettings);
   toolbar.append(toolbarLeft, toolbarCenter, toolbarRight);
 
   // Main split
@@ -548,9 +550,7 @@ function buildLayout(root: HTMLElement) {
     btnToggleEditor,
     btnSave,
     btnSettings,
-    tailwindCheckbox,
-    tailwindLabel,
-    tailwindToggle,
+    tailwindBadge,
     status,
     htmlEditorDiv,
     cssEditorDiv,
@@ -633,6 +633,18 @@ async function main() {
 
   ui.status.textContent = '';
 
+  const updateUndoRedoState = () => {
+    const model = activeEditor?.getModel();
+    const canUndo = Boolean(model && model.canUndo());
+    const canRedo = Boolean(model && model.canRedo());
+    ui.btnUndo.disabled = !canUndo;
+    ui.btnRedo.disabled = !canRedo;
+    ui.btnUndo.classList.toggle('is-active', canUndo);
+    ui.btnRedo.classList.toggle('is-active', canRedo);
+    ui.btnUndo.setAttribute('aria-disabled', String(!canUndo));
+    ui.btnRedo.setAttribute('aria-disabled', String(!canRedo));
+  };
+
   const setActiveEditor = (
     editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor,
     pane: HTMLElement
@@ -640,6 +652,7 @@ async function main() {
     activeEditor = editorInstance;
     ui.htmlPane.classList.toggle('is-active', pane === ui.htmlPane);
     ui.cssPane.classList.toggle('is-active', pane === ui.cssPane);
+    updateUndoRedoState();
   };
 
   setActiveEditor(htmlEditor, ui.htmlPane);
@@ -862,10 +875,8 @@ async function main() {
 
   const setTailwindEnabled = (enabled: boolean) => {
     tailwindEnabled = enabled;
-    ui.tailwindCheckbox.checked = enabled;
     ui.app.classList.toggle('is-tailwind', enabled);
-    ui.tailwindToggle.classList.toggle('is-on', enabled);
-    ui.tailwindLabel.textContent = enabled ? 'TailwindCSS: On' : 'TailwindCSS: Off';
+    ui.tailwindBadge.hidden = !enabled;
     if (enabled && editorSplitActive) {
       clearEditorSplit();
     }
@@ -884,11 +895,6 @@ async function main() {
       sendRender();
     }
   };
-
-  ui.tailwindCheckbox.addEventListener('change', (event) => {
-    const checked = (event.target as HTMLInputElement)?.checked ?? false;
-    setTailwindEnabled(checked);
-  });
 
   // Preview render (canonicalize HTML + keep lc-id -> source map)
   let previewReady = false;
@@ -1083,11 +1089,13 @@ async function main() {
     if (tailwindEnabled) {
       compileTailwindDebounced();
     }
+    updateUndoRedoState();
   });
   cssModel.onDidChangeContent(() => {
     sendRenderDebounced();
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
     clearCssSelectionHighlight();
+    updateUndoRedoState();
   });
 
   // 初回の iframe load 後に送る

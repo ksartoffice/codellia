@@ -147,6 +147,26 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #3b7cff;
 }
 
+.lc-btn-muted {
+  background: #2a303b;
+  border-color: #39414f;
+  color: #8f96a2;
+}
+
+.lc-btn-muted.is-active {
+  background: #242a34;
+  border-color: #313743;
+  color: #e6e8ea;
+}
+
+.lc-btn-muted:disabled {
+  cursor: default;
+}
+
+.lc-btn-muted:disabled:hover {
+  background: #2a303b;
+}
+
 .lc-btn-settings.is-active {
   background: #303b4f;
   border-color: #3b4a63;
@@ -157,52 +177,20 @@ body.admin_page_wp-livecode #wpbody-content {
   font-size: 12px;
 }
 
-.lc-toggle {
+.lc-tailwindBadge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #c4c9d1;
-}
-
-.lc-toggle.is-on .lc-toggleLabel {
-  color: #fff;
-  font-weight: 600;
-}
-
-.lc-toggleCheckbox {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 36px;
-  height: 20px;
+  justify-content: center;
+  padding: 4px 8px;
   border-radius: 999px;
-  border: 1px solid #3a404c;
-  background: #2a2f38;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  border: 1px solid #2a313d;
+  background: #141a21;
 }
 
-.lc-toggleCheckbox::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #c7ccd4;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.lc-toggleCheckbox:checked {
-  background: #2f6feb;
-  border-color: #2f6feb;
-}
-
-.lc-toggleCheckbox:checked::before {
-  transform: translateX(16px);
-  background: #fff;
+.lc-tailwindBadge svg {
+  display: block;
+  width: 34px;
+  height: 20px;
 }
 
 .lc-main {
