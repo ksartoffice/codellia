@@ -528,6 +528,108 @@ body.admin_page_wp-livecode #wpbody-content {
   background: rgba(165, 56, 56, 0.2);
 }
 
+.lc-setupOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(59, 124, 255, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.16), transparent 40%),
+    rgba(6, 8, 12, 0.82);
+}
+
+.lc-setupCard {
+  width: min(640px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  background: #161a22;
+  border: 1px solid #2b3340;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.lc-setupTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f3f5;
+}
+
+.lc-setupIntro {
+  font-size: 13px;
+  color: #9aa1ab;
+}
+
+.lc-setupOptions {
+  display: grid;
+  gap: 12px;
+}
+
+.lc-setupOption {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #2b3340;
+  background: #1b2029;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.lc-setupOption:hover {
+  border-color: #3b4a63;
+  background: #202734;
+}
+
+.lc-setupOption.is-active {
+  border-color: #4c84ff;
+  background: #1f2a3d;
+}
+
+.lc-setupOption input {
+  margin-top: 3px;
+  accent-color: #4c84ff;
+}
+
+.lc-setupOptionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-setupOptionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6e8ea;
+}
+
+.lc-setupOptionDesc {
+  font-size: 12px;
+  color: #9aa1ab;
+}
+
+.lc-setupNote {
+  font-size: 12px;
+  color: #c6cbd5;
+}
+
+.lc-setupError {
+  min-height: 16px;
+  font-size: 12px;
+  color: #ff9a9a;
+}
+
+.lc-setupActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .lc-modal {
   position: fixed;
   inset: 0;
