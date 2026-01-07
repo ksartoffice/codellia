@@ -4,6 +4,7 @@ import { emmetCSS, emmetHTML } from 'emmet-monaco-es';
 import * as parse5 from 'parse5';
 import type { DefaultTreeAdapterTypes } from 'parse5';
 import { initSettings, type SettingsData } from './settings';
+import { mountToolbar, type ToolbarApi } from './toolbar';
 
 // wp-api-fetch は admin 側でグローバル wp.apiFetch として使える
 declare const wp: any;
@@ -63,41 +64,6 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
   return e;
 }
 
-const ICONS = {
-  back: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>',
-  undo: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>',
-  redo: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo2-icon lucide-redo-2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg>',
-  save: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save-icon lucide-save"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>',
-  panelClose: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left-close-icon lucide-panel-left-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg>',
-  panelOpen: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left-open-icon lucide-panel-left-open"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>',
-  settings: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
-};
-
-const TAILWIND_ICON =
-  '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 54 33"><g clip-path="url(#prefix__clip0)"><path fill="#38bdf8" fill-rule="evenodd" d="M27 0c-7.2 0-11.7 3.6-13.5 10.8 2.7-3.6 5.85-4.95 9.45-4.05 2.054.513 3.522 2.004 5.147 3.653C30.744 13.09 33.808 16.2 40.5 16.2c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C36.756 3.11 33.692 0 27 0zM13.5 16.2C6.3 16.2 1.8 19.8 0 27c2.7-3.6 5.85-4.95 9.45-4.05 2.054.514 3.522 2.004 5.147 3.653C17.244 29.29 20.308 32.4 27 32.4c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C23.256 19.31 20.192 16.2 13.5 16.2z" clip-rule="evenodd"/></g><defs><clipPath id="prefix__clip0"><path fill="#fff" d="M0 0h54v32.4H0z"/></clipPath></defs></svg>';
-
-function applyIconLabel(
-  target: HTMLElement,
-  label: string,
-  svg: string,
-  stacked = false
-) {
-  const icon = el('span', 'lc-btnIcon');
-  icon.innerHTML = svg;
-  const text = el('span', 'lc-btnLabel');
-  text.textContent = label;
-  target.append(icon, text);
-  if (stacked) {
-    target.classList.add('lc-btn-stack');
-  }
-}
-
-function updateButtonIcon(target: HTMLElement, label: string, svg: string) {
-  const labelEl = target.querySelector<HTMLElement>('.lc-btnLabel');
-  const iconEl = target.querySelector<HTMLElement>('.lc-btnIcon');
-  if (labelEl) labelEl.textContent = label;
-  if (iconEl) iconEl.innerHTML = svg;
-}
 
 
 // filepath: src/admin/main.ts
@@ -226,12 +192,13 @@ function canonicalizeHtml(html: string): CanonicalResult {
 
     walkCanonicalTree(fragment, null, map, nextId);
 
-    return { canonicalHTML: parse5.serialize(fragment), map };
+    return { canonicalHTML: parse5.serialize(fragment), map, shortcodes: [] };
   } catch (error: any) {
     console.error('[WP LiveCode] canonicalizeHtml failed', error);
     return {
       canonicalHTML: html,
       map: {},
+      shortcodes: [],
       error: error?.message ?? String(error),
     };
   }
@@ -458,45 +425,8 @@ function mediaQueriesMatch(queries: string[]): boolean {
 function buildLayout(root: HTMLElement) {
   const app = el('div', 'lc-app');
 
-  // Toolbar
+  // Toolbar (React mount point)
   const toolbar = el('div', 'lc-toolbar');
-  const toolbarLeft = el('div', 'lc-toolbarGroup lc-toolbarLeft');
-  const toolbarCenter = el('div', 'lc-toolbarGroup lc-toolbarCenter');
-  const toolbarRight = el('div', 'lc-toolbarGroup lc-toolbarRight');
-
-  const backLink = el('a', 'lc-btn lc-btn-back');
-  applyIconLabel(backLink, 'Back to WordPress', ICONS.back);
-
-  const btnUndo = el('button', 'lc-btn lc-btn-muted');
-  btnUndo.type = 'button';
-  applyIconLabel(btnUndo, 'Undo', ICONS.undo, true);
-  const btnRedo = el('button', 'lc-btn lc-btn-muted');
-  btnRedo.type = 'button';
-  applyIconLabel(btnRedo, 'Redo', ICONS.redo, true);
-  const btnToggleEditor = el('button', 'lc-btn');
-  btnToggleEditor.type = 'button';
-  applyIconLabel(btnToggleEditor, 'Hide', ICONS.panelClose, true);
-  const btnSave = el('button', 'lc-btn lc-btn-primary');
-  btnSave.type = 'button';
-  applyIconLabel(btnSave, 'Save', ICONS.save, true);
-  const tailwindBadge = el('span', 'lc-tailwindBadge');
-  tailwindBadge.innerHTML = TAILWIND_ICON;
-  tailwindBadge.hidden = true;
-  tailwindBadge.setAttribute('title', 'TailwindCSS enabled');
-  tailwindBadge.setAttribute('aria-label', 'TailwindCSS enabled');
-  tailwindBadge.setAttribute('role', 'img');
-  const btnSettings = el('button', 'lc-btn lc-btn-settings');
-  btnSettings.type = 'button';
-  applyIconLabel(btnSettings, 'Settings', ICONS.settings, true);
-  btnSettings.setAttribute('aria-expanded', 'false');
-  btnSettings.setAttribute('aria-controls', 'lc-settings');
-  const status = el('span', 'lc-status');
-  status.textContent = '';
-
-  toolbarLeft.append(backLink, btnUndo, btnRedo, btnToggleEditor);
-  toolbarCenter.append(status);
-  toolbarRight.append(tailwindBadge, btnSave, btnSettings);
-  toolbar.append(toolbarLeft, toolbarCenter, toolbarRight);
 
   // Main split
   const main = el('div', 'lc-main');
@@ -544,14 +474,7 @@ function buildLayout(root: HTMLElement) {
 
   return {
     app,
-    backLink,
-    btnUndo,
-    btnRedo,
-    btnToggleEditor,
-    btnSave,
-    btnSettings,
-    tailwindBadge,
-    status,
+    toolbar,
     htmlEditorDiv,
     cssEditorDiv,
     htmlPane,
@@ -573,11 +496,12 @@ async function main() {
   if (!mount) return;
 
   const ui = buildLayout(mount);
-  ui.backLink.href = cfg.backUrl || '/wp-admin/';
   ui.resizer.setAttribute('role', 'separator');
   ui.resizer.setAttribute('aria-orientation', 'vertical');
   ui.editorResizer.setAttribute('role', 'separator');
   ui.editorResizer.setAttribute('aria-orientation', 'horizontal');
+
+  let toolbarApi: ToolbarApi | null = null;
 
   // REST nonce middleware
   if (wp?.apiFetch?.createNonceMiddleware) {
@@ -593,20 +517,8 @@ async function main() {
     apiFetch: wp?.apiFetch,
   });
 
-  // iframe
-  ui.iframe.src = cfg.previewUrl;
-  const targetOrigin = new URL(cfg.previewUrl).origin;
-
-  // Monaco
-  ui.status.textContent = 'Loading Monaco...';
-  const monaco = await loadMonaco(cfg.monacoVsPath);
-
-  emmetHTML(monaco, ['html']);
-  emmetCSS(monaco, ['css']);
-
-  const htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
-  const cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
-
+  let htmlModel: import('monaco-editor').editor.ITextModel;
+  let cssModel: import('monaco-editor').editor.ITextModel;
   let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
   let tailwindEnabled = false;
   let tailwindCss = '';
@@ -614,6 +526,41 @@ async function main() {
   let tailwindCompileInFlight = false;
   let tailwindCompileQueued = false;
   let saveInProgress = false;
+  let editorCollapsed = false;
+  let settingsOpen = false;
+
+  toolbarApi = mountToolbar(
+    ui.toolbar,
+    {
+      backUrl: cfg.backUrl || '/wp-admin/',
+      canUndo: false,
+      canRedo: false,
+      editorCollapsed,
+      settingsOpen,
+      tailwindEnabled: Boolean(cfg.tailwindEnabled),
+      statusText: 'Loading Monaco...',
+    },
+    {
+      onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
+      onRedo: () => activeEditor?.trigger('toolbar', 'redo', null),
+      onToggleEditor: () => setEditorCollapsed(!editorCollapsed),
+      onSave: handleSave,
+      onToggleSettings: () => setSettingsOpen(!settingsOpen),
+    }
+  );
+
+  // iframe
+  ui.iframe.src = cfg.previewUrl;
+  const targetOrigin = new URL(cfg.previewUrl).origin;
+
+  // Monaco
+  const monaco = await loadMonaco(cfg.monacoVsPath);
+
+  emmetHTML(monaco, ['html']);
+  emmetCSS(monaco, ['css']);
+
+  htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
+  cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
 
   const htmlEditor = monaco.editor.create(ui.htmlEditorDiv, {
     model: htmlModel,
@@ -631,18 +578,13 @@ async function main() {
     fontSize: 13,
   });
 
-  ui.status.textContent = '';
+  toolbarApi?.update({ statusText: '' });
 
   const updateUndoRedoState = () => {
     const model = activeEditor?.getModel();
     const canUndo = Boolean(model && model.canUndo());
     const canRedo = Boolean(model && model.canRedo());
-    ui.btnUndo.disabled = !canUndo;
-    ui.btnRedo.disabled = !canRedo;
-    ui.btnUndo.classList.toggle('is-active', canUndo);
-    ui.btnRedo.classList.toggle('is-active', canRedo);
-    ui.btnUndo.setAttribute('aria-disabled', String(!canUndo));
-    ui.btnRedo.setAttribute('aria-disabled', String(!canRedo));
+    toolbarApi?.update({ canUndo, canRedo });
   };
 
   const setActiveEditor = (
@@ -666,7 +608,6 @@ async function main() {
   const minEditorPaneHeight = 160;
   let isResizing = false;
   let isEditorResizing = false;
-  let editorCollapsed = false;
   let startX = 0;
   let startY = 0;
   let startWidth = 0;
@@ -713,6 +654,7 @@ async function main() {
   const setEditorCollapsed = (collapsed: boolean) => {
     editorCollapsed = collapsed;
     ui.app.classList.toggle('is-editor-collapsed', collapsed);
+    toolbarApi?.update({ editorCollapsed: collapsed });
     if (collapsed) {
       const currentWidth = ui.left.getBoundingClientRect().width;
       if (currentWidth > 0) {
@@ -723,11 +665,9 @@ async function main() {
       ui.left.getBoundingClientRect();
       ui.left.style.width = '0px';
       ui.left.style.flex = '0 0 0';
-      updateButtonIcon(ui.btnToggleEditor, 'Show', ICONS.panelOpen);
     } else {
       clearLeftWidth();
       setLeftWidth(lastLeftWidth || minLeftWidth);
-      updateButtonIcon(ui.btnToggleEditor, 'Hide', ICONS.panelClose);
     }
   };
 
@@ -806,15 +746,11 @@ async function main() {
   ui.editorResizer.addEventListener('pointerup', stopEditorResizing);
   ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
 
-  ui.btnToggleEditor.addEventListener('click', () => {
-    setEditorCollapsed(!editorCollapsed);
-  });
-
   const setStatus = (text: string) => {
     if (saveInProgress && text === '') {
       return;
     }
-    ui.status.textContent = text;
+    toolbarApi?.update({ statusText: text });
   };
 
   const getPreviewCss = () => (tailwindEnabled ? tailwindCss : cssModel.getValue());
@@ -876,7 +812,7 @@ async function main() {
   const setTailwindEnabled = (enabled: boolean) => {
     tailwindEnabled = enabled;
     ui.app.classList.toggle('is-tailwind', enabled);
-    ui.tailwindBadge.hidden = !enabled;
+    toolbarApi?.update({ tailwindEnabled: enabled });
     if (enabled && editorSplitActive) {
       clearEditorSplit();
     }
@@ -1105,13 +1041,12 @@ async function main() {
     sendInit();
   });
 
-  // Toolbar actions
-  ui.btnUndo.addEventListener('click', () => activeEditor?.trigger('toolbar', 'undo', null));
-  ui.btnRedo.addEventListener('click', () => activeEditor?.trigger('toolbar', 'redo', null));
-
-  ui.btnSave.addEventListener('click', async () => {
+  async function handleSave() {
+    if (!htmlModel || !cssModel) {
+      return;
+    }
     saveInProgress = true;
-    ui.status.textContent = 'Saving...';
+    setStatus('Saving...');
 
     try {
       const cssForSave = tailwindEnabled ? '' : cssModel.getValue();
@@ -1127,21 +1062,21 @@ async function main() {
       });
 
       if (res?.ok) {
-        ui.status.textContent = 'Saved.';
+        setStatus('Saved.');
         window.setTimeout(() => {
           if (!tailwindCompileInFlight) {
-            ui.status.textContent = '';
+            setStatus('');
           }
         }, 1200);
       } else {
-        ui.status.textContent = 'Save failed.';
+        setStatus('Save failed.');
       }
     } catch (e: any) {
-      ui.status.textContent = `Save error: ${e?.message ?? e}`;
+      setStatus(`Save error: ${e?.message ?? e}`);
     } finally {
       saveInProgress = false;
     }
-  });
+  }
 
   // iframe -> parent への通信：DOM セレクタの受け取りや初期化に用いる
   window.addEventListener('message', (event) => {
@@ -1161,17 +1096,11 @@ async function main() {
     }
   });
 
-  let settingsOpen = false;
   const setSettingsOpen = (open: boolean) => {
     settingsOpen = open;
     ui.app.classList.toggle('is-settings-open', open);
-    ui.btnSettings.classList.toggle('is-active', open);
-    ui.btnSettings.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toolbarApi?.update({ settingsOpen: open });
   };
-
-  ui.btnSettings.addEventListener('click', () => {
-    setSettingsOpen(!settingsOpen);
-  });
 }
 
 main().catch((e) => {
