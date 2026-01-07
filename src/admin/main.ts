@@ -192,12 +192,13 @@ function canonicalizeHtml(html: string): CanonicalResult {
 
     walkCanonicalTree(fragment, null, map, nextId);
 
-    return { canonicalHTML: parse5.serialize(fragment), map };
+    return { canonicalHTML: parse5.serialize(fragment), map, shortcodes: [] };
   } catch (error: any) {
     console.error('[WP LiveCode] canonicalizeHtml failed', error);
     return {
       canonicalHTML: html,
       map: {},
+      shortcodes: [],
       error: error?.message ?? String(error),
     };
   }

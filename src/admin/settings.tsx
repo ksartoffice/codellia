@@ -130,7 +130,7 @@ function SettingsSection({
   children,
 }: {
   title: string;
-  children: JSX.Element | JSX.Element[] | null;
+  children: React.ReactNode;
 }) {
   return (
     <div className="lc-settingsSection">
@@ -958,11 +958,11 @@ function SettingsSidebar({ data, restUrl, postId, backUrl, apiFetch }: SettingsC
           value={getOptionLabel(settings.formats, settings.format)}
           onClick={() => setActiveModal('format')}
         />
-        {settings.canTrash ? (
+        {settings.canTrash && (
           <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
             ゴミ箱へ移動
           </button>
-        ) : null}
+        )}
       </SettingsSection>
 
       <SettingsSection title="アイキャッチ画像">
