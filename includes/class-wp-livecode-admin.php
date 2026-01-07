@@ -75,6 +75,11 @@ class Admin {
 			WP_LIVECODE_VERSION,
 			true
 		);
+		wp_add_inline_script(
+			'wp-livecode-monaco-loader',
+			'if (typeof window.define === "function" && window.define.amd) { window.__lcDefineAmd = window.define.amd; window.define.amd = undefined; }',
+			'after'
+		);
 
 		// Admin app bundle (Vite output)
 		wp_register_script(
