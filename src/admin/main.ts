@@ -1,5 +1,6 @@
 ﻿// filepath: src/admin/main.ts
 import './style.css';
+import { emmetCSS, emmetHTML } from 'emmet-monaco-es';
 import * as parse5 from 'parse5';
 import type { DefaultTreeAdapterTypes } from 'parse5';
 import { initSettings, type SettingsData } from './settings';
@@ -525,7 +526,9 @@ function buildLayout(root: HTMLElement) {
   cssWrap.append(cssEditorDiv);
   cssPane.append(cssHeader, cssWrap);
 
-  left.append(htmlPane, cssPane);
+  const editorResizer = el('div', 'lc-editorResizer');
+
+  left.append(htmlPane, editorResizer, cssPane);
 
   // Preview
   const iframe = document.createElement('iframe');
@@ -553,6 +556,7 @@ function buildLayout(root: HTMLElement) {
     cssEditorDiv,
     htmlPane,
     cssPane,
+    editorResizer,
     main,
     left,
     right,
@@ -572,6 +576,8 @@ async function main() {
   ui.backLink.href = cfg.backUrl || '/wp-admin/';
   ui.resizer.setAttribute('role', 'separator');
   ui.resizer.setAttribute('aria-orientation', 'vertical');
+  ui.editorResizer.setAttribute('role', 'separator');
+  ui.editorResizer.setAttribute('aria-orientation', 'horizontal');
 
   // REST nonce middleware
   if (wp?.apiFetch?.createNonceMiddleware) {
@@ -594,6 +600,9 @@ async function main() {
   // Monaco
   ui.status.textContent = 'Loading Monaco...';
   const monaco = await loadMonaco(cfg.monacoVsPath);
+
+  emmetHTML(monaco, ['html']);
+  emmetCSS(monaco, ['css']);
 
   const htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
   const cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
@@ -641,11 +650,17 @@ async function main() {
 
   const minLeftWidth = 320;
   const minRightWidth = 360;
+  const minEditorPaneHeight = 160;
   let isResizing = false;
+  let isEditorResizing = false;
   let editorCollapsed = false;
   let startX = 0;
+  let startY = 0;
   let startWidth = 0;
+  let startHeight = 0;
   let lastLeftWidth = ui.left.getBoundingClientRect().width || minLeftWidth;
+  let lastHtmlHeight = 0;
+  let editorSplitActive = false;
 
   const setLeftWidth = (width: number) => {
     const clamped = Math.max(minLeftWidth, width);
@@ -657,6 +672,29 @@ async function main() {
   const clearLeftWidth = () => {
     ui.left.style.flex = '';
     ui.left.style.width = '';
+  };
+
+  const clearEditorSplit = () => {
+    ui.htmlPane.style.flex = '';
+    ui.htmlPane.style.height = '';
+    ui.cssPane.style.flex = '';
+    ui.cssPane.style.height = '';
+  };
+
+  const setEditorSplitHeight = (height: number) => {
+    const leftRect = ui.left.getBoundingClientRect();
+    const resizerHeight = ui.editorResizer.getBoundingClientRect().height;
+    const available = Math.max(0, leftRect.height - resizerHeight);
+    if (available <= 0) return;
+    const maxHtmlHeight = Math.max(0, available - minEditorPaneHeight);
+    const minHtmlHeight = Math.min(minEditorPaneHeight, maxHtmlHeight);
+    const clamped = Math.min(maxHtmlHeight, Math.max(minHtmlHeight, height));
+    lastHtmlHeight = clamped;
+    editorSplitActive = true;
+    ui.htmlPane.style.flex = `0 0 ${clamped}px`;
+    ui.htmlPane.style.height = `${clamped}px`;
+    ui.cssPane.style.flex = '1 1 auto';
+    ui.cssPane.style.height = '';
   };
 
   const setEditorCollapsed = (collapsed: boolean) => {
@@ -719,6 +757,41 @@ async function main() {
   window.addEventListener('pointerup', stopResizing);
   ui.resizer.addEventListener('pointerup', stopResizing);
   ui.resizer.addEventListener('pointercancel', stopResizing);
+
+  const onEditorPointerMove = (event: PointerEvent) => {
+    if (!isEditorResizing) return;
+    const nextHeight = startHeight + event.clientY - startY;
+    setEditorSplitHeight(nextHeight);
+  };
+
+  const stopEditorResizing = (event?: PointerEvent) => {
+    if (!isEditorResizing) return;
+    isEditorResizing = false;
+    ui.app.classList.remove('is-resizing');
+    if (event) {
+      try {
+        ui.editorResizer.releasePointerCapture(event.pointerId);
+      } catch {
+        // Ignore if pointer capture isn't active.
+      }
+    }
+  };
+
+  ui.editorResizer.addEventListener('pointerdown', (event) => {
+    if (editorCollapsed || tailwindEnabled) {
+      return;
+    }
+    isEditorResizing = true;
+    startY = event.clientY;
+    startHeight = ui.htmlPane.getBoundingClientRect().height;
+    ui.app.classList.add('is-resizing');
+    ui.editorResizer.setPointerCapture(event.pointerId);
+  });
+
+  window.addEventListener('pointermove', onEditorPointerMove);
+  window.addEventListener('pointerup', stopEditorResizing);
+  ui.editorResizer.addEventListener('pointerup', stopEditorResizing);
+  ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
 
   ui.btnToggleEditor.addEventListener('click', () => {
     setEditorCollapsed(!editorCollapsed);
@@ -793,6 +866,9 @@ async function main() {
     ui.app.classList.toggle('is-tailwind', enabled);
     ui.tailwindToggle.classList.toggle('is-on', enabled);
     ui.tailwindLabel.textContent = enabled ? 'TailwindCSS: On' : 'TailwindCSS: Off';
+    if (enabled && editorSplitActive) {
+      clearEditorSplit();
+    }
     if (enabled && activeEditor === cssEditor) {
       htmlEditor.focus();
       setActiveEditor(htmlEditor, ui.htmlPane);
@@ -802,6 +878,9 @@ async function main() {
       sendRender();
       compileTailwind();
     } else {
+      if (editorSplitActive && lastHtmlHeight > 0) {
+        setEditorSplitHeight(lastHtmlHeight);
+      }
       sendRender();
     }
   };
