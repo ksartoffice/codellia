@@ -85,7 +85,7 @@ class Admin {
 		wp_register_script(
 			'wp-livecode-admin',
 			WP_LIVECODE_URL . 'assets/dist/main.js',
-			[ 'wp-livecode-monaco-loader', 'wp-api-fetch' ],
+			[ 'wp-livecode-monaco-loader', 'wp-api-fetch', 'wp-element' ],
 			WP_LIVECODE_VERSION,
 			true
 		);
