@@ -6,6 +6,8 @@ use TailwindPHP\tw;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Rest {
+	private const MAX_EXTERNAL_SCRIPTS = 5;
+
 	public static function init(): void {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 	}
@@ -356,6 +358,7 @@ class Rest {
 			'canTrash'        => current_user_can( 'delete_post', $post_id ),
 			'jsEnabled'       => get_post_meta( $post_id, '_lc_js_enabled', true ) === '1',
 			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
+			'externalScripts' => self::get_external_scripts( $post_id ),
 		];
 	}
 
@@ -516,10 +519,115 @@ class Rest {
 			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
 		}
 
+		if ( array_key_exists( 'externalScripts', $updates ) ) {
+			if ( ! current_user_can( 'unfiltered_html' ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				], 403 );
+			}
+			if ( ! is_array( $updates['externalScripts'] ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Invalid external scripts payload.',
+				], 400 );
+			}
+
+			$raw_scripts = array_values( $updates['externalScripts'] );
+			$sanitized = [];
+			foreach ( $raw_scripts as $script_url ) {
+				if ( ! is_string( $script_url ) ) {
+					continue;
+				}
+				$script_url = trim( $script_url );
+				if ( $script_url === '' ) {
+					continue;
+				}
+				$clean_url = self::sanitize_external_script_url( $script_url );
+				if ( ! $clean_url ) {
+					return new \WP_REST_Response( [
+						'ok'    => false,
+						'error' => 'External scripts must be valid https:// URLs.',
+					], 400 );
+				}
+				$sanitized[] = $clean_url;
+			}
+
+			$sanitized = array_values( array_unique( $sanitized ) );
+			if ( count( $sanitized ) > self::MAX_EXTERNAL_SCRIPTS ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'External scripts exceed the maximum allowed.',
+				], 400 );
+			}
+
+			if ( empty( $sanitized ) ) {
+				delete_post_meta( $post_id, '_lc_external_scripts' );
+			} else {
+				update_post_meta(
+					$post_id,
+					'_lc_external_scripts',
+					wp_json_encode( $sanitized, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+				);
+			}
+		}
+
 		return new \WP_REST_Response( [
 			'ok'       => true,
 			'settings' => self::build_settings_payload( $post_id ),
 		], 200 );
+	}
+
+	private static function get_external_scripts( int $post_id ): array {
+		$raw = get_post_meta( $post_id, '_lc_external_scripts', true );
+		$list = [];
+
+		if ( is_array( $raw ) ) {
+			$list = $raw;
+		} elseif ( is_string( $raw ) && $raw !== '' ) {
+			$decoded = json_decode( $raw, true );
+			if ( is_array( $decoded ) ) {
+				$list = $decoded;
+			}
+		}
+
+		$clean = [];
+		foreach ( $list as $entry ) {
+			if ( ! is_string( $entry ) ) {
+				continue;
+			}
+			$clean_url = self::sanitize_external_script_url( $entry );
+			if ( $clean_url ) {
+				$clean[] = $clean_url;
+			}
+		}
+
+		$clean = array_values( array_unique( $clean ) );
+		if ( count( $clean ) > self::MAX_EXTERNAL_SCRIPTS ) {
+			$clean = array_slice( $clean, 0, self::MAX_EXTERNAL_SCRIPTS );
+		}
+
+		return $clean;
+	}
+
+	private static function sanitize_external_script_url( string $url ): ?string {
+		$url = trim( $url );
+		if ( $url === '' ) {
+			return null;
+		}
+
+		$validated = wp_http_validate_url( $url );
+		if ( ! $validated ) {
+			return null;
+		}
+
+		$parts = wp_parse_url( $validated );
+		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
+		if ( $scheme !== 'https' ) {
+			return null;
+		}
+
+		return esc_url_raw( $validated );
 	}
 
 	/**

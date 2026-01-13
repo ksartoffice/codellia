@@ -1,6 +1,7 @@
 (function () {
   const styleId = 'lc-style';
   const scriptId = 'lc-script';
+  const externalScriptAttr = 'data-lc-external-script';
   const LC_ATTR_NAME = 'data-lc-id';
   const config = window.WP_LIVECODE_PREVIEW || {};
   const markerStart =
@@ -14,6 +15,9 @@
   let selectTarget = null;
   let selectBox = null;
   let markerNodes = null;
+  let externalScripts = [];
+  let externalScriptsReady = Promise.resolve();
+  let externalScriptsToken = 0;
 
   function getAllowedOrigin() {
     if (config.allowedOrigin) return config.allowedOrigin;
@@ -186,13 +190,77 @@
   }
 
   function runJs(jsText) {
-    removeScriptElement();
-    if (!jsText) return;
-    const scriptEl = document.createElement('script');
-    scriptEl.id = scriptId;
-    scriptEl.type = 'text/javascript';
-    scriptEl.text = String(jsText);
-    document.body.appendChild(scriptEl);
+    if (!jsText) {
+      removeScriptElement();
+      return;
+    }
+    const runInline = () => {
+      removeScriptElement();
+      const scriptEl = document.createElement('script');
+      scriptEl.id = scriptId;
+      scriptEl.type = 'text/javascript';
+      scriptEl.text = String(jsText);
+      document.body.appendChild(scriptEl);
+    };
+
+    const currentReady = externalScriptsReady;
+    currentReady.then(() => {
+      if (currentReady !== externalScriptsReady) return;
+      runInline();
+    });
+  }
+
+  function normalizeExternalScripts(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((entry) => String(entry).trim())
+      .filter(Boolean);
+  }
+
+  function isSameList(a, b) {
+    if (a.length !== b.length) return false;
+    return a.every((value, index) => value === b[index]);
+  }
+
+  function clearExternalScripts() {
+    const nodes = document.querySelectorAll('script[' + externalScriptAttr + ']');
+    nodes.forEach((node) => node.remove());
+  }
+
+  function loadExternalScripts(list) {
+    externalScriptsToken += 1;
+    const token = externalScriptsToken;
+    clearExternalScripts();
+    if (!list.length) {
+      return Promise.resolve();
+    }
+
+    const head = document.head || document.body;
+    return list.reduce((chain, url) => {
+      return chain.then(
+        () =>
+          new Promise((resolve) => {
+            if (token !== externalScriptsToken) {
+              resolve();
+              return;
+            }
+            const scriptEl = document.createElement('script');
+            scriptEl.setAttribute(externalScriptAttr, '1');
+            scriptEl.async = false;
+            scriptEl.src = url;
+            scriptEl.onload = () => resolve();
+            scriptEl.onerror = () => resolve();
+            head.appendChild(scriptEl);
+          })
+      );
+    }, Promise.resolve());
+  }
+
+  function setExternalScripts(list) {
+    const next = normalizeExternalScripts(list);
+    if (isSameList(next, externalScripts)) return;
+    externalScripts = next;
+    externalScriptsReady = loadExternalScripts(next);
   }
 
   function findMarkers() {
@@ -279,6 +347,10 @@
     if (data.type === 'LC_DISABLE_JS') {
       if (!isReady) return;
       removeScriptElement();
+    }
+    if (data.type === 'LC_EXTERNAL_SCRIPTS') {
+      if (!isReady) return;
+      setExternalScripts(data.urls || []);
     }
   });
 

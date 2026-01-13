@@ -617,6 +617,31 @@ body.admin_page_wp-livecode #wpbody-content {
   color: #ff9a9a;
 }
 
+.lc-settingsScriptList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-settingsScriptRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-settingsScriptInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.lc-settingsScriptButton {
+  flex: 0 0 auto;
+}
+
+.lc-settingsScriptAdd {
+  align-self: flex-start;
+}
+
 .lc-settingsToggle {
   align-items: center;
 }

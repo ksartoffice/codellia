@@ -53,6 +53,7 @@ export type SettingsData = {
   canTrash: boolean;
   jsEnabled: boolean;
   canEditJavaScript: boolean;
+  externalScripts: string[];
 };
 
 type SettingsConfig = {
@@ -64,6 +65,7 @@ type SettingsConfig = {
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
   onJavaScriptToggle?: (enabled: boolean) => void;
+  onExternalScriptsChange?: (scripts: string[]) => void;
 };
 
 type UpdateResponse = {
@@ -844,12 +846,15 @@ function SettingsSidebar({
   apiFetch,
   header,
   onJavaScriptToggle,
+  onExternalScriptsChange,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
   const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
   const [designError, setDesignError] = useState('');
+  const [externalScripts, setExternalScripts] = useState<string[]>(data.externalScripts || []);
+  const [externalScriptsError, setExternalScriptsError] = useState('');
   const [titleDraft, setTitleDraft] = useState(settings.title || '');
   const [titleError, setTitleError] = useState('');
 
@@ -860,6 +865,11 @@ function SettingsSidebar({
   useEffect(() => {
     setEnableJavaScript(Boolean(settings.jsEnabled));
   }, [settings.jsEnabled]);
+
+  useEffect(() => {
+    setExternalScripts(settings.externalScripts || []);
+    onExternalScriptsChange?.(settings.externalScripts || []);
+  }, [settings.externalScripts, onExternalScriptsChange]);
 
   useEffect(() => {
     onJavaScriptToggle?.(enableJavaScript);
@@ -896,6 +906,14 @@ function SettingsSidebar({
 
   const canEditJavaScript = Boolean(settings.canEditJavaScript);
 
+  const normalizeScripts = (list: string[]) =>
+    list
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+
+  const isSameList = (left: string[], right: string[]) =>
+    left.length === right.length && left.every((value, index) => value === right[index]);
+
   const handleJavaScriptToggle = async (enabled: boolean) => {
     if (!canEditJavaScript) {
       return;
@@ -907,6 +925,30 @@ function SettingsSidebar({
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setEnableJavaScript(Boolean(settings.jsEnabled));
+    }
+  };
+
+  const handleExternalScriptsChange = (next: string[]) => {
+    setExternalScripts(next);
+  };
+
+  const handleExternalScriptsCommit = async (next: string[]) => {
+    if (!canEditJavaScript) {
+      return;
+    }
+    const normalizedNext = normalizeScripts(next);
+    const normalizedCurrent = normalizeScripts(settings.externalScripts || []);
+    if (isSameList(normalizedNext, normalizedCurrent)) {
+      setExternalScripts(normalizedNext);
+      return;
+    }
+    setExternalScriptsError('');
+    setExternalScripts(next);
+    try {
+      await updateSettings({ externalScripts: normalizedNext });
+    } catch (err: any) {
+      setExternalScriptsError(err?.message || String(err));
+      setExternalScripts(settings.externalScripts || []);
     }
   };
 
@@ -1079,8 +1121,12 @@ function SettingsSidebar({
         <DesignSettingsPanel
           enableJavaScript={enableJavaScript}
           onToggleJavaScript={handleJavaScriptToggle}
+          externalScripts={externalScripts}
+          onChangeExternalScripts={handleExternalScriptsChange}
+          onCommitExternalScripts={handleExternalScriptsCommit}
           disabled={!canEditJavaScript}
           error={designError}
+          externalScriptsError={externalScriptsError}
         />
       )}
 

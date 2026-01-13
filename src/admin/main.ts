@@ -594,6 +594,9 @@ async function main() {
   let editorCollapsed = false;
   let settingsOpen = false;
   let jsEnabled = Boolean(cfg.jsEnabled);
+  let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
+    ? [...cfg.settingsData.externalScripts]
+    : [];
   let jsAutoRun = false;
   let activeCssTab: 'css' | 'js' = 'css';
   let editorsReady = false;
@@ -728,8 +731,12 @@ async function main() {
       return;
     }
     if (!enabled) {
+      sendExternalScripts([]);
       sendDisableJs();
-    } else if (jsAutoRun) {
+      return;
+    }
+    sendExternalScripts(externalScripts);
+    if (jsAutoRun) {
       sendRunJs();
     }
   };
@@ -761,6 +768,10 @@ async function main() {
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
     onJavaScriptToggle: setJavaScriptEnabled,
+    onExternalScriptsChange: (scripts) => {
+      externalScripts = scripts;
+      sendExternalScripts(jsEnabled ? externalScripts : []);
+    },
   });
 
   ui.runButton.addEventListener('click', () => {
@@ -1111,6 +1122,19 @@ async function main() {
     ui.iframe.contentWindow?.postMessage({ type: 'LC_DISABLE_JS' }, targetOrigin);
   };
 
+  function sendExternalScripts(scripts: string[]) {
+    if (!previewReady) {
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_EXTERNAL_SCRIPTS',
+        urls: scripts,
+      },
+      targetOrigin
+    );
+  }
+
   const flushPendingJsAction = () => {
     if (!pendingJsAction) return;
     const action = pendingJsAction;
@@ -1327,6 +1351,7 @@ async function main() {
         pendingRender = false;
       }
       sendRender();
+      sendExternalScripts(jsEnabled ? externalScripts : []);
       flushPendingJsAction();
     }
 
