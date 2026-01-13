@@ -384,28 +384,6 @@ body.admin_page_wp-livecode #wpbody-content {
   cursor: default;
 }
 
-.lc-editorToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #a7adb8;
-  cursor: pointer;
-}
-
-.lc-editorToggleInput:disabled {
-  cursor: default;
-}
-
-.lc-editorToggleInput {
-  accent-color: #4c84ff;
-}
-
-.lc-editorToggleLabel {
-  text-transform: none;
-  letter-spacing: 0;
-}
-
 .lc-editorWrap {
   flex: 1;
   min-height: 0;

@@ -474,15 +474,7 @@ function buildLayout(root: HTMLElement) {
   runButton.type = 'button';
   runButton.className = 'lc-editorAction';
   runButton.textContent = 'Run';
-  const autoRunLabel = el('label', 'lc-editorToggle');
-  const autoRunInput = document.createElement('input');
-  autoRunInput.type = 'checkbox';
-  autoRunInput.className = 'lc-editorToggleInput';
-  autoRunInput.setAttribute('aria-label', 'Auto-run JavaScript');
-  const autoRunText = el('span', 'lc-editorToggleLabel');
-  autoRunText.textContent = 'Auto-run';
-  autoRunLabel.append(autoRunInput, autoRunText);
-  jsControls.append(runButton, autoRunLabel);
+  jsControls.append(runButton);
 
   cssHeader.append(cssTabs, jsControls);
   const cssWrap = el('div', 'lc-editorWrap lc-editorWrap-tabs');
@@ -517,7 +509,6 @@ function buildLayout(root: HTMLElement) {
     jsTab,
     jsControls,
     runButton,
-    autoRunInput,
     editorResizer,
     main,
     left,
@@ -597,7 +588,6 @@ async function main() {
   let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
     ? [...cfg.settingsData.externalScripts]
     : [];
-  let jsAutoRun = false;
   let activeCssTab: 'css' | 'js' = 'css';
   let editorsReady = false;
   let pendingJsAction: 'run' | 'disable' | null = null;
@@ -692,7 +682,6 @@ async function main() {
     ui.jsTab.disabled = !jsEnabled;
     ui.jsControls.style.display = jsEnabled && activeCssTab === 'js' ? '' : 'none';
     ui.runButton.disabled = !jsEnabled;
-    ui.autoRunInput.disabled = !jsEnabled;
   };
 
   const setCssTab = (tab: 'css' | 'js') => {
@@ -725,8 +714,6 @@ async function main() {
     if (!sendRunJs || !sendDisableJs) {
       if (!enabled) {
         pendingJsAction = 'disable';
-      } else if (jsAutoRun) {
-        pendingJsAction = 'run';
       }
       return;
     }
@@ -736,9 +723,6 @@ async function main() {
       return;
     }
     sendExternalScripts(externalScripts);
-    if (jsAutoRun) {
-      sendRunJs();
-    }
   };
 
   setActiveEditor(htmlEditor, ui.htmlPane);
@@ -757,7 +741,6 @@ async function main() {
   ui.jsTab.addEventListener('click', () => setCssTab('js'));
   editorsReady = true;
   updateJsUi();
-  ui.autoRunInput.checked = jsAutoRun;
 
   initSettings({
     container: ui.settingsBody,
@@ -780,17 +763,6 @@ async function main() {
       sendRunJs();
     } else {
       pendingJsAction = 'run';
-    }
-  });
-
-  ui.autoRunInput.addEventListener('change', () => {
-    jsAutoRun = ui.autoRunInput.checked;
-    if (jsAutoRun && jsEnabled) {
-      if (sendRunJs) {
-        sendRunJs();
-      } else {
-        pendingJsAction = 'run';
-      }
     }
   });
 
@@ -1089,9 +1061,6 @@ async function main() {
       return;
     }
     ui.iframe.contentWindow?.postMessage(payload, targetOrigin);
-    if (jsAutoRun && jsEnabled) {
-      sendRunJsDebounced();
-    }
   };
 
   const sendRenderDebounced = debounce(sendRender, 120);
@@ -1146,13 +1115,6 @@ async function main() {
     }
   };
 
-  const sendRunJsDebounced = debounce(() => {
-    if (sendRunJs) {
-      sendRunJs();
-    } else {
-      pendingJsAction = 'run';
-    }
-  }, 200);
   setTailwindEnabled(tailwindEnabled);
   setJavaScriptEnabled(jsEnabled);
   flushPendingJsAction();
@@ -1285,9 +1247,6 @@ async function main() {
   });
 
   jsModel.onDidChangeContent(() => {
-    if (jsAutoRun) {
-      sendRunJsDebounced();
-    }
     updateUndoRedoState();
   });
 
