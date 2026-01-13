@@ -46,6 +46,10 @@ class Rest {
 					'type'     => 'string',
 					'required' => true,
 				],
+				'css'    => [
+					'type'     => 'string',
+					'required' => false,
+				],
 			],
 		] );
 
@@ -96,7 +100,7 @@ class Rest {
 	public static function save( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$html    = (string) $request->get_param( 'html' );
-		$css     = (string) $request->get_param( 'css' );
+		$css_input = (string) $request->get_param( 'css' );
 		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwind' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
@@ -126,11 +130,12 @@ class Rest {
 			], 400 );
 		}
 
+		$compiled_css = '';
 		if ( $tailwind_enabled ) {
 			try {
-				$css = tw::generate( [
+				$compiled_css = tw::generate( [
 					'content' => $html,
-					'css'     => '@import "tailwindcss";',
+					'css'     => $css_input,
 				] );
 			} catch ( \Throwable $e ) {
 				return new \WP_REST_Response( [
@@ -140,7 +145,12 @@ class Rest {
 			}
 		}
 
-		update_post_meta( $post_id, '_lc_css', $css );
+		update_post_meta( $post_id, '_lc_css', $css_input );
+		if ( $tailwind_enabled ) {
+			update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
+		} else {
+			delete_post_meta( $post_id, '_lc_generated_css' );
+		}
 		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 
@@ -150,6 +160,7 @@ class Rest {
 	public static function compile_tailwind( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$html    = (string) $request->get_param( 'html' );
+		$css_input = (string) $request->get_param( 'css' );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
 			return new \WP_REST_Response( [
@@ -161,7 +172,7 @@ class Rest {
 		try {
 			$css = tw::generate( [
 				'content' => $html,
-				'css'     => '@import "tailwindcss";',
+				'css'     => $css_input,
 			] );
 		} catch ( \Throwable $e ) {
 			return new \WP_REST_Response( [

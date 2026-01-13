@@ -329,14 +329,6 @@ body.admin_page_wp-livecode #wpbody-content {
   height: 100%;
 }
 
-.lc-app.is-tailwind .lc-editorPane-css {
-  display: none;
-}
-
-.lc-app.is-tailwind .lc-editorResizer {
-  display: none;
-}
-
 .lc-right {
   background: #111318;
 }

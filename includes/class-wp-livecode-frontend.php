@@ -50,12 +50,13 @@ class Frontend {
 			return;
 		}
 
-		$is_tailwind = get_post_meta( $post_id, '_lc_tailwind', true ) === '1';
-		$stored_css  = (string) get_post_meta( $post_id, '_lc_css', true );
-		$css         = $stored_css;
+		$is_tailwind   = get_post_meta( $post_id, '_lc_tailwind', true ) === '1';
+		$stored_css    = (string) get_post_meta( $post_id, '_lc_css', true );
+		$generated_css = (string) get_post_meta( $post_id, '_lc_generated_css', true );
+		$css           = $is_tailwind ? $generated_css : $stored_css;
 
-		$has_unescaped_arbitrary = $stored_css !== '' && strpos( $stored_css, '-[' ) !== false && strpos( $stored_css, '-\\[' ) === false;
-		$should_compile          = $is_tailwind || $has_unescaped_arbitrary;
+		$has_unescaped_arbitrary = ! $is_tailwind && $stored_css !== '' && strpos( $stored_css, '-[' ) !== false && strpos( $stored_css, '-\\[' ) === false;
+		$should_compile          = ! $is_tailwind && $has_unescaped_arbitrary;
 
 		if ( $should_compile ) {
 			$post = get_post( $post_id );

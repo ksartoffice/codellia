@@ -97,6 +97,7 @@ const LC_ATTR_NAME = 'data-lc-id';
 const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
 const SHORTCODE_REGEX =
   /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
+const DEFAULT_TAILWIND_CSS = '@import "tailwindcss";\n\n@theme {\n  /* ... */\n}\n';
 
 function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
   return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
@@ -594,7 +595,11 @@ async function main() {
   emmetCSS(monaco, ['css']);
 
   htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
-  cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
+  const initialCss =
+    tailwindEnabled && (cfg.initialCss ?? '').trim() === ''
+      ? DEFAULT_TAILWIND_CSS
+      : (cfg.initialCss ?? '');
+  cssModel = monaco.editor.createModel(initialCss, 'css');
 
   const htmlEditor = monaco.editor.create(ui.htmlEditorDiv, {
     model: htmlModel,
@@ -765,7 +770,7 @@ async function main() {
   };
 
   ui.editorResizer.addEventListener('pointerdown', (event) => {
-    if (editorCollapsed || tailwindEnabled) {
+    if (editorCollapsed) {
       return;
     }
     isEditorResizing = true;
@@ -806,6 +811,7 @@ async function main() {
         data: {
           postId: cfg.postId,
           html: htmlModel.getValue(),
+          css: cssModel.getValue(),
         },
       });
 
@@ -847,15 +853,7 @@ async function main() {
     tailwindEnabled = enabled;
     ui.app.classList.toggle('is-tailwind', enabled);
     toolbarApi?.update({ tailwindEnabled: enabled });
-    if (enabled && editorSplitActive) {
-      clearEditorSplit();
-    }
-    if (enabled && activeEditor === cssEditor) {
-      htmlEditor.focus();
-      setActiveEditor(htmlEditor, ui.htmlPane);
-    }
     if (enabled) {
-      tailwindCss = cssModel.getValue();
       sendRender();
       compileTailwind();
     } else {
@@ -1063,6 +1061,9 @@ async function main() {
   });
   cssModel.onDidChangeContent(() => {
     sendRenderDebounced();
+    if (tailwindEnabled) {
+      compileTailwindDebounced();
+    }
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
     clearCssSelectionHighlight();
     updateUndoRedoState();
@@ -1083,7 +1084,7 @@ async function main() {
     setStatus('Saving...');
 
     try {
-      const cssForSave = tailwindEnabled ? '' : cssModel.getValue();
+      const cssForSave = cssModel.getValue();
       const res = await wp.apiFetch({
         url: cfg.restUrl,
         method: 'POST',
