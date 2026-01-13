@@ -51,6 +51,8 @@ export type SettingsData = {
   categoriesList: SettingsCategory[];
   canPublish: boolean;
   canTrash: boolean;
+  jsEnabled: boolean;
+  canEditJavaScript: boolean;
 };
 
 type SettingsConfig = {
@@ -61,6 +63,7 @@ type SettingsConfig = {
   postId: number;
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
+  onJavaScriptToggle?: (enabled: boolean) => void;
 };
 
 type UpdateResponse = {
@@ -833,17 +836,34 @@ function TagsModal({
   );
 }
 
-function SettingsSidebar({ data, restUrl, postId, backUrl, apiFetch, header }: SettingsConfig) {
+function SettingsSidebar({
+  data,
+  restUrl,
+  postId,
+  backUrl,
+  apiFetch,
+  header,
+  onJavaScriptToggle,
+}: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
-  const [enableJavaScript, setEnableJavaScript] = useState(false);
+  const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
+  const [designError, setDesignError] = useState('');
   const [titleDraft, setTitleDraft] = useState(settings.title || '');
   const [titleError, setTitleError] = useState('');
 
   useEffect(() => {
     setTitleDraft(settings.title || '');
   }, [settings.title]);
+
+  useEffect(() => {
+    setEnableJavaScript(Boolean(settings.jsEnabled));
+  }, [settings.jsEnabled]);
+
+  useEffect(() => {
+    onJavaScriptToggle?.(enableJavaScript);
+  }, [enableJavaScript, onJavaScriptToggle]);
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
@@ -873,6 +893,22 @@ function SettingsSidebar({ data, restUrl, postId, backUrl, apiFetch, header }: S
     },
     [apiFetch, restUrl, postId]
   );
+
+  const canEditJavaScript = Boolean(settings.canEditJavaScript);
+
+  const handleJavaScriptToggle = async (enabled: boolean) => {
+    if (!canEditJavaScript) {
+      return;
+    }
+    setDesignError('');
+    setEnableJavaScript(enabled);
+    try {
+      await updateSettings({ enableJavaScript: enabled });
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setEnableJavaScript(Boolean(settings.jsEnabled));
+    }
+  };
 
   const handleTitleSave = async () => {
     setTitleError('');
@@ -1042,7 +1078,9 @@ function SettingsSidebar({ data, restUrl, postId, backUrl, apiFetch, header }: S
       ) : (
         <DesignSettingsPanel
           enableJavaScript={enableJavaScript}
-          onToggleJavaScript={setEnableJavaScript}
+          onToggleJavaScript={handleJavaScriptToggle}
+          disabled={!canEditJavaScript}
+          error={designError}
         />
       )}
 

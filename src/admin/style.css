@@ -319,9 +319,104 @@ body.admin_page_wp-livecode #wpbody-content {
   color: #a7adb8;
 }
 
+.lc-editorHeader-tabs {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-editorTabs {
+  display: flex;
+  gap: 8px;
+}
+
+.lc-editorTab {
+  border: 0;
+  padding: 4px 6px;
+  background: transparent;
+  color: #a7adb8;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  /* text-transform: uppercase; */
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+
+.lc-editorTab:hover {
+  color: #e6e8ea;
+}
+
+.lc-editorTab.is-active {
+  color: #fff;
+  border-bottom-color: #2f6feb;
+}
+
+.lc-editorTab:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.lc-editorActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-editorAction {
+  border: 1px solid #39414f;
+  background: #2a303b;
+  color: #e6e8ea;
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.lc-editorAction:hover {
+  background: #333b47;
+}
+
+.lc-editorAction:active {
+  background: #1b1f27;
+}
+
+.lc-editorAction:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.lc-editorToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #a7adb8;
+  cursor: pointer;
+}
+
+.lc-editorToggleInput:disabled {
+  cursor: default;
+}
+
+.lc-editorToggleInput {
+  accent-color: #4c84ff;
+}
+
+.lc-editorToggleLabel {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 .lc-editorWrap {
   flex: 1;
   min-height: 0;
+}
+
+.lc-editorWrap-tabs .lc-editor {
+  display: none;
+}
+
+.lc-editorWrap-tabs .lc-editor.is-active {
+  display: block;
 }
 
 .lc-editor {
@@ -469,7 +564,7 @@ body.admin_page_wp-livecode #wpbody-content {
 
 .lc-settingsSectionTitle {
   font-size: 11px;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.14em;
   color: #8f96a2;
 }
@@ -510,6 +605,16 @@ body.admin_page_wp-livecode #wpbody-content {
   max-height: 54px;
   border-radius: 6px;
   border: 1px solid #2a313d;
+}
+
+.lc-settingsHelp {
+  font-size: 11px;
+  color: #6c7480;
+}
+
+.lc-settingsError {
+  font-size: 11px;
+  color: #ff9a9a;
 }
 
 .lc-settingsToggle {

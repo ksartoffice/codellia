@@ -101,6 +101,10 @@ class Rest {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$html    = (string) $request->get_param( 'html' );
 		$css_input = (string) $request->get_param( 'css' );
+		$js_input = (string) $request->get_param( 'js' );
+		$has_js = $request->has_param( 'js' );
+		$has_js_enabled = $request->has_param( 'jsEnabled' );
+		$js_enabled = rest_sanitize_boolean( $request->get_param( 'jsEnabled' ) );
 		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwind' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
@@ -108,6 +112,13 @@ class Rest {
 				'ok'    => false,
 				'error' => 'Invalid post type.',
 			], 400 );
+		}
+
+		if ( ( $has_js || $has_js_enabled ) && ! current_user_can( 'unfiltered_html' ) ) {
+			return new \WP_REST_Response( [
+				'ok'    => false,
+				'error' => 'Permission denied.',
+			], 403 );
 		}
 
 		$tailwind_meta   = get_post_meta( $post_id, '_lc_tailwind', true );
@@ -146,6 +157,12 @@ class Rest {
 		}
 
 		update_post_meta( $post_id, '_lc_css', $css_input );
+		if ( $has_js ) {
+			update_post_meta( $post_id, '_lc_js', $js_input );
+		}
+		if ( $has_js_enabled ) {
+			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
+		}
 		if ( $tailwind_enabled ) {
 			update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
 		} else {
@@ -337,6 +354,8 @@ class Rest {
 			'categoriesList'  => $categories_list,
 			'canPublish'      => current_user_can( 'publish_post', $post_id ),
 			'canTrash'        => current_user_can( 'delete_post', $post_id ),
+			'jsEnabled'       => get_post_meta( $post_id, '_lc_js_enabled', true ) === '1',
+			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
 		];
 	}
 
@@ -484,6 +503,17 @@ class Rest {
 		if ( isset( $updates['tags'] ) && is_array( $updates['tags'] ) ) {
 			$tags = array_filter( array_map( 'sanitize_text_field', $updates['tags'] ) );
 			wp_set_post_terms( $post_id, $tags, 'post_tag', false );
+		}
+
+		if ( array_key_exists( 'enableJavaScript', $updates ) ) {
+			if ( ! current_user_can( 'unfiltered_html' ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				], 403 );
+			}
+			$js_enabled = rest_sanitize_boolean( $updates['enableJavaScript'] );
+			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
 		}
 
 		return new \WP_REST_Response( [

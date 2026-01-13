@@ -105,6 +105,8 @@ class Admin {
 		$post = $post_id ? get_post( $post_id ) : null;
 		$html = $post ? (string) $post->post_content : '';
 		$css  = $post_id ? (string) get_post_meta( $post_id, '_lc_css', true ) : '';
+		$js   = $post_id ? (string) get_post_meta( $post_id, '_lc_js', true ) : '';
+		$js_enabled = $post_id ? get_post_meta( $post_id, '_lc_js_enabled', true ) === '1' : false;
 		$back_url = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 
 		$preview_token = $post_id ? wp_create_nonce( 'lc_preview_' . $post_id ) : '';
@@ -123,6 +125,9 @@ class Admin {
 			'postId'       => $post_id,
 			'initialHtml'  => $html,
 			'initialCss'   => $css,
+			'initialJs'    => $js,
+			'jsEnabled'    => $js_enabled,
+			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
 			'previewUrl'   => $preview_url,
 			'monacoVsPath' => WP_LIVECODE_URL . 'assets/monaco/vs',
 			'restUrl'      => rest_url( 'wp-livecode/v1/save' ),

@@ -1,5 +1,6 @@
 (function () {
   const styleId = 'lc-style';
+  const scriptId = 'lc-script';
   const LC_ATTR_NAME = 'data-lc-id';
   const config = window.WP_LIVECODE_PREVIEW || {};
   const markerStart =
@@ -177,6 +178,23 @@
     return styleEl;
   }
 
+  function removeScriptElement() {
+    const scriptEl = document.getElementById(scriptId);
+    if (scriptEl) {
+      scriptEl.remove();
+    }
+  }
+
+  function runJs(jsText) {
+    removeScriptElement();
+    if (!jsText) return;
+    const scriptEl = document.createElement('script');
+    scriptEl.id = scriptId;
+    scriptEl.type = 'text/javascript';
+    scriptEl.text = String(jsText);
+    document.body.appendChild(scriptEl);
+  }
+
   function findMarkers() {
     if (markerNodes) return markerNodes;
     const walker = document.createTreeWalker(
@@ -253,6 +271,14 @@
     if (data.type === 'LC_RENDER') {
       if (!isReady) return;
       render(data.canonicalHTML, data.cssText);
+    }
+    if (data.type === 'LC_RUN_JS') {
+      if (!isReady) return;
+      runJs(data.jsText || '');
+    }
+    if (data.type === 'LC_DISABLE_JS') {
+      if (!isReady) return;
+      removeScriptElement();
     }
   });
 

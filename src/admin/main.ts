@@ -18,6 +18,9 @@ declare global {
       postId: number;
       initialHtml: string;
       initialCss: string;
+      initialJs: string;
+      jsEnabled: boolean;
+      canEditJavaScript: boolean;
       previewUrl: string;
       monacoVsPath: string;
       restUrl: string;
@@ -454,11 +457,38 @@ function buildLayout(root: HTMLElement) {
   htmlPane.append(htmlHeader, htmlWrap);
 
   const cssPane = el('div', 'lc-editorPane lc-editorPane-css');
-  const cssHeader = el('div', 'lc-editorHeader');
-  cssHeader.textContent = 'CSS';
-  const cssWrap = el('div', 'lc-editorWrap');
-  const cssEditorDiv = el('div', 'lc-editor lc-editor-css');
-  cssWrap.append(cssEditorDiv);
+  const cssHeader = el('div', 'lc-editorHeader lc-editorHeader-tabs');
+  const cssTabs = el('div', 'lc-editorTabs');
+  const cssTab = document.createElement('button');
+  cssTab.type = 'button';
+  cssTab.className = 'lc-editorTab is-active';
+  cssTab.textContent = 'CSS';
+  const jsTab = document.createElement('button');
+  jsTab.type = 'button';
+  jsTab.className = 'lc-editorTab';
+  jsTab.textContent = 'JavaScript';
+  cssTabs.append(cssTab, jsTab);
+
+  const jsControls = el('div', 'lc-editorActions');
+  const runButton = document.createElement('button');
+  runButton.type = 'button';
+  runButton.className = 'lc-editorAction';
+  runButton.textContent = 'Run';
+  const autoRunLabel = el('label', 'lc-editorToggle');
+  const autoRunInput = document.createElement('input');
+  autoRunInput.type = 'checkbox';
+  autoRunInput.className = 'lc-editorToggleInput';
+  autoRunInput.setAttribute('aria-label', 'Auto-run JavaScript');
+  const autoRunText = el('span', 'lc-editorToggleLabel');
+  autoRunText.textContent = 'Auto-run';
+  autoRunLabel.append(autoRunInput, autoRunText);
+  jsControls.append(runButton, autoRunLabel);
+
+  cssHeader.append(cssTabs, jsControls);
+  const cssWrap = el('div', 'lc-editorWrap lc-editorWrap-tabs');
+  const cssEditorDiv = el('div', 'lc-editor lc-editor-css is-active');
+  const jsEditorDiv = el('div', 'lc-editor lc-editor-js');
+  cssWrap.append(cssEditorDiv, jsEditorDiv);
   cssPane.append(cssHeader, cssWrap);
 
   const editorResizer = el('div', 'lc-editorResizer');
@@ -480,8 +510,14 @@ function buildLayout(root: HTMLElement) {
     toolbar,
     htmlEditorDiv,
     cssEditorDiv,
+    jsEditorDiv,
     htmlPane,
     cssPane,
+    cssTab,
+    jsTab,
+    jsControls,
+    runButton,
+    autoRunInput,
     editorResizer,
     main,
     left,
@@ -543,18 +579,12 @@ async function main() {
     }
   }
 
-  initSettings({
-    container: ui.settingsBody,
-    header: ui.settingsHeader,
-    data: cfg.settingsData,
-    restUrl: cfg.settingsRestUrl,
-    postId: cfg.postId,
-    backUrl: cfg.backUrl,
-    apiFetch: wp?.apiFetch,
-  });
 
   let htmlModel: import('monaco-editor').editor.ITextModel;
   let cssModel: import('monaco-editor').editor.ITextModel;
+  let jsModel: import('monaco-editor').editor.ITextModel;
+  let cssEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
+  let jsEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
   let tailwindCss = '';
   let tailwindCompileToken = 0;
@@ -563,6 +593,14 @@ async function main() {
   let saveInProgress = false;
   let editorCollapsed = false;
   let settingsOpen = false;
+  let jsEnabled = Boolean(cfg.jsEnabled);
+  let jsAutoRun = false;
+  let activeCssTab: 'css' | 'js' = 'css';
+  let editorsReady = false;
+  let pendingJsAction: 'run' | 'disable' | null = null;
+  let sendRunJs: (() => void) | null = null;
+  let sendDisableJs: (() => void) | null = null;
+  const canEditJavaScript = Boolean(cfg.canEditJavaScript);
 
   toolbarApi = mountToolbar(
     ui.toolbar,
@@ -600,6 +638,7 @@ async function main() {
       ? DEFAULT_TAILWIND_CSS
       : (cfg.initialCss ?? '');
   cssModel = monaco.editor.createModel(initialCss, 'css');
+  jsModel = monaco.editor.createModel(cfg.initialJs ?? '', 'javascript');
 
   const htmlEditor = monaco.editor.create(ui.htmlEditorDiv, {
     model: htmlModel,
@@ -609,12 +648,21 @@ async function main() {
     fontSize: 13,
   });
 
-  const cssEditor = monaco.editor.create(ui.cssEditorDiv, {
+  cssEditor = monaco.editor.create(ui.cssEditorDiv, {
     model: cssModel,
     theme: 'vs-dark',
     automaticLayout: true,
     minimap: { enabled: false },
     fontSize: 13,
+  });
+
+  jsEditor = monaco.editor.create(ui.jsEditorDiv, {
+    model: jsModel,
+    theme: 'vs-dark',
+    automaticLayout: true,
+    minimap: { enabled: false },
+    fontSize: 13,
+    readOnly: !canEditJavaScript,
   });
 
   toolbarApi?.update({ statusText: '' });
@@ -636,11 +684,104 @@ async function main() {
     updateUndoRedoState();
   };
 
+  const updateJsUi = () => {
+    ui.jsTab.style.display = jsEnabled ? '' : 'none';
+    ui.jsTab.disabled = !jsEnabled;
+    ui.jsControls.style.display = jsEnabled && activeCssTab === 'js' ? '' : 'none';
+    ui.runButton.disabled = !jsEnabled;
+    ui.autoRunInput.disabled = !jsEnabled;
+  };
+
+  const setCssTab = (tab: 'css' | 'js') => {
+    const nextTab = tab === 'js' && !jsEnabled ? 'css' : tab;
+    activeCssTab = nextTab;
+    ui.cssTab.classList.toggle('is-active', nextTab === 'css');
+    ui.jsTab.classList.toggle('is-active', nextTab === 'js');
+    ui.cssEditorDiv.classList.toggle('is-active', nextTab === 'css');
+    ui.jsEditorDiv.classList.toggle('is-active', nextTab === 'js');
+    updateJsUi();
+    if (!editorsReady) {
+      return;
+    }
+    if (nextTab === 'js') {
+      setActiveEditor(jsEditor, ui.cssPane);
+      jsEditor.focus();
+    } else {
+      setActiveEditor(cssEditor, ui.cssPane);
+      cssEditor.focus();
+    }
+  };
+
+  const setJavaScriptEnabled = (enabled: boolean) => {
+    jsEnabled = enabled;
+    if (!jsEnabled && activeCssTab === 'js') {
+      setCssTab('css');
+    } else {
+      updateJsUi();
+    }
+    if (!sendRunJs || !sendDisableJs) {
+      if (!enabled) {
+        pendingJsAction = 'disable';
+      } else if (jsAutoRun) {
+        pendingJsAction = 'run';
+      }
+      return;
+    }
+    if (!enabled) {
+      sendDisableJs();
+    } else if (jsAutoRun) {
+      sendRunJs();
+    }
+  };
+
   setActiveEditor(htmlEditor, ui.htmlPane);
   ui.htmlPane.addEventListener('click', () => htmlEditor.focus());
-  ui.cssPane.addEventListener('click', () => cssEditor.focus());
+  ui.cssPane.addEventListener('click', () => {
+    if (activeCssTab === 'js') {
+      jsEditor.focus();
+    } else {
+      cssEditor.focus();
+    }
+  });
   htmlEditor.onDidFocusEditorText(() => setActiveEditor(htmlEditor, ui.htmlPane));
-  cssEditor.onDidFocusEditorText(() => setActiveEditor(cssEditor, ui.cssPane));
+  cssEditor.onDidFocusEditorText(() => setCssTab('css'));
+  jsEditor.onDidFocusEditorText(() => setCssTab('js'));
+  ui.cssTab.addEventListener('click', () => setCssTab('css'));
+  ui.jsTab.addEventListener('click', () => setCssTab('js'));
+  editorsReady = true;
+  updateJsUi();
+  ui.autoRunInput.checked = jsAutoRun;
+
+  initSettings({
+    container: ui.settingsBody,
+    header: ui.settingsHeader,
+    data: cfg.settingsData,
+    restUrl: cfg.settingsRestUrl,
+    postId: cfg.postId,
+    backUrl: cfg.backUrl,
+    apiFetch: wp?.apiFetch,
+    onJavaScriptToggle: setJavaScriptEnabled,
+  });
+
+  ui.runButton.addEventListener('click', () => {
+    if (!jsEnabled) return;
+    if (sendRunJs) {
+      sendRunJs();
+    } else {
+      pendingJsAction = 'run';
+    }
+  });
+
+  ui.autoRunInput.addEventListener('change', () => {
+    jsAutoRun = ui.autoRunInput.checked;
+    if (jsAutoRun && jsEnabled) {
+      if (sendRunJs) {
+        sendRunJs();
+      } else {
+        pendingJsAction = 'run';
+      }
+    }
+  });
 
   const minLeftWidth = 320;
   const minRightWidth = 360;
@@ -937,10 +1078,60 @@ async function main() {
       return;
     }
     ui.iframe.contentWindow?.postMessage(payload, targetOrigin);
+    if (jsAutoRun && jsEnabled) {
+      sendRunJsDebounced();
+    }
   };
 
   const sendRenderDebounced = debounce(sendRender, 120);
+  sendRunJs = () => {
+    if (!jsEnabled) return;
+    if (!jsModel) {
+      pendingJsAction = 'run';
+      return;
+    }
+    if (!previewReady) {
+      pendingJsAction = 'run';
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_RUN_JS',
+        jsText: jsModel.getValue(),
+      },
+      targetOrigin
+    );
+  };
+
+  sendDisableJs = () => {
+    if (!previewReady) {
+      pendingJsAction = 'disable';
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage({ type: 'LC_DISABLE_JS' }, targetOrigin);
+  };
+
+  const flushPendingJsAction = () => {
+    if (!pendingJsAction) return;
+    const action = pendingJsAction;
+    pendingJsAction = null;
+    if (action === 'run') {
+      sendRunJs?.();
+    } else if (action === 'disable') {
+      sendDisableJs?.();
+    }
+  };
+
+  const sendRunJsDebounced = debounce(() => {
+    if (sendRunJs) {
+      sendRunJs();
+    } else {
+      pendingJsAction = 'run';
+    }
+  }, 200);
   setTailwindEnabled(tailwindEnabled);
+  setJavaScriptEnabled(jsEnabled);
+  flushPendingJsAction();
 
   const clearSelectionHighlight = () => {
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
@@ -1069,6 +1260,13 @@ async function main() {
     updateUndoRedoState();
   });
 
+  jsModel.onDidChangeContent(() => {
+    if (jsAutoRun) {
+      sendRunJsDebounced();
+    }
+    updateUndoRedoState();
+  });
+
   // 初回の iframe load 後に送る
   ui.iframe.addEventListener('load', () => {
     previewReady = false;
@@ -1085,15 +1283,20 @@ async function main() {
 
     try {
       const cssForSave = cssModel.getValue();
+      const payload: Record<string, any> = {
+        postId: cfg.postId,
+        html: htmlModel.getValue(),
+        css: cssForSave,
+        tailwind: tailwindEnabled,
+      };
+      if (canEditJavaScript) {
+        payload.js = jsModel.getValue();
+        payload.jsEnabled = jsEnabled;
+      }
       const res = await wp.apiFetch({
         url: cfg.restUrl,
         method: 'POST',
-        data: {
-          postId: cfg.postId,
-          html: htmlModel.getValue(),
-          css: cssForSave,
-          tailwind: tailwindEnabled,
-        },
+        data: payload,
       });
 
       if (res?.ok) {
@@ -1124,6 +1327,7 @@ async function main() {
         pendingRender = false;
       }
       sendRender();
+      flushPendingJsAction();
     }
 
     if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {
