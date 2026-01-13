@@ -377,11 +377,11 @@ body.admin_page_wp-livecode #wpbody-content {
 }
 
 .lc-settingsHeader {
-  padding: 12px;
+  display: flex;
+  align-items: flex-end;
+  min-height: 44px;
+  padding: 0 12px;
   border-bottom: 1px solid #2b2f38;
-  font-size: 13px;
-  font-weight: 600;
-  color: #e6e8ea;
 }
 
 .lc-settingsBody {
@@ -392,6 +392,38 @@ body.admin_page_wp-livecode #wpbody-content {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.lc-settingsTabs {
+  display: flex;
+  gap: 16px;
+}
+
+.lc-settingsTab {
+  border: 0;
+  padding: 12px 4px 8px;
+  background: transparent;
+  color: #9aa1ab;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.lc-settingsTab:hover {
+  color: #e6e8ea;
+}
+
+.lc-settingsTab.is-active {
+  color: #e6e8ea;
+  border-bottom-color: #2f6feb;
+  font-weight: 600;
+}
+
+.lc-settingsTab:focus-visible {
+  outline: 2px solid #4c84ff;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .lc-settingsSection {
@@ -486,6 +518,62 @@ body.admin_page_wp-livecode #wpbody-content {
   max-height: 54px;
   border-radius: 6px;
   border: 1px solid #2a313d;
+}
+
+.lc-settingsToggle {
+  align-items: center;
+}
+
+.lc-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 38px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.lc-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.lc-toggleTrack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #2a303b;
+  border: 1px solid #39414f;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.lc-toggleTrack::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e6e8ea;
+  transition: transform 0.2s ease;
+}
+
+.lc-toggle input:checked + .lc-toggleTrack {
+  background: #2f6feb;
+  border-color: #2f6feb;
+}
+
+.lc-toggle input:checked + .lc-toggleTrack::before {
+  transform: translateX(18px);
+}
+
+.lc-toggle input:focus-visible + .lc-toggleTrack {
+  outline: 2px solid #4c84ff;
+  outline-offset: 2px;
 }
 
 .lc-chipList {

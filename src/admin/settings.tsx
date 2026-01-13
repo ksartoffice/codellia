@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from '@wordpress/element';
+import { DesignSettingsPanel } from './design-settings';
 
 type SettingsOption = {
   value: string;
@@ -54,6 +55,7 @@ export type SettingsData = {
 
 type SettingsConfig = {
   container: HTMLElement;
+  header?: HTMLElement;
   data: SettingsData;
   restUrl: string;
   postId: number;
@@ -89,6 +91,8 @@ type ActiveModal =
   | 'categories'
   | 'tags'
   | null;
+
+type SettingsTab = 'post' | 'design';
 
 const VISIBILITY_OPTIONS = [
   { value: 'public', label: '公開' },
@@ -829,15 +833,22 @@ function TagsModal({
   );
 }
 
-function SettingsSidebar({ data, restUrl, postId, backUrl, apiFetch }: SettingsConfig) {
+function SettingsSidebar({ data, restUrl, postId, backUrl, apiFetch, header }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const [activeTab, setActiveTab] = useState<SettingsTab>('post');
+  const [enableJavaScript, setEnableJavaScript] = useState(false);
   const [titleDraft, setTitleDraft] = useState(settings.title || '');
   const [titleError, setTitleError] = useState('');
 
   useEffect(() => {
     setTitleDraft(settings.title || '');
   }, [settings.title]);
+
+  const handleTabChange = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    setActiveModal(null);
+  };
 
   const updateSettings = useCallback(
     async (updates: Record<string, any>) => {
@@ -901,128 +912,168 @@ function SettingsSidebar({ data, restUrl, postId, backUrl, apiFetch }: SettingsC
     [settings.categories, settings.categoriesList]
   );
 
+  const tabs = (
+    <div className="lc-settingsTabs" role="tablist" aria-label="設定タブ">
+      <button
+        className={`lc-settingsTab${activeTab === 'post' ? ' is-active' : ''}`}
+        type="button"
+        role="tab"
+        aria-selected={activeTab === 'post'}
+        onClick={() => handleTabChange('post')}
+      >
+        投稿
+      </button>
+      <button
+        className={`lc-settingsTab${activeTab === 'design' ? ' is-active' : ''}`}
+        type="button"
+        role="tab"
+        aria-selected={activeTab === 'design'}
+        onClick={() => handleTabChange('design')}
+      >
+        デザイン
+      </button>
+    </div>
+  );
+
+  const tabsNode = header ? createPortal(tabs, header) : tabs;
+
   return (
     <Fragment>
-      <div className="lc-settingsTitle">
-        <div className="lc-settingsTitleLabel">タイトル</div>
-        <div className="lc-settingsTitleRow">
-          <input
-            type="text"
-            className="lc-formInput lc-settingsTitleInput"
-            value={titleDraft}
-            onChange={(event) => setTitleDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                handleTitleSave();
-              }
-            }}
-          />
-          <button
-            className="lc-btn lc-btn-primary lc-settingsTitleSave"
-            type="button"
-            onClick={handleTitleSave}
-            disabled={titleDraft === settings.title}
-          >
-            保存
-          </button>
-        </div>
-        <div className="lc-settingsTitleError">{titleError}</div>
-      </div>
+      {tabsNode}
 
-      <SettingsSection title="投稿">
-        <SettingsItem label="ステータスと公開範囲" value={statusText} onClick={() => setActiveModal('status')} />
-        <SettingsItem
-          label="公開"
-          value={settings.dateLabel || '今すぐ'}
-          onClick={() => setActiveModal('publish')}
-        />
-        <SettingsItem label="スラッグ" value={settings.slug || '-'} onClick={() => setActiveModal('slug')} />
-        <SettingsItem
-          label="投稿者"
-          value={settings.authors.find((author) => author.id === settings.author)?.name || '-'}
-          onClick={() => setActiveModal('author')}
-        />
-        <SettingsItem
-          label="テンプレート"
-          value={getOptionLabel(settings.templates, settings.template)}
-          onClick={() => setActiveModal('template')}
-        />
-        <SettingsItem
-          label="ディスカッション"
-          value={settings.commentStatus === 'open' ? '受付中' : '停止中'}
-          onClick={() => setActiveModal('discussion')}
-        />
-        <SettingsItem
-          label="フォーマット"
-          value={getOptionLabel(settings.formats, settings.format)}
-          onClick={() => setActiveModal('format')}
-        />
-        {settings.canTrash && (
-          <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
-            ゴミ箱へ移動
-          </button>
-        )}
-      </SettingsSection>
-
-      <SettingsSection title="アイキャッチ画像">
-        <SettingsItem
-          label="アイキャッチ画像"
-          value={
-            settings.featuredImageUrl ? (
-              <img
-                src={settings.featuredImageUrl}
-                alt={settings.featuredImageAlt || ''}
-                className="lc-featureThumb"
+      {activeTab === 'post' ? (
+        <Fragment>
+          <div className="lc-settingsTitle">
+            <div className="lc-settingsTitleLabel">タイトル</div>
+            <div className="lc-settingsTitleRow">
+              <input
+                type="text"
+                className="lc-formInput lc-settingsTitleInput"
+                value={titleDraft}
+                onChange={(event) => setTitleDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    handleTitleSave();
+                  }
+                }}
               />
-            ) : (
-              '設定'
-            )
-          }
-          onClick={() => setActiveModal('featured')}
+              <button
+                className="lc-btn lc-btn-primary lc-settingsTitleSave"
+                type="button"
+                onClick={handleTitleSave}
+                disabled={titleDraft === settings.title}
+              >
+                保存
+              </button>
+            </div>
+            <div className="lc-settingsTitleError">{titleError}</div>
+          </div>
+
+          <SettingsSection title="投稿">
+            <SettingsItem
+              label="ステータスと公開範囲"
+              value={statusText}
+              onClick={() => setActiveModal('status')}
+            />
+            <SettingsItem
+              label="公開"
+              value={settings.dateLabel || '今すぐ'}
+              onClick={() => setActiveModal('publish')}
+            />
+            <SettingsItem label="スラッグ" value={settings.slug || '-'} onClick={() => setActiveModal('slug')} />
+            <SettingsItem
+              label="投稿者"
+              value={settings.authors.find((author) => author.id === settings.author)?.name || '-'}
+              onClick={() => setActiveModal('author')}
+            />
+            <SettingsItem
+              label="テンプレート"
+              value={getOptionLabel(settings.templates, settings.template)}
+              onClick={() => setActiveModal('template')}
+            />
+            <SettingsItem
+              label="ディスカッション"
+              value={settings.commentStatus === 'open' ? '受付中' : '停止中'}
+              onClick={() => setActiveModal('discussion')}
+            />
+            <SettingsItem
+              label="フォーマット"
+              value={getOptionLabel(settings.formats, settings.format)}
+              onClick={() => setActiveModal('format')}
+            />
+            {settings.canTrash && (
+              <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
+                ゴミ箱へ移動
+              </button>
+            )}
+          </SettingsSection>
+
+          <SettingsSection title="アイキャッチ画像">
+            <SettingsItem
+              label="アイキャッチ画像"
+              value={
+                settings.featuredImageUrl ? (
+                  <img
+                    src={settings.featuredImageUrl}
+                    alt={settings.featuredImageAlt || ''}
+                    className="lc-featureThumb"
+                  />
+                ) : (
+                  '設定'
+                )
+              }
+              onClick={() => setActiveModal('featured')}
+            />
+          </SettingsSection>
+
+          <SettingsSection title="カテゴリー">
+            <SettingsItem
+              label="カテゴリー"
+              value={createChipList(categoryNames)}
+              onClick={() => setActiveModal('categories')}
+            />
+          </SettingsSection>
+
+          <SettingsSection title="タグ">
+            <SettingsItem label="タグ" value={createChipList(settings.tags)} onClick={() => setActiveModal('tags')} />
+          </SettingsSection>
+        </Fragment>
+      ) : (
+        <DesignSettingsPanel
+          enableJavaScript={enableJavaScript}
+          onToggleJavaScript={setEnableJavaScript}
         />
-      </SettingsSection>
+      )}
 
-      <SettingsSection title="カテゴリー">
-        <SettingsItem
-          label="カテゴリー"
-          value={createChipList(categoryNames)}
-          onClick={() => setActiveModal('categories')}
-        />
-      </SettingsSection>
-
-      <SettingsSection title="タグ">
-        <SettingsItem label="タグ" value={createChipList(settings.tags)} onClick={() => setActiveModal('tags')} />
-      </SettingsSection>
-
-      {activeModal === 'status' ? (
+      {activeTab === 'post' && activeModal === 'status' ? (
         <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'publish' ? (
+      {activeTab === 'post' && activeModal === 'publish' ? (
         <PublishModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'slug' ? (
+      {activeTab === 'post' && activeModal === 'slug' ? (
         <SlugModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'author' ? (
+      {activeTab === 'post' && activeModal === 'author' ? (
         <AuthorModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'template' ? (
+      {activeTab === 'post' && activeModal === 'template' ? (
         <TemplateModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'discussion' ? (
+      {activeTab === 'post' && activeModal === 'discussion' ? (
         <DiscussionModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'format' ? (
+      {activeTab === 'post' && activeModal === 'format' ? (
         <FormatModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'featured' ? (
+      {activeTab === 'post' && activeModal === 'featured' ? (
         <FeaturedModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'categories' ? (
+      {activeTab === 'post' && activeModal === 'categories' ? (
         <CategoriesModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeModal === 'tags' ? (
+      {activeTab === 'post' && activeModal === 'tags' ? (
         <TagsModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
     </Fragment>

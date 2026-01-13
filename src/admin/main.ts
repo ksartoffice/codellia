@@ -440,7 +440,6 @@ function buildLayout(root: HTMLElement) {
   settings.id = 'lc-settings';
   const settingsInner = el('div', 'lc-settingsInner');
   const settingsHeader = el('div', 'lc-settingsHeader');
-  settingsHeader.textContent = 'Settings';
   const settingsBody = el('div', 'lc-settingsBody');
   settingsInner.append(settingsHeader, settingsBody);
   settings.append(settingsInner);
@@ -489,6 +488,7 @@ function buildLayout(root: HTMLElement) {
     resizer,
     iframe,
     settings,
+    settingsHeader,
     settingsBody,
   };
 }
@@ -544,6 +544,7 @@ async function main() {
 
   initSettings({
     container: ui.settingsBody,
+    header: ui.settingsHeader,
     data: cfg.settingsData,
     restUrl: cfg.settingsRestUrl,
     postId: cfg.postId,
