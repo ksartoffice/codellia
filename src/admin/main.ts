@@ -18,6 +18,9 @@ declare global {
       postId: number;
       initialHtml: string;
       initialCss: string;
+      initialJs: string;
+      jsEnabled: boolean;
+      canEditJavaScript: boolean;
       previewUrl: string;
       monacoVsPath: string;
       restUrl: string;
@@ -97,6 +100,7 @@ const LC_ATTR_NAME = 'data-lc-id';
 const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
 const SHORTCODE_REGEX =
   /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
+const DEFAULT_TAILWIND_CSS = '@import "tailwindcss";\n\n@theme {\n  /* ... */\n}\n';
 
 function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
   return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
@@ -440,7 +444,6 @@ function buildLayout(root: HTMLElement) {
   settings.id = 'lc-settings';
   const settingsInner = el('div', 'lc-settingsInner');
   const settingsHeader = el('div', 'lc-settingsHeader');
-  settingsHeader.textContent = 'Settings';
   const settingsBody = el('div', 'lc-settingsBody');
   settingsInner.append(settingsHeader, settingsBody);
   settings.append(settingsInner);
@@ -454,11 +457,30 @@ function buildLayout(root: HTMLElement) {
   htmlPane.append(htmlHeader, htmlWrap);
 
   const cssPane = el('div', 'lc-editorPane lc-editorPane-css');
-  const cssHeader = el('div', 'lc-editorHeader');
-  cssHeader.textContent = 'CSS';
-  const cssWrap = el('div', 'lc-editorWrap');
-  const cssEditorDiv = el('div', 'lc-editor lc-editor-css');
-  cssWrap.append(cssEditorDiv);
+  const cssHeader = el('div', 'lc-editorHeader lc-editorHeader-tabs');
+  const cssTabs = el('div', 'lc-editorTabs');
+  const cssTab = document.createElement('button');
+  cssTab.type = 'button';
+  cssTab.className = 'lc-editorTab is-active';
+  cssTab.textContent = 'CSS';
+  const jsTab = document.createElement('button');
+  jsTab.type = 'button';
+  jsTab.className = 'lc-editorTab';
+  jsTab.textContent = 'JavaScript';
+  cssTabs.append(cssTab, jsTab);
+
+  const jsControls = el('div', 'lc-editorActions');
+  const runButton = document.createElement('button');
+  runButton.type = 'button';
+  runButton.className = 'lc-editorAction';
+  runButton.textContent = 'Run';
+  jsControls.append(runButton);
+
+  cssHeader.append(cssTabs, jsControls);
+  const cssWrap = el('div', 'lc-editorWrap lc-editorWrap-tabs');
+  const cssEditorDiv = el('div', 'lc-editor lc-editor-css is-active');
+  const jsEditorDiv = el('div', 'lc-editor lc-editor-js');
+  cssWrap.append(cssEditorDiv, jsEditorDiv);
   cssPane.append(cssHeader, cssWrap);
 
   const editorResizer = el('div', 'lc-editorResizer');
@@ -480,8 +502,13 @@ function buildLayout(root: HTMLElement) {
     toolbar,
     htmlEditorDiv,
     cssEditorDiv,
+    jsEditorDiv,
     htmlPane,
     cssPane,
+    cssTab,
+    jsTab,
+    jsControls,
+    runButton,
     editorResizer,
     main,
     left,
@@ -489,6 +516,7 @@ function buildLayout(root: HTMLElement) {
     resizer,
     iframe,
     settings,
+    settingsHeader,
     settingsBody,
   };
 }
@@ -542,17 +570,12 @@ async function main() {
     }
   }
 
-  initSettings({
-    container: ui.settingsBody,
-    data: cfg.settingsData,
-    restUrl: cfg.settingsRestUrl,
-    postId: cfg.postId,
-    backUrl: cfg.backUrl,
-    apiFetch: wp?.apiFetch,
-  });
 
   let htmlModel: import('monaco-editor').editor.ITextModel;
   let cssModel: import('monaco-editor').editor.ITextModel;
+  let jsModel: import('monaco-editor').editor.ITextModel;
+  let cssEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
+  let jsEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
   let tailwindCss = '';
   let tailwindCompileToken = 0;
@@ -561,6 +584,17 @@ async function main() {
   let saveInProgress = false;
   let editorCollapsed = false;
   let settingsOpen = false;
+  let jsEnabled = Boolean(cfg.jsEnabled);
+  let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
+    ? [...cfg.settingsData.externalScripts]
+    : [];
+  let activeCssTab: 'css' | 'js' = 'css';
+  let editorsReady = false;
+  let pendingJsAction: 'run' | 'disable' | null = null;
+  let sendRunJs: (() => void) | null = null;
+  let sendDisableJs: (() => void) | null = null;
+  let initialJsPending = true;
+  const canEditJavaScript = Boolean(cfg.canEditJavaScript);
 
   toolbarApi = mountToolbar(
     ui.toolbar,
@@ -593,7 +627,12 @@ async function main() {
   emmetCSS(monaco, ['css']);
 
   htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
-  cssModel = monaco.editor.createModel(cfg.initialCss ?? '', 'css');
+  const initialCss =
+    tailwindEnabled && (cfg.initialCss ?? '').trim() === ''
+      ? DEFAULT_TAILWIND_CSS
+      : (cfg.initialCss ?? '');
+  cssModel = monaco.editor.createModel(initialCss, 'css');
+  jsModel = monaco.editor.createModel(cfg.initialJs ?? '', 'javascript');
 
   const htmlEditor = monaco.editor.create(ui.htmlEditorDiv, {
     model: htmlModel,
@@ -603,12 +642,21 @@ async function main() {
     fontSize: 13,
   });
 
-  const cssEditor = monaco.editor.create(ui.cssEditorDiv, {
+  cssEditor = monaco.editor.create(ui.cssEditorDiv, {
     model: cssModel,
     theme: 'vs-dark',
     automaticLayout: true,
     minimap: { enabled: false },
     fontSize: 13,
+  });
+
+  jsEditor = monaco.editor.create(ui.jsEditorDiv, {
+    model: jsModel,
+    theme: 'vs-dark',
+    automaticLayout: true,
+    minimap: { enabled: false },
+    fontSize: 13,
+    readOnly: !canEditJavaScript,
   });
 
   toolbarApi?.update({ statusText: '' });
@@ -630,11 +678,95 @@ async function main() {
     updateUndoRedoState();
   };
 
+  const updateJsUi = () => {
+    ui.jsTab.style.display = jsEnabled ? '' : 'none';
+    ui.jsTab.disabled = !jsEnabled;
+    ui.jsControls.style.display = jsEnabled && activeCssTab === 'js' ? '' : 'none';
+    ui.runButton.disabled = !jsEnabled;
+  };
+
+  const setCssTab = (tab: 'css' | 'js') => {
+    const nextTab = tab === 'js' && !jsEnabled ? 'css' : tab;
+    activeCssTab = nextTab;
+    ui.cssTab.classList.toggle('is-active', nextTab === 'css');
+    ui.jsTab.classList.toggle('is-active', nextTab === 'js');
+    ui.cssEditorDiv.classList.toggle('is-active', nextTab === 'css');
+    ui.jsEditorDiv.classList.toggle('is-active', nextTab === 'js');
+    updateJsUi();
+    if (!editorsReady) {
+      return;
+    }
+    if (nextTab === 'js') {
+      setActiveEditor(jsEditor, ui.cssPane);
+      jsEditor.focus();
+    } else {
+      setActiveEditor(cssEditor, ui.cssPane);
+      cssEditor.focus();
+    }
+  };
+
+  const setJavaScriptEnabled = (enabled: boolean) => {
+    jsEnabled = enabled;
+    if (!jsEnabled && activeCssTab === 'js') {
+      setCssTab('css');
+    } else {
+      updateJsUi();
+    }
+    if (!sendRunJs || !sendDisableJs) {
+      if (!enabled) {
+        pendingJsAction = 'disable';
+      }
+      return;
+    }
+    if (!enabled) {
+      sendExternalScripts([]);
+      sendDisableJs();
+      return;
+    }
+    sendExternalScripts(externalScripts);
+    queueInitialJsRun();
+  };
+
   setActiveEditor(htmlEditor, ui.htmlPane);
   ui.htmlPane.addEventListener('click', () => htmlEditor.focus());
-  ui.cssPane.addEventListener('click', () => cssEditor.focus());
+  ui.cssPane.addEventListener('click', () => {
+    if (activeCssTab === 'js') {
+      jsEditor.focus();
+    } else {
+      cssEditor.focus();
+    }
+  });
   htmlEditor.onDidFocusEditorText(() => setActiveEditor(htmlEditor, ui.htmlPane));
-  cssEditor.onDidFocusEditorText(() => setActiveEditor(cssEditor, ui.cssPane));
+  cssEditor.onDidFocusEditorText(() => setCssTab('css'));
+  jsEditor.onDidFocusEditorText(() => setCssTab('js'));
+  ui.cssTab.addEventListener('click', () => setCssTab('css'));
+  ui.jsTab.addEventListener('click', () => setCssTab('js'));
+  editorsReady = true;
+  updateJsUi();
+
+  initSettings({
+    container: ui.settingsBody,
+    header: ui.settingsHeader,
+    data: cfg.settingsData,
+    restUrl: cfg.settingsRestUrl,
+    postId: cfg.postId,
+    backUrl: cfg.backUrl,
+    apiFetch: wp?.apiFetch,
+    onJavaScriptToggle: setJavaScriptEnabled,
+    onExternalScriptsChange: (scripts) => {
+      externalScripts = scripts;
+      sendExternalScripts(jsEnabled ? externalScripts : []);
+    },
+  });
+
+  ui.runButton.addEventListener('click', () => {
+    if (!jsEnabled) return;
+    if (sendRunJs) {
+      sendRunJs();
+    } else {
+      pendingJsAction = 'run';
+    }
+  });
 
   const minLeftWidth = 320;
   const minRightWidth = 360;
@@ -764,7 +896,7 @@ async function main() {
   };
 
   ui.editorResizer.addEventListener('pointerdown', (event) => {
-    if (editorCollapsed || tailwindEnabled) {
+    if (editorCollapsed) {
       return;
     }
     isEditorResizing = true;
@@ -805,6 +937,7 @@ async function main() {
         data: {
           postId: cfg.postId,
           html: htmlModel.getValue(),
+          css: cssModel.getValue(),
         },
       });
 
@@ -846,15 +979,7 @@ async function main() {
     tailwindEnabled = enabled;
     ui.app.classList.toggle('is-tailwind', enabled);
     toolbarApi?.update({ tailwindEnabled: enabled });
-    if (enabled && editorSplitActive) {
-      clearEditorSplit();
-    }
-    if (enabled && activeEditor === cssEditor) {
-      htmlEditor.focus();
-      setActiveEditor(htmlEditor, ui.htmlPane);
-    }
     if (enabled) {
-      tailwindCss = cssModel.getValue();
       sendRender();
       compileTailwind();
     } else {
@@ -941,7 +1066,72 @@ async function main() {
   };
 
   const sendRenderDebounced = debounce(sendRender, 120);
+  sendRunJs = () => {
+    if (!jsEnabled) return;
+    if (!jsModel) {
+      pendingJsAction = 'run';
+      return;
+    }
+    if (!previewReady) {
+      pendingJsAction = 'run';
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_RUN_JS',
+        jsText: jsModel.getValue(),
+      },
+      targetOrigin
+    );
+  };
+
+  sendDisableJs = () => {
+    if (!previewReady) {
+      pendingJsAction = 'disable';
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage({ type: 'LC_DISABLE_JS' }, targetOrigin);
+  };
+
+  function sendExternalScripts(scripts: string[]) {
+    if (!previewReady) {
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_EXTERNAL_SCRIPTS',
+        urls: scripts,
+      },
+      targetOrigin
+    );
+  }
+
+  const queueInitialJsRun = () => {
+    if (!initialJsPending || !jsEnabled || !jsModel) {
+      return;
+    }
+    if (!jsModel.getValue().trim()) {
+      initialJsPending = false;
+      return;
+    }
+    initialJsPending = false;
+    pendingJsAction = 'run';
+  };
+
+  const flushPendingJsAction = () => {
+    if (!pendingJsAction) return;
+    const action = pendingJsAction;
+    pendingJsAction = null;
+    if (action === 'run') {
+      sendRunJs?.();
+    } else if (action === 'disable') {
+      sendDisableJs?.();
+    }
+  };
+
   setTailwindEnabled(tailwindEnabled);
+  setJavaScriptEnabled(jsEnabled);
+  flushPendingJsAction();
 
   const clearSelectionHighlight = () => {
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
@@ -1062,8 +1252,15 @@ async function main() {
   });
   cssModel.onDidChangeContent(() => {
     sendRenderDebounced();
+    if (tailwindEnabled) {
+      compileTailwindDebounced();
+    }
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
     clearCssSelectionHighlight();
+    updateUndoRedoState();
+  });
+
+  jsModel.onDidChangeContent(() => {
     updateUndoRedoState();
   });
 
@@ -1071,6 +1268,7 @@ async function main() {
   ui.iframe.addEventListener('load', () => {
     previewReady = false;
     pendingRender = true;
+    initialJsPending = true;
     sendInit();
   });
 
@@ -1082,16 +1280,21 @@ async function main() {
     setStatus('Saving...');
 
     try {
-      const cssForSave = tailwindEnabled ? '' : cssModel.getValue();
+      const cssForSave = cssModel.getValue();
+      const payload: Record<string, any> = {
+        postId: cfg.postId,
+        html: htmlModel.getValue(),
+        css: cssForSave,
+        tailwind: tailwindEnabled,
+      };
+      if (canEditJavaScript) {
+        payload.js = jsModel.getValue();
+        payload.jsEnabled = jsEnabled;
+      }
       const res = await wp.apiFetch({
         url: cfg.restUrl,
         method: 'POST',
-        data: {
-          postId: cfg.postId,
-          html: htmlModel.getValue(),
-          css: cssForSave,
-          tailwind: tailwindEnabled,
-        },
+        data: payload,
       });
 
       if (res?.ok) {
@@ -1122,6 +1325,9 @@ async function main() {
         pendingRender = false;
       }
       sendRender();
+      sendExternalScripts(jsEnabled ? externalScripts : []);
+      queueInitialJsRun();
+      flushPendingJsAction();
     }
 
     if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {

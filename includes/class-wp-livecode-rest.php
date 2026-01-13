@@ -6,6 +6,8 @@ use TailwindPHP\tw;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Rest {
+	private const MAX_EXTERNAL_SCRIPTS = 5;
+
 	public static function init(): void {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 	}
@@ -45,6 +47,10 @@ class Rest {
 				'html'   => [
 					'type'     => 'string',
 					'required' => true,
+				],
+				'css'    => [
+					'type'     => 'string',
+					'required' => false,
 				],
 			],
 		] );
@@ -96,7 +102,11 @@ class Rest {
 	public static function save( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$html    = (string) $request->get_param( 'html' );
-		$css     = (string) $request->get_param( 'css' );
+		$css_input = (string) $request->get_param( 'css' );
+		$js_input = (string) $request->get_param( 'js' );
+		$has_js = $request->has_param( 'js' );
+		$has_js_enabled = $request->has_param( 'jsEnabled' );
+		$js_enabled = rest_sanitize_boolean( $request->get_param( 'jsEnabled' ) );
 		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwind' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
@@ -104,6 +114,13 @@ class Rest {
 				'ok'    => false,
 				'error' => 'Invalid post type.',
 			], 400 );
+		}
+
+		if ( ( $has_js || $has_js_enabled ) && ! current_user_can( 'unfiltered_html' ) ) {
+			return new \WP_REST_Response( [
+				'ok'    => false,
+				'error' => 'Permission denied.',
+			], 403 );
 		}
 
 		$tailwind_meta   = get_post_meta( $post_id, '_lc_tailwind', true );
@@ -126,11 +143,12 @@ class Rest {
 			], 400 );
 		}
 
+		$compiled_css = '';
 		if ( $tailwind_enabled ) {
 			try {
-				$css = tw::generate( [
+				$compiled_css = tw::generate( [
 					'content' => $html,
-					'css'     => '@import "tailwindcss";',
+					'css'     => $css_input,
 				] );
 			} catch ( \Throwable $e ) {
 				return new \WP_REST_Response( [
@@ -140,7 +158,18 @@ class Rest {
 			}
 		}
 
-		update_post_meta( $post_id, '_lc_css', $css );
+		update_post_meta( $post_id, '_lc_css', $css_input );
+		if ( $has_js ) {
+			update_post_meta( $post_id, '_lc_js', $js_input );
+		}
+		if ( $has_js_enabled ) {
+			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
+		}
+		if ( $tailwind_enabled ) {
+			update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
+		} else {
+			delete_post_meta( $post_id, '_lc_generated_css' );
+		}
 		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 
@@ -150,6 +179,7 @@ class Rest {
 	public static function compile_tailwind( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$html    = (string) $request->get_param( 'html' );
+		$css_input = (string) $request->get_param( 'css' );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
 			return new \WP_REST_Response( [
@@ -161,7 +191,7 @@ class Rest {
 		try {
 			$css = tw::generate( [
 				'content' => $html,
-				'css'     => '@import "tailwindcss";',
+				'css'     => $css_input,
 			] );
 		} catch ( \Throwable $e ) {
 			return new \WP_REST_Response( [
@@ -326,6 +356,9 @@ class Rest {
 			'categoriesList'  => $categories_list,
 			'canPublish'      => current_user_can( 'publish_post', $post_id ),
 			'canTrash'        => current_user_can( 'delete_post', $post_id ),
+			'jsEnabled'       => get_post_meta( $post_id, '_lc_js_enabled', true ) === '1',
+			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
+			'externalScripts' => self::get_external_scripts( $post_id ),
 		];
 	}
 
@@ -475,10 +508,126 @@ class Rest {
 			wp_set_post_terms( $post_id, $tags, 'post_tag', false );
 		}
 
+		if ( array_key_exists( 'enableJavaScript', $updates ) ) {
+			if ( ! current_user_can( 'unfiltered_html' ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				], 403 );
+			}
+			$js_enabled = rest_sanitize_boolean( $updates['enableJavaScript'] );
+			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
+		}
+
+		if ( array_key_exists( 'externalScripts', $updates ) ) {
+			if ( ! current_user_can( 'unfiltered_html' ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				], 403 );
+			}
+			if ( ! is_array( $updates['externalScripts'] ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Invalid external scripts payload.',
+				], 400 );
+			}
+
+			$raw_scripts = array_values( $updates['externalScripts'] );
+			$sanitized = [];
+			foreach ( $raw_scripts as $script_url ) {
+				if ( ! is_string( $script_url ) ) {
+					continue;
+				}
+				$script_url = trim( $script_url );
+				if ( $script_url === '' ) {
+					continue;
+				}
+				$clean_url = self::sanitize_external_script_url( $script_url );
+				if ( ! $clean_url ) {
+					return new \WP_REST_Response( [
+						'ok'    => false,
+						'error' => 'External scripts must be valid https:// URLs.',
+					], 400 );
+				}
+				$sanitized[] = $clean_url;
+			}
+
+			$sanitized = array_values( array_unique( $sanitized ) );
+			if ( count( $sanitized ) > self::MAX_EXTERNAL_SCRIPTS ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'External scripts exceed the maximum allowed.',
+				], 400 );
+			}
+
+			if ( empty( $sanitized ) ) {
+				delete_post_meta( $post_id, '_lc_external_scripts' );
+			} else {
+				update_post_meta(
+					$post_id,
+					'_lc_external_scripts',
+					wp_json_encode( $sanitized, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+				);
+			}
+		}
+
 		return new \WP_REST_Response( [
 			'ok'       => true,
 			'settings' => self::build_settings_payload( $post_id ),
 		], 200 );
+	}
+
+	private static function get_external_scripts( int $post_id ): array {
+		$raw = get_post_meta( $post_id, '_lc_external_scripts', true );
+		$list = [];
+
+		if ( is_array( $raw ) ) {
+			$list = $raw;
+		} elseif ( is_string( $raw ) && $raw !== '' ) {
+			$decoded = json_decode( $raw, true );
+			if ( is_array( $decoded ) ) {
+				$list = $decoded;
+			}
+		}
+
+		$clean = [];
+		foreach ( $list as $entry ) {
+			if ( ! is_string( $entry ) ) {
+				continue;
+			}
+			$clean_url = self::sanitize_external_script_url( $entry );
+			if ( $clean_url ) {
+				$clean[] = $clean_url;
+			}
+		}
+
+		$clean = array_values( array_unique( $clean ) );
+		if ( count( $clean ) > self::MAX_EXTERNAL_SCRIPTS ) {
+			$clean = array_slice( $clean, 0, self::MAX_EXTERNAL_SCRIPTS );
+		}
+
+		return $clean;
+	}
+
+	private static function sanitize_external_script_url( string $url ): ?string {
+		$url = trim( $url );
+		if ( $url === '' ) {
+			return null;
+		}
+
+		$validated = wp_http_validate_url( $url );
+		if ( ! $validated ) {
+			return null;
+		}
+
+		$parts = wp_parse_url( $validated );
+		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
+		if ( $scheme !== 'https' ) {
+			return null;
+		}
+
+		return esc_url_raw( $validated );
 	}
 
 	/**

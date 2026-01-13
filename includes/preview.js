@@ -1,5 +1,7 @@
 (function () {
   const styleId = 'lc-style';
+  const scriptId = 'lc-script';
+  const externalScriptAttr = 'data-lc-external-script';
   const LC_ATTR_NAME = 'data-lc-id';
   const config = window.WP_LIVECODE_PREVIEW || {};
   const markerStart =
@@ -13,6 +15,9 @@
   let selectTarget = null;
   let selectBox = null;
   let markerNodes = null;
+  let externalScripts = [];
+  let externalScriptsReady = Promise.resolve();
+  let externalScriptsToken = 0;
 
   function getAllowedOrigin() {
     if (config.allowedOrigin) return config.allowedOrigin;
@@ -177,6 +182,130 @@
     return styleEl;
   }
 
+  function removeScriptElement() {
+    const scriptEl = document.getElementById(scriptId);
+    if (scriptEl) {
+      scriptEl.remove();
+    }
+  }
+
+  function runJs(jsText) {
+    if (!jsText) {
+      removeScriptElement();
+      return;
+    }
+    const runInline = () => {
+      removeScriptElement();
+      const restoreDomReadyShim =
+        document.readyState !== 'loading' ? applyDomReadyShim() : null;
+      try {
+        const scriptEl = document.createElement('script');
+        scriptEl.id = scriptId;
+        scriptEl.type = 'text/javascript';
+        scriptEl.text = String(jsText);
+        document.body.appendChild(scriptEl);
+      } finally {
+        if (restoreDomReadyShim) {
+          restoreDomReadyShim();
+        }
+      }
+    };
+
+    const currentReady = externalScriptsReady;
+    currentReady.then(() => {
+      if (currentReady !== externalScriptsReady) return;
+      runInline();
+    });
+  }
+
+  function applyDomReadyShim() {
+    const docAdd = document.addEventListener;
+    const winAdd = window.addEventListener;
+    const schedule =
+      typeof window.queueMicrotask === 'function'
+        ? window.queueMicrotask.bind(window)
+        : (fn) => window.setTimeout(fn, 0);
+    const callListener = (target, type, listener) => {
+      if (!listener) return;
+      schedule(() => {
+        try {
+          if (typeof listener === 'function') {
+            listener.call(target, new Event(type));
+          } else if (typeof listener.handleEvent === 'function') {
+            listener.handleEvent(new Event(type));
+          }
+        } catch (e) {
+          // noop
+        }
+      });
+    };
+    const wrap = (target, original) => (type, listener, options) => {
+      original.call(target, type, listener, options);
+      if (type === 'DOMContentLoaded' || type === 'load') {
+        callListener(target, type, listener);
+      }
+    };
+    document.addEventListener = wrap(document, docAdd);
+    window.addEventListener = wrap(window, winAdd);
+    return () => {
+      document.addEventListener = docAdd;
+      window.addEventListener = winAdd;
+    };
+  }
+
+  function normalizeExternalScripts(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((entry) => String(entry).trim())
+      .filter(Boolean);
+  }
+
+  function isSameList(a, b) {
+    if (a.length !== b.length) return false;
+    return a.every((value, index) => value === b[index]);
+  }
+
+  function clearExternalScripts() {
+    const nodes = document.querySelectorAll('script[' + externalScriptAttr + ']');
+    nodes.forEach((node) => node.remove());
+  }
+
+  function loadExternalScripts(list) {
+    externalScriptsToken += 1;
+    const token = externalScriptsToken;
+    clearExternalScripts();
+    if (!list.length) {
+      return Promise.resolve();
+    }
+
+    const head = document.head || document.body;
+    return list.reduce((chain, url) => {
+      return chain.then(
+        () =>
+          new Promise((resolve) => {
+            if (token !== externalScriptsToken) {
+              resolve();
+              return;
+            }
+            const scriptEl = document.createElement('script');
+            scriptEl.setAttribute(externalScriptAttr, '1');
+            scriptEl.async = false;
+            scriptEl.src = url;
+            scriptEl.onload = () => resolve();
+            scriptEl.onerror = () => resolve();
+            head.appendChild(scriptEl);
+          })
+      );
+    }, Promise.resolve());
+  }
+
+  function setExternalScripts(list) {
+    const next = normalizeExternalScripts(list);
+    if (isSameList(next, externalScripts)) return;
+    externalScripts = next;
+    externalScriptsReady = loadExternalScripts(next);
+  }
+
   function findMarkers() {
     if (markerNodes) return markerNodes;
     const walker = document.createTreeWalker(
@@ -253,6 +382,18 @@
     if (data.type === 'LC_RENDER') {
       if (!isReady) return;
       render(data.canonicalHTML, data.cssText);
+    }
+    if (data.type === 'LC_RUN_JS') {
+      if (!isReady) return;
+      runJs(data.jsText || '');
+    }
+    if (data.type === 'LC_DISABLE_JS') {
+      if (!isReady) return;
+      removeScriptElement();
+    }
+    if (data.type === 'LC_EXTERNAL_SCRIPTS') {
+      if (!isReady) return;
+      setExternalScripts(data.urls || []);
     }
   });
 
