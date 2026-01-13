@@ -593,6 +593,7 @@ async function main() {
   let pendingJsAction: 'run' | 'disable' | null = null;
   let sendRunJs: (() => void) | null = null;
   let sendDisableJs: (() => void) | null = null;
+  let initialJsPending = true;
   const canEditJavaScript = Boolean(cfg.canEditJavaScript);
 
   toolbarApi = mountToolbar(
@@ -723,6 +724,7 @@ async function main() {
       return;
     }
     sendExternalScripts(externalScripts);
+    queueInitialJsRun();
   };
 
   setActiveEditor(htmlEditor, ui.htmlPane);
@@ -1104,6 +1106,18 @@ async function main() {
     );
   }
 
+  const queueInitialJsRun = () => {
+    if (!initialJsPending || !jsEnabled || !jsModel) {
+      return;
+    }
+    if (!jsModel.getValue().trim()) {
+      initialJsPending = false;
+      return;
+    }
+    initialJsPending = false;
+    pendingJsAction = 'run';
+  };
+
   const flushPendingJsAction = () => {
     if (!pendingJsAction) return;
     const action = pendingJsAction;
@@ -1254,6 +1268,7 @@ async function main() {
   ui.iframe.addEventListener('load', () => {
     previewReady = false;
     pendingRender = true;
+    initialJsPending = true;
     sendInit();
   });
 
@@ -1311,6 +1326,7 @@ async function main() {
       }
       sendRender();
       sendExternalScripts(jsEnabled ? externalScripts : []);
+      queueInitialJsRun();
       flushPendingJsAction();
     }
 
