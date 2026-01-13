@@ -4,6 +4,7 @@ import { emmetCSS, emmetHTML } from 'emmet-monaco-es';
 import * as parse5 from 'parse5';
 import type { DefaultTreeAdapterTypes } from 'parse5';
 import { initSettings, type SettingsData } from './settings';
+import { runSetupWizard } from './setup-wizard';
 import { mountToolbar, type ToolbarApi } from './toolbar';
 
 // wp-api-fetch は admin 側でグローバル wp.apiFetch として使える
@@ -21,10 +22,12 @@ declare global {
       monacoVsPath: string;
       restUrl: string;
       restCompileUrl: string;
+      setupRestUrl: string;
       settingsRestUrl: string;
       settingsData: SettingsData;
       backUrl?: string;
       tailwindEnabled?: boolean;
+      setupRequired?: boolean;
       restNonce: string;
     };
     monaco?: MonacoType;
@@ -502,10 +505,41 @@ async function main() {
   ui.editorResizer.setAttribute('aria-orientation', 'horizontal');
 
   let toolbarApi: ToolbarApi | null = null;
+  let tailwindEnabled = Boolean(cfg.tailwindEnabled);
 
   // REST nonce middleware
   if (wp?.apiFetch?.createNonceMiddleware) {
     wp.apiFetch.use(wp.apiFetch.createNonceMiddleware(cfg.restNonce));
+  }
+
+  if (cfg.setupRequired) {
+    if (!cfg.setupRestUrl || !wp?.apiFetch) {
+      ui.app.textContent = 'Setup wizard unavailable.';
+      return;
+    }
+
+    const setupHost = document.createElement('div');
+    setupHost.className = 'lc-setupHost';
+    document.body.append(setupHost);
+
+    try {
+      const result = await runSetupWizard({
+        container: setupHost,
+        postId: cfg.postId,
+        restUrl: cfg.setupRestUrl,
+        apiFetch: wp?.apiFetch,
+        backUrl: cfg.backUrl,
+        initialTailwindEnabled: tailwindEnabled,
+      });
+      tailwindEnabled = result.tailwindEnabled;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('[WP LiveCode] Setup failed', error);
+      ui.app.textContent = 'Setup failed.';
+      return;
+    } finally {
+      setupHost.remove();
+    }
   }
 
   initSettings({
@@ -520,7 +554,6 @@ async function main() {
   let htmlModel: import('monaco-editor').editor.ITextModel;
   let cssModel: import('monaco-editor').editor.ITextModel;
   let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
-  let tailwindEnabled = false;
   let tailwindCss = '';
   let tailwindCompileToken = 0;
   let tailwindCompileInFlight = false;
@@ -537,7 +570,7 @@ async function main() {
       canRedo: false,
       editorCollapsed,
       settingsOpen,
-      tailwindEnabled: Boolean(cfg.tailwindEnabled),
+      tailwindEnabled,
       statusText: 'Loading Monaco...',
     },
     {
@@ -908,7 +941,7 @@ async function main() {
   };
 
   const sendRenderDebounced = debounce(sendRender, 120);
-  setTailwindEnabled(Boolean(cfg.tailwindEnabled));
+  setTailwindEnabled(tailwindEnabled);
 
   const clearSelectionHighlight = () => {
     selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);

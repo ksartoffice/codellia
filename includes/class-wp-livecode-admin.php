@@ -127,10 +127,12 @@ class Admin {
 			'monacoVsPath' => WP_LIVECODE_URL . 'assets/monaco/vs',
 			'restUrl'      => rest_url( 'wp-livecode/v1/save' ),
 			'restCompileUrl' => rest_url( 'wp-livecode/v1/compile-tailwind' ),
+			'setupRestUrl' => rest_url( 'wp-livecode/v1/setup' ),
 			'backUrl'      => $back_url,
 			'settingsRestUrl' => rest_url( 'wp-livecode/v1/settings' ),
 			'settingsData' => Rest::build_settings_payload( $post_id ),
 			'tailwindEnabled' => (bool) get_post_meta( $post_id, '_lc_tailwind', true ),
+			'setupRequired' => get_post_meta( $post_id, '_lc_setup_required', true ) === '1',
 			'restNonce'    => wp_create_nonce( 'wp_rest' ),
 		];
 

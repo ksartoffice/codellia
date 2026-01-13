@@ -144,6 +144,8 @@ class Post_Type {
 			return 0;
 		}
 
+		update_post_meta( $post_id, '_lc_setup_required', '1' );
+
 		return (int) $post_id;
 	}
 }
