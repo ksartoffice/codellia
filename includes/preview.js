@@ -196,11 +196,19 @@
     }
     const runInline = () => {
       removeScriptElement();
-      const scriptEl = document.createElement('script');
-      scriptEl.id = scriptId;
-      scriptEl.type = 'text/javascript';
-      scriptEl.text = String(jsText);
-      document.body.appendChild(scriptEl);
+      const restoreDomReadyShim =
+        document.readyState !== 'loading' ? applyDomReadyShim() : null;
+      try {
+        const scriptEl = document.createElement('script');
+        scriptEl.id = scriptId;
+        scriptEl.type = 'text/javascript';
+        scriptEl.text = String(jsText);
+        document.body.appendChild(scriptEl);
+      } finally {
+        if (restoreDomReadyShim) {
+          restoreDomReadyShim();
+        }
+      }
     };
 
     const currentReady = externalScriptsReady;
@@ -208,6 +216,41 @@
       if (currentReady !== externalScriptsReady) return;
       runInline();
     });
+  }
+
+  function applyDomReadyShim() {
+    const docAdd = document.addEventListener;
+    const winAdd = window.addEventListener;
+    const schedule =
+      typeof window.queueMicrotask === 'function'
+        ? window.queueMicrotask.bind(window)
+        : (fn) => window.setTimeout(fn, 0);
+    const callListener = (target, type, listener) => {
+      if (!listener) return;
+      schedule(() => {
+        try {
+          if (typeof listener === 'function') {
+            listener.call(target, new Event(type));
+          } else if (typeof listener.handleEvent === 'function') {
+            listener.handleEvent(new Event(type));
+          }
+        } catch (e) {
+          // noop
+        }
+      });
+    };
+    const wrap = (target, original) => (type, listener, options) => {
+      original.call(target, type, listener, options);
+      if (type === 'DOMContentLoaded' || type === 'load') {
+        callListener(target, type, listener);
+      }
+    };
+    document.addEventListener = wrap(document, docAdd);
+    window.addEventListener = wrap(window, winAdd);
+    return () => {
+      document.addEventListener = docAdd;
+      window.addEventListener = winAdd;
+    };
   }
 
   function normalizeExternalScripts(list) {
