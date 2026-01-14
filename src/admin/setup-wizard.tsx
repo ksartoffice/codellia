@@ -51,6 +51,7 @@ type ImportPayload = {
   jsEnabled?: boolean;
   externalScripts?: string[];
   shadowDomEnabled?: boolean;
+  shortcodeEnabled?: boolean;
 };
 
 type ImportResponse = {
@@ -97,6 +98,10 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: 'Invalid shadowDomEnabled value.' };
   }
 
+  if (raw.shortcodeEnabled !== undefined && typeof raw.shortcodeEnabled !== 'boolean') {
+    return { error: 'Invalid shortcodeEnabled value.' };
+  }
+
   if (
     raw.externalScripts !== undefined &&
     (!Array.isArray(raw.externalScripts) || raw.externalScripts.some((item: any) => typeof item !== 'string'))
@@ -115,6 +120,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       jsEnabled: raw.jsEnabled ?? false,
       externalScripts: raw.externalScripts ?? [],
       shadowDomEnabled: raw.shadowDomEnabled ?? false,
+      shortcodeEnabled: raw.shortcodeEnabled ?? false,
     },
   };
 }

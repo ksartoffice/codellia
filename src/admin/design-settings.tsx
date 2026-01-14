@@ -1,10 +1,13 @@
-import { createElement, Fragment, useState } from '@wordpress/element';
+import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress/element';
 
 type DesignSettingsPanelProps = {
+  postId: number;
   enableJavaScript: boolean;
   onToggleJavaScript: (enabled: boolean) => void;
   enableShadowDom: boolean;
   onToggleShadowDom: (enabled: boolean) => void;
+  enableShortcode: boolean;
+  onToggleShortcode: (enabled: boolean) => void;
   externalScripts: string[];
   onChangeExternalScripts: (scripts: string[]) => void;
   onCommitExternalScripts: (scripts: string[]) => void;
@@ -16,10 +19,13 @@ type DesignSettingsPanelProps = {
 const MAX_EXTERNAL_SCRIPTS = 5;
 
 export function DesignSettingsPanel({
+  postId,
   enableJavaScript,
   onToggleJavaScript,
   enableShadowDom,
   onToggleShadowDom,
+  enableShortcode,
+  onToggleShortcode,
   externalScripts,
   onChangeExternalScripts,
   onCommitExternalScripts,
@@ -27,9 +33,30 @@ export function DesignSettingsPanel({
   error,
   externalScriptsError,
 }: DesignSettingsPanelProps) {
-  const [enableShortcode, setEnableShortcode] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+  const copyTimeoutRef = useRef<number | null>(null);
+  const shortcodeInputRef = useRef<HTMLInputElement | null>(null);
   const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
   const hasScripts = externalScripts.length > 0;
+  const shortcodeText = `[livecode post_id="${postId}"]`;
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const setCopyFeedback = (state: 'copied' | 'error') => {
+    setCopyState(state);
+    if (copyTimeoutRef.current) {
+      window.clearTimeout(copyTimeoutRef.current);
+    }
+    copyTimeoutRef.current = window.setTimeout(() => {
+      setCopyState('idle');
+    }, 2000);
+  };
 
   const updateScriptAt = (index: number, value: string, commit: boolean) => {
     const next = externalScripts.map((entry, idx) => (idx === index ? value : entry));
@@ -50,6 +77,32 @@ export function DesignSettingsPanel({
     const next = externalScripts.filter((_, idx) => idx !== index);
     onChangeExternalScripts(next);
     onCommitExternalScripts(next);
+  };
+
+  const handleCopyShortcode = async () => {
+    if (!shortcodeText) return;
+    let copied = false;
+    if (window.navigator?.clipboard?.writeText) {
+      try {
+        await window.navigator.clipboard.writeText(shortcodeText);
+        copied = true;
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (!copied && shortcodeInputRef.current) {
+      shortcodeInputRef.current.focus();
+      shortcodeInputRef.current.select();
+      try {
+        copied = document.execCommand('copy');
+      } catch {
+        copied = false;
+      }
+      shortcodeInputRef.current.setSelectionRange(0, 0);
+    }
+
+    setCopyFeedback(copied ? 'copied' : 'error');
   };
 
   return (
@@ -89,7 +142,7 @@ export function DesignSettingsPanel({
               type="checkbox"
               checked={enableShortcode}
               aria-label="ショートコード化を有効にする"
-              onChange={(event) => setEnableShortcode(event.target.checked)}
+              onChange={(event) => onToggleShortcode(event.target.checked)}
               disabled={disabled}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
@@ -160,6 +213,38 @@ export function DesignSettingsPanel({
         {externalScriptsError ? (
           <div className="lc-settingsError">{externalScriptsError}</div>
         ) : null}
+        </div>
+      ) : null}
+      {enableShortcode ? (
+        <div className="lc-settingsSection">
+          <div className="lc-settingsSectionTitle">ショートコード</div>
+          <div className="lc-settingsHelp">
+            GutenbergやElementorのショートコードブロックに貼り付けて使用できます。
+          </div>
+          <div className="lc-settingsScriptRow">
+            <input
+              ref={shortcodeInputRef}
+              type="text"
+              className="lc-formInput lc-settingsScriptInput"
+              value={shortcodeText}
+              readOnly
+              aria-label="LiveCodeショートコード"
+            />
+            <button
+              className="lc-btn lc-btn-secondary"
+              type="button"
+              onClick={handleCopyShortcode}
+              aria-label="ショートコードをコピー"
+            >
+              {copyState === 'copied' ? 'コピー済み' : 'コピー'}
+            </button>
+          </div>
+          {copyState === 'copied' ? (
+            <div className="lc-settingsHelp">コピーしました。</div>
+          ) : null}
+          {copyState === 'error' ? (
+            <div className="lc-settingsError">コピーに失敗しました。</div>
+          ) : null}
         </div>
       ) : null}
     </Fragment>
