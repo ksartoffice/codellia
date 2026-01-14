@@ -52,6 +52,7 @@ export type SettingsData = {
   canPublish: boolean;
   canTrash: boolean;
   jsEnabled: boolean;
+  shadowDomEnabled: boolean;
   canEditJavaScript: boolean;
   externalScripts: string[];
 };
@@ -65,6 +66,7 @@ type SettingsConfig = {
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
   onJavaScriptToggle?: (enabled: boolean) => void;
+  onShadowDomToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
 };
 
@@ -864,12 +866,14 @@ function SettingsSidebar({
   apiFetch,
   header,
   onJavaScriptToggle,
+  onShadowDomToggle,
   onExternalScriptsChange,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
   const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
+  const [enableShadowDom, setEnableShadowDom] = useState(Boolean(data.shadowDomEnabled));
   const [designError, setDesignError] = useState('');
   const [externalScripts, setExternalScripts] = useState<string[]>(data.externalScripts || []);
   const [externalScriptsError, setExternalScriptsError] = useState('');
@@ -885,6 +889,10 @@ function SettingsSidebar({
   }, [settings.jsEnabled]);
 
   useEffect(() => {
+    setEnableShadowDom(Boolean(settings.shadowDomEnabled));
+  }, [settings.shadowDomEnabled]);
+
+  useEffect(() => {
     setExternalScripts(settings.externalScripts || []);
     onExternalScriptsChange?.(settings.externalScripts || []);
   }, [settings.externalScripts, onExternalScriptsChange]);
@@ -892,6 +900,10 @@ function SettingsSidebar({
   useEffect(() => {
     onJavaScriptToggle?.(enableJavaScript);
   }, [enableJavaScript, onJavaScriptToggle]);
+
+  useEffect(() => {
+    onShadowDomToggle?.(enableShadowDom);
+  }, [enableShadowDom, onShadowDomToggle]);
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
@@ -943,6 +955,20 @@ function SettingsSidebar({
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setEnableJavaScript(Boolean(settings.jsEnabled));
+    }
+  };
+
+  const handleShadowDomToggle = async (enabled: boolean) => {
+    if (!canEditJavaScript) {
+      return;
+    }
+    setDesignError('');
+    setEnableShadowDom(enabled);
+    try {
+      await updateSettings({ enableShadowDom: enabled });
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setEnableShadowDom(Boolean(settings.shadowDomEnabled));
     }
   };
 
@@ -1139,6 +1165,8 @@ function SettingsSidebar({
         <DesignSettingsPanel
           enableJavaScript={enableJavaScript}
           onToggleJavaScript={handleJavaScriptToggle}
+          enableShadowDom={enableShadowDom}
+          onToggleShadowDom={handleShadowDomToggle}
           externalScripts={externalScripts}
           onChangeExternalScripts={handleExternalScriptsChange}
           onCommitExternalScripts={handleExternalScriptsCommit}

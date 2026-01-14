@@ -3,6 +3,8 @@ import { createElement, Fragment } from '@wordpress/element';
 type DesignSettingsPanelProps = {
   enableJavaScript: boolean;
   onToggleJavaScript: (enabled: boolean) => void;
+  enableShadowDom: boolean;
+  onToggleShadowDom: (enabled: boolean) => void;
   externalScripts: string[];
   onChangeExternalScripts: (scripts: string[]) => void;
   onCommitExternalScripts: (scripts: string[]) => void;
@@ -16,6 +18,8 @@ const MAX_EXTERNAL_SCRIPTS = 5;
 export function DesignSettingsPanel({
   enableJavaScript,
   onToggleJavaScript,
+  enableShadowDom,
+  onToggleShadowDom,
   externalScripts,
   onChangeExternalScripts,
   onCommitExternalScripts,
@@ -49,7 +53,7 @@ export function DesignSettingsPanel({
 
   return (
     <Fragment>
-      <div className="lc-settingsSection">
+        <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">JavaScript設定</div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">JavaScriptを有効にする</div>
@@ -64,14 +68,28 @@ export function DesignSettingsPanel({
             <span className="lc-toggleTrack" aria-hidden="true" />
           </label>
         </div>
+        <div className="lc-settingsItem lc-settingsToggle">
+          <div className="lc-settingsItemLabel">Shadow DOMを有効にする</div>
+          <label className="lc-toggle">
+            <input
+              type="checkbox"
+              checked={enableShadowDom}
+              aria-label="Shadow DOMを有効にする"
+              onChange={(event) => onToggleShadowDom(event.target.checked)}
+              disabled={disabled}
+            />
+            <span className="lc-toggleTrack" aria-hidden="true" />
+          </label>
+        </div>
         {disabled ? (
           <div className="lc-settingsHelp">Requires unfiltered_html capability.</div>
         ) : null}
         {error ? <div className="lc-settingsError">{error}</div> : null}
-      </div>
+        </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">External Scripts</div>
+      {enableJavaScript ? (
+        <div className="lc-settingsSection">
+          <div className="lc-settingsSectionTitle">External Scripts</div>
         {hasScripts ? (
           <div className="lc-settingsScriptList">
             {externalScripts.map((scriptUrl, index) => (
@@ -128,7 +146,8 @@ export function DesignSettingsPanel({
         {externalScriptsError ? (
           <div className="lc-settingsError">{externalScriptsError}</div>
         ) : null}
-      </div>
+        </div>
+      ) : null}
     </Fragment>
   );
 }

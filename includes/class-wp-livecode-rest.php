@@ -335,6 +335,17 @@ class Rest {
 			$js_enabled = $payload['jsEnabled'];
 		}
 
+		$shadow_dom_enabled = false;
+		if ( array_key_exists( 'shadowDomEnabled', $payload ) ) {
+			if ( ! is_bool( $payload['shadowDomEnabled'] ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Invalid shadowDomEnabled value.',
+				], 400 );
+			}
+			$shadow_dom_enabled = $payload['shadowDomEnabled'];
+		}
+
 		$generated_css_input = '';
 		if ( array_key_exists( 'generatedCss', $payload ) ) {
 			if ( ! is_string( $payload['generatedCss'] ) ) {
@@ -423,6 +434,7 @@ class Rest {
 		update_post_meta( $post_id, '_lc_css', $css_input );
 		update_post_meta( $post_id, '_lc_js', $js_input );
 		update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_lc_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 		delete_post_meta( $post_id, '_lc_setup_required' );
@@ -564,6 +576,7 @@ class Rest {
 			'canPublish'      => current_user_can( 'publish_post', $post_id ),
 			'canTrash'        => current_user_can( 'delete_post', $post_id ),
 			'jsEnabled'       => get_post_meta( $post_id, '_lc_js_enabled', true ) === '1',
+			'shadowDomEnabled' => get_post_meta( $post_id, '_lc_shadow_dom', true ) === '1',
 			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
 			'externalScripts' => self::get_external_scripts( $post_id ),
 		];
@@ -724,6 +737,17 @@ class Rest {
 			}
 			$js_enabled = rest_sanitize_boolean( $updates['enableJavaScript'] );
 			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
+		}
+
+		if ( array_key_exists( 'enableShadowDom', $updates ) ) {
+			if ( ! current_user_can( 'unfiltered_html' ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				], 403 );
+			}
+			$shadow_dom_enabled = rest_sanitize_boolean( $updates['enableShadowDom'] );
+			update_post_meta( $post_id, '_lc_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'externalScripts', $updates ) ) {

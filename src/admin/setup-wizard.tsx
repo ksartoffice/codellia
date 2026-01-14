@@ -50,6 +50,7 @@ type ImportPayload = {
   js?: string;
   jsEnabled?: boolean;
   externalScripts?: string[];
+  shadowDomEnabled?: boolean;
 };
 
 type ImportResponse = {
@@ -92,6 +93,10 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: 'Invalid jsEnabled value.' };
   }
 
+  if (raw.shadowDomEnabled !== undefined && typeof raw.shadowDomEnabled !== 'boolean') {
+    return { error: 'Invalid shadowDomEnabled value.' };
+  }
+
   if (
     raw.externalScripts !== undefined &&
     (!Array.isArray(raw.externalScripts) || raw.externalScripts.some((item: any) => typeof item !== 'string'))
@@ -109,6 +114,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       js: raw.js ?? '',
       jsEnabled: raw.jsEnabled ?? false,
       externalScripts: raw.externalScripts ?? [],
+      shadowDomEnabled: raw.shadowDomEnabled ?? false,
     },
   };
 }
