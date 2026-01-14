@@ -10,6 +10,7 @@ class Frontend {
 		add_action( 'wp', [ __CLASS__, 'maybe_disable_autop' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_css' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_js' ] );
+		add_filter( 'the_content', [ __CLASS__, 'filter_content' ], 20 );
 	}
 
 	/**
@@ -37,20 +38,11 @@ class Frontend {
 		}
 	}
 
-	public static function enqueue_css(): void {
-		if ( is_admin() ) {
-			return;
-		}
+	private static function is_shadow_dom_enabled( int $post_id ): bool {
+		return get_post_meta( $post_id, '_lc_shadow_dom', true ) === '1';
+	}
 
-		$post_id = get_queried_object_id();
-		if ( ! $post_id ) {
-			return;
-		}
-
-		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			return;
-		}
-
+	private static function get_css_for_post( int $post_id ): string {
 		$is_tailwind   = get_post_meta( $post_id, '_lc_tailwind', true ) === '1';
 		$stored_css    = (string) get_post_meta( $post_id, '_lc_css', true );
 		$generated_css = (string) get_post_meta( $post_id, '_lc_generated_css', true );
@@ -72,6 +64,68 @@ class Frontend {
 				}
 			}
 		}
+
+		return $css;
+	}
+
+	public static function filter_content( string $content ): string {
+		if ( is_admin() ) {
+			return $content;
+		}
+		if ( get_query_var( 'lc_preview' ) ) {
+			return $content;
+		}
+
+		$post_id = get_queried_object_id();
+		if ( ! $post_id ) {
+			return $content;
+		}
+
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			return $content;
+		}
+
+		if ( ! self::is_shadow_dom_enabled( $post_id ) ) {
+			return $content;
+		}
+
+		$css = self::get_css_for_post( $post_id );
+		$style_html = $css !== '' ? '<style id="lc-style">' . $css . '</style>' : '';
+
+		$js_enabled = get_post_meta( $post_id, '_lc_js_enabled', true ) === '1';
+		$js = (string) get_post_meta( $post_id, '_lc_js', true );
+		$external_scripts = $js_enabled ? self::get_external_scripts( $post_id ) : [];
+
+		$scripts_html = '';
+		foreach ( $external_scripts as $script_url ) {
+			$scripts_html .= '<script src="' . esc_url( $script_url ) . '"></script>';
+		}
+		if ( $js_enabled && $js !== '' ) {
+			$scripts_html .= '<script id="lc-script">' . $js . '</script>';
+		}
+
+		return '<div id="lc-shadow-host"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+	}
+
+	public static function enqueue_css(): void {
+		if ( is_admin() ) {
+			return;
+		}
+
+		$post_id = get_queried_object_id();
+		if ( ! $post_id ) {
+			return;
+		}
+
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			return;
+		}
+
+		if ( self::is_shadow_dom_enabled( $post_id ) ) {
+			return;
+		}
+
+		$css = self::get_css_for_post( $post_id );
 
 		if ( $css === '' ) {
 			return;
@@ -101,6 +155,10 @@ class Frontend {
 		}
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			return;
+		}
+
+		if ( self::is_shadow_dom_enabled( $post_id ) ) {
 			return;
 		}
 

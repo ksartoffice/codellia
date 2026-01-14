@@ -74,6 +74,7 @@ type ImportPayload = {
   js?: string;
   jsEnabled?: boolean;
   externalScripts?: string[];
+  shadowDomEnabled?: boolean;
 };
 
 type ImportResult = {
@@ -90,6 +91,7 @@ type ExportPayload = {
   js: string;
   jsEnabled: boolean;
   externalScripts: string[];
+  shadowDomEnabled: boolean;
 };
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
@@ -626,6 +628,7 @@ async function main() {
         ...cfg.settingsData,
         jsEnabled: payload.jsEnabled ?? false,
         externalScripts: payload.externalScripts ?? [],
+        shadowDomEnabled: payload.shadowDomEnabled ?? false,
       };
   }
 
@@ -643,6 +646,7 @@ async function main() {
   let editorCollapsed = false;
   let settingsOpen = false;
   let jsEnabled = Boolean(cfg.jsEnabled);
+  let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
   let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
     ? [...cfg.settingsData.externalScripts]
     : [];
@@ -787,6 +791,21 @@ async function main() {
     queueInitialJsRun();
   };
 
+  const setShadowDomEnabled = (enabled: boolean) => {
+    shadowDomEnabled = enabled;
+    sendRender();
+    sendExternalScripts(jsEnabled ? externalScripts : []);
+    if (!jsEnabled) {
+      sendDisableJs?.();
+      return;
+    }
+    if (sendRunJs) {
+      sendRunJs();
+    } else {
+      pendingJsAction = 'run';
+    }
+  };
+
   setActiveEditor(htmlEditor, ui.htmlPane);
   ui.htmlPane.addEventListener('click', () => htmlEditor.focus());
   ui.cssPane.addEventListener('click', () => {
@@ -813,6 +832,7 @@ async function main() {
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
     onJavaScriptToggle: setJavaScriptEnabled,
+    onShadowDomToggle: setShadowDomEnabled,
     onExternalScriptsChange: (scripts) => {
       externalScripts = scripts;
       sendExternalScripts(jsEnabled ? externalScripts : []);
@@ -1117,6 +1137,7 @@ async function main() {
       type: 'LC_RENDER',
       canonicalHTML: canonical.canonicalHTML,
       cssText: getPreviewCss(),
+      shadowDomEnabled,
     };
     if (!previewReady) {
       pendingRender = true;
@@ -1386,6 +1407,7 @@ async function main() {
         js: jsModel.getValue(),
         jsEnabled,
         externalScripts: [...externalScripts],
+        shadowDomEnabled,
       };
 
       const blob = new Blob([JSON.stringify(payload, null, 2)], {

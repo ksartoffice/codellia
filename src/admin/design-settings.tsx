@@ -1,8 +1,10 @@
-import { createElement, Fragment, useState } from '@wordpress/element';
+import { createElement, Fragment } from '@wordpress/element';
 
 type DesignSettingsPanelProps = {
   enableJavaScript: boolean;
   onToggleJavaScript: (enabled: boolean) => void;
+  enableShadowDom: boolean;
+  onToggleShadowDom: (enabled: boolean) => void;
   externalScripts: string[];
   onChangeExternalScripts: (scripts: string[]) => void;
   onCommitExternalScripts: (scripts: string[]) => void;
@@ -16,6 +18,8 @@ const MAX_EXTERNAL_SCRIPTS = 5;
 export function DesignSettingsPanel({
   enableJavaScript,
   onToggleJavaScript,
+  enableShadowDom,
+  onToggleShadowDom,
   externalScripts,
   onChangeExternalScripts,
   onCommitExternalScripts,
@@ -23,7 +27,6 @@ export function DesignSettingsPanel({
   error,
   externalScriptsError,
 }: DesignSettingsPanelProps) {
-  const [enableShadowDom, setEnableShadowDom] = useState(false);
   const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
   const hasScripts = externalScripts.length > 0;
 
@@ -72,7 +75,7 @@ export function DesignSettingsPanel({
               type="checkbox"
               checked={enableShadowDom}
               aria-label="Shadow DOMを有効にする"
-              onChange={(event) => setEnableShadowDom(event.target.checked)}
+              onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
