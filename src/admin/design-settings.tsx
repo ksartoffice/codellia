@@ -1,6 +1,9 @@
 import { createElement, Fragment } from '@wordpress/element';
 
 type DesignSettingsPanelProps = {
+  tailwindEnabled: boolean;
+  tailwindPreflightEnabled: boolean;
+  onToggleTailwindPreflight: (enabled: boolean) => void;
   enableJavaScript: boolean;
   onToggleJavaScript: (enabled: boolean) => void;
   externalScripts: string[];
@@ -14,6 +17,9 @@ type DesignSettingsPanelProps = {
 const MAX_EXTERNAL_SCRIPTS = 5;
 
 export function DesignSettingsPanel({
+  tailwindEnabled,
+  tailwindPreflightEnabled,
+  onToggleTailwindPreflight,
   enableJavaScript,
   onToggleJavaScript,
   externalScripts,
@@ -49,6 +55,24 @@ export function DesignSettingsPanel({
 
   return (
     <Fragment>
+      {tailwindEnabled ? (
+        <div className="lc-settingsSection">
+          <div className="lc-settingsSectionTitle">TailwindCSS</div>
+          <div className="lc-settingsItem lc-settingsToggle">
+            <div className="lc-settingsItemLabel">Enable Preflight</div>
+            <label className="lc-toggle">
+              <input
+                type="checkbox"
+                checked={tailwindPreflightEnabled}
+                aria-label="Enable TailwindCSS preflight"
+                onChange={(event) => onToggleTailwindPreflight(event.target.checked)}
+              />
+              <span className="lc-toggleTrack" aria-hidden="true" />
+            </label>
+          </div>
+          <div className="lc-settingsHelp">Preflight adds Tailwind's base reset styles.</div>
+        </div>
+      ) : null}
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">JavaScript設定</div>
         <div className="lc-settingsItem lc-settingsToggle">

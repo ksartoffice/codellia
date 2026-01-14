@@ -159,13 +159,11 @@ class Rest {
 			], 400 );
 		}
 
+		$tailwind_preflight = self::get_tailwind_preflight_enabled( $post_id, $css_input );
 		$compiled_css = '';
 		if ( $tailwind_enabled ) {
 			try {
-				$compiled_css = tw::generate( [
-					'content' => $html,
-					'css'     => $css_input,
-				] );
+				$compiled_css = self::compile_tailwind_css( $html, $css_input, $tailwind_preflight );
 			} catch ( \Throwable $e ) {
 				return new \WP_REST_Response( [
 					'ok'    => false,
@@ -188,6 +186,7 @@ class Rest {
 		}
 		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
+		update_post_meta( $post_id, '_lc_tailwind_preflight', $tailwind_preflight ? '1' : '0' );
 
 		return new \WP_REST_Response( [ 'ok' => true ], 200 );
 	}
@@ -205,10 +204,8 @@ class Rest {
 		}
 
 		try {
-			$css = tw::generate( [
-				'content' => $html,
-				'css'     => $css_input,
-			] );
+			$tailwind_preflight = self::get_tailwind_preflight_enabled( $post_id, $css_input );
+			$css = self::compile_tailwind_css( $html, $css_input, $tailwind_preflight );
 		} catch ( \Throwable $e ) {
 			return new \WP_REST_Response( [
 				'ok'    => false,
@@ -249,6 +246,9 @@ class Rest {
 			update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 			update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 			delete_post_meta( $post_id, '_lc_setup_required' );
+			if ( $tailwind_enabled && get_post_meta( $post_id, '_lc_tailwind_preflight', true ) === '' ) {
+				update_post_meta( $post_id, '_lc_tailwind_preflight', '0' );
+			}
 		} else {
 			delete_post_meta( $post_id, '_lc_setup_required' );
 		}
@@ -311,6 +311,17 @@ class Rest {
 				'ok'    => false,
 				'error' => 'Invalid tailwind flag.',
 			], 400 );
+		}
+
+		$tailwind_preflight = null;
+		if ( array_key_exists( 'tailwindPreflight', $payload ) ) {
+			if ( ! is_bool( $payload['tailwindPreflight'] ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Invalid tailwindPreflight value.',
+				], 400 );
+			}
+			$tailwind_preflight = $payload['tailwindPreflight'];
 		}
 
 		$js_input = '';
@@ -388,6 +399,9 @@ class Rest {
 		$html    = $payload['html'];
 		$css_input = $payload['css'];
 		$tailwind_enabled = $payload['tailwind'];
+		if ( $tailwind_preflight === null ) {
+			$tailwind_preflight = self::detect_tailwind_preflight( $css_input );
+		}
 
 		$result = wp_update_post( [
 			'ID'           => $post_id,
@@ -407,10 +421,7 @@ class Rest {
 				$compiled_css = $generated_css_input;
 			} else {
 				try {
-					$compiled_css = tw::generate( [
-						'content' => $html,
-						'css'     => $css_input,
-					] );
+					$compiled_css = self::compile_tailwind_css( $html, $css_input, $tailwind_preflight );
 				} catch ( \Throwable $e ) {
 					return new \WP_REST_Response( [
 						'ok'    => false,
@@ -426,6 +437,7 @@ class Rest {
 		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 		delete_post_meta( $post_id, '_lc_setup_required' );
+		update_post_meta( $post_id, '_lc_tailwind_preflight', $tailwind_preflight ? '1' : '0' );
 
 		if ( $tailwind_enabled ) {
 			update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
@@ -566,6 +578,7 @@ class Rest {
 			'jsEnabled'       => get_post_meta( $post_id, '_lc_js_enabled', true ) === '1',
 			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
 			'externalScripts' => self::get_external_scripts( $post_id ),
+			'tailwindPreflightEnabled' => self::get_tailwind_preflight_enabled( $post_id ),
 		];
 	}
 
@@ -779,10 +792,95 @@ class Rest {
 			}
 		}
 
+		if ( array_key_exists( 'tailwindPreflight', $updates ) ) {
+			$tailwind_preflight = rest_sanitize_boolean( $updates['tailwindPreflight'] );
+			$tailwind_enabled = get_post_meta( $post_id, '_lc_tailwind', true ) === '1';
+			if ( $tailwind_enabled ) {
+				$current_css = (string) get_post_meta( $post_id, '_lc_css', true );
+				$current_html = (string) $post->post_content;
+				try {
+					$compiled_css = self::compile_tailwind_css( $current_html, $current_css, $tailwind_preflight );
+				} catch ( \Throwable $e ) {
+					return new \WP_REST_Response( [
+						'ok'    => false,
+						'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+					], 500 );
+				}
+				update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
+			}
+			update_post_meta( $post_id, '_lc_tailwind_preflight', $tailwind_preflight ? '1' : '0' );
+		}
+
 		return new \WP_REST_Response( [
 			'ok'       => true,
 			'settings' => self::build_settings_payload( $post_id ),
 		], 200 );
+	}
+
+	private static function compile_tailwind_css( string $html, string $css_input, bool $preflight_enabled ): string {
+		$normalized_css = self::normalize_tailwind_css( $css_input, $preflight_enabled );
+		return tw::generate( [
+			'content' => $html,
+			'css'     => $normalized_css,
+		] );
+	}
+
+	private static function normalize_tailwind_css( string $css_input, bool $preflight_enabled ): string {
+		if ( $preflight_enabled ) {
+			return self::ensure_preflight_import( $css_input );
+		}
+
+		$css = preg_replace( '/@import\\s+["\']tailwindcss\\/preflight(?:\\.css)?["\'][^;]*;?/i', '', $css_input );
+		$css = preg_replace(
+			'/@import\\s+["\']tailwindcss(?:\\.css)?["\'][^;]*;?/i',
+			'@import "tailwindcss/theme.css" layer(theme);' . "\n" . '@import "tailwindcss/utilities.css" layer(utilities);',
+			$css
+		);
+
+		return $css ?? $css_input;
+	}
+
+	private static function ensure_preflight_import( string $css_input ): string {
+		if ( preg_match( '/@import\\s+["\']tailwindcss(?:\\.css)?["\']/i', $css_input ) ) {
+			return $css_input;
+		}
+		if ( preg_match( '/@import\\s+["\']tailwindcss\\/preflight(?:\\.css)?["\']/i', $css_input ) ) {
+			return $css_input;
+		}
+
+		$pattern = '/(@import\\s+["\']tailwindcss\\/theme(?:\\.css)?["\'][^;]*;)/i';
+		if ( preg_match( $pattern, $css_input ) ) {
+			$replacement = '$1' . "\n" . '@import "tailwindcss/preflight.css" layer(base);';
+			return preg_replace( $pattern, $replacement, $css_input, 1 ) ?? $css_input;
+		}
+
+		return '@import "tailwindcss/preflight.css" layer(base);' . "\n" . $css_input;
+	}
+
+	private static function get_tailwind_preflight_enabled( int $post_id, string $css_input = '' ): bool {
+		$meta = get_post_meta( $post_id, '_lc_tailwind_preflight', true );
+		if ( $meta === '1' ) {
+			return true;
+		}
+		if ( $meta === '0' ) {
+			return false;
+		}
+
+		$source = $css_input !== '' ? $css_input : (string) get_post_meta( $post_id, '_lc_css', true );
+		return self::detect_tailwind_preflight( $source );
+	}
+
+	private static function detect_tailwind_preflight( string $css_input ): bool {
+		if ( $css_input === '' ) {
+			return false;
+		}
+		if ( preg_match( '/@import\\s+["\']tailwindcss(?:\\.css)?["\']\\s*;?/i', $css_input ) ) {
+			return true;
+		}
+		if ( preg_match( '/@import\\s+["\']tailwindcss\\/preflight(?:\\.css)?["\']\\s*;?/i', $css_input ) ) {
+			return true;
+		}
+		return false;
 	}
 
 	private static function get_external_scripts( int $post_id ): array {

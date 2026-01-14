@@ -70,6 +70,7 @@ type ImportPayload = {
   html: string;
   css: string;
   tailwind: boolean;
+  tailwindPreflight?: boolean;
   generatedCss?: string;
   js?: string;
   jsEnabled?: boolean;
@@ -86,6 +87,7 @@ type ExportPayload = {
   html: string;
   css: string;
   tailwind: boolean;
+  tailwindPreflight: boolean;
   generatedCss: string;
   js: string;
   jsEnabled: boolean;
@@ -128,7 +130,12 @@ const LC_ATTR_NAME = 'data-lc-id';
 const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
 const SHORTCODE_REGEX =
   /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
-const DEFAULT_TAILWIND_CSS = '@import "tailwindcss";\n\n@theme {\n  /* ... */\n}\n';
+const DEFAULT_TAILWIND_CSS =
+  '@import "tailwindcss/theme.css" layer(theme);\n' +
+  '@import "tailwindcss/utilities.css" layer(utilities);\n\n' +
+  '@theme {\n' +
+  '  /* ... */\n' +
+  '}\n';
 
 function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
   return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
@@ -613,12 +620,20 @@ async function main() {
     cfg.jsEnabled = payload.jsEnabled ?? false;
     cfg.tailwindEnabled = payload.tailwind;
     tailwindEnabled = payload.tailwind;
+    const importedTailwindPreflight = payload.tailwindPreflight;
     cfg.settingsData =
       importedState.settingsData ?? {
         ...cfg.settingsData,
         jsEnabled: payload.jsEnabled ?? false,
         externalScripts: payload.externalScripts ?? [],
+        tailwindPreflightEnabled: Boolean(importedTailwindPreflight),
       };
+    if (cfg.settingsData && cfg.settingsData.tailwindPreflightEnabled === undefined) {
+      cfg.settingsData = {
+        ...cfg.settingsData,
+        tailwindPreflightEnabled: Boolean(importedTailwindPreflight),
+      };
+    }
   }
 
   let htmlModel: import('monaco-editor').editor.ITextModel;
@@ -635,6 +650,7 @@ async function main() {
   let editorCollapsed = false;
   let settingsOpen = false;
   let jsEnabled = Boolean(cfg.jsEnabled);
+  let tailwindPreflightEnabled = Boolean(cfg.settingsData?.tailwindPreflightEnabled);
   let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
     ? [...cfg.settingsData.externalScripts]
     : [];
@@ -804,10 +820,17 @@ async function main() {
     postId: cfg.postId,
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
+    tailwindEnabled,
     onJavaScriptToggle: setJavaScriptEnabled,
     onExternalScriptsChange: (scripts) => {
       externalScripts = scripts;
       sendExternalScripts(jsEnabled ? externalScripts : []);
+    },
+    onTailwindPreflightToggle: (enabled) => {
+      tailwindPreflightEnabled = enabled;
+      if (tailwindEnabled) {
+        compileTailwind();
+      }
     },
   });
 
@@ -1374,6 +1397,7 @@ async function main() {
         html: htmlModel.getValue(),
         css: cssModel.getValue(),
         tailwind: tailwindEnabled,
+        tailwindPreflight: tailwindPreflightEnabled,
         generatedCss: tailwindEnabled ? (generatedCss || tailwindCss) : '',
         js: jsModel.getValue(),
         jsEnabled,

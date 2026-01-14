@@ -46,6 +46,7 @@ type ImportPayload = {
   html: string;
   css: string;
   tailwind: boolean;
+  tailwindPreflight?: boolean;
   generatedCss?: string;
   js?: string;
   jsEnabled?: boolean;
@@ -80,6 +81,10 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: 'Invalid tailwind flag.' };
   }
 
+  if (raw.tailwindPreflight !== undefined && typeof raw.tailwindPreflight !== 'boolean') {
+    return { error: 'Invalid tailwindPreflight value.' };
+  }
+
   if (raw.generatedCss !== undefined && typeof raw.generatedCss !== 'string') {
     return { error: 'Invalid generatedCss value.' };
   }
@@ -105,6 +110,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       html: raw.html,
       css: raw.css,
       tailwind: raw.tailwind,
+      tailwindPreflight: raw.tailwindPreflight,
       generatedCss: raw.generatedCss,
       js: raw.js ?? '',
       jsEnabled: raw.jsEnabled ?? false,

@@ -54,6 +54,7 @@ export type SettingsData = {
   jsEnabled: boolean;
   canEditJavaScript: boolean;
   externalScripts: string[];
+  tailwindPreflightEnabled: boolean;
 };
 
 type SettingsConfig = {
@@ -66,6 +67,8 @@ type SettingsConfig = {
   apiFetch?: (args: any) => Promise<any>;
   onJavaScriptToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
+  onTailwindPreflightToggle?: (enabled: boolean) => void;
+  tailwindEnabled?: boolean;
 };
 
 type UpdateResponse = {
@@ -865,11 +868,16 @@ function SettingsSidebar({
   header,
   onJavaScriptToggle,
   onExternalScriptsChange,
+  onTailwindPreflightToggle,
+  tailwindEnabled,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
   const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
+  const [tailwindPreflightEnabled, setTailwindPreflightEnabled] = useState(
+    Boolean(data.tailwindPreflightEnabled)
+  );
   const [designError, setDesignError] = useState('');
   const [externalScripts, setExternalScripts] = useState<string[]>(data.externalScripts || []);
   const [externalScriptsError, setExternalScriptsError] = useState('');
@@ -883,6 +891,10 @@ function SettingsSidebar({
   useEffect(() => {
     setEnableJavaScript(Boolean(settings.jsEnabled));
   }, [settings.jsEnabled]);
+
+  useEffect(() => {
+    setTailwindPreflightEnabled(Boolean(settings.tailwindPreflightEnabled));
+  }, [settings.tailwindPreflightEnabled]);
 
   useEffect(() => {
     setExternalScripts(settings.externalScripts || []);
@@ -943,6 +955,18 @@ function SettingsSidebar({
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setEnableJavaScript(Boolean(settings.jsEnabled));
+    }
+  };
+
+  const handleTailwindPreflightToggle = async (enabled: boolean) => {
+    setDesignError('');
+    setTailwindPreflightEnabled(enabled);
+    try {
+      await updateSettings({ tailwindPreflight: enabled });
+      onTailwindPreflightToggle?.(enabled);
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setTailwindPreflightEnabled(Boolean(settings.tailwindPreflightEnabled));
     }
   };
 
@@ -1137,6 +1161,9 @@ function SettingsSidebar({
         </Fragment>
       ) : (
         <DesignSettingsPanel
+          tailwindEnabled={Boolean(tailwindEnabled)}
+          tailwindPreflightEnabled={tailwindPreflightEnabled}
+          onToggleTailwindPreflight={handleTailwindPreflightToggle}
           enableJavaScript={enableJavaScript}
           onToggleJavaScript={handleJavaScriptToggle}
           externalScripts={externalScripts}
