@@ -263,7 +263,7 @@ body.admin_page_wp-livecode #wpbody-content {
   top: 2px;
   height: 2px;
   background: #2b2f38;
-  transition: background 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .lc-editorResizer:hover::before {
@@ -283,6 +283,7 @@ body.admin_page_wp-livecode #wpbody-content {
 
 .lc-app.is-resizing,
 .lc-app.is-resizing * {
+  -webkit-user-select: none;
   user-select: none;
 }
 

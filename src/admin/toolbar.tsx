@@ -79,7 +79,7 @@ function Toolbar({
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          aria-disabled={!canUndo}
+          title="Undo"
         >
           <IconLabel label="Undo" svg={ICONS.undo} />
         </button>
@@ -88,7 +88,7 @@ function Toolbar({
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          aria-disabled={!canRedo}
+          title="Redo"
         >
           <IconLabel label="Redo" svg={ICONS.redo} />
         </button>
@@ -109,16 +109,17 @@ function Toolbar({
             dangerouslySetInnerHTML={{ __html: TAILWIND_ICON }}
           />
         ) : null}
-        <button className="lc-btn lc-btn-primary lc-btn-stack" type="button" onClick={onSave}>
+        <button className="lc-btn lc-btn-primary lc-btn-stack" type="button" onClick={onSave} title="Save">
           <IconLabel label="Save" svg={ICONS.save} />
         </button>
-        <button className="lc-btn lc-btn-stack" type="button" onClick={onExport}>
+        <button className="lc-btn lc-btn-stack" type="button" onClick={onExport} title="Export">
           <IconLabel label="Export" svg={ICONS.export} />
         </button>
         <button
           className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
           type="button"
           onClick={onToggleSettings}
+          title="Settings"
           aria-expanded={settingsOpen}
           aria-controls="lc-settings"
         >
