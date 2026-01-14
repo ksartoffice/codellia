@@ -1,4 +1,4 @@
-import { createElement, Fragment } from '@wordpress/element';
+import { createElement, Fragment, useState } from '@wordpress/element';
 
 type DesignSettingsPanelProps = {
   enableJavaScript: boolean;
@@ -23,6 +23,7 @@ export function DesignSettingsPanel({
   error,
   externalScriptsError,
 }: DesignSettingsPanelProps) {
+  const [enableShadowDom, setEnableShadowDom] = useState(false);
   const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
   const hasScripts = externalScripts.length > 0;
 
@@ -49,7 +50,7 @@ export function DesignSettingsPanel({
 
   return (
     <Fragment>
-      <div className="lc-settingsSection">
+        <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">JavaScript設定</div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">JavaScriptを有効にする</div>
@@ -64,14 +65,28 @@ export function DesignSettingsPanel({
             <span className="lc-toggleTrack" aria-hidden="true" />
           </label>
         </div>
+        <div className="lc-settingsItem lc-settingsToggle">
+          <div className="lc-settingsItemLabel">Shadow DOMを有効にする</div>
+          <label className="lc-toggle">
+            <input
+              type="checkbox"
+              checked={enableShadowDom}
+              aria-label="Shadow DOMを有効にする"
+              onChange={(event) => setEnableShadowDom(event.target.checked)}
+              disabled={disabled}
+            />
+            <span className="lc-toggleTrack" aria-hidden="true" />
+          </label>
+        </div>
         {disabled ? (
           <div className="lc-settingsHelp">Requires unfiltered_html capability.</div>
         ) : null}
         {error ? <div className="lc-settingsError">{error}</div> : null}
-      </div>
+        </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">External Scripts</div>
+      {enableJavaScript ? (
+        <div className="lc-settingsSection">
+          <div className="lc-settingsSectionTitle">External Scripts</div>
         {hasScripts ? (
           <div className="lc-settingsScriptList">
             {externalScripts.map((scriptUrl, index) => (
@@ -128,7 +143,8 @@ export function DesignSettingsPanel({
         {externalScriptsError ? (
           <div className="lc-settingsError">{externalScriptsError}</div>
         ) : null}
-      </div>
+        </div>
+      ) : null}
     </Fragment>
   );
 }
