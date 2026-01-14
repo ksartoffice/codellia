@@ -20,6 +20,7 @@ type ToolbarHandlers = {
   onRedo: () => void;
   onToggleEditor: () => void;
   onSave: () => void;
+  onExport: () => void;
   onToggleSettings: () => void;
 };
 
@@ -32,6 +33,7 @@ const ICONS = {
   undo: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo2-icon lucide-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>',
   redo: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo2-icon lucide-redo-2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg>',
   save: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save-icon lucide-save"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>',
+  export: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-icon lucide-download"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>',
   panelClose: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left-close-icon lucide-panel-left-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg>',
   panelOpen: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left-open-icon lucide-panel-left-open"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>',
   settings: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
@@ -61,6 +63,7 @@ function Toolbar({
   onRedo,
   onToggleEditor,
   onSave,
+  onExport,
   onToggleSettings,
 }: ToolbarState & ToolbarHandlers) {
   const toggleLabel = editorCollapsed ? 'Show' : 'Hide';
@@ -76,7 +79,7 @@ function Toolbar({
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          aria-disabled={!canUndo}
+          title="Undo"
         >
           <IconLabel label="Undo" svg={ICONS.undo} />
         </button>
@@ -85,7 +88,7 @@ function Toolbar({
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          aria-disabled={!canRedo}
+          title="Redo"
         >
           <IconLabel label="Redo" svg={ICONS.redo} />
         </button>
@@ -106,13 +109,17 @@ function Toolbar({
             dangerouslySetInnerHTML={{ __html: TAILWIND_ICON }}
           />
         ) : null}
-        <button className="lc-btn lc-btn-primary lc-btn-stack" type="button" onClick={onSave}>
+        <button className="lc-btn lc-btn-primary lc-btn-stack" type="button" onClick={onSave} title="Save">
           <IconLabel label="Save" svg={ICONS.save} />
+        </button>
+        <button className="lc-btn lc-btn-stack" type="button" onClick={onExport} title="Export">
+          <IconLabel label="Export" svg={ICONS.export} />
         </button>
         <button
           className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
           type="button"
           onClick={onToggleSettings}
+          title="Settings"
           aria-expanded={settingsOpen}
           aria-controls="lc-settings"
         >
