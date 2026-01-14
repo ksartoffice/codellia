@@ -105,6 +105,24 @@ const VISIBILITY_OPTIONS = [
   { value: 'password', label: 'パスワード保護' },
 ];
 
+function getErrorMessage(error: unknown, fallback = 'Update failed.') {
+  if (typeof error === 'string' && error.trim()) return error;
+  if (error instanceof Error) {
+    if (error.message && error.message !== '[object Object]') return error.message;
+    const cause = (error as { cause?: unknown }).cause;
+    if (cause) return getErrorMessage(cause, fallback);
+  }
+  if (error && typeof error === 'object') {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string' && message.trim()) return message;
+    const errorField = (error as { error?: unknown }).error;
+    if (typeof errorField === 'string' && errorField.trim()) return errorField;
+    const nestedMessage = (errorField as { message?: unknown })?.message;
+    if (typeof nestedMessage === 'string' && nestedMessage.trim()) return nestedMessage;
+  }
+  return fallback;
+}
+
 function formatDateForSave(value: string) {
   if (!value) return '';
   return `${value.replace('T', ' ')}:00`;
@@ -892,7 +910,7 @@ function SettingsSidebar({
       });
 
       if (!response?.ok) {
-        throw new Error(response?.error || 'Update failed.');
+        throw new Error(getErrorMessage(response?.error, 'Update failed.'));
       }
 
       if (response?.settings) {
@@ -947,7 +965,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalScripts: normalizedNext });
     } catch (err: any) {
-      setExternalScriptsError(err?.message || String(err));
+      setExternalScriptsError(getErrorMessage(err, 'Update failed.'));
       setExternalScripts(settings.externalScripts || []);
     }
   };
