@@ -359,6 +359,10 @@
     ensureStyleElement().textContent = css || '';
   }
 
+  function setCssText(css) {
+    ensureStyleElement().textContent = css || '';
+  }
+
   function reply(type, payload) {
     if (!window.parent) return;
     try {
@@ -382,6 +386,10 @@
     if (data.type === 'LC_RENDER') {
       if (!isReady) return;
       render(data.canonicalHTML, data.cssText);
+    }
+    if (data.type === 'LC_SET_CSS') {
+      if (!isReady) return;
+      setCssText(data.cssText);
     }
     if (data.type === 'LC_RUN_JS') {
       if (!isReady) return;

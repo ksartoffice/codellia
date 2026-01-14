@@ -1005,7 +1005,7 @@ async function main() {
         if (!saveInProgress) {
           setStatus('');
         }
-        sendRender();
+        sendCssUpdate(tailwindCss);
       } else {
         setStatus('Tailwind compile failed.');
       }
@@ -1118,6 +1118,18 @@ async function main() {
   };
 
   const sendRenderDebounced = debounce(sendRender, 120);
+  const sendCssUpdate = (cssText: string) => {
+    if (!previewReady) {
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_SET_CSS',
+        cssText: cssText,
+      },
+      targetOrigin
+    );
+  };
   sendRunJs = () => {
     if (!jsEnabled) return;
     if (!jsModel) {
@@ -1303,7 +1315,9 @@ async function main() {
     updateUndoRedoState();
   });
   cssModel.onDidChangeContent(() => {
-    sendRenderDebounced();
+    if (!tailwindEnabled) {
+      sendRenderDebounced();
+    }
     if (tailwindEnabled) {
       compileTailwindDebounced();
     }
