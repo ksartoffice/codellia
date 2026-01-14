@@ -6,11 +6,15 @@ use TailwindPHP\tw;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Frontend {
+	private static int $shortcode_instance = 0;
+	private static array $shortcode_assets_loaded = [];
+
 	public static function init(): void {
 		add_action( 'wp', [ __CLASS__, 'maybe_disable_autop' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_css' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_js' ] );
 		add_filter( 'the_content', [ __CLASS__, 'filter_content' ], 20 );
+		add_shortcode( 'livecode', [ __CLASS__, 'shortcode' ] );
 	}
 
 	/**
@@ -105,6 +109,90 @@ class Frontend {
 		}
 
 		return '<div id="lc-shadow-host"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+	}
+
+	public static function shortcode( $atts = [] ): string {
+		$atts = shortcode_atts( [
+			'post_id' => 0,
+		], (array) $atts, 'livecode' );
+		$post_id = absint( $atts['post_id'] ?? 0 );
+		if ( ! $post_id ) {
+			return '';
+		}
+
+		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+			return '';
+		}
+
+		if ( get_post_meta( $post_id, '_lc_shortcode_enabled', true ) !== '1' ) {
+			return '';
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post instanceof \WP_Post ) {
+			return '';
+		}
+		if ( $post->post_status !== 'publish' && ! current_user_can( 'read_post', $post_id ) ) {
+			return '';
+		}
+
+		$content = (string) $post->post_content;
+
+		if ( self::is_shadow_dom_enabled( $post_id ) ) {
+			self::$shortcode_instance++;
+			$instance = self::$shortcode_instance;
+			$host_id = 'lc-shadow-host-' . $post_id . '-' . $instance;
+			$style_html = self::build_inline_style( $post_id, $instance );
+			$scripts_html = self::build_inline_scripts( $post_id, $instance );
+			return '<div id="' . esc_attr( $host_id ) . '"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+		}
+
+		$assets = self::get_non_shadow_assets_html( $post_id );
+		return $assets['style'] . $content . $assets['scripts'];
+	}
+
+	private static function build_inline_style( int $post_id, int $instance = 0 ): string {
+		$css = self::get_css_for_post( $post_id );
+		if ( $css === '' ) {
+			return '';
+		}
+		$suffix = $instance > 0 ? '-' . $post_id . '-' . $instance : '-' . $post_id;
+		return '<style id="lc-style' . esc_attr( $suffix ) . '">' . $css . '</style>';
+	}
+
+	private static function build_inline_scripts( int $post_id, int $instance = 0 ): string {
+		$js_enabled = get_post_meta( $post_id, '_lc_js_enabled', true ) === '1';
+		$js = (string) get_post_meta( $post_id, '_lc_js', true );
+		$external_scripts = $js_enabled ? self::get_external_scripts( $post_id ) : [];
+		if ( ! $js_enabled || ( $js === '' && empty( $external_scripts ) ) ) {
+			return '';
+		}
+
+		$scripts_html = '';
+		foreach ( $external_scripts as $script_url ) {
+			$scripts_html .= '<script src="' . esc_url( $script_url ) . '"></script>';
+		}
+		if ( $js !== '' ) {
+			$suffix = $instance > 0 ? '-' . $post_id . '-' . $instance : '-' . $post_id;
+			$scripts_html .= '<script id="lc-script' . esc_attr( $suffix ) . '">' . $js . '</script>';
+		}
+
+		return $scripts_html;
+	}
+
+	private static function get_non_shadow_assets_html( int $post_id ): array {
+		if ( isset( self::$shortcode_assets_loaded[ $post_id ] ) ) {
+			return [
+				'style'   => '',
+				'scripts' => '',
+			];
+		}
+		self::$shortcode_assets_loaded[ $post_id ] = true;
+
+		return [
+			'style'   => self::build_inline_style( $post_id ),
+			'scripts' => self::build_inline_scripts( $post_id ),
+		];
 	}
 
 	public static function enqueue_css(): void {

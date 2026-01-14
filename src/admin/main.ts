@@ -75,6 +75,7 @@ type ImportPayload = {
   jsEnabled?: boolean;
   externalScripts?: string[];
   shadowDomEnabled?: boolean;
+  shortcodeEnabled?: boolean;
 };
 
 type ImportResult = {
@@ -92,6 +93,7 @@ type ExportPayload = {
   jsEnabled: boolean;
   externalScripts: string[];
   shadowDomEnabled: boolean;
+  shortcodeEnabled: boolean;
 };
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
@@ -629,6 +631,7 @@ async function main() {
         jsEnabled: payload.jsEnabled ?? false,
         externalScripts: payload.externalScripts ?? [],
         shadowDomEnabled: payload.shadowDomEnabled ?? false,
+        shortcodeEnabled: payload.shortcodeEnabled ?? cfg.settingsData.shortcodeEnabled ?? false,
       };
   }
 
@@ -647,6 +650,7 @@ async function main() {
   let settingsOpen = false;
   let jsEnabled = Boolean(cfg.jsEnabled);
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
+  let shortcodeEnabled = Boolean(cfg.settingsData?.shortcodeEnabled);
   let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
     ? [...cfg.settingsData.externalScripts]
     : [];
@@ -833,6 +837,9 @@ async function main() {
     apiFetch: wp?.apiFetch,
     onJavaScriptToggle: setJavaScriptEnabled,
     onShadowDomToggle: setShadowDomEnabled,
+    onShortcodeToggle: (enabled) => {
+      shortcodeEnabled = enabled;
+    },
     onExternalScriptsChange: (scripts) => {
       externalScripts = scripts;
       sendExternalScripts(jsEnabled ? externalScripts : []);
@@ -1408,6 +1415,7 @@ async function main() {
         jsEnabled,
         externalScripts: [...externalScripts],
         shadowDomEnabled,
+        shortcodeEnabled,
       };
 
       const blob = new Blob([JSON.stringify(payload, null, 2)], {

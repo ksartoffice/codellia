@@ -53,6 +53,7 @@ export type SettingsData = {
   canTrash: boolean;
   jsEnabled: boolean;
   shadowDomEnabled: boolean;
+  shortcodeEnabled: boolean;
   canEditJavaScript: boolean;
   externalScripts: string[];
 };
@@ -67,6 +68,7 @@ type SettingsConfig = {
   apiFetch?: (args: any) => Promise<any>;
   onJavaScriptToggle?: (enabled: boolean) => void;
   onShadowDomToggle?: (enabled: boolean) => void;
+  onShortcodeToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
 };
 
@@ -867,6 +869,7 @@ function SettingsSidebar({
   header,
   onJavaScriptToggle,
   onShadowDomToggle,
+  onShortcodeToggle,
   onExternalScriptsChange,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
@@ -874,6 +877,7 @@ function SettingsSidebar({
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
   const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
   const [enableShadowDom, setEnableShadowDom] = useState(Boolean(data.shadowDomEnabled));
+  const [enableShortcode, setEnableShortcode] = useState(Boolean(data.shortcodeEnabled));
   const [designError, setDesignError] = useState('');
   const [externalScripts, setExternalScripts] = useState<string[]>(data.externalScripts || []);
   const [externalScriptsError, setExternalScriptsError] = useState('');
@@ -893,6 +897,10 @@ function SettingsSidebar({
   }, [settings.shadowDomEnabled]);
 
   useEffect(() => {
+    setEnableShortcode(Boolean(settings.shortcodeEnabled));
+  }, [settings.shortcodeEnabled]);
+
+  useEffect(() => {
     setExternalScripts(settings.externalScripts || []);
     onExternalScriptsChange?.(settings.externalScripts || []);
   }, [settings.externalScripts, onExternalScriptsChange]);
@@ -904,6 +912,10 @@ function SettingsSidebar({
   useEffect(() => {
     onShadowDomToggle?.(enableShadowDom);
   }, [enableShadowDom, onShadowDomToggle]);
+
+  useEffect(() => {
+    onShortcodeToggle?.(enableShortcode);
+  }, [enableShortcode, onShortcodeToggle]);
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
@@ -969,6 +981,20 @@ function SettingsSidebar({
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setEnableShadowDom(Boolean(settings.shadowDomEnabled));
+    }
+  };
+
+  const handleShortcodeToggle = async (enabled: boolean) => {
+    if (!canEditJavaScript) {
+      return;
+    }
+    setDesignError('');
+    setEnableShortcode(enabled);
+    try {
+      await updateSettings({ enableShortcode: enabled });
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setEnableShortcode(Boolean(settings.shortcodeEnabled));
     }
   };
 
@@ -1163,10 +1189,13 @@ function SettingsSidebar({
         </Fragment>
       ) : (
         <DesignSettingsPanel
+          postId={postId}
           enableJavaScript={enableJavaScript}
           onToggleJavaScript={handleJavaScriptToggle}
           enableShadowDom={enableShadowDom}
           onToggleShadowDom={handleShadowDomToggle}
+          enableShortcode={enableShortcode}
+          onToggleShortcode={handleShortcodeToggle}
           externalScripts={externalScripts}
           onChangeExternalScripts={handleExternalScriptsChange}
           onCommitExternalScripts={handleExternalScriptsCommit}
