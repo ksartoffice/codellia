@@ -128,7 +128,15 @@ const LC_ATTR_NAME = 'data-lc-id';
 const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
 const SHORTCODE_REGEX =
   /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
-const DEFAULT_TAILWIND_CSS = '@import "tailwindcss";\n\n@theme {\n  /* ... */\n}\n';
+const DEFAULT_TAILWIND_CSS =
+  '@layer theme, base, components, utilities;\n' +
+  '@import "tailwindcss/theme.css" layer(theme);\n' +
+  '@import "tailwindcss/preflight.css" layer(base);\n' +
+  '@import "tailwindcss/utilities.css" layer(utilities);\n' +
+  '\n' +
+  '@theme {\n' +
+  '  /* ... */\n' +
+  '}\n';
 
 function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
   return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
