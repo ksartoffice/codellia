@@ -1,4 +1,4 @@
-import { createElement, Fragment } from '@wordpress/element';
+import { createElement, Fragment, useState } from '@wordpress/element';
 
 type DesignSettingsPanelProps = {
   enableJavaScript: boolean;
@@ -27,6 +27,7 @@ export function DesignSettingsPanel({
   error,
   externalScriptsError,
 }: DesignSettingsPanelProps) {
+  const [enableShortcode, setEnableShortcode] = useState(false);
   const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
   const hasScripts = externalScripts.length > 0;
 
@@ -76,6 +77,19 @@ export function DesignSettingsPanel({
               checked={enableShadowDom}
               aria-label="Shadow DOMを有効にする"
               onChange={(event) => onToggleShadowDom(event.target.checked)}
+              disabled={disabled}
+            />
+            <span className="lc-toggleTrack" aria-hidden="true" />
+          </label>
+        </div>
+        <div className="lc-settingsItem lc-settingsToggle">
+          <div className="lc-settingsItemLabel">ショートコード化を有効にする</div>
+          <label className="lc-toggle">
+            <input
+              type="checkbox"
+              checked={enableShortcode}
+              aria-label="ショートコード化を有効にする"
+              onChange={(event) => setEnableShortcode(event.target.checked)}
               disabled={disabled}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
