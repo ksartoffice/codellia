@@ -75,7 +75,7 @@ export function DesignSettingsPanel({
         {hasScripts ? (
           <div className="lc-settingsScriptList">
             {externalScripts.map((scriptUrl, index) => (
-              <div className="lc-settingsScriptRow" key={`${index}-${scriptUrl}`}>
+              <div className="lc-settingsScriptRow" key={`script-${index}`}>
                 <input
                   type="url"
                   className="lc-formInput lc-settingsScriptInput"
