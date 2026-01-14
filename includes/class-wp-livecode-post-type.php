@@ -90,6 +90,7 @@ class Post_Type {
 
 		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : '';
 		$post_id   = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		$action    = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : '';
 
 		// New post for our CPT.
 		if ( $pagenow === 'post-new.php' ) {
@@ -100,6 +101,10 @@ class Post_Type {
 					exit;
 				}
 			}
+			return;
+		}
+
+		if ( $action && $action !== 'edit' ) {
 			return;
 		}
 
