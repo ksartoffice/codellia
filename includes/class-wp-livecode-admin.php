@@ -133,6 +133,7 @@ class Admin {
 			'restUrl'      => rest_url( 'wp-livecode/v1/save' ),
 			'restCompileUrl' => rest_url( 'wp-livecode/v1/compile-tailwind' ),
 			'setupRestUrl' => rest_url( 'wp-livecode/v1/setup' ),
+			'importRestUrl' => rest_url( 'wp-livecode/v1/import' ),
 			'backUrl'      => $back_url,
 			'settingsRestUrl' => rest_url( 'wp-livecode/v1/settings' ),
 			'settingsData' => Rest::build_settings_payload( $post_id ),

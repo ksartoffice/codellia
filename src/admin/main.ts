@@ -26,6 +26,7 @@ declare global {
       restUrl: string;
       restCompileUrl: string;
       setupRestUrl: string;
+      importRestUrl: string;
       settingsRestUrl: string;
       settingsData: SettingsData;
       backUrl?: string;
@@ -62,6 +63,33 @@ type CanonicalResult = {
   map: Record<string, SourceRange>;
   shortcodes: ShortcodePlaceholder[];
   error?: string;
+};
+
+type ImportPayload = {
+  version: number;
+  html: string;
+  css: string;
+  tailwind: boolean;
+  generatedCss?: string;
+  js?: string;
+  jsEnabled?: boolean;
+  externalScripts?: string[];
+};
+
+type ImportResult = {
+  payload: ImportPayload;
+  settingsData?: SettingsData;
+};
+
+type ExportPayload = {
+  version: 1;
+  html: string;
+  css: string;
+  tailwind: boolean;
+  generatedCss: string;
+  js: string;
+  jsEnabled: boolean;
+  externalScripts: string[];
 };
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
@@ -534,6 +562,8 @@ async function main() {
 
   let toolbarApi: ToolbarApi | null = null;
   let tailwindEnabled = Boolean(cfg.tailwindEnabled);
+  let importedState: ImportResult | null = null;
+  let importedGeneratedCss = '';
 
   // REST nonce middleware
   if (wp?.apiFetch?.createNonceMiddleware) {
@@ -555,11 +585,16 @@ async function main() {
         container: setupHost,
         postId: cfg.postId,
         restUrl: cfg.setupRestUrl,
+        importRestUrl: cfg.importRestUrl,
         apiFetch: wp?.apiFetch,
         backUrl: cfg.backUrl,
         initialTailwindEnabled: tailwindEnabled,
       });
       tailwindEnabled = result.tailwindEnabled;
+      if (result.imported) {
+        importedState = result.imported;
+        importedGeneratedCss = result.imported.payload.generatedCss || '';
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[WP LiveCode] Setup failed', error);
@@ -570,6 +605,21 @@ async function main() {
     }
   }
 
+  if (importedState) {
+    const payload = importedState.payload;
+    cfg.initialHtml = payload.html;
+    cfg.initialCss = payload.css;
+    cfg.initialJs = payload.js ?? '';
+    cfg.jsEnabled = payload.jsEnabled ?? false;
+    cfg.tailwindEnabled = payload.tailwind;
+    tailwindEnabled = payload.tailwind;
+    cfg.settingsData =
+      importedState.settingsData ?? {
+        ...cfg.settingsData,
+        jsEnabled: payload.jsEnabled ?? false,
+        externalScripts: payload.externalScripts ?? [],
+      };
+  }
 
   let htmlModel: import('monaco-editor').editor.ITextModel;
   let cssModel: import('monaco-editor').editor.ITextModel;
@@ -577,7 +627,7 @@ async function main() {
   let cssEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let jsEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
-  let tailwindCss = '';
+  let tailwindCss = importedGeneratedCss;
   let tailwindCompileToken = 0;
   let tailwindCompileInFlight = false;
   let tailwindCompileQueued = false;
@@ -612,6 +662,7 @@ async function main() {
       onRedo: () => activeEditor?.trigger('toolbar', 'redo', null),
       onToggleEditor: () => setEditorCollapsed(!editorCollapsed),
       onSave: handleSave,
+      onExport: handleExport,
       onToggleSettings: () => setSettingsOpen(!settingsOpen),
     }
   );
@@ -627,8 +678,9 @@ async function main() {
   emmetCSS(monaco, ['css']);
 
   htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
+  const useTailwindDefault = !importedState;
   const initialCss =
-    tailwindEnabled && (cfg.initialCss ?? '').trim() === ''
+    tailwindEnabled && (cfg.initialCss ?? '').trim() === '' && useTailwindDefault
       ? DEFAULT_TAILWIND_CSS
       : (cfg.initialCss ?? '');
   cssModel = monaco.editor.createModel(initialCss, 'css');
@@ -1271,6 +1323,73 @@ async function main() {
     initialJsPending = true;
     sendInit();
   });
+
+  async function handleExport() {
+    if (!htmlModel || !cssModel || !jsModel) {
+      setStatus('Export unavailable.');
+      return;
+    }
+
+    setStatus('Exporting...');
+
+    try {
+      let generatedCss = '';
+      if (tailwindEnabled) {
+        try {
+          const res = await wp.apiFetch({
+            url: cfg.restCompileUrl,
+            method: 'POST',
+            data: {
+              postId: cfg.postId,
+              html: htmlModel.getValue(),
+              css: cssModel.getValue(),
+            },
+          });
+
+          if (res?.ok && typeof res.css === 'string') {
+            generatedCss = res.css;
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('[WP LiveCode] Export compile failed', error);
+        }
+      }
+
+      const payload: ExportPayload = {
+        version: 1,
+        html: htmlModel.getValue(),
+        css: cssModel.getValue(),
+        tailwind: tailwindEnabled,
+        generatedCss: tailwindEnabled ? (generatedCss || tailwindCss) : '',
+        js: jsModel.getValue(),
+        jsEnabled,
+        externalScripts: [...externalScripts],
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `livecode-${cfg.postId}.json`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 500);
+
+      setStatus('Exported.');
+      window.setTimeout(() => {
+        if (!saveInProgress) {
+          setStatus('');
+        }
+      }, 1200);
+    } catch (e: any) {
+      setStatus(`Export error: ${e?.message ?? e}`);
+    }
+  }
 
   async function handleSave() {
     if (!htmlModel || !cssModel) {

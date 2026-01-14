@@ -801,6 +801,30 @@ body.admin_page_wp-livecode #wpbody-content {
   color: #9aa1ab;
 }
 
+.lc-setupImport {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lc-setupFileLabel {
+  position: relative;
+  overflow: hidden;
+}
+
+.lc-setupFileInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.lc-setupFileName {
+  font-size: 12px;
+  color: #9aa1ab;
+}
+
 .lc-setupNote {
   font-size: 12px;
   color: #c6cbd5;
