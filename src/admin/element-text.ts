@@ -142,58 +142,34 @@ export function getEditableElementText(html: string, lcId: string): ElementTextI
   const fragment = parse5.parseFragment(html, { sourceCodeLocationInfo: true });
   let seq = 0;
   let result: ElementTextInfo | null = null;
-  console.log('[getEditableElementText] html:', html, 'lcId:', lcId);
 
   const walk = (node: DefaultTreeAdapterTypes.ParentNode) => {
     for (const child of node.childNodes || []) {
       if (isElement(child)) {
         const existingId = getExistingLcId(child);
         const id = existingId ?? `lc-${++seq}`;
-        console.log('[getEditableElementText] Element - tagName:', child.tagName, 'id:', id, 'existingId:', existingId);
-        
+
         if (id === lcId) {
-          console.log('[getEditableElementText] Found matching element');
-          
           if (VOID_TAGS.has(child.tagName)) {
-            console.log('[getEditableElementText] Element is a VOID_TAG, returning null');
             result = null;
             return;
           }
-          
           const range = getInnerRange(html, child.tagName, child.sourceCodeLocation);
-          console.log('[getEditableElementText] range:', range);
           if (!range) {
-            console.log('[getEditableElementText] No range found, returning null');
             result = null;
             return;
           }
-          
           const childNodes = child.childNodes || [];
-          console.log('[getEditableElementText] childNodes count:', childNodes.length);
-          childNodes.forEach((node, idx) => {
-            console.log(`  [childNode ${idx}]`, {
-              isText: isTextNode(node),
-              isElement: isElement(node),
-              tagName: isElement(node) ? (node as DefaultTreeAdapterTypes.Element).tagName : undefined,
-              textContent: isTextNode(node) ? (node as DefaultTreeAdapterTypes.TextNode).value : undefined,
-            });
-          });
-          
           const isEditable = childNodes.every((entry) => isEditableChild(entry));
-          console.log('[getEditableElementText] isEditable:', isEditable);
-          
           if (!isEditable) {
-            console.log('[getEditableElementText] Not all children are editable, returning null');
             result = null;
             return;
           }
-          
           result = {
             text: html.slice(range.startOffset, range.endOffset),
             startOffset: range.startOffset,
             endOffset: range.endOffset,
           };
-          console.log('[getEditableElementText] Result text:', result.text);
           return;
         }
         walk(child);
@@ -210,6 +186,5 @@ export function getEditableElementText(html: string, lcId: string): ElementTextI
   };
 
   walk(fragment);
-  console.log('[getEditableElementText] Final result:', result);
   return result;
 }
