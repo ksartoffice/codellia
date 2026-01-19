@@ -8,6 +8,8 @@ type DesignSettingsPanelProps = {
   onToggleShadowDom: (enabled: boolean) => void;
   enableShortcode: boolean;
   onToggleShortcode: (enabled: boolean) => void;
+  enableLiveHighlight: boolean;
+  onToggleLiveHighlight: (enabled: boolean) => void;
   externalScripts: string[];
   onChangeExternalScripts: (scripts: string[]) => void;
   onCommitExternalScripts: (scripts: string[]) => void;
@@ -26,6 +28,8 @@ export function DesignSettingsPanel({
   onToggleShadowDom,
   enableShortcode,
   onToggleShortcode,
+  enableLiveHighlight,
+  onToggleLiveHighlight,
   externalScripts,
   onChangeExternalScripts,
   onCommitExternalScripts,
@@ -107,7 +111,7 @@ export function DesignSettingsPanel({
 
   return (
     <Fragment>
-        <div className="lc-settingsSection">
+      <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">JavaScript設定</div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">JavaScriptを有効にする</div>
@@ -152,7 +156,23 @@ export function DesignSettingsPanel({
           <div className="lc-settingsHelp">Requires unfiltered_html capability.</div>
         ) : null}
         {error ? <div className="lc-settingsError">{error}</div> : null}
+      </div>
+
+      <div className="lc-settingsSection">
+        <div className="lc-settingsSectionTitle">プレビュー設定</div>
+        <div className="lc-settingsItem lc-settingsToggle">
+          <div className="lc-settingsItemLabel">ライブ編集ハイライトを有効にする</div>
+          <label className="lc-toggle">
+            <input
+              type="checkbox"
+              checked={enableLiveHighlight}
+              aria-label="ライブ編集ハイライトを有効にする"
+              onChange={(event) => onToggleLiveHighlight(event.target.checked)}
+            />
+            <span className="lc-toggleTrack" aria-hidden="true" />
+          </label>
         </div>
+      </div>
 
       {enableJavaScript ? (
         <div className="lc-settingsSection">

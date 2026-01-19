@@ -76,6 +76,7 @@ type ImportPayload = {
   externalScripts?: string[];
   shadowDomEnabled?: boolean;
   shortcodeEnabled?: boolean;
+  liveHighlightEnabled?: boolean;
 };
 
 type ImportResult = {
@@ -94,6 +95,7 @@ type ExportPayload = {
   externalScripts: string[];
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
+  liveHighlightEnabled: boolean;
 };
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
@@ -632,6 +634,8 @@ async function main() {
         externalScripts: payload.externalScripts ?? [],
         shadowDomEnabled: payload.shadowDomEnabled ?? false,
         shortcodeEnabled: payload.shortcodeEnabled ?? cfg.settingsData.shortcodeEnabled ?? false,
+        liveHighlightEnabled:
+          payload.liveHighlightEnabled ?? cfg.settingsData.liveHighlightEnabled ?? true,
       };
   }
 
@@ -651,6 +655,7 @@ async function main() {
   let jsEnabled = Boolean(cfg.jsEnabled);
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
   let shortcodeEnabled = Boolean(cfg.settingsData?.shortcodeEnabled);
+  let liveHighlightEnabled = cfg.settingsData?.liveHighlightEnabled ?? true;
   let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
     ? [...cfg.settingsData.externalScripts]
     : [];
@@ -810,6 +815,11 @@ async function main() {
     }
   };
 
+  const setLiveHighlightEnabled = (enabled: boolean) => {
+    liveHighlightEnabled = enabled;
+    sendLiveHighlightUpdate(enabled);
+  };
+
   setActiveEditor(htmlEditor, ui.htmlPane);
   ui.htmlPane.addEventListener('click', () => htmlEditor.focus());
   ui.cssPane.addEventListener('click', () => {
@@ -840,6 +850,7 @@ async function main() {
     onShortcodeToggle: (enabled) => {
       shortcodeEnabled = enabled;
     },
+    onLiveHighlightToggle: setLiveHighlightEnabled,
     onExternalScriptsChange: (scripts) => {
       externalScripts = scripts;
       sendExternalScripts(jsEnabled ? externalScripts : []);
@@ -1145,6 +1156,7 @@ async function main() {
       canonicalHTML: canonical.canonicalHTML,
       cssText: getPreviewCss(),
       shadowDomEnabled,
+      liveHighlightEnabled,
     };
     if (!previewReady) {
       pendingRender = true;
@@ -1201,6 +1213,19 @@ async function main() {
       {
         type: 'LC_EXTERNAL_SCRIPTS',
         urls: scripts,
+      },
+      targetOrigin
+    );
+  }
+
+  function sendLiveHighlightUpdate(enabled: boolean) {
+    if (!previewReady) {
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_SET_HIGHLIGHT',
+        liveHighlightEnabled: enabled,
       },
       targetOrigin
     );
@@ -1416,6 +1441,7 @@ async function main() {
         externalScripts: [...externalScripts],
         shadowDomEnabled,
         shortcodeEnabled,
+        liveHighlightEnabled,
       };
 
       const blob = new Blob([JSON.stringify(payload, null, 2)], {

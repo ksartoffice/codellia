@@ -103,9 +103,12 @@ class Preview {
 		);
 
 		$admin_origin = self::build_admin_origin();
+		$highlight_meta = get_post_meta( self::$post_id, '_lc_live_highlight', true );
+		$live_highlight_enabled = $highlight_meta === '' ? true : rest_sanitize_boolean( $highlight_meta );
 		$payload = [
 			'allowedOrigin' => $admin_origin,
 			'postId'        => self::$post_id,
+			'liveHighlightEnabled' => $live_highlight_enabled,
 			'markers'       => [
 				'start' => self::MARKER_START,
 				'end'   => self::MARKER_END,
