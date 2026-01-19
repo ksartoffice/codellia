@@ -817,7 +817,7 @@ async function main() {
 
   const setLiveHighlightEnabled = (enabled: boolean) => {
     liveHighlightEnabled = enabled;
-    sendRender();
+    sendLiveHighlightUpdate(enabled);
   };
 
   setActiveEditor(htmlEditor, ui.htmlPane);
@@ -1213,6 +1213,19 @@ async function main() {
       {
         type: 'LC_EXTERNAL_SCRIPTS',
         urls: scripts,
+      },
+      targetOrigin
+    );
+  }
+
+  function sendLiveHighlightUpdate(enabled: boolean) {
+    if (!previewReady) {
+      return;
+    }
+    ui.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_SET_HIGHLIGHT',
+        liveHighlightEnabled: enabled,
       },
       targetOrigin
     );

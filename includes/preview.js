@@ -605,6 +605,10 @@
       if (!isReady) return;
       setCssText(data.cssText);
     }
+    if (data.type === 'LC_SET_HIGHLIGHT') {
+      if (!isReady) return;
+      setDomSelectorEnabled(Boolean(data.liveHighlightEnabled));
+    }
     if (data.type === 'LC_RUN_JS') {
       if (!isReady) return;
       jsEnabled = true;
