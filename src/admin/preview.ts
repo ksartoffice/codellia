@@ -31,6 +31,7 @@ export type PreviewController = {
   sendRender: () => void;
   sendCssUpdate: (cssText: string) => void;
   sendExternalScripts: (scripts: string[]) => void;
+  sendExternalStyles: (styles: string[]) => void;
   sendLiveHighlightUpdate: (enabled: boolean) => void;
   requestRunJs: () => void;
   requestDisableJs: () => void;
@@ -59,6 +60,7 @@ type PreviewControllerDeps = {
   getLiveHighlightEnabled: () => boolean;
   getJsEnabled: () => boolean;
   getExternalScripts: () => string[];
+  getExternalStyles: () => string[];
   isTailwindEnabled: () => boolean;
   onSelect?: (lcId: string) => void;
 };
@@ -312,6 +314,19 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     );
   };
 
+  const sendExternalStyles = (styles: string[]) => {
+    if (!previewReady) {
+      return;
+    }
+    deps.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_EXTERNAL_STYLES',
+        urls: styles,
+      },
+      deps.targetOrigin
+    );
+  };
+
   const sendLiveHighlightUpdate = (enabled: boolean) => {
     if (!previewReady) {
       return;
@@ -473,6 +488,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       }
       sendRender();
       sendExternalScripts(deps.getJsEnabled() ? deps.getExternalScripts() : []);
+      sendExternalStyles(deps.getExternalStyles());
       queueInitialJsRun();
       flushPendingJsAction();
     }
@@ -487,6 +503,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     sendRender,
     sendCssUpdate,
     sendExternalScripts,
+    sendExternalStyles,
     sendLiveHighlightUpdate,
     requestRunJs,
     requestDisableJs,

@@ -94,7 +94,10 @@ class Frontend {
 		}
 
 		$css = self::get_css_for_post( $post_id );
-		$style_html = $css !== '' ? '<style id="lc-style">' . $css . '</style>' : '';
+		$style_html = self::build_external_styles_html( $post_id );
+		if ( $css !== '' ) {
+			$style_html .= '<style id="lc-style">' . $css . '</style>';
+		}
 
 		$js_enabled = get_post_meta( $post_id, '_lc_js_enabled', true ) === '1';
 		$js = (string) get_post_meta( $post_id, '_lc_js', true );
@@ -153,11 +156,27 @@ class Frontend {
 
 	private static function build_inline_style( int $post_id, int $instance = 0 ): string {
 		$css = self::get_css_for_post( $post_id );
-		if ( $css === '' ) {
+		$external_styles = self::build_external_styles_html( $post_id );
+		if ( $css === '' && $external_styles === '' ) {
 			return '';
 		}
 		$suffix = $instance > 0 ? '-' . $post_id . '-' . $instance : '-' . $post_id;
-		return '<style id="lc-style' . esc_attr( $suffix ) . '">' . $css . '</style>';
+		$inline_style = $css !== '' ? '<style id="lc-style' . esc_attr( $suffix ) . '">' . $css . '</style>' : '';
+		return $external_styles . $inline_style;
+	}
+
+	private static function build_external_styles_html( int $post_id ): string {
+		$external_styles = External_Styles::get_external_styles( $post_id );
+		if ( empty( $external_styles ) ) {
+			return '';
+		}
+
+		$styles_html = '';
+		foreach ( $external_styles as $style_url ) {
+			$styles_html .= '<link rel="stylesheet" href="' . esc_url( $style_url ) . '">';
+		}
+
+		return $styles_html;
 	}
 
 	private static function build_inline_scripts( int $post_id, int $instance = 0 ): string {
@@ -214,15 +233,31 @@ class Frontend {
 		}
 
 		$css = self::get_css_for_post( $post_id );
+		$external_styles = External_Styles::get_external_styles( $post_id );
+		if ( $css === '' && empty( $external_styles ) ) {
+			return;
+		}
+
+		$dependency = '';
+		foreach ( $external_styles as $index => $style_url ) {
+			$ext_handle = 'wp-livecode-ext-style-' . $post_id . '-' . $index;
+			$ext_deps = $dependency ? [ $dependency ] : [];
+			if ( ! wp_style_is( $ext_handle, 'registered' ) ) {
+				wp_register_style( $ext_handle, $style_url, $ext_deps, null );
+			}
+			wp_enqueue_style( $ext_handle );
+			$dependency = $ext_handle;
+		}
 
 		if ( $css === '' ) {
 			return;
 		}
 
 		$handle = 'wp-livecode';
+		$deps = $dependency ? [ $dependency ] : [];
 
 		if ( ! wp_style_is( $handle, 'registered' ) ) {
-			wp_register_style( $handle, false, [], WP_LIVECODE_VERSION );
+			wp_register_style( $handle, false, $deps, WP_LIVECODE_VERSION );
 		}
 
 		wp_enqueue_style( $handle );

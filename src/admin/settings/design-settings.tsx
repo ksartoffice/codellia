@@ -13,12 +13,17 @@ type DesignSettingsPanelProps = {
   externalScripts: string[];
   onChangeExternalScripts: (scripts: string[]) => void;
   onCommitExternalScripts: (scripts: string[]) => void;
+  externalStyles: string[];
+  onChangeExternalStyles: (styles: string[]) => void;
+  onCommitExternalStyles: (styles: string[]) => void;
   disabled?: boolean;
   error?: string;
   externalScriptsError?: string;
+  externalStylesError?: string;
 };
 
 const MAX_EXTERNAL_SCRIPTS = 5;
+const MAX_EXTERNAL_STYLES = 5;
 
 export function DesignSettingsPanel({
   postId,
@@ -33,15 +38,21 @@ export function DesignSettingsPanel({
   externalScripts,
   onChangeExternalScripts,
   onCommitExternalScripts,
+  externalStyles,
+  onChangeExternalStyles,
+  onCommitExternalStyles,
   disabled = false,
   error,
   externalScriptsError,
+  externalStylesError,
 }: DesignSettingsPanelProps) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
   const copyTimeoutRef = useRef<number | null>(null);
   const shortcodeInputRef = useRef<HTMLInputElement | null>(null);
   const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
   const hasScripts = externalScripts.length > 0;
+  const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
+  const hasStyles = externalStyles.length > 0;
   const shortcodeText = `[livecode post_id="${postId}"]`;
 
   useEffect(() => {
@@ -81,6 +92,27 @@ export function DesignSettingsPanel({
     const next = externalScripts.filter((_, idx) => idx !== index);
     onChangeExternalScripts(next);
     onCommitExternalScripts(next);
+  };
+
+  const updateStyleAt = (index: number, value: string, commit: boolean) => {
+    const next = externalStyles.map((entry, idx) => (idx === index ? value : entry));
+    if (commit) {
+      onCommitExternalStyles(next);
+    } else {
+      onChangeExternalStyles(next);
+    }
+  };
+
+  const handleAddStyle = () => {
+    if (!canAddStyle) return;
+    onChangeExternalStyles([...externalStyles, '']);
+  };
+
+  const handleRemoveStyle = (index: number) => {
+    if (disabled) return;
+    const next = externalStyles.filter((_, idx) => idx !== index);
+    onChangeExternalStyles(next);
+    onCommitExternalStyles(next);
   };
 
   const handleCopyShortcode = async () => {
@@ -235,6 +267,65 @@ export function DesignSettingsPanel({
         ) : null}
         </div>
       ) : null}
+      <div className="lc-settingsSection">
+        <div className="lc-settingsSectionTitle">External Styles</div>
+        {hasStyles ? (
+          <div className="lc-settingsScriptList">
+            {externalStyles.map((styleUrl, index) => (
+              <div className="lc-settingsScriptRow" key={`style-${index}`}>
+                <input
+                  type="url"
+                  className="lc-formInput lc-settingsScriptInput"
+                  placeholder="https://example.com/style.css"
+                  value={styleUrl}
+                  onChange={(event) => updateStyleAt(index, event.target.value, false)}
+                  onBlur={(event) => updateStyleAt(index, event.target.value, true)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      updateStyleAt(index, (event.target as HTMLInputElement).value, true);
+                    }
+                  }}
+                  disabled={disabled}
+                />
+                <button
+                  className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                  type="button"
+                  onClick={() => handleRemoveStyle(index)}
+                  disabled={disabled}
+                  aria-label="外部スタイルを削除"
+                >
+                  削除
+                </button>
+              </div>
+            ))}
+            <button
+              className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+              type="button"
+              onClick={handleAddStyle}
+              disabled={!canAddStyle}
+              aria-label="外部スタイルを追加"
+            >
+              + 追加
+            </button>
+          </div>
+        ) : (
+          <button
+            className="lc-btn lc-btn-secondary"
+            type="button"
+            onClick={handleAddStyle}
+            disabled={!canAddStyle}
+          >
+            外部スタイルを追加
+          </button>
+        )}
+        <div className="lc-settingsHelp">
+          https:// から始まるURLのみ。最大{MAX_EXTERNAL_STYLES}件まで追加できます。
+        </div>
+        {externalStylesError ? (
+          <div className="lc-settingsError">{externalStylesError}</div>
+        ) : null}
+      </div>
       {enableShortcode ? (
         <div className="lc-settingsSection">
           <div className="lc-settingsSectionTitle">ショートコード</div>

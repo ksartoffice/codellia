@@ -101,6 +101,13 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: 'Invalid externalScripts value.' };
   }
 
+  if (
+    raw.externalStyles !== undefined &&
+    (!Array.isArray(raw.externalStyles) || raw.externalStyles.some((item: any) => typeof item !== 'string'))
+  ) {
+    return { error: 'Invalid externalStyles value.' };
+  }
+
   return {
     data: {
       version: 1,
@@ -111,6 +118,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       js: raw.js ?? '',
       jsEnabled: raw.jsEnabled ?? false,
       externalScripts: raw.externalScripts ?? [],
+      externalStyles: raw.externalStyles ?? [],
       shadowDomEnabled: raw.shadowDomEnabled ?? false,
       shortcodeEnabled: raw.shortcodeEnabled ?? false,
       liveHighlightEnabled: raw.liveHighlightEnabled,

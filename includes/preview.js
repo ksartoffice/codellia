@@ -5,6 +5,7 @@
   const shadowContentId = 'lc-shadow-content';
   const shadowScriptsId = 'lc-shadow-scripts';
   const externalScriptAttr = 'data-lc-external-script';
+  const externalStyleAttr = 'data-lc-external-style';
   const LC_ATTR_NAME = 'data-lc-id';
   const config = window.WP_LIVECODE_PREVIEW || {};
   const markerStart =
@@ -21,6 +22,7 @@
   let externalScripts = [];
   let externalScriptsReady = Promise.resolve();
   let externalScriptsToken = 0;
+  let externalStyles = [];
   let shadowEnabled = false;
   let shadowHost = null;
   let shadowRoot = null;
@@ -150,6 +152,7 @@
     removeStyleElement();
     removeScriptElement();
     clearExternalScripts();
+    clearExternalStyles();
     if (!shadowEnabled) {
       clearShadowHost();
     } else {
@@ -157,6 +160,9 @@
     }
     if (externalScripts.length) {
       externalScriptsReady = loadExternalScripts(externalScripts);
+    }
+    if (externalStyles.length) {
+      loadExternalStyles(externalStyles);
     }
     if (jsEnabled && lastJsText) {
       runJs(lastJsText);
@@ -439,6 +445,13 @@
       .filter(Boolean);
   }
 
+  function normalizeExternalStyles(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((entry) => String(entry).trim())
+      .filter(Boolean);
+  }
+
   function isSameList(a, b) {
     if (a.length !== b.length) return false;
     return a.every((value, index) => value === b[index]);
@@ -452,6 +465,18 @@
     roots.push(document);
     roots.forEach((root) => {
       const nodes = root.querySelectorAll('script[' + externalScriptAttr + ']');
+      nodes.forEach((node) => node.remove());
+    });
+  }
+
+  function clearExternalStyles() {
+    const roots = [];
+    if (shadowRoot) {
+      roots.push(shadowRoot);
+    }
+    roots.push(document);
+    roots.forEach((root) => {
+      const nodes = root.querySelectorAll('link[' + externalStyleAttr + ']');
       nodes.forEach((node) => node.remove());
     });
   }
@@ -485,11 +510,35 @@
     }, Promise.resolve());
   }
 
+  function loadExternalStyles(list) {
+    clearExternalStyles();
+    if (!list.length) {
+      return;
+    }
+
+    const root = getStyleRoot();
+    const host = root || document.head || document.body;
+    list.forEach((url) => {
+      const linkEl = document.createElement('link');
+      linkEl.setAttribute(externalStyleAttr, '1');
+      linkEl.rel = 'stylesheet';
+      linkEl.href = url;
+      host.appendChild(linkEl);
+    });
+  }
+
   function setExternalScripts(list) {
     const next = normalizeExternalScripts(list);
     if (isSameList(next, externalScripts)) return;
     externalScripts = next;
     externalScriptsReady = loadExternalScripts(next);
+  }
+
+  function setExternalStyles(list) {
+    const next = normalizeExternalStyles(list);
+    if (isSameList(next, externalStyles)) return;
+    externalStyles = next;
+    loadExternalStyles(next);
   }
 
   function findMarkers() {
@@ -622,6 +671,10 @@
     if (data.type === 'LC_EXTERNAL_SCRIPTS') {
       if (!isReady) return;
       setExternalScripts(data.urls || []);
+    }
+    if (data.type === 'LC_EXTERNAL_STYLES') {
+      if (!isReady) return;
+      setExternalStyles(data.urls || []);
     }
   });
 
