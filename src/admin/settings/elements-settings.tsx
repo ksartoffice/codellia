@@ -23,26 +23,31 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
   const [value, setValue] = useState('');
   const [attributes, setAttributes] = useState<ElementsSettingsAttribute[]>([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [hasText, setHasText] = useState(false);
   const fieldId = 'lc-elements-text';
 
   const refreshElement = useCallback(() => {
-    if (!api?.getElementText || !selectedId) {
+    if (!selectedId) {
       setValue('');
       setAttributes([]);
       setIsVisible(false);
+      setHasText(false);
       return;
     }
-    const next = api.getElementText(selectedId);
-    const nextAttributes = api.getElementAttributes?.(selectedId) || [];
-    if (typeof next === 'string') {
-      setIsVisible(true);
-      setValue((prev) => (prev === next ? prev : next));
-      setAttributes(nextAttributes);
+    const nextText = api?.getElementText ? api.getElementText(selectedId) : null;
+    const nextAttributes = api?.getElementAttributes
+      ? api.getElementAttributes(selectedId)
+      : null;
+    const hasNextText = typeof nextText === 'string';
+    const hasNextAttributes = Array.isArray(nextAttributes);
+    setIsVisible(hasNextText || hasNextAttributes);
+    setHasText(hasNextText);
+    if (hasNextText) {
+      setValue((prev) => (prev === nextText ? prev : nextText));
     } else {
       setValue('');
-      setAttributes([]);
-      setIsVisible(false);
     }
+    setAttributes(hasNextAttributes ? nextAttributes : []);
   }, [api, selectedId]);
 
   useEffect(() => {
@@ -120,18 +125,20 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
   return (
     <div className="lc-settingsSection">
       <div className="lc-settingsSectionTitle">要素</div>
-      <div className="lc-formGroup">
-        <label className="lc-formLabel" htmlFor={fieldId}>
-          テキスト
-        </label>
-        <textarea
-          id={fieldId}
-          className="lc-formInput"
-          rows={4}
-          value={value}
-          onChange={handleChange}
-        />
-      </div>
+      {hasText ? (
+        <div className="lc-formGroup">
+          <label className="lc-formLabel" htmlFor={fieldId}>
+            テキスト
+          </label>
+          <textarea
+            id={fieldId}
+            className="lc-formInput"
+            rows={4}
+            value={value}
+            onChange={handleChange}
+          />
+        </div>
+      ) : null}
       <div className="lc-formGroup">
         <div className="lc-formLabel">属性</div>
         <div className="lc-settingsScriptList">

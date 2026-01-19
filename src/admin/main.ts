@@ -382,7 +382,7 @@ async function main() {
             .map((attr) => `${attr.name}="${escapeAttributeValue(attr.value)}"`)
             .join(' ')}`
         : '';
-      const closing = info.isVoid || info.selfClosing ? ' />' : '>';
+      const closing = info.selfClosing ? ' />' : '>';
       const nextStartTag = `<${info.tagName}${attrText}${closing}`;
       const currentStartTag = html.slice(info.startOffset, info.endOffset);
       if (currentStartTag === nextStartTag) {

@@ -215,16 +215,6 @@ export function getEditableElementAttributes(html: string, lcId: string): Elemen
         const id = existingId ?? `lc-${++seq}`;
 
         if (id === lcId) {
-          if (VOID_TAGS.has(child.tagName)) {
-            result = null;
-            return;
-          }
-          const childNodes = child.childNodes || [];
-          const isEditable = childNodes.every((entry) => isEditableChild(entry));
-          if (!isEditable) {
-            result = null;
-            return;
-          }
           const startTag = child.sourceCodeLocation?.startTag;
           if (
             !startTag ||
