@@ -98,7 +98,7 @@ class Frontend {
 
 		$js_enabled = get_post_meta( $post_id, '_lc_js_enabled', true ) === '1';
 		$js = (string) get_post_meta( $post_id, '_lc_js', true );
-		$external_scripts = $js_enabled ? self::get_external_scripts( $post_id ) : [];
+		$external_scripts = $js_enabled ? External_Scripts::get_external_scripts( $post_id ) : [];
 
 		$scripts_html = '';
 		foreach ( $external_scripts as $script_url ) {
@@ -163,7 +163,7 @@ class Frontend {
 	private static function build_inline_scripts( int $post_id, int $instance = 0 ): string {
 		$js_enabled = get_post_meta( $post_id, '_lc_js_enabled', true ) === '1';
 		$js = (string) get_post_meta( $post_id, '_lc_js', true );
-		$external_scripts = $js_enabled ? self::get_external_scripts( $post_id ) : [];
+		$external_scripts = $js_enabled ? External_Scripts::get_external_scripts( $post_id ) : [];
 		if ( ! $js_enabled || ( $js === '' && empty( $external_scripts ) ) ) {
 			return '';
 		}
@@ -252,7 +252,7 @@ class Frontend {
 
 		$js_enabled = get_post_meta( $post_id, '_lc_js_enabled', true ) === '1';
 		$js = (string) get_post_meta( $post_id, '_lc_js', true );
-		$external_scripts = self::get_external_scripts( $post_id );
+		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 		if ( ! $js_enabled || ( $js === '' && empty( $external_scripts ) ) ) {
 			return;
 		}
@@ -279,50 +279,4 @@ class Frontend {
 		}
 	}
 
-	private static function get_external_scripts( int $post_id ): array {
-		$raw = get_post_meta( $post_id, '_lc_external_scripts', true );
-		$list = [];
-
-		if ( is_array( $raw ) ) {
-			$list = $raw;
-		} elseif ( is_string( $raw ) && $raw !== '' ) {
-			$decoded = json_decode( $raw, true );
-			if ( is_array( $decoded ) ) {
-				$list = $decoded;
-			}
-		}
-
-		$clean = [];
-		foreach ( $list as $entry ) {
-			if ( ! is_string( $entry ) ) {
-				continue;
-			}
-			$clean_url = self::sanitize_external_script_url( $entry );
-			if ( $clean_url ) {
-				$clean[] = $clean_url;
-			}
-		}
-
-		return array_values( array_unique( $clean ) );
-	}
-
-	private static function sanitize_external_script_url( string $url ): ?string {
-		$url = trim( $url );
-		if ( $url === '' ) {
-			return null;
-		}
-
-		$validated = wp_http_validate_url( $url );
-		if ( ! $validated ) {
-			return null;
-		}
-
-		$parts = wp_parse_url( $validated );
-		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
-		if ( $scheme !== 'https' ) {
-			return null;
-		}
-
-		return esc_url_raw( $validated );
-	}
 }

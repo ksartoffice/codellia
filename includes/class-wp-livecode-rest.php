@@ -388,32 +388,16 @@ class Rest {
 				], 400 );
 			}
 
-			foreach ( array_values( $payload['externalScripts'] ) as $script_url ) {
-				if ( ! is_string( $script_url ) ) {
-					return new \WP_REST_Response( [
-						'ok'    => false,
-						'error' => 'Invalid externalScripts value.',
-					], 400 );
-				}
-				$script_url = trim( $script_url );
-				if ( $script_url === '' ) {
-					continue;
-				}
-				$clean_url = self::sanitize_external_script_url( $script_url );
-				if ( ! $clean_url ) {
-					return new \WP_REST_Response( [
-						'ok'    => false,
-						'error' => 'External scripts must be valid https:// URLs.',
-					], 400 );
-				}
-				$external_scripts[] = $clean_url;
-			}
-
-			$external_scripts = array_values( array_unique( $external_scripts ) );
-			if ( count( $external_scripts ) > self::MAX_EXTERNAL_SCRIPTS ) {
+			$error = null;
+			$external_scripts = External_Scripts::validate_list(
+				array_values( $payload['externalScripts'] ),
+				self::MAX_EXTERNAL_SCRIPTS,
+				$error
+			);
+			if ( null === $external_scripts ) {
 				return new \WP_REST_Response( [
 					'ok'    => false,
-					'error' => 'External scripts exceed the maximum allowed.',
+					'error' => $error ?: 'Invalid externalScripts value.',
 				], 400 );
 			}
 		}
@@ -609,7 +593,7 @@ class Rest {
 			'shortcodeEnabled' => get_post_meta( $post_id, '_lc_shortcode_enabled', true ) === '1',
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
-			'externalScripts' => self::get_external_scripts( $post_id ),
+			'externalScripts' => External_Scripts::get_external_scripts( $post_id, self::MAX_EXTERNAL_SCRIPTS ),
 		];
 	}
 
@@ -812,30 +796,17 @@ class Rest {
 			}
 
 			$raw_scripts = array_values( $updates['externalScripts'] );
-			$sanitized = [];
-			foreach ( $raw_scripts as $script_url ) {
-				if ( ! is_string( $script_url ) ) {
-					continue;
-				}
-				$script_url = trim( $script_url );
-				if ( $script_url === '' ) {
-					continue;
-				}
-				$clean_url = self::sanitize_external_script_url( $script_url );
-				if ( ! $clean_url ) {
-					return new \WP_REST_Response( [
-						'ok'    => false,
-						'error' => 'External scripts must be valid https:// URLs.',
-					], 400 );
-				}
-				$sanitized[] = $clean_url;
-			}
-
-			$sanitized = array_values( array_unique( $sanitized ) );
-			if ( count( $sanitized ) > self::MAX_EXTERNAL_SCRIPTS ) {
+			$string_scripts = array_values( array_filter( $raw_scripts, 'is_string' ) );
+			$error = null;
+			$sanitized = External_Scripts::validate_list(
+				$string_scripts,
+				self::MAX_EXTERNAL_SCRIPTS,
+				$error
+			);
+			if ( null === $sanitized ) {
 				return new \WP_REST_Response( [
 					'ok'    => false,
-					'error' => 'External scripts exceed the maximum allowed.',
+					'error' => $error ?: 'External scripts must be valid https:// URLs.',
 				], 400 );
 			}
 
@@ -856,57 +827,6 @@ class Rest {
 		], 200 );
 	}
 
-	private static function get_external_scripts( int $post_id ): array {
-		$raw = get_post_meta( $post_id, '_lc_external_scripts', true );
-		$list = [];
-
-		if ( is_array( $raw ) ) {
-			$list = $raw;
-		} elseif ( is_string( $raw ) && $raw !== '' ) {
-			$decoded = json_decode( $raw, true );
-			if ( is_array( $decoded ) ) {
-				$list = $decoded;
-			}
-		}
-
-		$clean = [];
-		foreach ( $list as $entry ) {
-			if ( ! is_string( $entry ) ) {
-				continue;
-			}
-			$clean_url = self::sanitize_external_script_url( $entry );
-			if ( $clean_url ) {
-				$clean[] = $clean_url;
-			}
-		}
-
-		$clean = array_values( array_unique( $clean ) );
-		if ( count( $clean ) > self::MAX_EXTERNAL_SCRIPTS ) {
-			$clean = array_slice( $clean, 0, self::MAX_EXTERNAL_SCRIPTS );
-		}
-
-		return $clean;
-	}
-
-	private static function sanitize_external_script_url( string $url ): ?string {
-		$url = trim( $url );
-		if ( $url === '' ) {
-			return null;
-		}
-
-		$validated = wp_http_validate_url( $url );
-		if ( ! $validated ) {
-			return null;
-		}
-
-		$parts = wp_parse_url( $validated );
-		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
-		if ( $scheme !== 'https' ) {
-			return null;
-		}
-
-		return esc_url_raw( $validated );
-	}
 
 	/**
 	 * Render shortcode blocks on the server and return rendered HTML mapped to an id.
