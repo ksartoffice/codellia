@@ -29,6 +29,12 @@ if ( file_exists( $autoload ) ) {
 
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-post-type.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-admin.php';
+require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-external-scripts.php';
+require_once WP_LIVECODE_PATH . 'includes/rest/class-wp-livecode-rest-save.php';
+require_once WP_LIVECODE_PATH . 'includes/rest/class-wp-livecode-rest-setup.php';
+require_once WP_LIVECODE_PATH . 'includes/rest/class-wp-livecode-rest-import.php';
+require_once WP_LIVECODE_PATH . 'includes/rest/class-wp-livecode-rest-settings.php';
+require_once WP_LIVECODE_PATH . 'includes/rest/class-wp-livecode-rest-preview.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-rest.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-preview.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-frontend.php';

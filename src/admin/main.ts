@@ -1,16 +1,20 @@
-﻿// filepath: src/admin/main.ts
-import './style.css';
-import { emmetCSS, emmetHTML } from 'emmet-monaco-es';
-import * as parse5 from 'parse5';
-import type { DefaultTreeAdapterTypes } from 'parse5';
+﻿import './style.css';
 import { initSettings, type SettingsData } from './settings';
 import { runSetupWizard } from './setup-wizard';
 import { mountToolbar, type ToolbarApi } from './toolbar';
+import { buildLayout } from './layout';
+import { initMonacoEditors, type MonacoType } from './monaco';
+import { createPreviewController, type PreviewController } from './preview';
+import {
+  createTailwindCompiler,
+  exportLivecode,
+  saveLivecode,
+  type TailwindCompiler,
+} from './persistence';
+import type { ImportResult } from './types';
 
 // wp-api-fetch は admin 側でグローバル wp.apiFetch として使える
 declare const wp: any;
-
-type MonacoType = typeof import('monaco-editor');
 
 declare global {
   interface Window {
@@ -39,527 +43,11 @@ declare global {
   }
 }
 
-type SourceRange = {
-  startOffset: number;
-  endOffset: number;
-};
-
-type CssRuleInfo = {
-  selectorText: string;
-  startOffset: number;
-  endOffset: number;
-  mediaQueries: string[];
-};
-
-type ShortcodePlaceholder = {
-  id: string;
-  shortcode: string;
-  startOffset: number;
-  endOffset: number;
-};
-
-type CanonicalResult = {
-  canonicalHTML: string;
-  map: Record<string, SourceRange>;
-  shortcodes: ShortcodePlaceholder[];
-  error?: string;
-};
-
-type ImportPayload = {
-  version: number;
-  html: string;
-  css: string;
-  tailwind: boolean;
-  generatedCss?: string;
-  js?: string;
-  jsEnabled?: boolean;
-  externalScripts?: string[];
-  shadowDomEnabled?: boolean;
-  shortcodeEnabled?: boolean;
-  liveHighlightEnabled?: boolean;
-};
-
-type ImportResult = {
-  payload: ImportPayload;
-  settingsData?: SettingsData;
-};
-
-type ExportPayload = {
-  version: 1;
-  html: string;
-  css: string;
-  tailwind: boolean;
-  generatedCss: string;
-  js: string;
-  jsEnabled: boolean;
-  externalScripts: string[];
-  shadowDomEnabled: boolean;
-  shortcodeEnabled: boolean;
-  liveHighlightEnabled: boolean;
-};
-
-function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  return e;
-}
-
-
-
-// filepath: src/admin/main.ts
-async function loadMonaco(vsPath: string): Promise<MonacoType> {
-  const req = (window as any).require || (window as any).requirejs;
-  if (!req) throw new Error('Monaco AMD loader (window.require) not found.');
-
-  req.config({ paths: { vs: vsPath } });
-
-  return await new Promise((resolve, reject) => {
-    req(['vs/editor/editor.main'], () => {
-      if (!window.monaco) return reject(new Error('window.monaco is missing after load.'));
-      resolve(window.monaco);
-    });
-  });
-}
-
-
 function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   let t: number | undefined;
   return (...args: Parameters<T>) => {
     window.clearTimeout(t);
     t = window.setTimeout(() => fn(...args), ms);
-  };
-}
-
-const LC_ATTR_NAME = 'data-lc-id';
-const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
-const SHORTCODE_REGEX =
-  /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
-const DEFAULT_TAILWIND_CSS =
-  '@layer theme, base, components, utilities;\n' +
-  '@import "tailwindcss/theme.css" layer(theme);\n' +
-  '@import "tailwindcss/preflight.css" layer(base);\n' +
-  '@import "tailwindcss/utilities.css" layer(utilities);\n' +
-  '\n' +
-  '@theme {\n' +
-  '  /* ... */\n' +
-  '}\n';
-
-function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
-  return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
-}
-
-function isParentNode(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.ParentNode {
-  return Array.isArray((node as DefaultTreeAdapterTypes.ParentNode).childNodes);
-}
-
-function isTemplateElement(node: DefaultTreeAdapterTypes.Element): node is DefaultTreeAdapterTypes.Template {
-  return node.tagName === 'template' && Boolean((node as DefaultTreeAdapterTypes.Template).content);
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function upsertLcAttr(el: DefaultTreeAdapterTypes.Element, lcId: string) {
-  const existing = el.attrs.find((attr) => attr.name === LC_ATTR_NAME);
-  if (existing) {
-    existing.value = lcId;
-  } else {
-    el.attrs.push({ name: LC_ATTR_NAME, value: lcId });
-  }
-}
-
-function getExistingLcId(el: DefaultTreeAdapterTypes.Element): string | null {
-  const attr = el.attrs.find((item) => item.name === LC_ATTR_NAME);
-  return attr ? attr.value : null;
-}
-
-function resolveRange(
-  loc: DefaultTreeAdapterTypes.Element['sourceCodeLocation'],
-  parentRange: SourceRange | null,
-  mapOffsetToOriginal?: (offset: number) => number
-): SourceRange | null {
-  if (loc && typeof loc.startOffset === 'number' && typeof loc.endOffset === 'number') {
-    const start = mapOffsetToOriginal ? mapOffsetToOriginal(loc.startOffset) : loc.startOffset;
-    const end = mapOffsetToOriginal ? mapOffsetToOriginal(loc.endOffset) : loc.endOffset;
-    return { startOffset: start, endOffset: end };
-  }
-  return parentRange ? { ...parentRange } : null;
-}
-
-function walkCanonicalTree(
-  node: DefaultTreeAdapterTypes.ParentNode,
-  parentRange: SourceRange | null,
-  map: Record<string, SourceRange>,
-  nextId: () => string,
-  mapOffsetToOriginal?: (offset: number) => number,
-  rangeOverride?: Record<string, SourceRange>
-) {
-  const children = node.childNodes || [];
-
-  for (const child of children) {
-    if (isElement(child)) {
-      const existingId = getExistingLcId(child);
-      const lcId = existingId ?? nextId();
-      upsertLcAttr(child, lcId);
-      const range =
-        (rangeOverride && rangeOverride[lcId]) ||
-        resolveRange(child.sourceCodeLocation, parentRange, mapOffsetToOriginal);
-      if (range) {
-        map[lcId] = range;
-      }
-      walkCanonicalTree(child, range ?? parentRange, map, nextId, mapOffsetToOriginal, rangeOverride);
-
-      if (isTemplateElement(child)) {
-        walkCanonicalTree(
-          child.content,
-          range ?? parentRange,
-          map,
-          nextId,
-          mapOffsetToOriginal,
-          rangeOverride
-        );
-      }
-    } else if (isParentNode(child)) {
-      walkCanonicalTree(child, parentRange, map, nextId, mapOffsetToOriginal, rangeOverride);
-    }
-  }
-}
-
-// canonical HTML を生成しつつ data-lc-id とソース位置のマッピングを保持
-function canonicalizeHtml(html: string): CanonicalResult {
-  try {
-    const fragment = parse5.parseFragment(html, { sourceCodeLocationInfo: true });
-    const map: Record<string, SourceRange> = {};
-    let seq = 0;
-    const nextId = () => `lc-${++seq}`;
-
-    walkCanonicalTree(fragment, null, map, nextId);
-
-    return { canonicalHTML: parse5.serialize(fragment), map, shortcodes: [] };
-  } catch (error: any) {
-    console.error('[WP LiveCode] canonicalizeHtml failed', error);
-    return {
-      canonicalHTML: html,
-      map: {},
-      shortcodes: [],
-      error: error?.message ?? String(error),
-    };
-  }
-}
-
-function splitSelectors(selectorText: string): string[] {
-  const result: string[] = [];
-  let buffer = '';
-  let inString: string | null = null;
-  let parenDepth = 0;
-  let bracketDepth = 0;
-
-  for (let i = 0; i < selectorText.length; i++) {
-    const char = selectorText[i];
-    if (inString) {
-      if (char === '\\') {
-        buffer += char;
-        i += 1;
-        if (i < selectorText.length) {
-          buffer += selectorText[i];
-        }
-        continue;
-      }
-      if (char === inString) {
-        inString = null;
-      }
-      buffer += char;
-      continue;
-    }
-
-    if (char === '"' || char === "'") {
-      inString = char;
-      buffer += char;
-      continue;
-    }
-
-    if (char === '(') {
-      parenDepth += 1;
-      buffer += char;
-      continue;
-    }
-
-    if (char === ')') {
-      parenDepth = Math.max(0, parenDepth - 1);
-      buffer += char;
-      continue;
-    }
-
-    if (char === '[') {
-      bracketDepth += 1;
-      buffer += char;
-      continue;
-    }
-
-    if (char === ']') {
-      bracketDepth = Math.max(0, bracketDepth - 1);
-      buffer += char;
-      continue;
-    }
-
-    if (char === ',' && parenDepth === 0 && bracketDepth === 0) {
-      const trimmed = buffer.trim();
-      if (trimmed) {
-        result.push(trimmed);
-      }
-      buffer = '';
-      continue;
-    }
-
-    buffer += char;
-  }
-
-  const trimmed = buffer.trim();
-  if (trimmed) {
-    result.push(trimmed);
-  }
-
-  return result;
-}
-
-function parseCssRules(cssText: string): CssRuleInfo[] {
-  const rules: CssRuleInfo[] = [];
-  const stack: Array<{
-    type: 'rule' | 'at-rule';
-    selectorText?: string;
-    startOffset: number;
-    atRuleName?: string;
-    mediaQueries?: string[];
-  }> = [];
-  const mediaStack: string[] = [];
-  let preludeStart = 0;
-  let inComment = false;
-  let inString: string | null = null;
-  let ruleDepth = 0;
-
-  const pushRule = (selectorText: string, startOffset: number) => {
-    stack.push({
-      type: 'rule',
-      selectorText,
-      startOffset,
-      mediaQueries: [...mediaStack],
-    });
-    ruleDepth += 1;
-  };
-
-  const pushAtRule = (name: string, startOffset: number, params: string) => {
-    stack.push({ type: 'at-rule', atRuleName: name, startOffset });
-    if (name === 'media') {
-      mediaStack.push(params.trim());
-    }
-  };
-
-  for (let i = 0; i < cssText.length; i++) {
-    const char = cssText[i];
-    const next = cssText[i + 1];
-
-    if (inComment) {
-      if (char === '*' && next === '/') {
-        inComment = false;
-        i += 1;
-      }
-      continue;
-    }
-
-    if (inString) {
-      if (char === '\\') {
-        i += 1;
-        continue;
-      }
-      if (char === inString) {
-        inString = null;
-      }
-      continue;
-    }
-
-    if (char === '/' && next === '*') {
-      inComment = true;
-      i += 1;
-      continue;
-    }
-
-    if (char === '"' || char === "'") {
-      inString = char;
-      continue;
-    }
-
-    if (char === '{') {
-      const prelude = cssText.slice(preludeStart, i).trim();
-      if (prelude) {
-        if (prelude.startsWith('@')) {
-          const match = /^@([\w-]+)\s*(.*)$/.exec(prelude);
-          const name = match ? match[1].toLowerCase() : '';
-          const params = match ? match[2] : '';
-          pushAtRule(name, preludeStart, params);
-        } else {
-          pushRule(prelude, preludeStart);
-        }
-      } else {
-        stack.push({ type: 'at-rule', atRuleName: '', startOffset: preludeStart });
-      }
-      preludeStart = i + 1;
-      continue;
-    }
-
-    if (char === '}') {
-      const ctx = stack.pop();
-      if (ctx?.type === 'rule') {
-        ruleDepth = Math.max(0, ruleDepth - 1);
-        rules.push({
-          selectorText: ctx.selectorText || '',
-          startOffset: ctx.startOffset,
-          endOffset: i + 1,
-          mediaQueries: ctx.mediaQueries || [],
-        });
-      } else if (ctx?.type === 'at-rule' && ctx.atRuleName === 'media') {
-        mediaStack.pop();
-      }
-      preludeStart = i + 1;
-      continue;
-    }
-
-    if (char === ';' && ruleDepth === 0) {
-      preludeStart = i + 1;
-      continue;
-    }
-  }
-
-  return rules;
-}
-
-function selectorMatches(element: Element, selector: string): boolean {
-  const trimmed = selector.trim();
-  if (!trimmed) return false;
-  try {
-    return element.matches(trimmed);
-  } catch (error) {
-    const cleaned = trimmed.replace(
-      /::?(before|after|first-line|first-letter|selection|placeholder|marker|backdrop|file-selector-button|cue|part\([^)]*\)|slotted\([^)]*\))/gi,
-      ''
-    );
-    if (cleaned !== trimmed) {
-      try {
-        return element.matches(cleaned);
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  }
-}
-
-function mediaQueriesMatch(queries: string[]): boolean {
-  if (!queries.length) return true;
-  return queries.every((query) => {
-    if (!query) return true;
-    try {
-      return window.matchMedia(query).matches;
-    } catch {
-      return true;
-    }
-  });
-}
-
-function buildLayout(root: HTMLElement) {
-  const app = el('div', 'lc-app');
-
-  // Toolbar (React mount point)
-  const toolbar = el('div', 'lc-toolbar');
-
-  // Main split
-  const main = el('div', 'lc-main');
-  const left = el('div', 'lc-left');
-  const resizer = el('div', 'lc-resizer');
-  const right = el('div', 'lc-right');
-  const settings = el('aside', 'lc-settings');
-  settings.id = 'lc-settings';
-  const settingsInner = el('div', 'lc-settingsInner');
-  const settingsHeader = el('div', 'lc-settingsHeader');
-  const settingsBody = el('div', 'lc-settingsBody');
-  settingsInner.append(settingsHeader, settingsBody);
-  settings.append(settingsInner);
-
-  const htmlPane = el('div', 'lc-editorPane lc-editorPane-html is-active');
-  const htmlHeader = el('div', 'lc-editorHeader');
-  htmlHeader.textContent = 'HTML';
-  const htmlWrap = el('div', 'lc-editorWrap');
-  const htmlEditorDiv = el('div', 'lc-editor lc-editor-html');
-  htmlWrap.append(htmlEditorDiv);
-  htmlPane.append(htmlHeader, htmlWrap);
-
-  const cssPane = el('div', 'lc-editorPane lc-editorPane-css');
-  const cssHeader = el('div', 'lc-editorHeader lc-editorHeader-tabs');
-  const cssTabs = el('div', 'lc-editorTabs');
-  const cssTab = document.createElement('button');
-  cssTab.type = 'button';
-  cssTab.className = 'lc-editorTab is-active';
-  cssTab.textContent = 'CSS';
-  const jsTab = document.createElement('button');
-  jsTab.type = 'button';
-  jsTab.className = 'lc-editorTab';
-  jsTab.textContent = 'JavaScript';
-  cssTabs.append(cssTab, jsTab);
-
-  const jsControls = el('div', 'lc-editorActions');
-  const runButton = document.createElement('button');
-  runButton.type = 'button';
-  runButton.className = 'lc-editorAction';
-  runButton.textContent = 'Run';
-  jsControls.append(runButton);
-
-  cssHeader.append(cssTabs, jsControls);
-  const cssWrap = el('div', 'lc-editorWrap lc-editorWrap-tabs');
-  const cssEditorDiv = el('div', 'lc-editor lc-editor-css is-active');
-  const jsEditorDiv = el('div', 'lc-editor lc-editor-js');
-  cssWrap.append(cssEditorDiv, jsEditorDiv);
-  cssPane.append(cssHeader, cssWrap);
-
-  const editorResizer = el('div', 'lc-editorResizer');
-
-  left.append(htmlPane, editorResizer, cssPane);
-
-  // Preview
-  const iframe = document.createElement('iframe');
-  iframe.className = 'lc-iframe';
-  iframe.referrerPolicy = 'no-referrer-when-downgrade';
-  right.append(iframe);
-
-  main.append(left, resizer, right, settings);
-  app.append(toolbar, main);
-  root.append(app);
-
-  return {
-    app,
-    toolbar,
-    htmlEditorDiv,
-    cssEditorDiv,
-    jsEditorDiv,
-    htmlPane,
-    cssPane,
-    cssTab,
-    jsTab,
-    jsControls,
-    runButton,
-    editorResizer,
-    main,
-    left,
-    right,
-    resizer,
-    iframe,
-    settings,
-    settingsHeader,
-    settingsBody,
   };
 }
 
@@ -639,16 +127,15 @@ async function main() {
       };
   }
 
+  let monaco: MonacoType;
   let htmlModel: import('monaco-editor').editor.ITextModel;
   let cssModel: import('monaco-editor').editor.ITextModel;
   let jsModel: import('monaco-editor').editor.ITextModel;
+  let htmlEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let cssEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let jsEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
   let tailwindCss = importedGeneratedCss;
-  let tailwindCompileToken = 0;
-  let tailwindCompileInFlight = false;
-  let tailwindCompileQueued = false;
   let saveInProgress = false;
   let editorCollapsed = false;
   let settingsOpen = false;
@@ -661,11 +148,97 @@ async function main() {
     : [];
   let activeCssTab: 'css' | 'js' = 'css';
   let editorsReady = false;
-  let pendingJsAction: 'run' | 'disable' | null = null;
-  let sendRunJs: (() => void) | null = null;
-  let sendDisableJs: (() => void) | null = null;
-  let initialJsPending = true;
   const canEditJavaScript = Boolean(cfg.canEditJavaScript);
+
+  let preview: PreviewController | null = null;
+  let tailwindCompiler: TailwindCompiler | null = null;
+  let sendRenderDebounced: (() => void) | null = null;
+  let compileTailwindDebounced: (() => void) | null = null;
+
+  const setStatus = (text: string) => {
+    if (saveInProgress && text === '') {
+      return;
+    }
+    toolbarApi?.update({ statusText: text });
+  };
+
+  const setSettingsOpen = (open: boolean) => {
+    settingsOpen = open;
+    ui.app.classList.toggle('is-settings-open', open);
+    toolbarApi?.update({ settingsOpen: open });
+  };
+
+  async function handleExport() {
+    if (!htmlModel || !cssModel || !jsModel) {
+      setStatus('Export unavailable.');
+      return;
+    }
+
+    setStatus('Exporting...');
+
+    const result = await exportLivecode({
+      apiFetch: wp.apiFetch,
+      restCompileUrl: cfg.restCompileUrl,
+      postId: cfg.postId,
+      html: htmlModel.getValue(),
+      css: cssModel.getValue(),
+      tailwindEnabled,
+      tailwindCss,
+      js: jsModel.getValue(),
+      jsEnabled,
+      externalScripts,
+      shadowDomEnabled,
+      shortcodeEnabled,
+      liveHighlightEnabled,
+    });
+
+    if (result.ok) {
+      setStatus('Exported.');
+      window.setTimeout(() => {
+        if (!saveInProgress) {
+          setStatus('');
+        }
+      }, 1200);
+      return;
+    }
+
+    setStatus(`Export error: ${result.error ?? 'Export failed.'}`);
+  }
+
+  async function handleSave() {
+    if (!htmlModel || !cssModel) {
+      return;
+    }
+    saveInProgress = true;
+    setStatus('Saving...');
+
+    const result = await saveLivecode({
+      apiFetch: wp.apiFetch,
+      restUrl: cfg.restUrl,
+      postId: cfg.postId,
+      html: htmlModel.getValue(),
+      css: cssModel.getValue(),
+      tailwindEnabled,
+      canEditJavaScript,
+      js: jsModel.getValue(),
+      jsEnabled,
+    });
+
+    if (result.ok) {
+      setStatus('Saved.');
+      window.setTimeout(() => {
+        if (!tailwindCompiler?.isInFlight()) {
+          setStatus('');
+        }
+      }, 1200);
+    } else if (result.error === 'Save failed.') {
+      setStatus('Save failed.');
+    } else {
+      setStatus(`Save error: ${result.error ?? 'Save failed.'}`);
+    }
+
+    saveInProgress = false;
+  }
 
   toolbarApi = mountToolbar(
     ui.toolbar,
@@ -693,44 +266,20 @@ async function main() {
   const targetOrigin = new URL(cfg.previewUrl).origin;
 
   // Monaco
-  const monaco = await loadMonaco(cfg.monacoVsPath);
-
-  emmetHTML(monaco, ['html']);
-  emmetCSS(monaco, ['css']);
-
-  htmlModel = monaco.editor.createModel(cfg.initialHtml ?? '', 'html');
-  const useTailwindDefault = !importedState;
-  const initialCss =
-    tailwindEnabled && (cfg.initialCss ?? '').trim() === '' && useTailwindDefault
-      ? DEFAULT_TAILWIND_CSS
-      : (cfg.initialCss ?? '');
-  cssModel = monaco.editor.createModel(initialCss, 'css');
-  jsModel = monaco.editor.createModel(cfg.initialJs ?? '', 'javascript');
-
-  const htmlEditor = monaco.editor.create(ui.htmlEditorDiv, {
-    model: htmlModel,
-    theme: 'vs-dark',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    fontSize: 13,
+  const monacoSetup = await initMonacoEditors({
+    vsPath: cfg.monacoVsPath,
+    initialHtml: cfg.initialHtml ?? '',
+    initialCss: cfg.initialCss ?? '',
+    initialJs: cfg.initialJs ?? '',
+    tailwindEnabled,
+    useTailwindDefault: !importedState,
+    canEditJavaScript,
+    htmlContainer: ui.htmlEditorDiv,
+    cssContainer: ui.cssEditorDiv,
+    jsContainer: ui.jsEditorDiv,
   });
 
-  cssEditor = monaco.editor.create(ui.cssEditorDiv, {
-    model: cssModel,
-    theme: 'vs-dark',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    fontSize: 13,
-  });
-
-  jsEditor = monaco.editor.create(ui.jsEditorDiv, {
-    model: jsModel,
-    theme: 'vs-dark',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    fontSize: 13,
-    readOnly: !canEditJavaScript,
-  });
+  ({ monaco, htmlModel, cssModel, jsModel, htmlEditor, cssEditor, jsEditor } = monacoSetup);
 
   toolbarApi?.update({ statusText: '' });
 
@@ -778,6 +327,54 @@ async function main() {
     }
   };
 
+  const focusHtmlEditor = () => {
+    htmlEditor.focus();
+    setActiveEditor(htmlEditor, ui.htmlPane);
+  };
+
+  const getPreviewCss = () => (tailwindEnabled ? tailwindCss : cssModel.getValue());
+
+  preview = createPreviewController({
+    iframe: ui.iframe,
+    postId: cfg.postId,
+    targetOrigin,
+    monaco,
+    htmlModel,
+    cssModel,
+    jsModel,
+    htmlEditor,
+    cssEditor,
+    focusHtmlEditor,
+    getPreviewCss,
+    getShadowDomEnabled: () => shadowDomEnabled,
+    getLiveHighlightEnabled: () => liveHighlightEnabled,
+    getJsEnabled: () => jsEnabled,
+    getExternalScripts: () => externalScripts,
+    isTailwindEnabled: () => tailwindEnabled,
+  });
+
+  tailwindCompiler = createTailwindCompiler({
+    apiFetch: wp.apiFetch,
+    restCompileUrl: cfg.restCompileUrl,
+    postId: cfg.postId,
+    getHtml: () => htmlModel.getValue(),
+    getCss: () => cssModel.getValue(),
+    isTailwindEnabled: () => tailwindEnabled,
+    onCssCompiled: (css) => {
+      tailwindCss = css;
+      preview?.sendCssUpdate(css);
+    },
+    onStatus: setStatus,
+    onStatusClear: () => {
+      if (!saveInProgress) {
+        setStatus('');
+      }
+    },
+  });
+
+  sendRenderDebounced = debounce(() => preview?.sendRender(), 120);
+  compileTailwindDebounced = debounce(() => tailwindCompiler?.compile(), 300);
+
   const setJavaScriptEnabled = (enabled: boolean) => {
     jsEnabled = enabled;
     if (!jsEnabled && activeCssTab === 'js') {
@@ -785,39 +382,47 @@ async function main() {
     } else {
       updateJsUi();
     }
-    if (!sendRunJs || !sendDisableJs) {
-      if (!enabled) {
-        pendingJsAction = 'disable';
-      }
+    if (!preview) {
       return;
     }
     if (!enabled) {
-      sendExternalScripts([]);
-      sendDisableJs();
+      preview.sendExternalScripts([]);
+      preview.requestDisableJs();
       return;
     }
-    sendExternalScripts(externalScripts);
-    queueInitialJsRun();
+    preview.sendExternalScripts(externalScripts);
+    preview.queueInitialJsRun();
   };
 
   const setShadowDomEnabled = (enabled: boolean) => {
     shadowDomEnabled = enabled;
-    sendRender();
-    sendExternalScripts(jsEnabled ? externalScripts : []);
+    preview?.sendRender();
+    preview?.sendExternalScripts(jsEnabled ? externalScripts : []);
     if (!jsEnabled) {
-      sendDisableJs?.();
+      preview?.requestDisableJs();
       return;
     }
-    if (sendRunJs) {
-      sendRunJs();
-    } else {
-      pendingJsAction = 'run';
-    }
+    preview?.requestRunJs();
   };
 
   const setLiveHighlightEnabled = (enabled: boolean) => {
     liveHighlightEnabled = enabled;
-    sendLiveHighlightUpdate(enabled);
+    preview?.sendLiveHighlightUpdate(enabled);
+  };
+
+  const setTailwindEnabled = (enabled: boolean) => {
+    tailwindEnabled = enabled;
+    ui.app.classList.toggle('is-tailwind', enabled);
+    toolbarApi?.update({ tailwindEnabled: enabled });
+    if (enabled) {
+      preview?.sendRender();
+      tailwindCompiler?.compile();
+    } else {
+      if (editorSplitActive && lastHtmlHeight > 0) {
+        setEditorSplitHeight(lastHtmlHeight);
+      }
+      preview?.sendRender();
+    }
   };
 
   setActiveEditor(htmlEditor, ui.htmlPane);
@@ -853,17 +458,13 @@ async function main() {
     onLiveHighlightToggle: setLiveHighlightEnabled,
     onExternalScriptsChange: (scripts) => {
       externalScripts = scripts;
-      sendExternalScripts(jsEnabled ? externalScripts : []);
+      preview?.sendExternalScripts(jsEnabled ? externalScripts : []);
     },
   });
 
   ui.runButton.addEventListener('click', () => {
     if (!jsEnabled) return;
-    if (sendRunJs) {
-      sendRunJs();
-    } else {
-      pendingJsAction = 'run';
-    }
+    preview?.requestRunJs();
   });
 
   const minLeftWidth = 320;
@@ -1009,381 +610,28 @@ async function main() {
   ui.editorResizer.addEventListener('pointerup', stopEditorResizing);
   ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
 
-  const setStatus = (text: string) => {
-    if (saveInProgress && text === '') {
-      return;
-    }
-    toolbarApi?.update({ statusText: text });
-  };
-
-  const getPreviewCss = () => (tailwindEnabled ? tailwindCss : cssModel.getValue());
-
-  const compileTailwind = async () => {
-    if (!tailwindEnabled) return;
-    if (tailwindCompileInFlight) {
-      tailwindCompileQueued = true;
-      return;
-    }
-    tailwindCompileInFlight = true;
-    tailwindCompileQueued = false;
-    const currentToken = ++tailwindCompileToken;
-
-    try {
-      const res = await wp.apiFetch({
-        url: cfg.restCompileUrl,
-        method: 'POST',
-        data: {
-          postId: cfg.postId,
-          html: htmlModel.getValue(),
-          css: cssModel.getValue(),
-        },
-      });
-
-      if (currentToken !== tailwindCompileToken) {
-        return;
-      }
-      if (!tailwindEnabled) {
-        return;
-      }
-
-      if (res?.ok && typeof res.css === 'string') {
-        tailwindCss = res.css;
-        if (!saveInProgress) {
-          setStatus('');
-        }
-        sendCssUpdate(tailwindCss);
-      } else {
-        setStatus('Tailwind compile failed.');
-      }
-    } catch (e: any) {
-      if (currentToken !== tailwindCompileToken) {
-        return;
-      }
-      setStatus(`Tailwind error: ${e?.message ?? e}`);
-    } finally {
-      if (currentToken === tailwindCompileToken) {
-        tailwindCompileInFlight = false;
-      }
-      if (tailwindEnabled && tailwindCompileQueued) {
-        tailwindCompileQueued = false;
-        compileTailwindDebounced();
-      }
-    }
-  };
-
-  const compileTailwindDebounced = debounce(compileTailwind, 300);
-
-  const setTailwindEnabled = (enabled: boolean) => {
-    tailwindEnabled = enabled;
-    ui.app.classList.toggle('is-tailwind', enabled);
-    toolbarApi?.update({ tailwindEnabled: enabled });
-    if (enabled) {
-      sendRender();
-      compileTailwind();
-    } else {
-      if (editorSplitActive && lastHtmlHeight > 0) {
-        setEditorSplitHeight(lastHtmlHeight);
-      }
-      sendRender();
-    }
-  };
-
-  // Preview render (canonicalize HTML + keep lc-id -> source map)
-  let previewReady = false;
-  let pendingRender = false;
-  let canonicalCache: CanonicalResult | null = null;
-  let canonicalCacheHtml = '';
-  let canonicalDomCacheHtml = '';
-  let canonicalDomRoot: HTMLElement | null = null;
-  let lcSourceMap: Record<string, SourceRange> = {};
-  let lastCanonicalError: string | null = null;
-  let selectionDecorations: string[] = [];
-  let cssSelectionDecorations: string[] = [];
-  let lastSelectedLcId: string | null = null;
-  const overviewHighlightColor = 'rgba(96, 165, 250, 0.35)';
-
-  const getCanonical = () => {
-    const html = htmlModel.getValue();
-    if (canonicalCache && html === canonicalCacheHtml) {
-      return canonicalCache;
-    }
-    canonicalCacheHtml = html;
-    canonicalCache = canonicalizeHtml(html);
-    return canonicalCache;
-  };
-
-  const resetCanonicalCache = () => {
-    canonicalCache = null;
-    canonicalCacheHtml = '';
-    canonicalDomCacheHtml = '';
-    canonicalDomRoot = null;
-  };
-
-  const getCanonicalDomRoot = () => {
-    const canonical = getCanonical();
-    if (canonicalDomRoot && canonical.canonicalHTML === canonicalDomCacheHtml) {
-      return canonicalDomRoot;
-    }
-    const doc = document.implementation.createHTMLDocument('');
-    const wrapper = doc.createElement('div');
-    wrapper.innerHTML = canonical.canonicalHTML || '';
-    doc.body.appendChild(wrapper);
-    canonicalDomCacheHtml = canonical.canonicalHTML || '';
-    canonicalDomRoot = wrapper;
-    return wrapper;
-  };
-
-  const sendInit = () => {
-    ui.iframe.contentWindow?.postMessage({
-      type: 'LC_INIT',
-      postId: cfg.postId,
-    }, targetOrigin);
-  };
-
-  const sendRender = () => {
-    const canonical = getCanonical();
-    lcSourceMap = canonical.map;
-
-    if (canonical.error && canonical.error !== lastCanonicalError) {
-      console.error('[WP LiveCode] Falling back to raw HTML for preview:', canonical.error);
-      lastCanonicalError = canonical.error;
-    } else if (!canonical.error) {
-      lastCanonicalError = null;
-    }
-
-    const payload = {
-      type: 'LC_RENDER',
-      canonicalHTML: canonical.canonicalHTML,
-      cssText: getPreviewCss(),
-      shadowDomEnabled,
-      liveHighlightEnabled,
-    };
-    if (!previewReady) {
-      pendingRender = true;
-      return;
-    }
-    ui.iframe.contentWindow?.postMessage(payload, targetOrigin);
-  };
-
-  const sendRenderDebounced = debounce(sendRender, 120);
-  const sendCssUpdate = (cssText: string) => {
-    if (!previewReady) {
-      return;
-    }
-    ui.iframe.contentWindow?.postMessage(
-      {
-        type: 'LC_SET_CSS',
-        cssText: cssText,
-      },
-      targetOrigin
-    );
-  };
-  sendRunJs = () => {
-    if (!jsEnabled) return;
-    if (!jsModel) {
-      pendingJsAction = 'run';
-      return;
-    }
-    if (!previewReady) {
-      pendingJsAction = 'run';
-      return;
-    }
-    ui.iframe.contentWindow?.postMessage(
-      {
-        type: 'LC_RUN_JS',
-        jsText: jsModel.getValue(),
-      },
-      targetOrigin
-    );
-  };
-
-  sendDisableJs = () => {
-    if (!previewReady) {
-      pendingJsAction = 'disable';
-      return;
-    }
-    ui.iframe.contentWindow?.postMessage({ type: 'LC_DISABLE_JS' }, targetOrigin);
-  };
-
-  function sendExternalScripts(scripts: string[]) {
-    if (!previewReady) {
-      return;
-    }
-    ui.iframe.contentWindow?.postMessage(
-      {
-        type: 'LC_EXTERNAL_SCRIPTS',
-        urls: scripts,
-      },
-      targetOrigin
-    );
-  }
-
-  function sendLiveHighlightUpdate(enabled: boolean) {
-    if (!previewReady) {
-      return;
-    }
-    ui.iframe.contentWindow?.postMessage(
-      {
-        type: 'LC_SET_HIGHLIGHT',
-        liveHighlightEnabled: enabled,
-      },
-      targetOrigin
-    );
-  }
-
-  const queueInitialJsRun = () => {
-    if (!initialJsPending || !jsEnabled || !jsModel) {
-      return;
-    }
-    if (!jsModel.getValue().trim()) {
-      initialJsPending = false;
-      return;
-    }
-    initialJsPending = false;
-    pendingJsAction = 'run';
-  };
-
-  const flushPendingJsAction = () => {
-    if (!pendingJsAction) return;
-    const action = pendingJsAction;
-    pendingJsAction = null;
-    if (action === 'run') {
-      sendRunJs?.();
-    } else if (action === 'disable') {
-      sendDisableJs?.();
-    }
-  };
-
   setTailwindEnabled(tailwindEnabled);
   setJavaScriptEnabled(jsEnabled);
-  flushPendingJsAction();
-
-  const clearSelectionHighlight = () => {
-    selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
-    cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
-  };
-
-  const clearCssSelectionHighlight = () => {
-    cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
-  };
-
-  const highlightCssByLcId = (lcId: string) => {
-    lastSelectedLcId = lcId;
-    if (tailwindEnabled) {
-      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
-      return;
-    }
-    const cssText = cssModel.getValue();
-    if (!cssText.trim()) {
-      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
-      return;
-    }
-    const root = getCanonicalDomRoot();
-    const target = root?.querySelector(`[${LC_ATTR_NAME}="${lcId}"]`);
-    if (!target) {
-      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
-      return;
-    }
-    const rules = parseCssRules(cssText);
-    const matched = rules.filter((rule) => {
-      if (!mediaQueriesMatch(rule.mediaQueries)) return false;
-      const cleanedSelectorText = rule.selectorText.replace(/\/\*[\s\S]*?\*\//g, ' ');
-      const selectors = splitSelectors(cleanedSelectorText);
-      return selectors.some((selector) => selectorMatches(target, selector));
-    });
-    if (!matched.length) {
-      cssSelectionDecorations = cssModel.deltaDecorations(cssSelectionDecorations, []);
-      return;
-    }
-    cssSelectionDecorations = cssModel.deltaDecorations(
-      cssSelectionDecorations,
-      matched.map((rule) => {
-        const startPos = cssModel.getPositionAt(rule.startOffset);
-        const endPos = cssModel.getPositionAt(rule.endOffset);
-        return {
-          range: new monaco.Range(
-            startPos.lineNumber,
-            startPos.column,
-            endPos.lineNumber,
-            endPos.column
-          ),
-          options: {
-            className: 'lc-highlight-line',
-            inlineClassName: 'lc-highlight-inline',
-            overviewRuler: {
-              color: overviewHighlightColor,
-              position: monaco.editor.OverviewRulerLane.Full,
-            },
-          },
-        };
-      })
-    );
-    const first = matched[0];
-    if (first) {
-      const startPos = cssModel.getPositionAt(first.startOffset);
-      const endPos = cssModel.getPositionAt(first.endOffset);
-      const range = new monaco.Range(
-        startPos.lineNumber,
-        startPos.column,
-        endPos.lineNumber,
-        endPos.column
-      );
-      cssEditor.revealRangeInCenter(range, monaco.editor.ScrollType.Smooth);
-    }
-  };
-
-  const highlightByLcId = (lcId: string) => {
-    const rangeInfo = lcSourceMap[lcId];
-    if (!rangeInfo) {
-      console.warn('[WP LiveCode] No source map for lc-id:', lcId);
-      return;
-    }
-    htmlEditor.focus();
-    setActiveEditor(htmlEditor, ui.htmlPane);
-    const startPos = htmlModel.getPositionAt(rangeInfo.startOffset);
-    const endPos = htmlModel.getPositionAt(rangeInfo.endOffset);
-    const monacoRange = new monaco.Range(
-      startPos.lineNumber,
-      startPos.column,
-      endPos.lineNumber,
-      endPos.column
-    );
-    selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, [
-      {
-        range: monacoRange,
-        options: {
-          className: 'lc-highlight-line',
-          inlineClassName: 'lc-highlight-inline',
-          overviewRuler: {
-            color: overviewHighlightColor,
-            position: monaco.editor.OverviewRulerLane.Full,
-          },
-        },
-      },
-    ]);
-    htmlEditor.revealRangeInCenter(monacoRange, monaco.editor.ScrollType.Smooth);
-    htmlEditor.focus();
-    highlightCssByLcId(lcId);
-  };
+  preview?.flushPendingJsAction();
 
   htmlModel.onDidChangeContent(() => {
-    resetCanonicalCache();
-    clearSelectionHighlight();
-    sendRenderDebounced();
+    preview?.resetCanonicalCache();
+    preview?.clearSelectionHighlight();
+    sendRenderDebounced?.();
     if (tailwindEnabled) {
-      compileTailwindDebounced();
+      compileTailwindDebounced?.();
     }
     updateUndoRedoState();
   });
   cssModel.onDidChangeContent(() => {
     if (!tailwindEnabled) {
-      sendRenderDebounced();
+      sendRenderDebounced?.();
     }
     if (tailwindEnabled) {
-      compileTailwindDebounced();
+      compileTailwindDebounced?.();
     }
-    selectionDecorations = htmlModel.deltaDecorations(selectionDecorations, []);
-    clearCssSelectionHighlight();
+    preview?.clearSelectionHighlight();
+    preview?.clearCssSelectionHighlight();
     updateUndoRedoState();
   });
 
@@ -1393,150 +641,13 @@ async function main() {
 
   // 初回の iframe load 後に送る
   ui.iframe.addEventListener('load', () => {
-    previewReady = false;
-    pendingRender = true;
-    initialJsPending = true;
-    sendInit();
+    preview?.handleIframeLoad();
   });
-
-  async function handleExport() {
-    if (!htmlModel || !cssModel || !jsModel) {
-      setStatus('Export unavailable.');
-      return;
-    }
-
-    setStatus('Exporting...');
-
-    try {
-      let generatedCss = '';
-      if (tailwindEnabled) {
-        try {
-          const res = await wp.apiFetch({
-            url: cfg.restCompileUrl,
-            method: 'POST',
-            data: {
-              postId: cfg.postId,
-              html: htmlModel.getValue(),
-              css: cssModel.getValue(),
-            },
-          });
-
-          if (res?.ok && typeof res.css === 'string') {
-            generatedCss = res.css;
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('[WP LiveCode] Export compile failed', error);
-        }
-      }
-
-      const payload: ExportPayload = {
-        version: 1,
-        html: htmlModel.getValue(),
-        css: cssModel.getValue(),
-        tailwind: tailwindEnabled,
-        generatedCss: tailwindEnabled ? (generatedCss || tailwindCss) : '',
-        js: jsModel.getValue(),
-        jsEnabled,
-        externalScripts: [...externalScripts],
-        shadowDomEnabled,
-        shortcodeEnabled,
-        liveHighlightEnabled,
-      };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {
-        type: 'application/json',
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `livecode-${cfg.postId}.json`;
-      document.body.append(link);
-      link.click();
-      link.remove();
-      window.setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-      }, 500);
-
-      setStatus('Exported.');
-      window.setTimeout(() => {
-        if (!saveInProgress) {
-          setStatus('');
-        }
-      }, 1200);
-    } catch (e: any) {
-      setStatus(`Export error: ${e?.message ?? e}`);
-    }
-  }
-
-  async function handleSave() {
-    if (!htmlModel || !cssModel) {
-      return;
-    }
-    saveInProgress = true;
-    setStatus('Saving...');
-
-    try {
-      const cssForSave = cssModel.getValue();
-      const payload: Record<string, any> = {
-        postId: cfg.postId,
-        html: htmlModel.getValue(),
-        css: cssForSave,
-        tailwind: tailwindEnabled,
-      };
-      if (canEditJavaScript) {
-        payload.js = jsModel.getValue();
-        payload.jsEnabled = jsEnabled;
-      }
-      const res = await wp.apiFetch({
-        url: cfg.restUrl,
-        method: 'POST',
-        data: payload,
-      });
-
-      if (res?.ok) {
-        setStatus('Saved.');
-        window.setTimeout(() => {
-          if (!tailwindCompileInFlight) {
-            setStatus('');
-          }
-        }, 1200);
-      } else {
-        setStatus('Save failed.');
-      }
-    } catch (e: any) {
-      setStatus(`Save error: ${e?.message ?? e}`);
-    } finally {
-      saveInProgress = false;
-    }
-  }
 
   // iframe -> parent への通信：DOM セレクタの受け取りや初期化に用いる
   window.addEventListener('message', (event) => {
-    if (event.origin !== targetOrigin) return;
-    const data = event.data;
-
-    if (data?.type === 'LC_READY') {
-      previewReady = true;
-      if (pendingRender) {
-        pendingRender = false;
-      }
-      sendRender();
-      sendExternalScripts(jsEnabled ? externalScripts : []);
-      queueInitialJsRun();
-      flushPendingJsAction();
-    }
-
-    if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {
-      highlightByLcId(data.lcId);
-    }
+    preview?.handleMessage(event);
   });
-
-  const setSettingsOpen = (open: boolean) => {
-    settingsOpen = open;
-    ui.app.classList.toggle('is-settings-open', open);
-    toolbarApi?.update({ settingsOpen: open });
-  };
 }
 
 main().catch((e) => {
