@@ -156,6 +156,7 @@ async function main() {
   let sendRenderDebounced: (() => void) | null = null;
   let compileTailwindDebounced: (() => void) | null = null;
   let selectedLcId: string | null = null;
+  let suppressSelectionClear = 0;
   const selectionListeners = new Set<(lcId: string | null) => void>();
   const contentListeners = new Set<() => void>();
 
@@ -322,6 +323,7 @@ async function main() {
       if (info.text === text) {
         return true;
       }
+      suppressSelectionClear += 1;
       const start = htmlModel.getPositionAt(info.startOffset);
       const end = htmlModel.getPositionAt(info.endOffset);
       htmlModel.pushEditOperations(
@@ -334,6 +336,7 @@ async function main() {
         ],
         () => null
       );
+      suppressSelectionClear = Math.max(0, suppressSelectionClear - 1);
       return true;
     },
   };
@@ -682,6 +685,10 @@ async function main() {
       compileTailwindDebounced?.();
     }
     updateUndoRedoState();
+    if (suppressSelectionClear === 0) {
+      selectedLcId = null;
+      notifySelection();
+    }
     notifyContentChange();
   });
   cssModel.onDidChangeContent(() => {
