@@ -10,6 +10,7 @@ import {
   useState,
 } from '@wordpress/element';
 import { DesignSettingsPanel } from './design-settings';
+import { ElementsSettingsPanel, type ElementsSettingsApi } from './elements-settings';
 
 type SettingsOption = {
   value: string;
@@ -72,6 +73,7 @@ type SettingsConfig = {
   onShortcodeToggle?: (enabled: boolean) => void;
   onLiveHighlightToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
+  elementsApi?: ElementsSettingsApi;
 };
 
 type UpdateResponse = {
@@ -103,7 +105,7 @@ type ActiveModal =
   | 'tags'
   | null;
 
-type SettingsTab = 'post' | 'design';
+type SettingsTab = 'post' | 'design' | 'elements';
 
 const VISIBILITY_OPTIONS = [
   { value: 'public', label: '公開' },
@@ -874,6 +876,7 @@ function SettingsSidebar({
   onShortcodeToggle,
   onLiveHighlightToggle,
   onExternalScriptsChange,
+  elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
@@ -1107,6 +1110,15 @@ function SettingsSidebar({
       >
         デザイン
       </button>
+      <button
+        className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
+        type="button"
+        role="tab"
+        aria-selected={activeTab === 'elements'}
+        onClick={() => handleTabChange('elements')}
+      >
+        要素
+      </button>
     </div>
   );
 
@@ -1214,7 +1226,9 @@ function SettingsSidebar({
             <SettingsItem label="タグ" value={createChipList(settings.tags)} onClick={() => setActiveModal('tags')} />
           </SettingsSection>
         </Fragment>
-      ) : (
+      ) : null}
+
+      {activeTab === 'design' ? (
         <DesignSettingsPanel
           postId={postId}
           enableJavaScript={enableJavaScript}
@@ -1232,7 +1246,9 @@ function SettingsSidebar({
           error={designError}
           externalScriptsError={externalScriptsError}
         />
-      )}
+      ) : null}
+
+      {activeTab === 'elements' ? <ElementsSettingsPanel api={elementsApi} /> : null}
 
       {activeTab === 'post' && activeModal === 'status' ? (
         <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
