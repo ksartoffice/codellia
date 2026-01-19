@@ -54,6 +54,7 @@ export type SettingsData = {
   jsEnabled: boolean;
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
+  liveHighlightEnabled: boolean;
   canEditJavaScript: boolean;
   externalScripts: string[];
 };
@@ -69,6 +70,7 @@ type SettingsConfig = {
   onJavaScriptToggle?: (enabled: boolean) => void;
   onShadowDomToggle?: (enabled: boolean) => void;
   onShortcodeToggle?: (enabled: boolean) => void;
+  onLiveHighlightToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
 };
 
@@ -870,14 +872,20 @@ function SettingsSidebar({
   onJavaScriptToggle,
   onShadowDomToggle,
   onShortcodeToggle,
+  onLiveHighlightToggle,
   onExternalScriptsChange,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
+  const resolveLiveHighlightEnabled = (value?: boolean) =>
+    value === undefined ? true : Boolean(value);
   const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
   const [enableShadowDom, setEnableShadowDom] = useState(Boolean(data.shadowDomEnabled));
   const [enableShortcode, setEnableShortcode] = useState(Boolean(data.shortcodeEnabled));
+  const [enableLiveHighlight, setEnableLiveHighlight] = useState(
+    resolveLiveHighlightEnabled(data.liveHighlightEnabled)
+  );
   const [designError, setDesignError] = useState('');
   const [externalScripts, setExternalScripts] = useState<string[]>(data.externalScripts || []);
   const [externalScriptsError, setExternalScriptsError] = useState('');
@@ -901,6 +909,10 @@ function SettingsSidebar({
   }, [settings.shortcodeEnabled]);
 
   useEffect(() => {
+    setEnableLiveHighlight(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
+  }, [settings.liveHighlightEnabled]);
+
+  useEffect(() => {
     setExternalScripts(settings.externalScripts || []);
     onExternalScriptsChange?.(settings.externalScripts || []);
   }, [settings.externalScripts, onExternalScriptsChange]);
@@ -916,6 +928,10 @@ function SettingsSidebar({
   useEffect(() => {
     onShortcodeToggle?.(enableShortcode);
   }, [enableShortcode, onShortcodeToggle]);
+
+  useEffect(() => {
+    onLiveHighlightToggle?.(enableLiveHighlight);
+  }, [enableLiveHighlight, onLiveHighlightToggle]);
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
@@ -995,6 +1011,17 @@ function SettingsSidebar({
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setEnableShortcode(Boolean(settings.shortcodeEnabled));
+    }
+  };
+
+  const handleLiveHighlightToggle = async (enabled: boolean) => {
+    setDesignError('');
+    setEnableLiveHighlight(enabled);
+    try {
+      await updateSettings({ enableLiveHighlight: enabled });
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setEnableLiveHighlight(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
     }
   };
 
@@ -1196,6 +1223,8 @@ function SettingsSidebar({
           onToggleShadowDom={handleShadowDomToggle}
           enableShortcode={enableShortcode}
           onToggleShortcode={handleShortcodeToggle}
+          enableLiveHighlight={enableLiveHighlight}
+          onToggleLiveHighlight={handleLiveHighlightToggle}
           externalScripts={externalScripts}
           onChangeExternalScripts={handleExternalScriptsChange}
           onCommitExternalScripts={handleExternalScriptsCommit}

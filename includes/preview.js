@@ -26,6 +26,8 @@
   let shadowRoot = null;
   let lastJsText = '';
   let jsEnabled = false;
+  let domSelectorEnabled =
+    config.liveHighlightEnabled === undefined ? true : Boolean(config.liveHighlightEnabled);
 
   function getAllowedOrigin() {
     if (config.allowedOrigin) return config.allowedOrigin;
@@ -161,6 +163,16 @@
     }
   }
 
+  function setDomSelectorEnabled(enabled) {
+    const next = Boolean(enabled);
+    if (domSelectorEnabled === next) return;
+    domSelectorEnabled = next;
+    if (!domSelectorEnabled) {
+      clearHighlight();
+      clearSelection();
+    }
+  }
+
   function ensureHighlightBox() {
     if (highlightBox) return highlightBox;
     highlightBox = document.createElement('div');
@@ -265,6 +277,7 @@
   }
 
   function handlePointerMove(event) {
+    if (!domSelectorEnabled) return;
     const target = getComposedTarget(event);
     if (!target) {
       clearHighlight();
@@ -274,6 +287,7 @@
   }
 
   function handleClick(event) {
+    if (!domSelectorEnabled) return;
     const target = getComposedTarget(event);
     if (!target) return;
     event.preventDefault();
@@ -582,6 +596,9 @@
     if (data.type === 'LC_RENDER') {
       if (!isReady) return;
       setShadowDomEnabled(Boolean(data.shadowDomEnabled));
+      if ('liveHighlightEnabled' in data) {
+        setDomSelectorEnabled(Boolean(data.liveHighlightEnabled));
+      }
       render(data.canonicalHTML, data.cssText);
     }
     if (data.type === 'LC_SET_CSS') {

@@ -357,6 +357,17 @@ class Rest {
 			$shortcode_enabled = $payload['shortcodeEnabled'];
 		}
 
+		$live_highlight_enabled = null;
+		if ( array_key_exists( 'liveHighlightEnabled', $payload ) ) {
+			if ( ! is_bool( $payload['liveHighlightEnabled'] ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Invalid liveHighlightEnabled value.',
+				], 400 );
+			}
+			$live_highlight_enabled = $payload['liveHighlightEnabled'];
+		}
+
 		$generated_css_input = '';
 		if ( array_key_exists( 'generatedCss', $payload ) ) {
 			if ( ! is_string( $payload['generatedCss'] ) ) {
@@ -447,6 +458,9 @@ class Rest {
 		update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
+		if ( null !== $live_highlight_enabled ) {
+			update_post_meta( $post_id, '_lc_live_highlight', $live_highlight_enabled ? '1' : '0' );
+		}
 		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 		delete_post_meta( $post_id, '_lc_setup_required' );
@@ -562,6 +576,9 @@ class Rest {
 			$tag_names = [];
 		}
 
+		$highlight_meta = get_post_meta( $post_id, '_lc_live_highlight', true );
+		$live_highlight_enabled = $highlight_meta === '' ? true : rest_sanitize_boolean( $highlight_meta );
+
 		return [
 			'title'           => (string) $post->post_title,
 			'status'          => (string) $post->post_status,
@@ -590,6 +607,7 @@ class Rest {
 			'jsEnabled'       => get_post_meta( $post_id, '_lc_js_enabled', true ) === '1',
 			'shadowDomEnabled' => get_post_meta( $post_id, '_lc_shadow_dom', true ) === '1',
 			'shortcodeEnabled' => get_post_meta( $post_id, '_lc_shortcode_enabled', true ) === '1',
+			'liveHighlightEnabled' => $live_highlight_enabled,
 			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
 			'externalScripts' => self::get_external_scripts( $post_id ),
 		];
@@ -772,6 +790,11 @@ class Rest {
 			}
 			$shortcode_enabled = rest_sanitize_boolean( $updates['enableShortcode'] );
 			update_post_meta( $post_id, '_lc_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
+		}
+
+		if ( array_key_exists( 'enableLiveHighlight', $updates ) ) {
+			$live_highlight_enabled = rest_sanitize_boolean( $updates['enableLiveHighlight'] );
+			update_post_meta( $post_id, '_lc_live_highlight', $live_highlight_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'externalScripts', $updates ) ) {
