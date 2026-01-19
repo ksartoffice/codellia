@@ -157,6 +157,7 @@ async function main() {
   let compileTailwindDebounced: (() => void) | null = null;
   let selectedLcId: string | null = null;
   const selectionListeners = new Set<(lcId: string | null) => void>();
+  const contentListeners = new Set<() => void>();
 
   const notifySelection = () => {
     selectionListeners.forEach((listener) => listener(selectedLcId));
@@ -166,6 +167,15 @@ async function main() {
     selectionListeners.add(listener);
     listener(selectedLcId);
     return () => selectionListeners.delete(listener);
+  };
+
+  const notifyContentChange = () => {
+    contentListeners.forEach((listener) => listener());
+  };
+
+  const subscribeContentChange = (listener: () => void) => {
+    contentListeners.add(listener);
+    return () => contentListeners.delete(listener);
   };
 
   const setStatus = (text: string) => {
@@ -298,6 +308,7 @@ async function main() {
 
   const elementsApi = {
     subscribeSelection,
+    subscribeContentChange,
     getElementText: (lcId: string) => {
       const info = getEditableElementText(htmlModel.getValue(), lcId);
       return info ? info.text : null;
@@ -671,6 +682,7 @@ async function main() {
       compileTailwindDebounced?.();
     }
     updateUndoRedoState();
+    notifyContentChange();
   });
   cssModel.onDidChangeContent(() => {
     if (!tailwindEnabled) {

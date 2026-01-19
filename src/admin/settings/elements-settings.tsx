@@ -1,7 +1,8 @@
-import { createElement, useEffect, useState } from '@wordpress/element';
+import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
 
 export type ElementsSettingsApi = {
   subscribeSelection: (listener: (lcId: string | null) => void) => () => void;
+  subscribeContentChange: (listener: () => void) => () => void;
   getElementText: (lcId: string) => string | null;
   updateElementText: (lcId: string, text: string) => boolean;
 };
@@ -16,6 +17,22 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
   const [isVisible, setIsVisible] = useState(false);
   const fieldId = 'lc-elements-text';
 
+  const refreshText = useCallback(() => {
+    if (!api?.getElementText || !selectedId) {
+      setValue('');
+      setIsVisible(false);
+      return;
+    }
+    const next = api.getElementText(selectedId);
+    if (typeof next === 'string') {
+      setIsVisible(true);
+      setValue((prev) => (prev === next ? prev : next));
+    } else {
+      setValue('');
+      setIsVisible(false);
+    }
+  }, [api, selectedId]);
+
   useEffect(() => {
     if (!api?.subscribeSelection) {
       return;
@@ -26,20 +43,17 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
   }, [api]);
 
   useEffect(() => {
-    if (!api?.getElementText || !selectedId) {
-      setValue('');
-      setIsVisible(false);
+    refreshText();
+  }, [refreshText]);
+
+  useEffect(() => {
+    if (!api?.subscribeContentChange) {
       return;
     }
-    const next = api.getElementText(selectedId);
-    if (typeof next === 'string') {
-      setValue(next);
-      setIsVisible(true);
-    } else {
-      setValue('');
-      setIsVisible(false);
-    }
-  }, [api, selectedId]);
+    return api.subscribeContentChange(() => {
+      refreshText();
+    });
+  }, [api, refreshText]);
 
   const handleChange = (event: { target: HTMLTextAreaElement }) => {
     const nextValue = event.target.value;
