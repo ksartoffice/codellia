@@ -1,10 +1,17 @@
 import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
 
+export type ElementsSettingsAttribute = {
+  name: string;
+  value: string;
+};
+
 export type ElementsSettingsApi = {
   subscribeSelection: (listener: (lcId: string | null) => void) => () => void;
   subscribeContentChange: (listener: () => void) => () => void;
   getElementText: (lcId: string) => string | null;
   updateElementText: (lcId: string, text: string) => boolean;
+  getElementAttributes?: (lcId: string) => ElementsSettingsAttribute[] | null;
+  updateElementAttributes?: (lcId: string, attributes: ElementsSettingsAttribute[]) => boolean;
 };
 
 type ElementsSettingsPanelProps = {
@@ -14,21 +21,26 @@ type ElementsSettingsPanelProps = {
 export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [value, setValue] = useState('');
+  const [attributes, setAttributes] = useState<ElementsSettingsAttribute[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const fieldId = 'lc-elements-text';
 
-  const refreshText = useCallback(() => {
+  const refreshElement = useCallback(() => {
     if (!api?.getElementText || !selectedId) {
       setValue('');
+      setAttributes([]);
       setIsVisible(false);
       return;
     }
     const next = api.getElementText(selectedId);
+    const nextAttributes = api.getElementAttributes?.(selectedId) || [];
     if (typeof next === 'string') {
       setIsVisible(true);
       setValue((prev) => (prev === next ? prev : next));
+      setAttributes(nextAttributes);
     } else {
       setValue('');
+      setAttributes([]);
       setIsVisible(false);
     }
   }, [api, selectedId]);
@@ -43,17 +55,17 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
   }, [api]);
 
   useEffect(() => {
-    refreshText();
-  }, [refreshText]);
+    refreshElement();
+  }, [refreshElement]);
 
   useEffect(() => {
     if (!api?.subscribeContentChange) {
       return;
     }
     return api.subscribeContentChange(() => {
-      refreshText();
+      refreshElement();
     });
-  }, [api, refreshText]);
+  }, [api, refreshElement]);
 
   const handleChange = (event: { target: HTMLTextAreaElement }) => {
     const nextValue = event.target.value;
@@ -61,6 +73,44 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
     if (selectedId && api?.updateElementText) {
       api.updateElementText(selectedId, nextValue);
     }
+  };
+
+  const commitAttributes = useCallback(
+    (nextAttributes: ElementsSettingsAttribute[]) => {
+      setAttributes(nextAttributes);
+      if (!selectedId || !api?.updateElementAttributes) {
+        return;
+      }
+      const payload = nextAttributes
+        .map((attr) => ({ name: attr.name.trim(), value: attr.value }))
+        .filter((attr) => attr.name !== '');
+      api.updateElementAttributes(selectedId, payload);
+    },
+    [api, selectedId]
+  );
+
+  const handleAttributeNameChange = (index: number, name: string) => {
+    const sanitized = name.replace(/[^A-Za-z0-9:_.-]/g, '');
+    const next = attributes.map((attr, idx) =>
+      idx === index ? { ...attr, name: sanitized } : attr
+    );
+    commitAttributes(next);
+  };
+
+  const handleAttributeValueChange = (index: number, value: string) => {
+    const next = attributes.map((attr, idx) =>
+      idx === index ? { ...attr, value } : attr
+    );
+    commitAttributes(next);
+  };
+
+  const handleRemoveAttribute = (index: number) => {
+    const next = attributes.filter((_, idx) => idx !== index);
+    commitAttributes(next);
+  };
+
+  const handleAddAttribute = () => {
+    setAttributes((prev) => [...prev, { name: '', value: '' }]);
   };
 
   if (!isVisible) {
@@ -81,6 +131,44 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
           value={value}
           onChange={handleChange}
         />
+      </div>
+      <div className="lc-formGroup">
+        <div className="lc-formLabel">属性</div>
+        <div className="lc-settingsScriptList">
+          {attributes.map((attr, index) => (
+            <div className="lc-settingsScriptRow" key={`attr-${index}`}>
+              <input
+                type="text"
+                className="lc-formInput lc-settingsAttrNameInput"
+                placeholder="属性名"
+                value={attr.name}
+                onChange={(event) => handleAttributeNameChange(index, event.target.value)}
+              />
+              <input
+                type="text"
+                className="lc-formInput lc-settingsScriptInput"
+                placeholder="値"
+                value={attr.value}
+                onChange={(event) => handleAttributeValueChange(index, event.target.value)}
+              />
+              <button
+                className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                type="button"
+                onClick={() => handleRemoveAttribute(index)}
+                aria-label="属性を削除"
+              >
+                削除
+              </button>
+            </div>
+          ))}
+          <button
+            className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+            type="button"
+            onClick={handleAddAttribute}
+          >
+            属性を追加
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -10,6 +10,20 @@ type ElementTextInfo = InnerRange & {
   text: string;
 };
 
+export type ElementAttribute = {
+  name: string;
+  value: string;
+};
+
+export type ElementAttributesInfo = {
+  attributes: ElementAttribute[];
+  startOffset: number;
+  endOffset: number;
+  tagName: string;
+  isVoid: boolean;
+  selfClosing: boolean;
+};
+
 const ALLOWED_INLINE_TAGS = new Set(['br', 'span']);
 const LC_ATTR_NAME = 'data-lc-id';
 const VOID_TAGS = new Set([
@@ -169,6 +183,75 @@ export function getEditableElementText(html: string, lcId: string): ElementTextI
             text: html.slice(range.startOffset, range.endOffset),
             startOffset: range.startOffset,
             endOffset: range.endOffset,
+          };
+          return;
+        }
+        walk(child);
+        if (result) return;
+        if (isTemplateElement(child)) {
+          walk(child.content);
+          if (result) return;
+        }
+      } else if (isParentNode(child)) {
+        walk(child);
+        if (result) return;
+      }
+    }
+  };
+
+  walk(fragment);
+  return result;
+}
+
+export function getEditableElementAttributes(html: string, lcId: string): ElementAttributesInfo | null {
+  const fragment = parse5.parseFragment(html, { sourceCodeLocationInfo: true });
+  let seq = 0;
+  let result: ElementAttributesInfo | null = null;
+
+  const walk = (node: DefaultTreeAdapterTypes.ParentNode) => {
+    for (const child of node.childNodes || []) {
+      if (isElement(child)) {
+        const existingId = getExistingLcId(child);
+        const id = existingId ?? `lc-${++seq}`;
+
+        if (id === lcId) {
+          if (VOID_TAGS.has(child.tagName)) {
+            result = null;
+            return;
+          }
+          const childNodes = child.childNodes || [];
+          const isEditable = childNodes.every((entry) => isEditableChild(entry));
+          if (!isEditable) {
+            result = null;
+            return;
+          }
+          const startTag = child.sourceCodeLocation?.startTag;
+          if (
+            !startTag ||
+            typeof startTag.startOffset !== 'number' ||
+            typeof startTag.endOffset !== 'number'
+          ) {
+            result = null;
+            return;
+          }
+          const startOffset = startTag.startOffset;
+          const endOffset = startTag.endOffset;
+          const startTagText = html.slice(startOffset, endOffset);
+          const selfClosing = /\/\s*>$/.test(startTagText);
+          const attributes = child.attrs
+            .filter((attr) => attr.name !== LC_ATTR_NAME)
+            .map((attr) => ({
+              name: attr.name,
+              value: attr.value ?? '',
+            }));
+
+          result = {
+            attributes,
+            startOffset,
+            endOffset,
+            tagName: child.tagName,
+            isVoid: VOID_TAGS.has(child.tagName),
+            selfClosing,
           };
           return;
         }

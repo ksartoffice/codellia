@@ -608,6 +608,11 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 8px;
 }
 
+.lc-settingsAttrNameInput {
+  flex: 0 0 90px;
+  min-width: 0;
+}
+
 .lc-settingsScriptInput {
   flex: 1;
   min-width: 0;

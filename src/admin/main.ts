@@ -5,7 +5,7 @@ import { mountToolbar, type ToolbarApi } from './toolbar';
 import { buildLayout } from './layout';
 import { initMonacoEditors, type MonacoType } from './monaco';
 import { createPreviewController, type PreviewController } from './preview';
-import { getEditableElementText } from './element-text';
+import { getEditableElementAttributes, getEditableElementText } from './element-text';
 import {
   createTailwindCompiler,
   exportLivecode,
@@ -307,6 +307,46 @@ async function main() {
 
   toolbarApi?.update({ statusText: '' });
 
+  const applyHtmlEdit = (startOffset: number, endOffset: number, nextText: string) => {
+    suppressSelectionClear += 1;
+    const start = htmlModel.getPositionAt(startOffset);
+    const end = htmlModel.getPositionAt(endOffset);
+    htmlModel.pushEditOperations(
+      [],
+      [
+        {
+          range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
+          text: nextText,
+        },
+      ],
+      () => null
+    );
+    suppressSelectionClear = Math.max(0, suppressSelectionClear - 1);
+  };
+
+  const isValidAttributeName = (name: string) => /^[A-Za-z0-9:_.-]+$/.test(name);
+
+  const escapeAttributeValue = (value: string) =>
+    value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+  const normalizeAttributes = (attrs: { name: string; value: string }[]) => {
+    const seen = new Set<string>();
+    const normalized: { name: string; value: string }[] = [];
+    for (let i = attrs.length - 1; i >= 0; i -= 1) {
+      const name = attrs[i].name.trim();
+      if (!name || name === 'data-lc-id' || !isValidAttributeName(name) || seen.has(name)) {
+        continue;
+      }
+      seen.add(name);
+      normalized.push({ name, value: attrs[i].value });
+    }
+    return normalized.reverse();
+  };
+
   const elementsApi = {
     subscribeSelection,
     subscribeContentChange,
@@ -323,20 +363,32 @@ async function main() {
       if (info.text === text) {
         return true;
       }
-      suppressSelectionClear += 1;
-      const start = htmlModel.getPositionAt(info.startOffset);
-      const end = htmlModel.getPositionAt(info.endOffset);
-      htmlModel.pushEditOperations(
-        [],
-        [
-          {
-            range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
-            text,
-          },
-        ],
-        () => null
-      );
-      suppressSelectionClear = Math.max(0, suppressSelectionClear - 1);
+      applyHtmlEdit(info.startOffset, info.endOffset, text);
+      return true;
+    },
+    getElementAttributes: (lcId: string) => {
+      const info = getEditableElementAttributes(htmlModel.getValue(), lcId);
+      return info ? info.attributes : null;
+    },
+    updateElementAttributes: (lcId: string, attributes: { name: string; value: string }[]) => {
+      const html = htmlModel.getValue();
+      const info = getEditableElementAttributes(html, lcId);
+      if (!info) {
+        return false;
+      }
+      const normalized = normalizeAttributes(attributes);
+      const attrText = normalized.length
+        ? ` ${normalized
+            .map((attr) => `${attr.name}="${escapeAttributeValue(attr.value)}"`)
+            .join(' ')}`
+        : '';
+      const closing = info.isVoid || info.selfClosing ? ' />' : '>';
+      const nextStartTag = `<${info.tagName}${attrText}${closing}`;
+      const currentStartTag = html.slice(info.startOffset, info.endOffset);
+      if (currentStartTag === nextStartTag) {
+        return true;
+      }
+      applyHtmlEdit(info.startOffset, info.endOffset, nextStartTag);
       return true;
     },
   };
