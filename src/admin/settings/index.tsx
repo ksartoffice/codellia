@@ -10,7 +10,7 @@ import {
   useState,
 } from '@wordpress/element';
 import { DesignSettingsPanel } from './design-settings';
-import { ElementsSettingsPanel } from './elements-settings';
+import { ElementsSettingsPanel, type ElementsSettingsApi } from './elements-settings';
 
 type SettingsOption = {
   value: string;
@@ -73,6 +73,7 @@ type SettingsConfig = {
   onShortcodeToggle?: (enabled: boolean) => void;
   onLiveHighlightToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
+  elementsApi?: ElementsSettingsApi;
 };
 
 type UpdateResponse = {
@@ -875,6 +876,7 @@ function SettingsSidebar({
   onShortcodeToggle,
   onLiveHighlightToggle,
   onExternalScriptsChange,
+  elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
@@ -1246,7 +1248,7 @@ function SettingsSidebar({
         />
       ) : null}
 
-      {activeTab === 'elements' ? <ElementsSettingsPanel /> : null}
+      {activeTab === 'elements' ? <ElementsSettingsPanel api={elementsApi} /> : null}
 
       {activeTab === 'post' && activeModal === 'status' ? (
         <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />

@@ -5,6 +5,7 @@ import { mountToolbar, type ToolbarApi } from './toolbar';
 import { buildLayout } from './layout';
 import { initMonacoEditors, type MonacoType } from './monaco';
 import { createPreviewController, type PreviewController } from './preview';
+import { getEditableElementText } from './element-text';
 import {
   createTailwindCompiler,
   exportLivecode,
@@ -154,6 +155,18 @@ async function main() {
   let tailwindCompiler: TailwindCompiler | null = null;
   let sendRenderDebounced: (() => void) | null = null;
   let compileTailwindDebounced: (() => void) | null = null;
+  let selectedLcId: string | null = null;
+  const selectionListeners = new Set<(lcId: string | null) => void>();
+
+  const notifySelection = () => {
+    selectionListeners.forEach((listener) => listener(selectedLcId));
+  };
+
+  const subscribeSelection = (listener: (lcId: string | null) => void) => {
+    selectionListeners.add(listener);
+    listener(selectedLcId);
+    return () => selectionListeners.delete(listener);
+  };
 
   const setStatus = (text: string) => {
     if (saveInProgress && text === '') {
@@ -283,6 +296,37 @@ async function main() {
 
   toolbarApi?.update({ statusText: '' });
 
+  const elementsApi = {
+    subscribeSelection,
+    getElementText: (lcId: string) => {
+      const info = getEditableElementText(htmlModel.getValue(), lcId);
+      return info ? info.text : null;
+    },
+    updateElementText: (lcId: string, text: string) => {
+      const html = htmlModel.getValue();
+      const info = getEditableElementText(html, lcId);
+      if (!info) {
+        return false;
+      }
+      if (info.text === text) {
+        return true;
+      }
+      const start = htmlModel.getPositionAt(info.startOffset);
+      const end = htmlModel.getPositionAt(info.endOffset);
+      htmlModel.pushEditOperations(
+        [],
+        [
+          {
+            range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
+            text,
+          },
+        ],
+        () => null
+      );
+      return true;
+    },
+  };
+
   const updateUndoRedoState = () => {
     const model = activeEditor?.getModel();
     const canUndo = Boolean(model && model.canUndo());
@@ -351,6 +395,10 @@ async function main() {
     getJsEnabled: () => jsEnabled,
     getExternalScripts: () => externalScripts,
     isTailwindEnabled: () => tailwindEnabled,
+    onSelect: (lcId) => {
+      selectedLcId = lcId;
+      notifySelection();
+    },
   });
 
   tailwindCompiler = createTailwindCompiler({
@@ -460,6 +508,7 @@ async function main() {
       externalScripts = scripts;
       preview?.sendExternalScripts(jsEnabled ? externalScripts : []);
     },
+    elementsApi,
   });
 
   ui.runButton.addEventListener('click', () => {

@@ -60,6 +60,7 @@ type PreviewControllerDeps = {
   getJsEnabled: () => boolean;
   getExternalScripts: () => string[];
   isTailwindEnabled: () => boolean;
+  onSelect?: (lcId: string) => void;
 };
 
 const LC_ATTR_NAME = 'data-lc-id';
@@ -477,6 +478,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
 
     if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {
+      deps.onSelect?.(data.lcId);
       highlightByLcId(data.lcId);
     }
   };
