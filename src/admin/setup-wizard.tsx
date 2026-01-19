@@ -6,6 +6,7 @@ import {
   useState,
 } from '@wordpress/element';
 import type { SettingsData } from './settings';
+import type { ImportPayload } from './types';
 
 type SetupWizardConfig = {
   container: HTMLElement;
@@ -39,19 +40,6 @@ type SetupResponse = {
   ok?: boolean;
   error?: string;
   tailwindEnabled?: boolean;
-};
-
-type ImportPayload = {
-  version: number;
-  html: string;
-  css: string;
-  tailwind: boolean;
-  generatedCss?: string;
-  js?: string;
-  jsEnabled?: boolean;
-  externalScripts?: string[];
-  shadowDomEnabled?: boolean;
-  shortcodeEnabled?: boolean;
 };
 
 type ImportResponse = {
@@ -102,6 +90,10 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: 'Invalid shortcodeEnabled value.' };
   }
 
+  if (raw.liveHighlightEnabled !== undefined && typeof raw.liveHighlightEnabled !== 'boolean') {
+    return { error: 'Invalid liveHighlightEnabled value.' };
+  }
+
   if (
     raw.externalScripts !== undefined &&
     (!Array.isArray(raw.externalScripts) || raw.externalScripts.some((item: any) => typeof item !== 'string'))
@@ -121,6 +113,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       externalScripts: raw.externalScripts ?? [],
       shadowDomEnabled: raw.shadowDomEnabled ?? false,
       shortcodeEnabled: raw.shortcodeEnabled ?? false,
+      liveHighlightEnabled: raw.liveHighlightEnabled,
     },
   };
 }
