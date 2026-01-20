@@ -356,6 +356,16 @@ async function main() {
   toolbarApi?.update({ statusText: '' });
   markSavedState();
 
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (!hasUnsavedChanges) {
+      return;
+    }
+    event.preventDefault();
+    event.returnValue = '変更が保存されない可能性があります';
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
   const applyHtmlEdit = (startOffset: number, endOffset: number, nextText: string) => {
     suppressSelectionClear += 1;
     const start = htmlModel.getPositionAt(startOffset);
