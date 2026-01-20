@@ -13,6 +13,7 @@ class Post_Type {
 		add_action( 'current_screen', [ __CLASS__, 'maybe_hide_classic_and_block' ] );
 		add_filter( 'use_block_editor_for_post_type', [ __CLASS__, 'disable_block_editor' ], 10, 2 );
 		add_filter( 'redirect_post_location', [ __CLASS__, 'redirect_after_save' ], 10, 2 );
+		add_filter( 'display_post_states', [ __CLASS__, 'add_tailwind_state' ], 10, 2 );
 	}
 
 	public static function activation(): void {
@@ -136,6 +137,19 @@ class Post_Type {
 			return self::get_editor_url( $post_id );
 		}
 		return $location;
+	}
+
+	public static function add_tailwind_state( array $states, \WP_Post $post ): array {
+		if ( $post->post_type !== self::POST_TYPE ) {
+			return $states;
+		}
+
+		$is_tailwind = get_post_meta( $post->ID, '_lc_tailwind', true ) === '1';
+		if ( $is_tailwind ) {
+			$states['livecode_tailwind'] = 'TailwindCSS';
+		}
+
+		return $states;
 	}
 
 	private static function maybe_create_draft(): int {
