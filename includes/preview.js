@@ -233,25 +233,26 @@
     button.setAttribute('aria-label', 'Open element settings');
     Object.assign(button.style, {
       position: 'fixed',
-      width: '28px',
-      height: '28px',
+      width: '32px',
+      height: '32px',
       borderRadius: '999px',
       background: '#a855f7',
       color: '#fff',
       border: 'none',
-      padding: '0',
+      padding: '7px',
       margin: '0',
+      boxSizing: 'border-box',
       display: 'none',
       alignItems: 'center',
       justifyContent: 'center',
-      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.18)',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.25)',
       cursor: 'pointer',
       pointerEvents: 'auto',
       zIndex: 2147483647,
       transition: 'transform 80ms ease-out, opacity 80ms ease-out',
     });
     button.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen-icon lucide-pen"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>';
+      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>';
     button.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -275,12 +276,13 @@
     }
     const rect = selectTarget.getBoundingClientRect();
     const button = ensureSelectActionButton();
-    const size = 28;
+    const size = 32;
+    const gap = 6;
     const padding = 6;
     const maxTop = window.innerHeight - size - padding;
     const maxLeft = window.innerWidth - size - padding;
-    let top = rect.top + padding;
-    let left = rect.right - size - padding;
+    let top = rect.top - size - gap;
+    let left = rect.right - size + gap;
     top = Math.max(padding, Math.min(top, maxTop));
     left = Math.max(padding, Math.min(left, maxLeft));
     button.style.top = top + 'px';
