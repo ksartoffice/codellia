@@ -102,6 +102,16 @@ body.admin_page_wp-livecode #wpbody-content {
   height: 18px;
 }
 
+.lc-btnIcon-wordpress {
+  width: 24px;
+  height: 24px;
+}
+
+.lc-btnIcon-wordpress svg {
+  width: 24px;
+  height: 24px;
+}
+
 .lc-btnLabel {
   font-size: 11px;
   line-height: 1.1;
