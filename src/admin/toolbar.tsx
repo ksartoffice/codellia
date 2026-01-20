@@ -13,6 +13,7 @@ type ToolbarState = {
   settingsOpen: boolean;
   tailwindEnabled: boolean;
   statusText: string;
+  hasUnsavedChanges: boolean;
 };
 
 type ToolbarHandlers = {
@@ -59,6 +60,7 @@ function Toolbar({
   settingsOpen,
   tailwindEnabled,
   statusText,
+  hasUnsavedChanges,
   onUndo,
   onRedo,
   onToggleEditor,
@@ -68,6 +70,8 @@ function Toolbar({
 }: ToolbarState & ToolbarHandlers) {
   const toggleLabel = editorCollapsed ? 'Show' : 'Hide';
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
+  const showUnsaved = statusText === '' && hasUnsavedChanges;
+  const statusLabel = statusText || (showUnsaved ? '未保存の変更があります' : '');
   return (
     <Fragment>
       <div className="lc-toolbarGroup lc-toolbarLeft">
@@ -97,7 +101,7 @@ function Toolbar({
         </button>
       </div>
       <div className="lc-toolbarGroup lc-toolbarCenter">
-        <span className="lc-status">{statusText}</span>
+        <span className={`lc-status${showUnsaved ? ' is-unsaved' : ''}`}>{statusLabel}</span>
       </div>
       <div className="lc-toolbarGroup lc-toolbarRight">
         {tailwindEnabled ? (
@@ -109,7 +113,12 @@ function Toolbar({
             dangerouslySetInnerHTML={{ __html: TAILWIND_ICON }}
           />
         ) : null}
-        <button className="lc-btn lc-btn-primary lc-btn-stack" type="button" onClick={onSave} title="Save">
+        <button
+          className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+          type="button"
+          onClick={onSave}
+          title="Save"
+        >
           <IconLabel label="Save" svg={ICONS.save} />
         </button>
         <button className="lc-btn lc-btn-stack" type="button" onClick={onExport} title="Export">

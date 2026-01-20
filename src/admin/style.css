@@ -147,6 +147,16 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #3b7cff;
 }
 
+.lc-btn-save.is-unsaved {
+  background: #2f6feb;
+  border-color: #2f6feb;
+  color: #fff;
+}
+
+.lc-btn-save.is-unsaved:hover {
+  background: #3b7cff;
+}
+
 .lc-btn-muted {
   background: #2a303b;
   border-color: #39414f;
@@ -175,6 +185,11 @@ body.admin_page_wp-livecode #wpbody-content {
 .lc-status {
   color: #9aa1ab;
   font-size: 12px;
+}
+
+.lc-status.is-unsaved {
+  font-size: 11px;
+  color: #8fa2c2;
 }
 
 .lc-tailwindBadge {
@@ -318,6 +333,16 @@ body.admin_page_wp-livecode #wpbody-content {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #a7adb8;
+}
+
+.lc-editorHeader.has-unsaved::after,
+.lc-editorTab.has-unsaved::after {
+  content: '●';
+  margin-left: 6px;
+  margin-bottom: 2px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
 }
 
 .lc-editorHeader-tabs {
