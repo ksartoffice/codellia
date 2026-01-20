@@ -1109,6 +1109,17 @@ body.admin_page_wp-livecode #wpbody-content {
   color: #ffb4b4;
 }
 
+/* Prevent WP core button styles from leaking into Monaco UI */
+.wp-core-ui .lc-app .monaco-editor .button,
+.wp-core-ui .lc-app .monaco-editor .button-secondary {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  box-shadow: none;
+  text-shadow: none;
+  vertical-align: baseline;
+}
+
 /* Monaco highlight (DOM selector -> editor) */
 .monaco-editor .lc-highlight-inline {
   background: rgba(37, 99, 235, 0.28);
