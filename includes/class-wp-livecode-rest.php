@@ -1,108 +1,155 @@
 <?php
+/**
+ * REST API route registration for WP LiveCode.
+ *
+ * @package WP_LiveCode
+ */
+
 namespace WPLiveCode;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * Registers REST endpoints for LiveCode.
+ */
 class Rest {
+	/**
+	 * Register REST route hooks.
+	 */
 	public static function init(): void {
-		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 	}
 
+	/**
+	 * Register REST routes for LiveCode.
+	 */
 	public static function register_routes(): void {
-		register_rest_route( 'wp-livecode/v1', '/save', [
-			'methods'             => 'POST',
-			'callback'            => [ Rest_Save::class, 'save' ],
-			'permission_callback' => [ __CLASS__, 'permission_check' ],
-		] );
+		register_rest_route(
+			'wp-livecode/v1',
+			'/save',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( Rest_Save::class, 'save' ),
+				'permission_callback' => array( __CLASS__, 'permission_check' ),
+			)
+		);
 
-		register_rest_route( 'wp-livecode/v1', '/render-shortcodes', [
-			'methods'             => 'POST',
-			'callback'            => [ Rest_Preview::class, 'render_shortcodes' ],
-			'permission_callback' => [ __CLASS__, 'permission_check' ],
-			'args'                => [
-				'postId'     => [
-					'type'     => 'integer',
-					'required' => true,
-				],
-				'shortcodes' => [
-					'type'     => 'array',
-					'required' => true,
-				],
-			],
-		] );
+		register_rest_route(
+			'wp-livecode/v1',
+			'/render-shortcodes',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( Rest_Preview::class, 'render_shortcodes' ),
+				'permission_callback' => array( __CLASS__, 'permission_check' ),
+				'args'                => array(
+					'postId'     => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'shortcodes' => array(
+						'type'     => 'array',
+						'required' => true,
+					),
+				),
+			)
+		);
 
-		register_rest_route( 'wp-livecode/v1', '/compile-tailwind', [
-			'methods'             => 'POST',
-			'callback'            => [ Rest_Save::class, 'compile_tailwind' ],
-			'permission_callback' => [ __CLASS__, 'permission_check' ],
-			'args'                => [
-				'postId' => [
-					'type'     => 'integer',
-					'required' => true,
-				],
-				'html'   => [
-					'type'     => 'string',
-					'required' => true,
-				],
-				'css'    => [
-					'type'     => 'string',
-					'required' => false,
-				],
-			],
-		] );
+		register_rest_route(
+			'wp-livecode/v1',
+			'/compile-tailwind',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( Rest_Save::class, 'compile_tailwind' ),
+				'permission_callback' => array( __CLASS__, 'permission_check' ),
+				'args'                => array(
+					'postId' => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'html'   => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'css'    => array(
+						'type'     => 'string',
+						'required' => false,
+					),
+				),
+			)
+		);
 
-		register_rest_route( 'wp-livecode/v1', '/setup', [
-			'methods'             => 'POST',
-			'callback'            => [ Rest_Setup::class, 'setup_mode' ],
-			'permission_callback' => [ __CLASS__, 'permission_check' ],
-			'args'                => [
-				'postId' => [
-					'type'     => 'integer',
-					'required' => true,
-				],
-				'mode'   => [
-					'type'     => 'string',
-					'required' => true,
-				],
-			],
-		] );
+		register_rest_route(
+			'wp-livecode/v1',
+			'/setup',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( Rest_Setup::class, 'setup_mode' ),
+				'permission_callback' => array( __CLASS__, 'permission_check' ),
+				'args'                => array(
+					'postId' => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'mode'   => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
 
-		register_rest_route( 'wp-livecode/v1', '/import', [
-			'methods'             => 'POST',
-			'callback'            => [ Rest_Import::class, 'import_payload' ],
-			'permission_callback' => [ __CLASS__, 'permission_check' ],
-			'args'                => [
-				'postId'  => [
-					'type'     => 'integer',
-					'required' => true,
-				],
-				'payload' => [
-					'type'     => 'object',
-					'required' => true,
-				],
-			],
-		] );
+		register_rest_route(
+			'wp-livecode/v1',
+			'/import',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( Rest_Import::class, 'import_payload' ),
+				'permission_callback' => array( __CLASS__, 'permission_check' ),
+				'args'                => array(
+					'postId'  => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'payload' => array(
+						'type'     => 'object',
+						'required' => true,
+					),
+				),
+			)
+		);
 
-		register_rest_route( 'wp-livecode/v1', '/settings', [
-			'methods'             => 'POST',
-			'callback'            => [ Rest_Settings::class, 'update_settings' ],
-			'permission_callback' => [ __CLASS__, 'permission_check' ],
-			'args'                => [
-				'postId' => [
-					'type'     => 'integer',
-					'required' => true,
-				],
-				'updates' => [
-					'type'     => 'object',
-					'required' => true,
-				],
-			],
-		] );
+		register_rest_route(
+			'wp-livecode/v1',
+			'/settings',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( Rest_Settings::class, 'update_settings' ),
+				'permission_callback' => array( __CLASS__, 'permission_check' ),
+				'args'                => array(
+					'postId'  => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'updates' => array(
+						'type'     => 'object',
+						'required' => true,
+					),
+				),
+			)
+		);
 	}
 
+	/**
+	 * Permission check for LiveCode REST routes.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return bool
+	 */
 	public static function permission_check( \WP_REST_Request $request ): bool {
 		$post_id = absint( $request->get_param( 'postId' ) );
-		if ( $post_id <= 0 ) {
+		if ( 0 >= $post_id ) {
 			return false;
 		}
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
@@ -111,6 +158,12 @@ class Rest {
 		return current_user_can( 'edit_post', $post_id );
 	}
 
+	/**
+	 * Build settings payload for the admin app.
+	 *
+	 * @param int $post_id LiveCode post ID.
+	 * @return array
+	 */
 	public static function build_settings_payload( int $post_id ): array {
 		return Rest_Settings::build_settings_payload( $post_id );
 	}

@@ -3,6 +3,7 @@
   <description>WordPress Coding Standards for WP LiveCode.</description>
 
   <config name="testVersion" value="8.2-"/>
+  <arg name="extensions" value="php"/>
 
   <file>wp-livecode.php</file>
   <file>includes</file>
@@ -16,4 +17,9 @@
   <rule ref="WordPress-Docs"/>
   <rule ref="WordPress-Extra"/>
   <rule ref="PHPCompatibilityWP"/>
+  <rule ref="WordPress.Files.FileName">
+    <properties>
+      <property name="strict_class_file_names" value="false"/>
+    </properties>
+  </rule>
 </ruleset>

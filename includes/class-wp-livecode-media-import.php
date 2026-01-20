@@ -1,18 +1,38 @@
 <?php
+/**
+ * External media import utilities.
+ *
+ * @package WP_LiveCode
+ */
+
 namespace WPLiveCode;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * Handles importing external images into the media library.
+ */
 class Media_Import {
 	private const SOURCE_URL_META_KEY = '_lc_source_url';
 
+	/**
+	 * Import external images referenced in HTML and rewrite URLs.
+	 *
+	 * @param string $html     HTML to scan.
+	 * @param int    $post_id  LiveCode post ID.
+	 * @param array  $warnings Output warnings.
+	 * @param array  $imported Output imported image data.
+	 * @return string
+	 */
 	public static function localize_external_images(
 		string $html,
 		int $post_id,
-		array &$warnings = [],
-		array &$imported = []
+		array &$warnings = array(),
+		array &$imported = array()
 	): string {
-		if ( $html === '' ) {
+		if ( '' === $html ) {
 			return $html;
 		}
 
@@ -24,6 +44,15 @@ class Media_Import {
 		return $html;
 	}
 
+	/**
+	 * Localize images using WP_HTML_Tag_Processor.
+	 *
+	 * @param string $html     HTML to scan.
+	 * @param int    $post_id  LiveCode post ID.
+	 * @param array  $warnings Output warnings.
+	 * @param array  $imported Output imported image data.
+	 * @return string
+	 */
 	private static function localize_with_tag_processor(
 		string $html,
 		int $post_id,
@@ -32,11 +61,11 @@ class Media_Import {
 	): string {
 		$processor = new \WP_HTML_Tag_Processor( $html );
 		$site_host = self::get_site_host();
-		$cache = [];
+		$cache     = array();
 
 		while ( $processor->next_tag( 'img' ) ) {
-			$src = $processor->get_attribute( 'src' );
-			$srcset = $processor->get_attribute( 'srcset' );
+			$src        = $processor->get_attribute( 'src' );
+			$srcset     = $processor->get_attribute( 'srcset' );
 			$source_url = self::pick_external_source_url( $src, $srcset, $site_host );
 			if ( ! $source_url ) {
 				continue;
@@ -48,7 +77,7 @@ class Media_Import {
 			}
 
 			$processor->set_attribute( 'src', $result['url'] );
-			if ( $result['srcset'] !== '' ) {
+			if ( '' !== $result['srcset'] ) {
 				$processor->set_attribute( 'srcset', $result['srcset'] );
 			} else {
 				$processor->remove_attribute( 'srcset' );
@@ -58,6 +87,16 @@ class Media_Import {
 		return $processor->get_updated_html();
 	}
 
+	/**
+	 * Download an external image and attach it to the post.
+	 *
+	 * @param string $source_url Source image URL.
+	 * @param int    $post_id    LiveCode post ID.
+	 * @param array  $cache      Cached URL-to-attachment map.
+	 * @param array  $warnings   Output warnings.
+	 * @param array  $imported   Output imported image data.
+	 * @return array|null
+	 */
 	private static function import_external_image(
 		string $source_url,
 		int $post_id,
@@ -66,7 +105,7 @@ class Media_Import {
 		array &$imported
 	): ?array {
 		$normalized = self::normalize_url( $source_url );
-		if ( $normalized === '' ) {
+		if ( '' === $normalized ) {
 			$warnings[] = 'Skipped invalid image URL.';
 			return null;
 		}
@@ -77,7 +116,7 @@ class Media_Import {
 		}
 
 		if ( ! current_user_can( 'upload_files' ) ) {
-			$warnings[] = sprintf( 'Skipping image import (missing upload_files): %s', $normalized );
+			$warnings[]           = sprintf( 'Skipping image import (missing upload_files): %s', $normalized );
 			$cache[ $normalized ] = 0;
 			return null;
 		}
@@ -91,7 +130,7 @@ class Media_Import {
 		self::ensure_media_dependencies();
 		$temp_file = download_url( $normalized, 30 );
 		if ( is_wp_error( $temp_file ) ) {
-			$warnings[] = sprintf(
+			$warnings[]           = sprintf(
 				'Failed to download image: %s (%s)',
 				$normalized,
 				$temp_file->get_error_message()
@@ -103,15 +142,15 @@ class Media_Import {
 		$filename = self::build_filename_from_url( $normalized );
 		$filename = self::ensure_filename_extension( $filename, $temp_file, $normalized, $warnings );
 
-		$file_array = [
+		$file_array = array(
 			'name'     => $filename,
 			'tmp_name' => $temp_file,
-		];
+		);
 
 		$attachment_id = media_handle_sideload( $file_array, $post_id );
 		if ( is_wp_error( $attachment_id ) ) {
-			@unlink( $temp_file );
-			$warnings[] = sprintf(
+			wp_delete_file( $temp_file );
+			$warnings[]           = sprintf(
 				'Failed to sideload image: %s (%s)',
 				$normalized,
 				$attachment_id->get_error_message()
@@ -126,6 +165,14 @@ class Media_Import {
 		return self::build_image_payload( (int) $attachment_id, $normalized, $imported );
 	}
 
+	/**
+	 * Build response payload for an imported attachment.
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $source_url    Original source URL.
+	 * @param array  $imported      Output imported image data.
+	 * @return array|null
+	 */
 	private static function build_image_payload(
 		int $attachment_id,
 		string $source_url,
@@ -141,28 +188,36 @@ class Media_Import {
 			$srcset = '';
 		}
 
-		$imported[] = [
+		$imported[] = array(
 			'sourceUrl'     => $source_url,
 			'attachmentId'  => $attachment_id,
 			'attachmentUrl' => $attachment_url,
-		];
+		);
 
-		return [
+		return array(
 			'id'     => $attachment_id,
 			'url'    => $attachment_url,
 			'srcset' => $srcset,
-		];
+		);
 	}
 
+	/**
+	 * Find an attachment by the stored source URL.
+	 *
+	 * @param string $source_url Original source URL.
+	 * @return int|null
+	 */
 	private static function find_attachment_by_source_url( string $source_url ): ?int {
-		$matches = get_posts( [
-			'post_type'      => 'attachment',
-			'post_status'    => 'inherit',
-			'fields'         => 'ids',
-			'posts_per_page' => 1,
-			'meta_key'       => self::SOURCE_URL_META_KEY,
-			'meta_value'     => $source_url,
-		] );
+		$matches = get_posts(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'fields'         => 'ids',
+				'posts_per_page' => 1,
+				'meta_key'       => self::SOURCE_URL_META_KEY,
+				'meta_value'     => $source_url,
+			)
+		);
 
 		if ( empty( $matches ) ) {
 			return null;
@@ -171,19 +226,27 @@ class Media_Import {
 		return (int) $matches[0];
 	}
 
+	/**
+	 * Pick the best external source URL from img src/srcset.
+	 *
+	 * @param string|null $src       src attribute.
+	 * @param string|null $srcset    srcset attribute.
+	 * @param string      $site_host Current site host.
+	 * @return string|null
+	 */
 	private static function pick_external_source_url(
 		?string $src,
 		?string $srcset,
 		string $site_host
 	): ?string {
-		$src = is_string( $src ) ? $src : '';
+		$src    = is_string( $src ) ? $src : '';
 		$srcset = is_string( $srcset ) ? $srcset : '';
 
-		if ( $src !== '' && self::is_external_url( $src, $site_host ) ) {
+		if ( '' !== $src && self::is_external_url( $src, $site_host ) ) {
 			return $src;
 		}
 
-		if ( $srcset === '' ) {
+		if ( '' === $srcset ) {
 			return null;
 		}
 
@@ -195,16 +258,23 @@ class Media_Import {
 		return null;
 	}
 
+	/**
+	 * Pick a candidate URL from srcset for external import.
+	 *
+	 * @param string $srcset    srcset attribute.
+	 * @param string $site_host Current site host.
+	 * @return string|null
+	 */
 	private static function pick_srcset_candidate( string $srcset, string $site_host ): ?string {
-		$best_width_url = null;
-		$best_width = 0;
+		$best_width_url   = null;
+		$best_width       = 0;
 		$best_density_url = null;
-		$best_density = 0.0;
-		$fallback = null;
+		$best_density     = 0.0;
+		$fallback         = null;
 
 		foreach ( explode( ',', $srcset ) as $item ) {
 			$item = trim( $item );
-			if ( $item === '' ) {
+			if ( '' === $item ) {
 				continue;
 			}
 
@@ -218,7 +288,7 @@ class Media_Import {
 				continue;
 			}
 
-			if ( $fallback === null ) {
+			if ( null === $fallback ) {
 				$fallback = $url;
 			}
 
@@ -226,7 +296,7 @@ class Media_Import {
 			if ( preg_match( '/^(\d+)w$/', $descriptor, $match ) ) {
 				$width = (int) $match[1];
 				if ( $width > $best_width ) {
-					$best_width = $width;
+					$best_width     = $width;
 					$best_width_url = $url;
 				}
 				continue;
@@ -235,7 +305,7 @@ class Media_Import {
 			if ( preg_match( '/^(\d+(?:\.\d+)?)x$/', $descriptor, $match ) ) {
 				$density = (float) $match[1];
 				if ( $density > $best_density ) {
-					$best_density = $density;
+					$best_density     = $density;
 					$best_density_url = $url;
 				}
 			}
@@ -252,9 +322,16 @@ class Media_Import {
 		return $fallback;
 	}
 
+	/**
+	 * Determine if a URL points to an external host.
+	 *
+	 * @param string $url       URL to check.
+	 * @param string $site_host Current site host.
+	 * @return bool
+	 */
 	private static function is_external_url( string $url, string $site_host ): bool {
 		$normalized = self::normalize_url( $url );
-		if ( $normalized === '' ) {
+		if ( '' === $normalized ) {
 			return false;
 		}
 
@@ -268,26 +345,37 @@ class Media_Import {
 		}
 
 		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
-		if ( $scheme !== 'http' && $scheme !== 'https' ) {
+		if ( 'http' !== $scheme && 'https' !== $scheme ) {
 			return false;
 		}
 
 		return strtolower( $parts['host'] ) !== $site_host;
 	}
 
+	/**
+	 * Normalize a URL for comparison.
+	 *
+	 * @param string $url URL to normalize.
+	 * @return string
+	 */
 	private static function normalize_url( string $url ): string {
 		$url = trim( html_entity_decode( $url, ENT_QUOTES, 'UTF-8' ) );
-		if ( $url === '' ) {
+		if ( '' === $url ) {
 			return '';
 		}
 
-		if ( strpos( $url, '//' ) === 0 ) {
+		if ( 0 === strpos( $url, '//' ) ) {
 			$url = 'https:' . $url;
 		}
 
 		return esc_url_raw( $url );
 	}
 
+	/**
+	 * Return the current site host name.
+	 *
+	 * @return string
+	 */
 	private static function get_site_host(): string {
 		$parts = wp_parse_url( home_url() );
 		if ( ! is_array( $parts ) || empty( $parts['host'] ) ) {
@@ -297,18 +385,33 @@ class Media_Import {
 		return strtolower( $parts['host'] );
 	}
 
+	/**
+	 * Build a filename from a URL path.
+	 *
+	 * @param string $url Source URL.
+	 * @return string
+	 */
 	private static function build_filename_from_url( string $url ): string {
-		$path = wp_parse_url( $url, PHP_URL_PATH );
+		$path     = wp_parse_url( $url, PHP_URL_PATH );
 		$filename = $path ? wp_basename( $path ) : '';
 		$filename = sanitize_file_name( $filename );
 
-		if ( $filename === '' ) {
+		if ( '' === $filename ) {
 			$filename = 'imported-image';
 		}
 
 		return $filename;
 	}
 
+	/**
+	 * Ensure the filename has a valid image extension.
+	 *
+	 * @param string $filename   Base filename.
+	 * @param string $file       Temporary file path.
+	 * @param string $source_url Original source URL.
+	 * @param array  $warnings   Output warnings.
+	 * @return string
+	 */
 	private static function ensure_filename_extension(
 		string $filename,
 		string $file,
@@ -334,6 +437,9 @@ class Media_Import {
 		return $filename . '.' . $ext;
 	}
 
+	/**
+	 * Load media handling dependencies.
+	 */
 	private static function ensure_media_dependencies(): void {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';

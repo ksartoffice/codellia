@@ -1,32 +1,55 @@
 <?php
+/**
+ * Custom post type registration for LiveCode.
+ *
+ * @package WP_LiveCode
+ */
+
 namespace WPLiveCode;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * Registers and manages the LiveCode custom post type.
+ */
 class Post_Type {
 	const POST_TYPE = 'wp_livecode';
-	const SLUG = 'wp-livecode';
+	const SLUG      = 'wp-livecode';
 
+	/**
+	 * Register hooks for the post type.
+	 */
 	public static function init(): void {
-		add_action( 'init', [ __CLASS__, 'register' ] );
-		add_action( 'admin_init', [ __CLASS__, 'maybe_redirect_to_editor' ] );
-		add_action( 'current_screen', [ __CLASS__, 'maybe_hide_classic_and_block' ] );
-		add_filter( 'use_block_editor_for_post_type', [ __CLASS__, 'disable_block_editor' ], 10, 2 );
-		add_filter( 'redirect_post_location', [ __CLASS__, 'redirect_after_save' ], 10, 2 );
-		add_filter( 'display_post_states', [ __CLASS__, 'add_tailwind_state' ], 10, 2 );
+		add_action( 'init', array( __CLASS__, 'register' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_to_editor' ) );
+		add_action( 'current_screen', array( __CLASS__, 'maybe_hide_classic_and_block' ) );
+		add_filter( 'use_block_editor_for_post_type', array( __CLASS__, 'disable_block_editor' ), 10, 2 );
+		add_filter( 'redirect_post_location', array( __CLASS__, 'redirect_after_save' ), 10, 2 );
+		add_filter( 'display_post_states', array( __CLASS__, 'add_tailwind_state' ), 10, 2 );
 	}
 
+	/**
+	 * Activation handler.
+	 */
 	public static function activation(): void {
 		self::register();
 		flush_rewrite_rules();
 	}
 
+	/**
+	 * Deactivation handler.
+	 */
 	public static function deactivation(): void {
 		flush_rewrite_rules();
 	}
 
+	/**
+	 * Register the custom post type.
+	 */
 	public static function register(): void {
-		$labels = [
+		$labels = array(
 			'name'               => 'LiveCode',
 			'singular_name'      => 'LiveCode',
 			'add_new'            => 'Add New',
@@ -40,9 +63,9 @@ class Post_Type {
 			'not_found_in_trash' => 'No LiveCode found in Trash',
 			'all_items'          => 'LiveCode',
 			'archives'           => 'LiveCode Archives',
-		];
+		);
 
-		$args = [
+		$args = array(
 			'label'               => 'LiveCode',
 			'labels'              => $labels,
 			'public'              => true,
@@ -53,28 +76,43 @@ class Post_Type {
 			'show_in_nav_menus'   => true,
 			'show_in_admin_bar'   => true,
 			'has_archive'         => true,
-			'rewrite'             => [ 'slug' => self::SLUG, 'with_front' => false ],
-			'supports'            => [ 'title', 'author', 'thumbnail' ],
-			'taxonomies'          => [ 'category', 'post_tag' ],
+			'rewrite'             => array(
+				'slug'       => self::SLUG,
+				'with_front' => false,
+			),
+			'supports'            => array( 'title', 'author', 'thumbnail' ),
+			'taxonomies'          => array( 'category', 'post_tag' ),
 			'show_in_rest'        => false,
 			'menu_position'       => 21,
 			'menu_icon'           => 'dashicons-editor-code',
-		];
+		);
 
 		register_post_type( self::POST_TYPE, $args );
 	}
 
+	/**
+	 * Check whether a post is a LiveCode post.
+	 *
+	 * @param int|\WP_Post $post Post ID or object.
+	 * @return bool
+	 */
 	public static function is_livecode_post( $post ): bool {
 		$post = get_post( $post );
-		return $post && $post->post_type === self::POST_TYPE;
+		return $post && self::POST_TYPE === $post->post_type;
 	}
 
+	/**
+	 * Build the editor URL for a LiveCode post.
+	 *
+	 * @param int $post_id LiveCode post ID.
+	 * @return string
+	 */
 	public static function get_editor_url( int $post_id ): string {
 		return add_query_arg(
-			[
+			array(
 				'page'    => Admin::MENU_SLUG,
 				'post_id' => $post_id,
-			],
+			),
 			admin_url( 'admin.php' )
 		);
 	}
@@ -85,17 +123,17 @@ class Post_Type {
 	public static function maybe_redirect_to_editor(): void {
 		global $pagenow;
 
-		if ( ! in_array( $pagenow, [ 'post-new.php', 'post.php' ], true ) ) {
+		if ( ! in_array( $pagenow, array( 'post-new.php', 'post.php' ), true ) ) {
 			return;
 		}
 
-		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : '';
-		$post_id   = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
-		$action    = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : '';
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_id   = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action    = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// New post for our CPT.
-		if ( $pagenow === 'post-new.php' ) {
-			if ( $post_type === self::POST_TYPE ) {
+		if ( 'post-new.php' === $pagenow ) {
+			if ( self::POST_TYPE === $post_type ) {
 				$post_id = self::maybe_create_draft();
 				if ( $post_id ) {
 					wp_safe_redirect( self::get_editor_url( $post_id ) );
@@ -105,7 +143,7 @@ class Post_Type {
 			return;
 		}
 
-		if ( $action && $action !== 'edit' ) {
+		if ( $action && 'edit' !== $action ) {
 			return;
 		}
 
@@ -117,21 +155,37 @@ class Post_Type {
 
 	/**
 	 * Ensure the default editors stay disabled for the CPT.
+	 *
+	 * @param \WP_Screen $screen Current screen.
 	 */
 	public static function maybe_hide_classic_and_block( $screen ): void {
-		if ( ! $screen || $screen->post_type !== self::POST_TYPE ) {
+		if ( ! $screen || self::POST_TYPE !== $screen->post_type ) {
 			return;
 		}
 		remove_meta_box( 'submitdiv', self::POST_TYPE, 'side' );
 	}
 
+	/**
+	 * Disable the block editor for LiveCode posts.
+	 *
+	 * @param bool   $use_block Whether to use the block editor.
+	 * @param string $post_type Current post type.
+	 * @return bool
+	 */
 	public static function disable_block_editor( bool $use_block, string $post_type ): bool {
-		if ( $post_type === self::POST_TYPE ) {
+		if ( self::POST_TYPE === $post_type ) {
 			return false;
 		}
 		return $use_block;
 	}
 
+	/**
+	 * Redirect after saving LiveCode posts.
+	 *
+	 * @param string $location Redirect location.
+	 * @param int    $post_id  Post ID.
+	 * @return string
+	 */
 	public static function redirect_after_save( $location, $post_id ) {
 		if ( self::is_livecode_post( $post_id ) ) {
 			return self::get_editor_url( $post_id );
@@ -139,12 +193,19 @@ class Post_Type {
 		return $location;
 	}
 
+	/**
+	 * Add TailwindCSS label in the post list.
+	 *
+	 * @param array    $states Post states.
+	 * @param \WP_Post $post Post object.
+	 * @return array
+	 */
 	public static function add_tailwind_state( array $states, \WP_Post $post ): array {
-		if ( $post->post_type !== self::POST_TYPE ) {
+		if ( self::POST_TYPE !== $post->post_type ) {
 			return $states;
 		}
 
-		$is_tailwind = get_post_meta( $post->ID, '_lc_tailwind', true ) === '1';
+		$is_tailwind = '1' === get_post_meta( $post->ID, '_lc_tailwind', true );
 		if ( $is_tailwind ) {
 			$states['livecode_tailwind'] = 'TailwindCSS';
 		}
@@ -152,12 +213,20 @@ class Post_Type {
 		return $states;
 	}
 
+	/**
+	 * Create a draft LiveCode post when creating a new item.
+	 *
+	 * @return int
+	 */
 	private static function maybe_create_draft(): int {
-		$post_id = wp_insert_post( [
-			'post_type'   => self::POST_TYPE,
-			'post_status' => 'draft',
-			'post_title'  => 'Untitled LiveCode',
-		], true );
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => self::POST_TYPE,
+				'post_status' => 'draft',
+				'post_title'  => 'Untitled LiveCode',
+			),
+			true
+		);
 
 		if ( is_wp_error( $post_id ) ) {
 			return 0;
@@ -168,4 +237,3 @@ class Post_Type {
 		return (int) $post_id;
 	}
 }
-

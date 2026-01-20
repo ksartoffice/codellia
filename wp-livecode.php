@@ -12,6 +12,8 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wp-livecode
  * Domain Path: /languages
+ *
+ * @package WP_LiveCode
  */
 
 // Exit if accessed directly.
@@ -43,22 +45,25 @@ require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-rest.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-preview.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-frontend.php';
 
-add_action( 'plugins_loaded', function () {
-	// Custom post type used exclusively by WP LiveCode.
-	\WPLiveCode\Post_Type::init();
+add_action(
+	'plugins_loaded',
+	function () {
+		// Custom post type used exclusively by WP LiveCode.
+		\WPLiveCode\Post_Type::init();
 
-	// Admin UI.
-	\WPLiveCode\Admin::init();
+		// Admin UI.
+		\WPLiveCode\Admin::init();
 
-	// REST endpoints.
-	\WPLiveCode\Rest::init();
+		// REST endpoints.
+		\WPLiveCode\Rest::init();
 
-	// Preview mode for iframe.
-	\WPLiveCode\Preview::init();
+		// Preview mode for iframe.
+		\WPLiveCode\Preview::init();
 
-	// Frontend rendering (public view).
-	\WPLiveCode\Frontend::init();
-} );
+		// Frontend rendering (public view).
+		\WPLiveCode\Frontend::init();
+	}
+);
 
 /**
  * Load plugin textdomain.
@@ -67,7 +72,7 @@ function wp_livecode_load_textdomain() {
 	load_plugin_textdomain(
 		'wp-livecode',
 		false,
-		basename( dirname( __FILE__ ) ) . '/languages'
+		basename( __DIR__ ) . '/languages'
 	);
 }
 add_action( 'plugins_loaded', 'wp_livecode_load_textdomain' );
