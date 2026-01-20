@@ -1,11 +1,13 @@
 <?php
 /**
  * Plugin Name: WP LiveCode
- * Plugin URI: https://example.com
- * Description: A minimal WordPress plugin template
+ * Plugin URI: https://wordpress.org/plugins/wp-livecode/
+ * Description: Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview.
  * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://example.com
+ * Requires at least: 6.0
+ * Tested up to: 6.6
+ * Requires PHP: 8.2
+ * Author: WP LiveCode
  * License: GPL-2.0+
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wp-livecode

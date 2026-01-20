@@ -1,0 +1,17 @@
+/.git
+/.gitignore
+/AGENTS.md
+/node_modules
+/src
+/tests
+/overview.md
+/tailwindphp.md
+/.vscode
+/.idea
+/package.json
+/package-lock.json
+/tsconfig.json
+/vite.config.ts
+/composer.json
+/composer.lock
+/assets/dist/*.map
