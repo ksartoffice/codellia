@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Rest_Import {
 	private const MAX_EXTERNAL_SCRIPTS = 5;
+	private const MAX_EXTERNAL_STYLES = 5;
 
 	public static function import_payload( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'postId' ) );
@@ -151,6 +152,29 @@ class Rest_Import {
 			}
 		}
 
+		$external_styles = [];
+		if ( array_key_exists( 'externalStyles', $payload ) ) {
+			if ( ! is_array( $payload['externalStyles'] ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Invalid externalStyles value.',
+				], 400 );
+			}
+
+			$error = null;
+			$external_styles = External_Styles::validate_list(
+				array_values( $payload['externalStyles'] ),
+				self::MAX_EXTERNAL_STYLES,
+				$error
+			);
+			if ( null === $external_styles ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => $error ?: 'Invalid externalStyles value.',
+				], 400 );
+			}
+		}
+
 		$html    = $payload['html'];
 		$css_input = $payload['css'];
 		$tailwind_enabled = $payload['tailwind'];
@@ -211,6 +235,16 @@ class Rest_Import {
 				$post_id,
 				'_lc_external_scripts',
 				wp_json_encode( $external_scripts, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+			);
+		}
+
+		if ( empty( $external_styles ) ) {
+			delete_post_meta( $post_id, '_lc_external_styles' );
+		} else {
+			update_post_meta(
+				$post_id,
+				'_lc_external_styles',
+				wp_json_encode( $external_styles, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 			);
 		}
 

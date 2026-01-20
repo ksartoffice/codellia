@@ -121,6 +121,7 @@ async function main() {
         ...cfg.settingsData,
         jsEnabled: payload.jsEnabled ?? false,
         externalScripts: payload.externalScripts ?? [],
+        externalStyles: payload.externalStyles ?? [],
         shadowDomEnabled: payload.shadowDomEnabled ?? false,
         shortcodeEnabled: payload.shortcodeEnabled ?? cfg.settingsData.shortcodeEnabled ?? false,
         liveHighlightEnabled:
@@ -146,6 +147,9 @@ async function main() {
   let liveHighlightEnabled = cfg.settingsData?.liveHighlightEnabled ?? true;
   let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
     ? [...cfg.settingsData.externalScripts]
+    : [];
+  let externalStyles = Array.isArray(cfg.settingsData?.externalStyles)
+    ? [...cfg.settingsData.externalStyles]
     : [];
   let activeCssTab: 'css' | 'js' = 'css';
   let editorsReady = false;
@@ -211,6 +215,7 @@ async function main() {
       js: jsModel.getValue(),
       jsEnabled,
       externalScripts,
+      externalStyles,
       shadowDomEnabled,
       shortcodeEnabled,
       liveHighlightEnabled,
@@ -460,6 +465,7 @@ async function main() {
     getLiveHighlightEnabled: () => liveHighlightEnabled,
     getJsEnabled: () => jsEnabled,
     getExternalScripts: () => externalScripts,
+    getExternalStyles: () => externalStyles,
     isTailwindEnabled: () => tailwindEnabled,
     onSelect: (lcId) => {
       selectedLcId = lcId;
@@ -512,6 +518,7 @@ async function main() {
     shadowDomEnabled = enabled;
     preview?.sendRender();
     preview?.sendExternalScripts(jsEnabled ? externalScripts : []);
+    preview?.sendExternalStyles(externalStyles);
     if (!jsEnabled) {
       preview?.requestDisableJs();
       return;
@@ -573,6 +580,10 @@ async function main() {
     onExternalScriptsChange: (scripts) => {
       externalScripts = scripts;
       preview?.sendExternalScripts(jsEnabled ? externalScripts : []);
+    },
+    onExternalStylesChange: (styles) => {
+      externalStyles = styles;
+      preview?.sendExternalStyles(externalStyles);
     },
     elementsApi,
   });

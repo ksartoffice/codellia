@@ -130,6 +130,7 @@ type ExportParams = {
   js: string;
   jsEnabled: boolean;
   externalScripts: string[];
+  externalStyles: string[];
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   liveHighlightEnabled: boolean;
@@ -168,6 +169,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
       js: params.js,
       jsEnabled: params.jsEnabled,
       externalScripts: [...params.externalScripts],
+      externalStyles: [...params.externalStyles],
       shadowDomEnabled: params.shadowDomEnabled,
       shortcodeEnabled: params.shortcodeEnabled,
       liveHighlightEnabled: params.liveHighlightEnabled,

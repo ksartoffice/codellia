@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Rest_Settings {
 	private const MAX_EXTERNAL_SCRIPTS = 5;
+	private const MAX_EXTERNAL_STYLES = 5;
 
 	public static function build_settings_payload( int $post_id ): array {
 		$post = get_post( $post_id );
@@ -128,6 +129,7 @@ class Rest_Settings {
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'canEditJavaScript' => current_user_can( 'unfiltered_html' ),
 			'externalScripts' => External_Scripts::get_external_scripts( $post_id, self::MAX_EXTERNAL_SCRIPTS ),
+			'externalStyles' => External_Styles::get_external_styles( $post_id, self::MAX_EXTERNAL_STYLES ),
 		];
 	}
 
@@ -350,6 +352,46 @@ class Rest_Settings {
 				update_post_meta(
 					$post_id,
 					'_lc_external_scripts',
+					wp_json_encode( $sanitized, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+				);
+			}
+		}
+
+		if ( array_key_exists( 'externalStyles', $updates ) ) {
+			if ( ! current_user_can( 'unfiltered_html' ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				], 403 );
+			}
+			if ( ! is_array( $updates['externalStyles'] ) ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => 'Invalid external styles payload.',
+				], 400 );
+			}
+
+			$raw_styles = array_values( $updates['externalStyles'] );
+			$string_styles = array_values( array_filter( $raw_styles, 'is_string' ) );
+			$error = null;
+			$sanitized = External_Styles::validate_list(
+				$string_styles,
+				self::MAX_EXTERNAL_STYLES,
+				$error
+			);
+			if ( null === $sanitized ) {
+				return new \WP_REST_Response( [
+					'ok'    => false,
+					'error' => $error ?: 'External styles must be valid https:// URLs.',
+				], 400 );
+			}
+
+			if ( empty( $sanitized ) ) {
+				delete_post_meta( $post_id, '_lc_external_styles' );
+			} else {
+				update_post_meta(
+					$post_id,
+					'_lc_external_styles',
 					wp_json_encode( $sanitized, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 				);
 			}

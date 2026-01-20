@@ -58,6 +58,7 @@ export type SettingsData = {
   liveHighlightEnabled: boolean;
   canEditJavaScript: boolean;
   externalScripts: string[];
+  externalStyles: string[];
 };
 
 type SettingsConfig = {
@@ -73,6 +74,7 @@ type SettingsConfig = {
   onShortcodeToggle?: (enabled: boolean) => void;
   onLiveHighlightToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
+  onExternalStylesChange?: (styles: string[]) => void;
   elementsApi?: ElementsSettingsApi;
 };
 
@@ -876,6 +878,7 @@ function SettingsSidebar({
   onShortcodeToggle,
   onLiveHighlightToggle,
   onExternalScriptsChange,
+  onExternalStylesChange,
   elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
@@ -892,6 +895,8 @@ function SettingsSidebar({
   const [designError, setDesignError] = useState('');
   const [externalScripts, setExternalScripts] = useState<string[]>(data.externalScripts || []);
   const [externalScriptsError, setExternalScriptsError] = useState('');
+  const [externalStyles, setExternalStyles] = useState<string[]>(data.externalStyles || []);
+  const [externalStylesError, setExternalStylesError] = useState('');
   const [titleDraft, setTitleDraft] = useState(settings.title || '');
   const [titleError, setTitleError] = useState('');
 
@@ -919,6 +924,11 @@ function SettingsSidebar({
     setExternalScripts(settings.externalScripts || []);
     onExternalScriptsChange?.(settings.externalScripts || []);
   }, [settings.externalScripts, onExternalScriptsChange]);
+
+  useEffect(() => {
+    setExternalStyles(settings.externalStyles || []);
+    onExternalStylesChange?.(settings.externalStyles || []);
+  }, [settings.externalStyles, onExternalStylesChange]);
 
   useEffect(() => {
     onJavaScriptToggle?.(enableJavaScript);
@@ -967,7 +977,7 @@ function SettingsSidebar({
 
   const canEditJavaScript = Boolean(settings.canEditJavaScript);
 
-  const normalizeScripts = (list: string[]) =>
+  const normalizeList = (list: string[]) =>
     list
       .map((entry) => entry.trim())
       .filter(Boolean);
@@ -1036,8 +1046,8 @@ function SettingsSidebar({
     if (!canEditJavaScript) {
       return;
     }
-    const normalizedNext = normalizeScripts(next);
-    const normalizedCurrent = normalizeScripts(settings.externalScripts || []);
+    const normalizedNext = normalizeList(next);
+    const normalizedCurrent = normalizeList(settings.externalScripts || []);
     if (isSameList(normalizedNext, normalizedCurrent)) {
       setExternalScripts(normalizedNext);
       return;
@@ -1049,6 +1059,30 @@ function SettingsSidebar({
     } catch (err: any) {
       setExternalScriptsError(getErrorMessage(err, 'Update failed.'));
       setExternalScripts(settings.externalScripts || []);
+    }
+  };
+
+  const handleExternalStylesChange = (next: string[]) => {
+    setExternalStyles(next);
+  };
+
+  const handleExternalStylesCommit = async (next: string[]) => {
+    if (!canEditJavaScript) {
+      return;
+    }
+    const normalizedNext = normalizeList(next);
+    const normalizedCurrent = normalizeList(settings.externalStyles || []);
+    if (isSameList(normalizedNext, normalizedCurrent)) {
+      setExternalStyles(normalizedNext);
+      return;
+    }
+    setExternalStylesError('');
+    setExternalStyles(next);
+    try {
+      await updateSettings({ externalStyles: normalizedNext });
+    } catch (err: any) {
+      setExternalStylesError(getErrorMessage(err, 'Update failed.'));
+      setExternalStyles(settings.externalStyles || []);
     }
   };
 
@@ -1242,9 +1276,13 @@ function SettingsSidebar({
           externalScripts={externalScripts}
           onChangeExternalScripts={handleExternalScriptsChange}
           onCommitExternalScripts={handleExternalScriptsCommit}
+          externalStyles={externalStyles}
+          onChangeExternalStyles={handleExternalStylesChange}
+          onCommitExternalStyles={handleExternalStylesCommit}
           disabled={!canEditJavaScript}
           error={designError}
           externalScriptsError={externalScriptsError}
+          externalStylesError={externalStylesError}
         />
       ) : null}
 

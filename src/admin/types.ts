@@ -9,6 +9,7 @@ export type ImportPayload = {
   js?: string;
   jsEnabled?: boolean;
   externalScripts?: string[];
+  externalStyles?: string[];
   shadowDomEnabled?: boolean;
   shortcodeEnabled?: boolean;
   liveHighlightEnabled?: boolean;
@@ -28,6 +29,7 @@ export type ExportPayload = {
   js: string;
   jsEnabled: boolean;
   externalScripts: string[];
+  externalStyles: string[];
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   liveHighlightEnabled: boolean;
