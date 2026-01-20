@@ -4,6 +4,7 @@
 /node_modules
 /src
 /tests
+/bin
 /overview.md
 /tailwindphp.md
 /.vscode
@@ -14,4 +15,8 @@
 /vite.config.ts
 /composer.json
 /composer.lock
+/phpunit.xml.dist
+/phpunit.xml
 /assets/dist/*.map
+/.wordpress-tests-lib
+/.wordpress
