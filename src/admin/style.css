@@ -132,6 +132,7 @@ body.admin_page_wp-livecode #wpbody-content {
 
 .lc-btn:hover {
   background: #2d3440;
+  color: #f1f3f5;
 }
 
 .lc-btn:active {
@@ -177,6 +178,14 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #242a34;
   border-color: #313743;
   color: #e6e8ea;
+}
+
+.lc-btn-muted:hover {
+  color: #c4cbd6;
+}
+
+.lc-btn-muted.is-active:hover {
+  color: #f1f3f5;
 }
 
 .lc-btn-muted:disabled {
