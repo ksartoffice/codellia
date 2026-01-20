@@ -196,10 +196,32 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #2a303b;
 }
 
-.lc-btn-settings.is-active {
-  background: #303b4f;
-  border-color: #3b4a63;
+.lc-btn-settings {
+  position: relative;
 }
+
+.lc-btn-settings.is-active {
+  background: #2f6feb;
+  border-color: #2f6feb;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(47, 111, 235, 0.35), 0 8px 18px rgba(47, 111, 235, 0.25);
+}
+
+.lc-btn-settings.is-active:hover {
+  background: #3b7cff;
+}
+
+/* .lc-btn-settings.is-active::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(47, 111, 235, 0.55);
+} */
 
 .lc-status {
   color: #9aa1ab;

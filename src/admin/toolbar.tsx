@@ -72,6 +72,8 @@ function Toolbar({
 }: ToolbarState & ToolbarHandlers) {
   const toggleLabel = editorCollapsed ? 'Show' : 'Hide';
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
+  const settingsLabel = settingsOpen ? 'Close' : 'Settings';
+  const settingsTitle = settingsOpen ? 'Close settings' : 'Settings';
   const showUnsaved = statusText === '' && hasUnsavedChanges;
   const statusLabel = statusText || (showUnsaved ? '未保存の変更があります' : '');
   return (
@@ -139,11 +141,12 @@ function Toolbar({
           className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
           type="button"
           onClick={onToggleSettings}
-          title="Settings"
+          title={settingsTitle}
+          aria-label={settingsTitle}
           aria-expanded={settingsOpen}
           aria-controls="lc-settings"
         >
-          <IconLabel label="Settings" svg={ICONS.settings} />
+          <IconLabel label={settingsLabel} svg={ICONS.settings} />
         </button>
       </div>
     </Fragment>
