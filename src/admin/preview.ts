@@ -33,6 +33,7 @@ export type PreviewController = {
   sendExternalScripts: (scripts: string[]) => void;
   sendExternalStyles: (styles: string[]) => void;
   sendLiveHighlightUpdate: (enabled: boolean) => void;
+  sendElementsTabState: (open: boolean) => void;
   requestRunJs: () => void;
   requestDisableJs: () => void;
   queueInitialJsRun: () => void;
@@ -63,6 +64,7 @@ type PreviewControllerDeps = {
   getExternalStyles: () => string[];
   isTailwindEnabled: () => boolean;
   onSelect?: (lcId: string) => void;
+  onOpenElementsTab?: () => void;
 };
 
 const LC_ATTR_NAME = 'data-lc-id';
@@ -184,6 +186,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   let pendingRender = false;
   let pendingJsAction: 'run' | 'disable' | null = null;
   let initialJsPending = true;
+  let pendingElementsTabOpen: boolean | null = null;
   let canonicalCache: CanonicalResult | null = null;
   let canonicalCacheHtml = '';
   let canonicalDomCacheHtml = '';
@@ -194,6 +197,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   let cssSelectionDecorations: string[] = [];
   let lastSelectedLcId: string | null = null;
   const overviewHighlightColor = 'rgba(96, 165, 250, 0.35)';
+  let elementsTabOpen = false;
 
   const getCanonical = () => {
     const html = deps.htmlModel.getValue();
@@ -335,6 +339,21 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       {
         type: 'LC_SET_HIGHLIGHT',
         liveHighlightEnabled: enabled,
+      },
+      deps.targetOrigin
+    );
+  };
+
+  const sendElementsTabState = (open: boolean) => {
+    elementsTabOpen = open;
+    if (!previewReady) {
+      pendingElementsTabOpen = open;
+      return;
+    }
+    deps.iframe.contentWindow?.postMessage(
+      {
+        type: 'LC_SET_ELEMENTS_TAB_OPEN',
+        open,
       },
       deps.targetOrigin
     );
@@ -491,11 +510,22 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       sendExternalStyles(deps.getExternalStyles());
       queueInitialJsRun();
       flushPendingJsAction();
+      if (pendingElementsTabOpen !== null) {
+        const nextOpen = pendingElementsTabOpen;
+        pendingElementsTabOpen = null;
+        sendElementsTabState(nextOpen);
+      } else {
+        sendElementsTabState(elementsTabOpen);
+      }
     }
 
     if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {
       deps.onSelect?.(data.lcId);
       highlightByLcId(data.lcId);
+    }
+
+    if (data?.type === 'LC_OPEN_ELEMENTS_TAB') {
+      deps.onOpenElementsTab?.();
     }
   };
 
@@ -505,6 +535,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     sendExternalScripts,
     sendExternalStyles,
     sendLiveHighlightUpdate,
+    sendElementsTabState,
     requestRunJs,
     requestDisableJs,
     queueInitialJsRun,

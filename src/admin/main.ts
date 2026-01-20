@@ -141,6 +141,7 @@ async function main() {
   let saveInProgress = false;
   let editorCollapsed = false;
   let settingsOpen = false;
+  let activeSettingsTab: 'post' | 'design' | 'elements' = 'post';
   let jsEnabled = Boolean(cfg.jsEnabled);
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
   let shortcodeEnabled = Boolean(cfg.settingsData?.shortcodeEnabled);
@@ -190,10 +191,15 @@ async function main() {
     toolbarApi?.update({ statusText: text });
   };
 
+  const syncElementsTabState = () => {
+    preview?.sendElementsTabState(settingsOpen && activeSettingsTab === 'elements');
+  };
+
   const setSettingsOpen = (open: boolean) => {
     settingsOpen = open;
     ui.app.classList.toggle('is-settings-open', open);
     toolbarApi?.update({ settingsOpen: open });
+    syncElementsTabState();
   };
 
   async function handleExport() {
@@ -471,7 +477,16 @@ async function main() {
       selectedLcId = lcId;
       notifySelection();
     },
+    onOpenElementsTab: () => {
+      if (!settingsOpen) {
+        setSettingsOpen(true);
+      }
+      if (activeSettingsTab !== 'elements') {
+        window.dispatchEvent(new CustomEvent('lc-open-elements-tab'));
+      }
+    },
   });
+  syncElementsTabState();
 
   tailwindCompiler = createTailwindCompiler({
     apiFetch: wp.apiFetch,
@@ -584,6 +599,10 @@ async function main() {
     onExternalStylesChange: (styles) => {
       externalStyles = styles;
       preview?.sendExternalStyles(externalStyles);
+    },
+    onTabChange: (tab) => {
+      activeSettingsTab = tab;
+      syncElementsTabState();
     },
     elementsApi,
   });

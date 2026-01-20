@@ -75,6 +75,7 @@ type SettingsConfig = {
   onLiveHighlightToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
   onExternalStylesChange?: (styles: string[]) => void;
+  onTabChange?: (tab: SettingsTab) => void;
   elementsApi?: ElementsSettingsApi;
 };
 
@@ -879,6 +880,7 @@ function SettingsSidebar({
   onLiveHighlightToggle,
   onExternalScriptsChange,
   onExternalStylesChange,
+  onTabChange,
   elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
@@ -919,6 +921,21 @@ function SettingsSidebar({
   useEffect(() => {
     setEnableLiveHighlight(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
   }, [settings.liveHighlightEnabled]);
+
+  useEffect(() => {
+    onTabChange?.(activeTab);
+  }, [activeTab, onTabChange]);
+
+  useEffect(() => {
+    const handleOpenElementsTab = () => {
+      setActiveTab('elements');
+      setActiveModal(null);
+    };
+    window.addEventListener('lc-open-elements-tab', handleOpenElementsTab);
+    return () => {
+      window.removeEventListener('lc-open-elements-tab', handleOpenElementsTab);
+    };
+  }, []);
 
   useEffect(() => {
     setExternalScripts(settings.externalScripts || []);
