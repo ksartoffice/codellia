@@ -18,6 +18,8 @@
   let highlightBox = null;
   let selectTarget = null;
   let selectBox = null;
+  let selectActionButton = null;
+  let elementsTabOpen = false;
   let markerNodes = null;
   let externalScripts = [];
   let externalScriptsReady = Promise.resolve();
@@ -223,6 +225,71 @@
     return selectBox;
   }
 
+  function ensureSelectActionButton() {
+    if (selectActionButton) return selectActionButton;
+    const button = document.createElement('button');
+    button.id = 'lc-select-action';
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Open element settings');
+    Object.assign(button.style, {
+      position: 'fixed',
+      width: '32px',
+      height: '32px',
+      borderRadius: '999px',
+      background: '#a855f7',
+      color: '#fff',
+      border: 'none',
+      padding: '7px',
+      margin: '0',
+      boxSizing: 'border-box',
+      display: 'none',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.25)',
+      cursor: 'pointer',
+      pointerEvents: 'auto',
+      zIndex: 2147483647,
+      transition: 'transform 80ms ease-out, opacity 80ms ease-out',
+    });
+    button.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>';
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      reply('LC_OPEN_ELEMENTS_TAB');
+    });
+    document.body.appendChild(button);
+    selectActionButton = button;
+    return button;
+  }
+
+  function hideSelectActionButton() {
+    if (selectActionButton) {
+      selectActionButton.style.display = 'none';
+    }
+  }
+
+  function updateSelectActionPosition() {
+    if (!selectTarget || elementsTabOpen) {
+      hideSelectActionButton();
+      return;
+    }
+    const rect = selectTarget.getBoundingClientRect();
+    const button = ensureSelectActionButton();
+    const size = 32;
+    const gap = 6;
+    const padding = 6;
+    const maxTop = window.innerHeight - size - padding;
+    const maxLeft = window.innerWidth - size - padding;
+    let top = rect.top - size - gap;
+    let left = rect.right - size + gap;
+    top = Math.max(padding, Math.min(top, maxTop));
+    left = Math.max(padding, Math.min(left, maxLeft));
+    button.style.top = top + 'px';
+    button.style.left = left + 'px';
+    button.style.display = 'flex';
+  }
+
   function clearHighlight() {
     hoverTarget = null;
     if (highlightBox) {
@@ -235,6 +302,7 @@
     if (selectBox) {
       selectBox.style.display = 'none';
     }
+    hideSelectActionButton();
   }
 
   function drawHighlight(el) {
@@ -265,6 +333,12 @@
     box.style.left = rect.left + 'px';
     box.style.width = rect.width + 'px';
     box.style.height = rect.height + 'px';
+    updateSelectActionPosition();
+  }
+
+  function setElementsTabOpen(open) {
+    elementsTabOpen = Boolean(open);
+    updateSelectActionPosition();
   }
 
   function getComposedTarget(event) {
@@ -657,6 +731,10 @@
     if (data.type === 'LC_SET_HIGHLIGHT') {
       if (!isReady) return;
       setDomSelectorEnabled(Boolean(data.liveHighlightEnabled));
+    }
+    if (data.type === 'LC_SET_ELEMENTS_TAB_OPEN') {
+      if (!isReady) return;
+      setElementsTabOpen(Boolean(data.open));
     }
     if (data.type === 'LC_RUN_JS') {
       if (!isReady) return;
