@@ -13,6 +13,7 @@ class Post_Type {
 		add_action( 'current_screen', [ __CLASS__, 'maybe_hide_classic_and_block' ] );
 		add_filter( 'use_block_editor_for_post_type', [ __CLASS__, 'disable_block_editor' ], 10, 2 );
 		add_filter( 'redirect_post_location', [ __CLASS__, 'redirect_after_save' ], 10, 2 );
+		add_filter( 'display_post_states', [ __CLASS__, 'add_tailwind_state' ], 10, 2 );
 	}
 
 	public static function activation(): void {
@@ -26,23 +27,23 @@ class Post_Type {
 
 	public static function register(): void {
 		$labels = [
-			'name'               => 'LiveCode Pages',
-			'singular_name'      => 'LiveCode Page',
+			'name'               => 'LiveCode',
+			'singular_name'      => 'LiveCode',
 			'add_new'            => 'Add New',
-			'add_new_item'       => 'Add New LiveCode Page',
-			'edit_item'          => 'Edit LiveCode Page',
-			'new_item'           => 'New LiveCode Page',
-			'view_item'          => 'View LiveCode Page',
-			'view_items'         => 'View LiveCode Pages',
-			'search_items'       => 'Search LiveCode Pages',
-			'not_found'          => 'No LiveCode Pages found',
-			'not_found_in_trash' => 'No LiveCode Pages found in Trash',
-			'all_items'          => 'LiveCode Pages',
-			'archives'           => 'LiveCode Page Archives',
+			'add_new_item'       => 'Add New LiveCode',
+			'edit_item'          => 'Edit LiveCode',
+			'new_item'           => 'New LiveCode',
+			'view_item'          => 'View LiveCode',
+			'view_items'         => 'View LiveCode',
+			'search_items'       => 'Search LiveCode',
+			'not_found'          => 'No LiveCode found',
+			'not_found_in_trash' => 'No LiveCode found in Trash',
+			'all_items'          => 'LiveCode',
+			'archives'           => 'LiveCode Archives',
 		];
 
 		$args = [
-			'label'               => 'LiveCode Pages',
+			'label'               => 'LiveCode',
 			'labels'              => $labels,
 			'public'              => true,
 			'exclude_from_search' => false,
@@ -138,11 +139,24 @@ class Post_Type {
 		return $location;
 	}
 
+	public static function add_tailwind_state( array $states, \WP_Post $post ): array {
+		if ( $post->post_type !== self::POST_TYPE ) {
+			return $states;
+		}
+
+		$is_tailwind = get_post_meta( $post->ID, '_lc_tailwind', true ) === '1';
+		if ( $is_tailwind ) {
+			$states['livecode_tailwind'] = 'TailwindCSS';
+		}
+
+		return $states;
+	}
+
 	private static function maybe_create_draft(): int {
 		$post_id = wp_insert_post( [
 			'post_type'   => self::POST_TYPE,
 			'post_status' => 'draft',
-			'post_title'  => 'Untitled LiveCode Page',
+			'post_title'  => 'Untitled LiveCode',
 		], true );
 
 		if ( is_wp_error( $post_id ) ) {

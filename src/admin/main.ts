@@ -154,6 +154,8 @@ async function main() {
     : [];
   let activeCssTab: 'css' | 'js' = 'css';
   let editorsReady = false;
+  let hasUnsavedChanges = false;
+  let lastSaved = { html: '', css: '', js: '' };
   const canEditJavaScript = Boolean(cfg.canEditJavaScript);
 
   let preview: PreviewController | null = null;
@@ -182,6 +184,39 @@ async function main() {
   const subscribeContentChange = (listener: () => void) => {
     contentListeners.add(listener);
     return () => contentListeners.delete(listener);
+  };
+
+  const getUnsavedFlags = () => {
+    if (!htmlModel || !cssModel || !jsModel) {
+      return { html: false, css: false, js: false, hasAny: false };
+    }
+    const htmlDirty = htmlModel.getValue() !== lastSaved.html;
+    const cssDirty = cssModel.getValue() !== lastSaved.css;
+    const jsDirty = jsModel.getValue() !== lastSaved.js;
+    return { html: htmlDirty, css: cssDirty, js: jsDirty, hasAny: htmlDirty || cssDirty || jsDirty };
+  };
+
+  const syncUnsavedUi = () => {
+    const { html, css, js, hasAny } = getUnsavedFlags();
+    ui.htmlHeader.classList.toggle('has-unsaved', html);
+    ui.cssTab.classList.toggle('has-unsaved', css);
+    ui.jsTab.classList.toggle('has-unsaved', js);
+    if (hasAny !== hasUnsavedChanges) {
+      hasUnsavedChanges = hasAny;
+      toolbarApi?.update({ hasUnsavedChanges });
+    }
+  };
+
+  const markSavedState = () => {
+    if (!htmlModel || !cssModel || !jsModel) {
+      return;
+    }
+    lastSaved = {
+      html: htmlModel.getValue(),
+      css: cssModel.getValue(),
+      js: jsModel.getValue(),
+    };
+    syncUnsavedUi();
   };
 
   const setStatus = (text: string) => {
@@ -260,6 +295,7 @@ async function main() {
     });
 
     if (result.ok) {
+      markSavedState();
       setStatus('Saved.');
       window.setTimeout(() => {
         if (!tailwindCompiler?.isInFlight()) {
@@ -285,6 +321,7 @@ async function main() {
       settingsOpen,
       tailwindEnabled,
       statusText: 'Loading Monaco...',
+      hasUnsavedChanges: false,
     },
     {
       onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
@@ -317,6 +354,17 @@ async function main() {
   ({ monaco, htmlModel, cssModel, jsModel, htmlEditor, cssEditor, jsEditor } = monacoSetup);
 
   toolbarApi?.update({ statusText: '' });
+  markSavedState();
+
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (!hasUnsavedChanges) {
+      return;
+    }
+    event.preventDefault();
+    event.returnValue = '変更が保存されない可能性があります';
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
 
   const applyHtmlEdit = (startOffset: number, endOffset: number, nextText: string) => {
     suppressSelectionClear += 1;
@@ -604,6 +652,7 @@ async function main() {
       activeSettingsTab = tab;
       syncElementsTabState();
     },
+    onClosePanel: () => setSettingsOpen(false),
     elementsApi,
   });
 
@@ -772,6 +821,7 @@ async function main() {
       notifySelection();
     }
     notifyContentChange();
+    syncUnsavedUi();
   });
   cssModel.onDidChangeContent(() => {
     if (!tailwindEnabled) {
@@ -783,10 +833,12 @@ async function main() {
     preview?.clearSelectionHighlight();
     preview?.clearCssSelectionHighlight();
     updateUndoRedoState();
+    syncUnsavedUi();
   });
 
   jsModel.onDidChangeContent(() => {
     updateUndoRedoState();
+    syncUnsavedUi();
   });
 
   // 初回の iframe load 後に送る

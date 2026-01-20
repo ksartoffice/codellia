@@ -1,6 +1,7 @@
 type LayoutRefs = {
   app: HTMLDivElement;
   toolbar: HTMLDivElement;
+  htmlHeader: HTMLDivElement;
   htmlEditorDiv: HTMLDivElement;
   cssEditorDiv: HTMLDivElement;
   jsEditorDiv: HTMLDivElement;
@@ -98,6 +99,7 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
   return {
     app,
     toolbar,
+    htmlHeader,
     htmlEditorDiv,
     cssEditorDiv,
     jsEditorDiv,

@@ -102,6 +102,16 @@ body.admin_page_wp-livecode #wpbody-content {
   height: 18px;
 }
 
+.lc-btnIcon-wordpress {
+  width: 24px;
+  height: 24px;
+}
+
+.lc-btnIcon-wordpress svg {
+  width: 24px;
+  height: 24px;
+}
+
 .lc-btnLabel {
   font-size: 11px;
   line-height: 1.1;
@@ -122,6 +132,7 @@ body.admin_page_wp-livecode #wpbody-content {
 
 .lc-btn:hover {
   background: #2d3440;
+  color: #f1f3f5;
 }
 
 .lc-btn:active {
@@ -147,6 +158,16 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #3b7cff;
 }
 
+.lc-btn-save.is-unsaved {
+  background: #2f6feb;
+  border-color: #2f6feb;
+  color: #fff;
+}
+
+.lc-btn-save.is-unsaved:hover {
+  background: #3b7cff;
+}
+
 .lc-btn-muted {
   background: #2a303b;
   border-color: #39414f;
@@ -159,6 +180,14 @@ body.admin_page_wp-livecode #wpbody-content {
   color: #e6e8ea;
 }
 
+.lc-btn-muted:hover {
+  color: #c4cbd6;
+}
+
+.lc-btn-muted.is-active:hover {
+  color: #f1f3f5;
+}
+
 .lc-btn-muted:disabled {
   cursor: default;
 }
@@ -167,14 +196,41 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #2a303b;
 }
 
-.lc-btn-settings.is-active {
-  background: #303b4f;
-  border-color: #3b4a63;
+.lc-btn-settings {
+  position: relative;
 }
+
+.lc-btn-settings.is-active {
+  background: #2f6feb;
+  border-color: #2f6feb;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(47, 111, 235, 0.35), 0 8px 18px rgba(47, 111, 235, 0.25);
+}
+
+.lc-btn-settings.is-active:hover {
+  background: #3b7cff;
+}
+
+/* .lc-btn-settings.is-active::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(47, 111, 235, 0.55);
+} */
 
 .lc-status {
   color: #9aa1ab;
   font-size: 12px;
+}
+
+.lc-status.is-unsaved {
+  font-size: 11px;
+  color: #8fa2c2;
 }
 
 .lc-tailwindBadge {
@@ -320,6 +376,16 @@ body.admin_page_wp-livecode #wpbody-content {
   color: #a7adb8;
 }
 
+.lc-editorHeader.has-unsaved::after,
+.lc-editorTab.has-unsaved::after {
+  content: '●';
+  margin-left: 6px;
+  margin-bottom: 2px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+}
+
 .lc-editorHeader-tabs {
   justify-content: space-between;
   gap: 8px;
@@ -460,9 +526,44 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 12px;
 }
 
+.lc-settingsTabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
 .lc-settingsTabs {
   display: flex;
   gap: 16px;
+}
+
+.lc-settingsClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #9aa1ab;
+  cursor: pointer;
+}
+
+.lc-settingsClose:hover {
+  color: #e6e8ea;
+  background: #202734;
+}
+
+.lc-settingsClose:focus-visible {
+  outline: 2px solid #4c84ff;
+  outline-offset: 2px;
+}
+
+.lc-settingsClose svg {
+  width: 18px;
+  height: 18px;
 }
 
 .lc-settingsTab {
@@ -1006,6 +1107,17 @@ body.admin_page_wp-livecode #wpbody-content {
   background: transparent;
   border: 1px solid #a53838;
   color: #ffb4b4;
+}
+
+/* Prevent WP core button styles from leaking into Monaco UI */
+.wp-core-ui .lc-app .monaco-editor .button,
+.wp-core-ui .lc-app .monaco-editor .button-secondary {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  box-shadow: none;
+  text-shadow: none;
+  vertical-align: baseline;
 }
 
 /* Monaco highlight (DOM selector -> editor) */
