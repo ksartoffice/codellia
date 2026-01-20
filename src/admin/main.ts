@@ -604,6 +604,7 @@ async function main() {
       activeSettingsTab = tab;
       syncElementsTabState();
     },
+    onClosePanel: () => setSettingsOpen(false),
     elementsApi,
   });
 

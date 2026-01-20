@@ -460,9 +460,44 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 12px;
 }
 
+.lc-settingsTabsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
 .lc-settingsTabs {
   display: flex;
   gap: 16px;
+}
+
+.lc-settingsClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #9aa1ab;
+  cursor: pointer;
+}
+
+.lc-settingsClose:hover {
+  color: #e6e8ea;
+  background: #202734;
+}
+
+.lc-settingsClose:focus-visible {
+  outline: 2px solid #4c84ff;
+  outline-offset: 2px;
+}
+
+.lc-settingsClose svg {
+  width: 18px;
+  height: 18px;
 }
 
 .lc-settingsTab {

@@ -76,6 +76,7 @@ type SettingsConfig = {
   onExternalScriptsChange?: (scripts: string[]) => void;
   onExternalStylesChange?: (styles: string[]) => void;
   onTabChange?: (tab: SettingsTab) => void;
+  onClosePanel?: () => void;
   elementsApi?: ElementsSettingsApi;
 };
 
@@ -881,6 +882,7 @@ function SettingsSidebar({
   onExternalScriptsChange,
   onExternalStylesChange,
   onTabChange,
+  onClosePanel,
   elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
@@ -1142,33 +1144,57 @@ function SettingsSidebar({
   );
 
   const tabs = (
-    <div className="lc-settingsTabs" role="tablist" aria-label="設定タブ">
+    <div className="lc-settingsTabsRow">
+      <div className="lc-settingsTabs" role="tablist" aria-label="設定タブ">
+        <button
+          className={`lc-settingsTab${activeTab === 'post' ? ' is-active' : ''}`}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'post'}
+          onClick={() => handleTabChange('post')}
+        >
+          投稿
+        </button>
+        <button
+          className={`lc-settingsTab${activeTab === 'design' ? ' is-active' : ''}`}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'design'}
+          onClick={() => handleTabChange('design')}
+        >
+          デザイン
+        </button>
+        <button
+          className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'elements'}
+          onClick={() => handleTabChange('elements')}
+        >
+          要素
+        </button>
+      </div>
       <button
-        className={`lc-settingsTab${activeTab === 'post' ? ' is-active' : ''}`}
+        className="lc-settingsClose"
         type="button"
-        role="tab"
-        aria-selected={activeTab === 'post'}
-        onClick={() => handleTabChange('post')}
+        aria-label="設定パネルを閉じる"
+        onClick={() => onClosePanel?.()}
       >
-        投稿
-      </button>
-      <button
-        className={`lc-settingsTab${activeTab === 'design' ? ' is-active' : ''}`}
-        type="button"
-        role="tab"
-        aria-selected={activeTab === 'design'}
-        onClick={() => handleTabChange('design')}
-      >
-        デザイン
-      </button>
-      <button
-        className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
-        type="button"
-        role="tab"
-        aria-selected={activeTab === 'elements'}
-        onClick={() => handleTabChange('elements')}
-      >
-        要素
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="lucide lucide-x-icon lucide-x"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
       </button>
     </div>
   );
