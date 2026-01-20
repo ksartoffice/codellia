@@ -27,23 +27,23 @@ class Post_Type {
 
 	public static function register(): void {
 		$labels = [
-			'name'               => 'LiveCode Pages',
-			'singular_name'      => 'LiveCode Page',
+			'name'               => 'LiveCode',
+			'singular_name'      => 'LiveCode',
 			'add_new'            => 'Add New',
-			'add_new_item'       => 'Add New LiveCode Page',
-			'edit_item'          => 'Edit LiveCode Page',
-			'new_item'           => 'New LiveCode Page',
-			'view_item'          => 'View LiveCode Page',
-			'view_items'         => 'View LiveCode Pages',
-			'search_items'       => 'Search LiveCode Pages',
-			'not_found'          => 'No LiveCode Pages found',
-			'not_found_in_trash' => 'No LiveCode Pages found in Trash',
-			'all_items'          => 'LiveCode Pages',
-			'archives'           => 'LiveCode Page Archives',
+			'add_new_item'       => 'Add New LiveCode',
+			'edit_item'          => 'Edit LiveCode',
+			'new_item'           => 'New LiveCode',
+			'view_item'          => 'View LiveCode',
+			'view_items'         => 'View LiveCode',
+			'search_items'       => 'Search LiveCode',
+			'not_found'          => 'No LiveCode found',
+			'not_found_in_trash' => 'No LiveCode found in Trash',
+			'all_items'          => 'LiveCode',
+			'archives'           => 'LiveCode Archives',
 		];
 
 		$args = [
-			'label'               => 'LiveCode Pages',
+			'label'               => 'LiveCode',
 			'labels'              => $labels,
 			'public'              => true,
 			'exclude_from_search' => false,
@@ -156,7 +156,7 @@ class Post_Type {
 		$post_id = wp_insert_post( [
 			'post_type'   => self::POST_TYPE,
 			'post_status' => 'draft',
-			'post_title'  => 'Untitled LiveCode Page',
+			'post_title'  => 'Untitled LiveCode',
 		], true );
 
 		if ( is_wp_error( $post_id ) ) {
