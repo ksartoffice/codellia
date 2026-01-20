@@ -45,8 +45,15 @@ type SetupResponse = {
 type ImportResponse = {
   ok?: boolean;
   error?: string;
+  html?: string;
   tailwindEnabled?: boolean;
   settingsData?: SettingsData;
+  importWarnings?: string[];
+  importedImages?: Array<{
+    sourceUrl: string;
+    attachmentId: number;
+    attachmentUrl: string;
+  }>;
 };
 
 function validateImportPayload(raw: any): { data?: ImportPayload; error?: string } {
@@ -197,10 +204,18 @@ function SetupWizard({
           throw new Error(response?.error || 'Import failed.');
         }
 
+        if (response.importWarnings?.length) {
+          console.warn('[WP LiveCode] Import warnings', response.importWarnings);
+        }
+
+        const normalizedPayload = response.html
+          ? { ...importPayload, html: response.html }
+          : importPayload;
+
         onComplete({
           tailwindEnabled: Boolean(response.tailwindEnabled ?? importPayload.tailwind),
           imported: {
-            payload: importPayload,
+            payload: normalizedPayload,
             settingsData: response.settingsData,
           },
         });
