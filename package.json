@@ -1,7 +1,12 @@
 {
+  "name": "wp-livecode",
+  "version": "1.0.0",
+  "description": "Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview.",
+  "license": "GPL-2.0+",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "plugin-zip": "wp-scripts plugin-zip"
   },
   "dependencies": {
     "@wordpress/components": "^31.0.0",
@@ -17,6 +22,7 @@
     "@types/node": "^25.0.3",
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
+    "@wordpress/scripts": "^31.3.0",
     "typescript": "^5.9.3",
     "vite": "^6.4.1"
   }
