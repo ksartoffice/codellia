@@ -5,6 +5,7 @@ import {
   render,
   useState,
 } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import type { SettingsData } from './settings';
 import type { ImportPayload } from './types';
 
@@ -58,61 +59,61 @@ type ImportResponse = {
 
 function validateImportPayload(raw: any): { data?: ImportPayload; error?: string } {
   if (!raw || typeof raw !== 'object') {
-    return { error: 'Import file is not a valid JSON object.' };
+    return { error: __( 'Import file is not a valid JSON object.', 'wp-livecode' ) };
   }
 
   if (raw.version !== 1) {
-    return { error: 'Unsupported import version.' };
+    return { error: __( 'Unsupported import version.', 'wp-livecode' ) };
   }
 
   if (typeof raw.html !== 'string') {
-    return { error: 'Invalid HTML value.' };
+    return { error: __( 'Invalid HTML value.', 'wp-livecode' ) };
   }
 
   if (typeof raw.css !== 'string') {
-    return { error: 'Invalid CSS value.' };
+    return { error: __( 'Invalid CSS value.', 'wp-livecode' ) };
   }
 
   if (typeof raw.tailwind !== 'boolean') {
-    return { error: 'Invalid tailwind flag.' };
+    return { error: __( 'Invalid tailwind flag.', 'wp-livecode' ) };
   }
 
   if (raw.generatedCss !== undefined && typeof raw.generatedCss !== 'string') {
-    return { error: 'Invalid generatedCss value.' };
+    return { error: __( 'Invalid generatedCss value.', 'wp-livecode' ) };
   }
 
   if (raw.js !== undefined && typeof raw.js !== 'string') {
-    return { error: 'Invalid JavaScript value.' };
+    return { error: __( 'Invalid JavaScript value.', 'wp-livecode' ) };
   }
 
   if (raw.jsEnabled !== undefined && typeof raw.jsEnabled !== 'boolean') {
-    return { error: 'Invalid jsEnabled value.' };
+    return { error: __( 'Invalid jsEnabled value.', 'wp-livecode' ) };
   }
 
   if (raw.shadowDomEnabled !== undefined && typeof raw.shadowDomEnabled !== 'boolean') {
-    return { error: 'Invalid shadowDomEnabled value.' };
+    return { error: __( 'Invalid shadowDomEnabled value.', 'wp-livecode' ) };
   }
 
   if (raw.shortcodeEnabled !== undefined && typeof raw.shortcodeEnabled !== 'boolean') {
-    return { error: 'Invalid shortcodeEnabled value.' };
+    return { error: __( 'Invalid shortcodeEnabled value.', 'wp-livecode' ) };
   }
 
   if (raw.liveHighlightEnabled !== undefined && typeof raw.liveHighlightEnabled !== 'boolean') {
-    return { error: 'Invalid liveHighlightEnabled value.' };
+    return { error: __( 'Invalid liveHighlightEnabled value.', 'wp-livecode' ) };
   }
 
   if (
     raw.externalScripts !== undefined &&
     (!Array.isArray(raw.externalScripts) || raw.externalScripts.some((item: any) => typeof item !== 'string'))
   ) {
-    return { error: 'Invalid externalScripts value.' };
+    return { error: __( 'Invalid externalScripts value.', 'wp-livecode' ) };
   }
 
   if (
     raw.externalStyles !== undefined &&
     (!Array.isArray(raw.externalStyles) || raw.externalStyles.some((item: any) => typeof item !== 'string'))
   ) {
-    return { error: 'Invalid externalStyles value.' };
+    return { error: __( 'Invalid externalStyles value.', 'wp-livecode' ) };
   }
 
   return {
@@ -173,7 +174,7 @@ function SetupWizard({
       }
       setImportPayload(result.data || null);
     } catch (err: any) {
-      setError('Invalid JSON file.');
+      setError(__( 'Invalid JSON file.', 'wp-livecode' ));
       setImportPayload(null);
     }
   };
@@ -185,10 +186,10 @@ function SetupWizard({
     try {
       if (mode === 'import') {
         if (!importRestUrl) {
-          throw new Error('Import unavailable.');
+          throw new Error(__( 'Import unavailable.', 'wp-livecode' ));
         }
         if (!importPayload) {
-          throw new Error('Select a JSON file to import.');
+          throw new Error(__( 'Select a JSON file to import.', 'wp-livecode' ));
         }
 
         const response: ImportResponse = await apiFetch({
@@ -201,7 +202,7 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || 'Import failed.');
+          throw new Error(response?.error || __( 'Import failed.', 'wp-livecode' ));
         }
 
         if (response.importWarnings?.length) {
@@ -230,7 +231,7 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || 'Setup failed.');
+          throw new Error(response?.error || __( 'Setup failed.', 'wp-livecode' ));
         }
 
         onComplete({ tailwindEnabled: Boolean(response.tailwindEnabled) });
@@ -245,9 +246,12 @@ function SetupWizard({
   return (
     <div className="lc-setupOverlay">
       <div className="lc-setupCard" role="dialog" aria-modal="true">
-        <div className="lc-setupTitle">Choose editor mode</div>
+        <div className="lc-setupTitle">{__( 'Choose editor mode', 'wp-livecode' )}</div>
         <div className="lc-setupIntro">
-          Select TailwindCSS or Normal mode. This choice cannot be changed later.
+          {__(
+            'Select TailwindCSS or Normal mode. This choice cannot be changed later.',
+            'wp-livecode'
+          )}
         </div>
         <div className="lc-setupOptions">
           <label className={`lc-setupOption${mode === 'normal' ? ' is-active' : ''}`}>
@@ -259,9 +263,11 @@ function SetupWizard({
               onChange={() => setMode('normal')}
             />
             <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">Normal (HTML/CSS)</span>
+              <span className="lc-setupOptionTitle">
+                {__( 'Normal (HTML/CSS)', 'wp-livecode' )}
+              </span>
               <span className="lc-setupOptionDesc">
-                Edit HTML and CSS directly with Monaco.
+                {__( 'Edit HTML and CSS directly with Monaco.', 'wp-livecode' )}
               </span>
             </span>
           </label>
@@ -274,9 +280,11 @@ function SetupWizard({
               onChange={() => setMode('tailwind')}
             />
             <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">TailwindCSS</span>
+              <span className="lc-setupOptionTitle">
+                {__( 'TailwindCSS', 'wp-livecode' )}
+              </span>
               <span className="lc-setupOptionDesc">
-                Use utility classes. CSS is compiled automatically.
+                {__( 'Use utility classes. CSS is compiled automatically.', 'wp-livecode' )}
               </span>
             </span>
           </label>
@@ -289,9 +297,11 @@ function SetupWizard({
               onChange={() => setMode('import')}
             />
             <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">Import JSON</span>
+              <span className="lc-setupOptionTitle">
+                {__( 'Import JSON', 'wp-livecode' )}
+              </span>
               <span className="lc-setupOptionDesc">
-                Restore from an exported LiveCode JSON file.
+                {__( 'Restore from an exported LiveCode JSON file.', 'wp-livecode' )}
               </span>
             </span>
           </label>
@@ -299,7 +309,7 @@ function SetupWizard({
         {mode === 'import' ? (
           <div className="lc-setupImport">
             <label className="lc-btn lc-btn-secondary lc-setupFileLabel">
-              Choose JSON file
+              {__( 'Choose JSON file', 'wp-livecode' )}
               <input
                 className="lc-setupFileInput"
                 type="file"
@@ -308,18 +318,18 @@ function SetupWizard({
               />
             </label>
             <div className="lc-setupFileName">
-              {importFileName || 'No file selected.'}
+              {importFileName || __( 'No file selected.', 'wp-livecode' )}
             </div>
           </div>
         ) : null}
         <div className="lc-setupNote">
-          This choice is locked for this LiveCode page.
+          {__( 'This choice is locked for this LiveCode page.', 'wp-livecode' )}
         </div>
         <div className="lc-setupError">{error || ''}</div>
         <div className="lc-setupActions">
           {backUrl ? (
             <a className="lc-btn lc-btn-secondary" href={backUrl}>
-              Back
+              {__( 'Back', 'wp-livecode' )}
             </a>
           ) : null}
           <button
@@ -328,7 +338,7 @@ function SetupWizard({
             onClick={handleSubmit}
             disabled={saving}
           >
-            {saving ? 'Saving...' : 'Continue'}
+            {saving ? __( 'Saving...', 'wp-livecode' ) : __( 'Continue', 'wp-livecode' )}
           </button>
         </div>
       </div>
@@ -340,8 +350,8 @@ export function runSetupWizard(config: SetupWizardConfig): Promise<SetupWizardRe
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = 'Setup unavailable.';
-    return Promise.reject(new Error('wp.apiFetch is unavailable.'));
+    container.textContent = __( 'Setup unavailable.', 'wp-livecode' );
+    return Promise.reject(new Error(__( 'wp.apiFetch is unavailable.', 'wp-livecode' )));
   }
 
   return new Promise((resolve) => {

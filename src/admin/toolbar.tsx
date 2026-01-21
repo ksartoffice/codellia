@@ -4,6 +4,7 @@ import {
   createRoot,
   render,
 } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 type ToolbarState = {
   backUrl: string;
@@ -70,20 +71,23 @@ function Toolbar({
   onExport,
   onToggleSettings,
 }: ToolbarState & ToolbarHandlers) {
-  const toggleLabel = editorCollapsed ? 'Show' : 'Hide';
+  const toggleLabel = editorCollapsed ? __( 'Show', 'wp-livecode' ) : __( 'Hide', 'wp-livecode' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
-  const settingsLabel = settingsOpen ? 'Close' : 'Settings';
-  const settingsTitle = settingsOpen ? 'Close settings' : 'Settings';
+  const settingsLabel = settingsOpen ? __( 'Close', 'wp-livecode' ) : __( 'Settings', 'wp-livecode' );
+  const settingsTitle = settingsOpen
+    ? __( 'Close settings', 'wp-livecode' )
+    : __( 'Settings', 'wp-livecode' );
   const showUnsaved = statusText === '' && hasUnsavedChanges;
-  const statusLabel = statusText || (showUnsaved ? '未保存の変更があります' : '');
+  const statusLabel =
+    statusText || (showUnsaved ? __( 'Unsaved changes', 'wp-livecode' ) : '');
   return (
     <Fragment>
       <div className="lc-toolbarGroup lc-toolbarLeft">
         <a
           className="lc-btn lc-btn-back"
           href={backUrl}
-          aria-label="Back to WordPress"
-          title="Back to WordPress"
+          aria-label={__( 'Back to WordPress', 'wp-livecode' )}
+          title={__( 'Back to WordPress', 'wp-livecode' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
           <span
@@ -96,18 +100,18 @@ function Toolbar({
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          title="Undo"
+          title={__( 'Undo', 'wp-livecode' )}
         >
-          <IconLabel label="Undo" svg={ICONS.undo} />
+          <IconLabel label={__( 'Undo', 'wp-livecode' )} svg={ICONS.undo} />
         </button>
         <button
           className={`lc-btn lc-btn-muted lc-btn-stack${canRedo ? ' is-active' : ''}`}
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          title="Redo"
+          title={__( 'Redo', 'wp-livecode' )}
         >
-          <IconLabel label="Redo" svg={ICONS.redo} />
+          <IconLabel label={__( 'Redo', 'wp-livecode' )} svg={ICONS.redo} />
         </button>
         <button className="lc-btn lc-btn-stack" type="button" onClick={onToggleEditor}>
           <IconLabel label={toggleLabel} svg={toggleIcon} />
@@ -120,8 +124,8 @@ function Toolbar({
         {tailwindEnabled ? (
           <span
             className="lc-tailwindBadge"
-            title="TailwindCSS enabled"
-            aria-label="TailwindCSS enabled"
+            title={__( 'TailwindCSS enabled', 'wp-livecode' )}
+            aria-label={__( 'TailwindCSS enabled', 'wp-livecode' )}
             role="img"
             dangerouslySetInnerHTML={{ __html: TAILWIND_ICON }}
           />
@@ -130,12 +134,17 @@ function Toolbar({
           className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
           type="button"
           onClick={onSave}
-          title="Save"
+          title={__( 'Save', 'wp-livecode' )}
         >
-          <IconLabel label="Save" svg={ICONS.save} />
+          <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
         </button>
-        <button className="lc-btn lc-btn-stack" type="button" onClick={onExport} title="Export">
-          <IconLabel label="Export" svg={ICONS.export} />
+        <button
+          className="lc-btn lc-btn-stack"
+          type="button"
+          onClick={onExport}
+          title={__( 'Export', 'wp-livecode' )}
+        >
+          <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
         </button>
         <button
           className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}

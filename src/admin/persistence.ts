@@ -1,4 +1,5 @@
 import type { ExportPayload } from './types';
+import { __, sprintf } from '@wordpress/i18n';
 
 type ApiFetch = (args: any) => Promise<any>;
 
@@ -56,13 +57,15 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         deps.onCssCompiled(res.css);
         deps.onStatusClear();
       } else {
-        deps.onStatus('Tailwind compile failed.');
+        deps.onStatus(__( 'Tailwind compile failed.', 'wp-livecode' ));
       }
     } catch (e: any) {
       if (currentToken !== tailwindCompileToken) {
         return;
       }
-      deps.onStatus(`Tailwind error: ${e?.message ?? e}`);
+      deps.onStatus(
+        sprintf(__( 'Tailwind error: %s', 'wp-livecode' ), e?.message ?? e)
+      );
     } finally {
       if (currentToken === tailwindCompileToken) {
         tailwindCompileInFlight = false;
@@ -92,7 +95,9 @@ type SaveParams = {
   jsEnabled: boolean;
 };
 
-export async function saveLivecode(params: SaveParams): Promise<{ ok: boolean; error?: string }> {
+export async function saveLivecode(
+  params: SaveParams
+): Promise<{ ok: boolean; error?: string }> {
   try {
     const payload: Record<string, any> = {
       postId: params.postId,
@@ -113,7 +118,10 @@ export async function saveLivecode(params: SaveParams): Promise<{ ok: boolean; e
     if (res?.ok) {
       return { ok: true };
     }
-    return { ok: false, error: 'Save failed.' };
+    if (typeof res?.error === 'string' && res.error.trim()) {
+      return { ok: false, error: res.error };
+    }
+    return { ok: false };
   } catch (e: any) {
     return { ok: false, error: e?.message ?? String(e) };
   }

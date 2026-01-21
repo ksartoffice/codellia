@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n';
+
 type LayoutRefs = {
   app: HTMLDivElement;
   toolbar: HTMLDivElement;
@@ -49,7 +51,7 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
 
   const htmlPane = el('div', 'lc-editorPane lc-editorPane-html is-active');
   const htmlHeader = el('div', 'lc-editorHeader');
-  htmlHeader.textContent = 'HTML';
+  htmlHeader.textContent = __( 'HTML', 'wp-livecode' );
   const htmlWrap = el('div', 'lc-editorWrap');
   const htmlEditorDiv = el('div', 'lc-editor lc-editor-html');
   htmlWrap.append(htmlEditorDiv);
@@ -61,18 +63,18 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
   const cssTab = document.createElement('button');
   cssTab.type = 'button';
   cssTab.className = 'lc-editorTab is-active';
-  cssTab.textContent = 'CSS';
+  cssTab.textContent = __( 'CSS', 'wp-livecode' );
   const jsTab = document.createElement('button');
   jsTab.type = 'button';
   jsTab.className = 'lc-editorTab';
-  jsTab.textContent = 'JavaScript';
+  jsTab.textContent = __( 'JavaScript', 'wp-livecode' );
   cssTabs.append(cssTab, jsTab);
 
   const jsControls = el('div', 'lc-editorActions');
   const runButton = document.createElement('button');
   runButton.type = 'button';
   runButton.className = 'lc-editorAction';
-  runButton.textContent = 'Run';
+  runButton.textContent = __( 'Run', 'wp-livecode' );
   jsControls.append(runButton);
 
   cssHeader.append(cssTabs, jsControls);

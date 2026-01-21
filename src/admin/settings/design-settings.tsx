@@ -1,4 +1,5 @@
 import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 
 type DesignSettingsPanelProps = {
   postId: number;
@@ -144,14 +145,18 @@ export function DesignSettingsPanel({
   return (
     <Fragment>
       <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">JavaScript設定</div>
+        <div className="lc-settingsSectionTitle">
+          {__( 'JavaScript settings', 'wp-livecode' )}
+        </div>
         <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">JavaScriptを有効にする</div>
+          <div className="lc-settingsItemLabel">
+            {__( 'Enable JavaScript', 'wp-livecode' )}
+          </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={enableJavaScript}
-              aria-label="JavaScriptを有効にする"
+              aria-label={__( 'Enable JavaScript', 'wp-livecode' )}
               onChange={(event) => onToggleJavaScript(event.target.checked)}
               disabled={disabled}
             />
@@ -159,12 +164,14 @@ export function DesignSettingsPanel({
           </label>
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">Shadow DOMを有効にする</div>
+          <div className="lc-settingsItemLabel">
+            {__( 'Enable Shadow DOM', 'wp-livecode' )}
+          </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={enableShadowDom}
-              aria-label="Shadow DOMを有効にする"
+              aria-label={__( 'Enable Shadow DOM', 'wp-livecode' )}
               onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
             />
@@ -172,12 +179,14 @@ export function DesignSettingsPanel({
           </label>
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">ショートコード化を有効にする</div>
+          <div className="lc-settingsItemLabel">
+            {__( 'Enable shortcode', 'wp-livecode' )}
+          </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={enableShortcode}
-              aria-label="ショートコード化を有効にする"
+              aria-label={__( 'Enable shortcode', 'wp-livecode' )}
               onChange={(event) => onToggleShortcode(event.target.checked)}
               disabled={disabled}
             />
@@ -185,20 +194,26 @@ export function DesignSettingsPanel({
           </label>
         </div>
         {disabled ? (
-          <div className="lc-settingsHelp">Requires unfiltered_html capability.</div>
+          <div className="lc-settingsHelp">
+            {__( 'Requires unfiltered_html capability.', 'wp-livecode' )}
+          </div>
         ) : null}
         {error ? <div className="lc-settingsError">{error}</div> : null}
       </div>
 
       <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">プレビュー設定</div>
+        <div className="lc-settingsSectionTitle">
+          {__( 'Preview settings', 'wp-livecode' )}
+        </div>
         <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">ライブ編集ハイライトを有効にする</div>
+          <div className="lc-settingsItemLabel">
+            {__( 'Enable live edit highlight', 'wp-livecode' )}
+          </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={enableLiveHighlight}
-              aria-label="ライブ編集ハイライトを有効にする"
+              aria-label={__( 'Enable live edit highlight', 'wp-livecode' )}
               onChange={(event) => onToggleLiveHighlight(event.target.checked)}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
@@ -208,7 +223,9 @@ export function DesignSettingsPanel({
 
       {enableJavaScript ? (
         <div className="lc-settingsSection">
-          <div className="lc-settingsSectionTitle">External Scripts</div>
+          <div className="lc-settingsSectionTitle">
+            {__( 'External scripts', 'wp-livecode' )}
+          </div>
         {hasScripts ? (
           <div className="lc-settingsScriptList">
             {externalScripts.map((scriptUrl, index) => (
@@ -216,7 +233,7 @@ export function DesignSettingsPanel({
                 <input
                   type="url"
                   className="lc-formInput lc-settingsScriptInput"
-                  placeholder="https://example.com/script.js"
+                  placeholder={__( 'https://example.com/script.js', 'wp-livecode' )}
                   value={scriptUrl}
                   onChange={(event) => updateScriptAt(index, event.target.value, false)}
                   onBlur={(event) => updateScriptAt(index, event.target.value, true)}
@@ -233,9 +250,9 @@ export function DesignSettingsPanel({
                   type="button"
                   onClick={() => handleRemoveScript(index)}
                   disabled={disabled}
-                  aria-label="外部スクリプトを削除"
+                  aria-label={__( 'Remove external script', 'wp-livecode' )}
                 >
-                  削除
+                  {__( 'Remove', 'wp-livecode' )}
                 </button>
               </div>
             ))}
@@ -244,9 +261,9 @@ export function DesignSettingsPanel({
               type="button"
               onClick={handleAddScript}
               disabled={!canAddScript}
-              aria-label="外部スクリプトを追加"
+              aria-label={__( 'Add external script', 'wp-livecode' )}
             >
-              + 追加
+              {`+ ${__( 'Add', 'wp-livecode' )}`}
             </button>
           </div>
         ) : (
@@ -256,11 +273,14 @@ export function DesignSettingsPanel({
             onClick={handleAddScript}
             disabled={!canAddScript}
           >
-            外部スクリプトを追加
+            {__( 'Add external script', 'wp-livecode' )}
           </button>
         )}
         <div className="lc-settingsHelp">
-          https:// から始まるURLのみ。最大{MAX_EXTERNAL_SCRIPTS}件まで追加できます。
+          {sprintf(
+            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'wp-livecode' ),
+            MAX_EXTERNAL_SCRIPTS
+          )}
         </div>
         {externalScriptsError ? (
           <div className="lc-settingsError">{externalScriptsError}</div>
@@ -268,7 +288,9 @@ export function DesignSettingsPanel({
         </div>
       ) : null}
       <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">External Styles</div>
+        <div className="lc-settingsSectionTitle">
+          {__( 'External styles', 'wp-livecode' )}
+        </div>
         {hasStyles ? (
           <div className="lc-settingsScriptList">
             {externalStyles.map((styleUrl, index) => (
@@ -276,7 +298,7 @@ export function DesignSettingsPanel({
                 <input
                   type="url"
                   className="lc-formInput lc-settingsScriptInput"
-                  placeholder="https://example.com/style.css"
+                  placeholder={__( 'https://example.com/style.css', 'wp-livecode' )}
                   value={styleUrl}
                   onChange={(event) => updateStyleAt(index, event.target.value, false)}
                   onBlur={(event) => updateStyleAt(index, event.target.value, true)}
@@ -293,9 +315,9 @@ export function DesignSettingsPanel({
                   type="button"
                   onClick={() => handleRemoveStyle(index)}
                   disabled={disabled}
-                  aria-label="外部スタイルを削除"
+                  aria-label={__( 'Remove external style', 'wp-livecode' )}
                 >
-                  削除
+                  {__( 'Remove', 'wp-livecode' )}
                 </button>
               </div>
             ))}
@@ -304,9 +326,9 @@ export function DesignSettingsPanel({
               type="button"
               onClick={handleAddStyle}
               disabled={!canAddStyle}
-              aria-label="外部スタイルを追加"
+              aria-label={__( 'Add external style', 'wp-livecode' )}
             >
-              + 追加
+              {`+ ${__( 'Add', 'wp-livecode' )}`}
             </button>
           </div>
         ) : (
@@ -316,11 +338,14 @@ export function DesignSettingsPanel({
             onClick={handleAddStyle}
             disabled={!canAddStyle}
           >
-            外部スタイルを追加
+            {__( 'Add external style', 'wp-livecode' )}
           </button>
         )}
         <div className="lc-settingsHelp">
-          https:// から始まるURLのみ。最大{MAX_EXTERNAL_STYLES}件まで追加できます。
+          {sprintf(
+            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'wp-livecode' ),
+            MAX_EXTERNAL_STYLES
+          )}
         </div>
         {externalStylesError ? (
           <div className="lc-settingsError">{externalStylesError}</div>
@@ -328,9 +353,14 @@ export function DesignSettingsPanel({
       </div>
       {enableShortcode ? (
         <div className="lc-settingsSection">
-          <div className="lc-settingsSectionTitle">ショートコード</div>
+          <div className="lc-settingsSectionTitle">
+            {__( 'Shortcode', 'wp-livecode' )}
+          </div>
           <div className="lc-settingsHelp">
-            GutenbergやElementorのショートコードブロックに貼り付けて使用できます。
+            {__(
+              'You can paste this into a shortcode block in Gutenberg or Elementor.',
+              'wp-livecode'
+            )}
           </div>
           <div className="lc-settingsScriptRow">
             <input
@@ -339,22 +369,24 @@ export function DesignSettingsPanel({
               className="lc-formInput lc-settingsScriptInput"
               value={shortcodeText}
               readOnly
-              aria-label="LiveCodeショートコード"
+              aria-label={__( 'LiveCode shortcode', 'wp-livecode' )}
             />
             <button
               className="lc-btn lc-btn-secondary"
               type="button"
               onClick={handleCopyShortcode}
-              aria-label="ショートコードをコピー"
+              aria-label={__( 'Copy shortcode', 'wp-livecode' )}
             >
-              {copyState === 'copied' ? 'コピー済み' : 'コピー'}
+              {copyState === 'copied'
+                ? __( 'Copied', 'wp-livecode' )
+                : __( 'Copy', 'wp-livecode' )}
             </button>
           </div>
           {copyState === 'copied' ? (
-            <div className="lc-settingsHelp">コピーしました。</div>
+            <div className="lc-settingsHelp">{__( 'Copied.', 'wp-livecode' )}</div>
           ) : null}
           {copyState === 'error' ? (
-            <div className="lc-settingsError">コピーに失敗しました。</div>
+            <div className="lc-settingsError">{__( 'Copy failed.', 'wp-livecode' )}</div>
           ) : null}
         </div>
       ) : null}

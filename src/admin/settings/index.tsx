@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { DesignSettingsPanel } from './design-settings';
 import { ElementsSettingsPanel, type ElementsSettingsApi } from './elements-settings';
 
@@ -112,12 +113,12 @@ type ActiveModal =
 type SettingsTab = 'post' | 'design' | 'elements';
 
 const VISIBILITY_OPTIONS = [
-  { value: 'public', label: '公開' },
-  { value: 'private', label: '非公開' },
-  { value: 'password', label: 'パスワード保護' },
+  { value: 'public', label: __( 'Public', 'wp-livecode' ) },
+  { value: 'private', label: __( 'Private', 'wp-livecode' ) },
+  { value: 'password', label: __( 'Password protected', 'wp-livecode' ) },
 ];
 
-function getErrorMessage(error: unknown, fallback = 'Update failed.') {
+function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-livecode' )) {
   if (typeof error === 'string' && error.trim()) return error;
   if (error instanceof Error) {
     if (error.message && error.message !== '[object Object]') return error.message;
@@ -158,7 +159,7 @@ function createChipList(items: string[]) {
           </span>
         ))
       ) : (
-        <span className="lc-chipEmpty">未設定</span>
+        <span className="lc-chipEmpty">{__( 'Not set', 'wp-livecode' )}</span>
       )}
     </div>
   );
@@ -229,7 +230,12 @@ function Modal({ title, onClose, error, children }: ModalProps) {
       <div className="lc-modalDialog" role="dialog" aria-modal="true">
         <div className="lc-modalHeader">
           <div className="lc-modalTitle">{title}</div>
-          <button className="lc-modalClose" type="button" onClick={onClose}>
+          <button
+            className="lc-modalClose"
+            type="button"
+            onClick={onClose}
+            aria-label={__( 'Close', 'wp-livecode' )}
+          >
             ×
           </button>
         </div>
@@ -267,10 +273,10 @@ function StatusModal({
   };
 
   return (
-    <Modal title="ステータスと公開範囲" onClose={onClose} error={error}>
+    <Modal title={__( 'Status & visibility', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">ステータス</div>
+          <div className="lc-formLabel">{__( 'Status', 'wp-livecode' )}</div>
           {settings.statusOptions.map((option) => (
             <label className="lc-radioRow" key={option.value}>
               <input
@@ -286,7 +292,7 @@ function StatusModal({
           ))}
         </div>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">公開範囲</div>
+          <div className="lc-formLabel">{__( 'Visibility', 'wp-livecode' )}</div>
           {VISIBILITY_OPTIONS.map((option) => (
             <label className="lc-radioRow" key={option.value}>
               <input
@@ -303,7 +309,7 @@ function StatusModal({
             <input
               type="text"
               className="lc-formInput"
-              placeholder="パスワード"
+              placeholder={__( 'Password', 'wp-livecode' )}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
@@ -311,10 +317,10 @@ function StatusModal({
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -346,10 +352,10 @@ function PublishModal({
   };
 
   return (
-    <Modal title="公開" onClose={onClose} error={error}>
+    <Modal title={__( 'Publish', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">公開日時</div>
+          <div className="lc-formLabel">{__( 'Publish date', 'wp-livecode' )}</div>
           <input
             type="datetime-local"
             className="lc-formInput"
@@ -359,10 +365,10 @@ function PublishModal({
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -394,10 +400,10 @@ function SlugModal({
   };
 
   return (
-    <Modal title="スラッグ" onClose={onClose} error={error}>
+    <Modal title={__( 'Slug', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">スラッグ</div>
+          <div className="lc-formLabel">{__( 'Slug', 'wp-livecode' )}</div>
           <input
             type="text"
             className="lc-formInput"
@@ -407,10 +413,10 @@ function SlugModal({
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -442,10 +448,10 @@ function AuthorModal({
   };
 
   return (
-    <Modal title="投稿者" onClose={onClose} error={error}>
+    <Modal title={__( 'Author', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">投稿者</div>
+          <div className="lc-formLabel">{__( 'Author', 'wp-livecode' )}</div>
           <select
             className="lc-formSelect"
             value={author}
@@ -460,10 +466,10 @@ function AuthorModal({
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -495,10 +501,10 @@ function TemplateModal({
   };
 
   return (
-    <Modal title="テンプレート" onClose={onClose} error={error}>
+    <Modal title={__( 'Template', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">テンプレート</div>
+          <div className="lc-formLabel">{__( 'Template', 'wp-livecode' )}</div>
           <select
             className="lc-formSelect"
             value={template}
@@ -513,10 +519,10 @@ function TemplateModal({
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -552,17 +558,17 @@ function DiscussionModal({
   };
 
   return (
-    <Modal title="ディスカッション" onClose={onClose} error={error}>
+    <Modal title={__( 'Discussion', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">コメント</div>
+          <div className="lc-formLabel">{__( 'Comments', 'wp-livecode' )}</div>
           <label className="lc-checkboxRow">
             <input
               type="checkbox"
               checked={commentOpen}
               onChange={(event) => setCommentOpen(event.target.checked)}
             />
-            コメントを許可
+            {__( 'Allow comments', 'wp-livecode' )}
           </label>
           <label className="lc-checkboxRow">
             <input
@@ -570,15 +576,15 @@ function DiscussionModal({
               checked={pingOpen}
               onChange={(event) => setPingOpen(event.target.checked)}
             />
-            トラックバック/ピンバックを許可
+            {__( 'Allow trackbacks/pingbacks', 'wp-livecode' )}
           </label>
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -610,10 +616,10 @@ function FormatModal({
   };
 
   return (
-    <Modal title="フォーマット" onClose={onClose} error={error}>
+    <Modal title={__( 'Format', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">フォーマット</div>
+          <div className="lc-formLabel">{__( 'Format', 'wp-livecode' )}</div>
           <select
             className="lc-formSelect"
             value={format}
@@ -628,10 +634,10 @@ function FormatModal({
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -659,8 +665,8 @@ function FeaturedModal({
   const handleSelect = () => {
     if (!media) return;
     const frame = media({
-      title: 'アイキャッチ画像を選択',
-      button: { text: '選択' },
+      title: __( 'Select featured image', 'wp-livecode' ),
+      button: { text: __( 'Select', 'wp-livecode' ) },
       multiple: false,
     });
     frame.on('select', () => {
@@ -696,27 +702,31 @@ function FeaturedModal({
   };
 
   return (
-    <Modal title="アイキャッチ画像" onClose={onClose} error={error}>
+    <Modal title={__( 'Featured image', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-featurePreview">
-          {imageUrl ? <img src={imageUrl} alt={imageAlt} /> : '画像が設定されていません'}
+          {imageUrl ? (
+            <img src={imageUrl} alt={imageAlt} />
+          ) : (
+            __( 'No image set.', 'wp-livecode' )
+          )}
         </div>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">画像</div>
+          <div className="lc-formLabel">{__( 'Image', 'wp-livecode' )}</div>
           <button className="lc-btn" type="button" onClick={handleSelect} disabled={!media}>
-            メディアライブラリから選択
+            {__( 'Select from media library', 'wp-livecode' )}
           </button>
           <input
             type="number"
             className="lc-formInput"
-            placeholder="添付ファイルID"
+            placeholder={__( 'Attachment ID', 'wp-livecode' )}
             value={imageId}
             onChange={(event) => setImageId(event.target.value)}
           />
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button
             className="lc-btn lc-btn-danger"
@@ -724,10 +734,10 @@ function FeaturedModal({
             onClick={handleRemove}
             disabled={!settings.featuredImageId}
           >
-            削除
+            {__( 'Remove', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -775,10 +785,10 @@ function CategoriesModal({
   };
 
   return (
-    <Modal title="カテゴリー" onClose={onClose} error={error}>
+    <Modal title={__( 'Categories', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">カテゴリー</div>
+          <div className="lc-formLabel">{__( 'Categories', 'wp-livecode' )}</div>
           {settings.categoriesList.map((category) => (
             <label className="lc-checkboxRow" key={category.id}>
               <input
@@ -791,21 +801,21 @@ function CategoriesModal({
           ))}
         </div>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">新規カテゴリー</div>
+          <div className="lc-formLabel">{__( 'New category', 'wp-livecode' )}</div>
           <input
             type="text"
             className="lc-formInput"
-            placeholder="カテゴリー名"
+            placeholder={__( 'Category name', 'wp-livecode' )}
             value={newCategory}
             onChange={(event) => setNewCategory(event.target.value)}
           />
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -842,25 +852,27 @@ function TagsModal({
   };
 
   return (
-    <Modal title="タグ" onClose={onClose} error={error}>
+    <Modal title={__( 'Tags', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
-          <div className="lc-formLabel">タグ</div>
+          <div className="lc-formLabel">{__( 'Tags', 'wp-livecode' )}</div>
           <input
             type="text"
             className="lc-formInput"
-            placeholder="タグをカンマ区切りで入力"
+            placeholder={__( 'Enter tags separated by commas', 'wp-livecode' )}
             value={tags}
             onChange={(event) => setTags(event.target.value)}
           />
-          <div className="lc-formHint">例: landing, update, hero</div>
+          <div className="lc-formHint">
+            {__( 'Example: landing, update, hero', 'wp-livecode' )}
+          </div>
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            キャンセル
+            {__( 'Cancel', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
-            保存
+            {__( 'Save', 'wp-livecode' )}
           </button>
         </div>
       </form>
@@ -982,7 +994,7 @@ function SettingsSidebar({
       });
 
       if (!response?.ok) {
-        throw new Error(getErrorMessage(response?.error, 'Update failed.'));
+        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'wp-livecode' )));
       }
 
       if (response?.settings) {
@@ -1076,7 +1088,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalScripts: normalizedNext });
     } catch (err: any) {
-      setExternalScriptsError(getErrorMessage(err, 'Update failed.'));
+      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'wp-livecode' )));
       setExternalScripts(settings.externalScripts || []);
     }
   };
@@ -1100,7 +1112,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalStyles: normalizedNext });
     } catch (err: any) {
-      setExternalStylesError(getErrorMessage(err, 'Update failed.'));
+      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'wp-livecode' )));
       setExternalStyles(settings.externalStyles || []);
     }
   };
@@ -1115,7 +1127,7 @@ function SettingsSidebar({
   };
 
   const handleTrash = async () => {
-    if (!window.confirm('この投稿をゴミ箱へ移動しますか？')) {
+    if (!window.confirm(__( 'Move this post to the trash?', 'wp-livecode' ))) {
       return;
     }
     try {
@@ -1145,7 +1157,11 @@ function SettingsSidebar({
 
   const tabs = (
     <div className="lc-settingsTabsRow">
-      <div className="lc-settingsTabs" role="tablist" aria-label="設定タブ">
+      <div
+        className="lc-settingsTabs"
+        role="tablist"
+        aria-label={__( 'Settings tabs', 'wp-livecode' )}
+      >
         <button
           className={`lc-settingsTab${activeTab === 'post' ? ' is-active' : ''}`}
           type="button"
@@ -1153,7 +1169,7 @@ function SettingsSidebar({
           aria-selected={activeTab === 'post'}
           onClick={() => handleTabChange('post')}
         >
-          投稿
+          {__( 'Post', 'wp-livecode' )}
         </button>
         <button
           className={`lc-settingsTab${activeTab === 'design' ? ' is-active' : ''}`}
@@ -1162,7 +1178,7 @@ function SettingsSidebar({
           aria-selected={activeTab === 'design'}
           onClick={() => handleTabChange('design')}
         >
-          デザイン
+          {__( 'Design', 'wp-livecode' )}
         </button>
         <button
           className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
@@ -1171,13 +1187,13 @@ function SettingsSidebar({
           aria-selected={activeTab === 'elements'}
           onClick={() => handleTabChange('elements')}
         >
-          要素
+          {__( 'Elements', 'wp-livecode' )}
         </button>
       </div>
       <button
         className="lc-settingsClose"
         type="button"
-        aria-label="設定パネルを閉じる"
+        aria-label={__( 'Close settings panel', 'wp-livecode' )}
         onClick={() => onClosePanel?.()}
       >
         <svg
@@ -1208,7 +1224,7 @@ function SettingsSidebar({
       {activeTab === 'post' ? (
         <Fragment>
           <div className="lc-settingsTitle">
-            <div className="lc-settingsTitleLabel">タイトル</div>
+            <div className="lc-settingsTitleLabel">{__( 'Title', 'wp-livecode' )}</div>
             <div className="lc-settingsTitleRow">
               <input
                 type="text"
@@ -1228,54 +1244,62 @@ function SettingsSidebar({
                 onClick={handleTitleSave}
                 disabled={titleDraft === settings.title}
               >
-                保存
+                {__( 'Save', 'wp-livecode' )}
               </button>
             </div>
             <div className="lc-settingsTitleError">{titleError}</div>
           </div>
 
-          <SettingsSection title="投稿">
+          <SettingsSection title={__( 'Post', 'wp-livecode' )}>
             <SettingsItem
-              label="ステータスと公開範囲"
+              label={__( 'Status & visibility', 'wp-livecode' )}
               value={statusText}
               onClick={() => setActiveModal('status')}
             />
             <SettingsItem
-              label="公開"
-              value={settings.dateLabel || '今すぐ'}
+              label={__( 'Publish', 'wp-livecode' )}
+              value={settings.dateLabel || __( 'Immediately', 'wp-livecode' )}
               onClick={() => setActiveModal('publish')}
             />
-            <SettingsItem label="スラッグ" value={settings.slug || '-'} onClick={() => setActiveModal('slug')} />
             <SettingsItem
-              label="投稿者"
+              label={__( 'Slug', 'wp-livecode' )}
+              value={settings.slug || '-'}
+              onClick={() => setActiveModal('slug')}
+            />
+            <SettingsItem
+              label={__( 'Author', 'wp-livecode' )}
               value={settings.authors.find((author) => author.id === settings.author)?.name || '-'}
               onClick={() => setActiveModal('author')}
             />
             <SettingsItem
-              label="テンプレート"
+              label={__( 'Template', 'wp-livecode' )}
               value={getOptionLabel(settings.templates, settings.template)}
               onClick={() => setActiveModal('template')}
             />
             <SettingsItem
-              label="ディスカッション"
-              value={settings.commentStatus === 'open' ? '受付中' : '停止中'}
+              label={__( 'Discussion', 'wp-livecode' )}
+              value={
+                settings.commentStatus === 'open'
+                  ? __( 'Open', 'wp-livecode' )
+                  : __( 'Closed', 'wp-livecode' )
+              }
               onClick={() => setActiveModal('discussion')}
             />
             <SettingsItem
-              label="フォーマット"
+              label={__( 'Format', 'wp-livecode' )}
               value={getOptionLabel(settings.formats, settings.format)}
               onClick={() => setActiveModal('format')}
             />
             {settings.canTrash && (
               <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
-                ゴミ箱へ移動
+                {__( 'Move to trash', 'wp-livecode' )}
               </button>
             )}
           </SettingsSection>
 
-          <SettingsSection title="アイキャッチ画像">
+          <SettingsSection title={__( 'Featured image', 'wp-livecode' )}>
             <SettingsItem
-              label="アイキャッチ画像"
+              label={__( 'Featured image', 'wp-livecode' )}
               value={
                 settings.featuredImageUrl ? (
                   <img
@@ -1284,23 +1308,27 @@ function SettingsSidebar({
                     className="lc-featureThumb"
                   />
                 ) : (
-                  '設定'
+                  __( 'Set', 'wp-livecode' )
                 )
               }
               onClick={() => setActiveModal('featured')}
             />
           </SettingsSection>
 
-          <SettingsSection title="カテゴリー">
+          <SettingsSection title={__( 'Categories', 'wp-livecode' )}>
             <SettingsItem
-              label="カテゴリー"
+              label={__( 'Categories', 'wp-livecode' )}
               value={createChipList(categoryNames)}
               onClick={() => setActiveModal('categories')}
             />
           </SettingsSection>
 
-          <SettingsSection title="タグ">
-            <SettingsItem label="タグ" value={createChipList(settings.tags)} onClick={() => setActiveModal('tags')} />
+          <SettingsSection title={__( 'Tags', 'wp-livecode' )}>
+            <SettingsItem
+              label={__( 'Tags', 'wp-livecode' )}
+              value={createChipList(settings.tags)}
+              onClick={() => setActiveModal('tags')}
+            />
           </SettingsSection>
         </Fragment>
       ) : null}
@@ -1369,7 +1397,7 @@ export function initSettings(config: SettingsConfig) {
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = 'Settings unavailable.';
+    container.textContent = __( 'Settings unavailable.', 'wp-livecode' );
     return;
   }
 

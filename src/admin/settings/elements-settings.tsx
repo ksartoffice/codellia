@@ -1,4 +1,5 @@
 import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 export type ElementsSettingsAttribute = {
   name: string;
@@ -124,11 +125,11 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
 
   return (
     <div className="lc-settingsSection">
-      <div className="lc-settingsSectionTitle">要素</div>
+      <div className="lc-settingsSectionTitle">{__( 'Elements', 'wp-livecode' )}</div>
       {hasText ? (
         <div className="lc-formGroup">
           <label className="lc-formLabel" htmlFor={fieldId}>
-            テキスト
+            {__( 'Text', 'wp-livecode' )}
           </label>
           <textarea
             id={fieldId}
@@ -140,21 +141,21 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
         </div>
       ) : null}
       <div className="lc-formGroup">
-        <div className="lc-formLabel">属性</div>
+        <div className="lc-formLabel">{__( 'Attributes', 'wp-livecode' )}</div>
         <div className="lc-settingsScriptList">
           {attributes.map((attr, index) => (
             <div className="lc-settingsScriptRow" key={`attr-${index}`}>
               <input
                 type="text"
                 className="lc-formInput lc-settingsAttrNameInput"
-                placeholder="属性名"
+                placeholder={__( 'Attribute name', 'wp-livecode' )}
                 value={attr.name}
                 onChange={(event) => handleAttributeNameChange(index, event.target.value)}
               />
               <input
                 type="text"
                 className="lc-formInput lc-settingsScriptInput"
-                placeholder="値"
+                placeholder={__( 'Value', 'wp-livecode' )}
                 value={attr.value}
                 onChange={(event) => handleAttributeValueChange(index, event.target.value)}
               />
@@ -162,9 +163,9 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
                 className="lc-btn lc-btn-danger lc-settingsScriptButton"
                 type="button"
                 onClick={() => handleRemoveAttribute(index)}
-                aria-label="属性を削除"
+                aria-label={__( 'Remove attribute', 'wp-livecode' )}
               >
-                削除
+                {__( 'Remove', 'wp-livecode' )}
               </button>
             </div>
           ))}
@@ -173,7 +174,7 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
             type="button"
             onClick={handleAddAttribute}
           >
-            属性を追加
+            {__( 'Add attribute', 'wp-livecode' )}
           </button>
         </div>
       </div>

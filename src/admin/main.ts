@@ -13,6 +13,7 @@ import {
   type TailwindCompiler,
 } from './persistence';
 import type { ImportResult } from './types';
+import { __, sprintf } from '@wordpress/i18n';
 
 // wp-api-fetch は admin 側でグローバル wp.apiFetch として使える
 declare const wp: any;
@@ -75,7 +76,7 @@ async function main() {
 
   if (cfg.setupRequired) {
     if (!cfg.setupRestUrl || !wp?.apiFetch) {
-      ui.app.textContent = 'Setup wizard unavailable.';
+      ui.app.textContent = __( 'Setup wizard unavailable.', 'wp-livecode' );
       return;
     }
 
@@ -101,7 +102,7 @@ async function main() {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[WP LiveCode] Setup failed', error);
-      ui.app.textContent = 'Setup failed.';
+      ui.app.textContent = __( 'Setup failed.', 'wp-livecode' );
       return;
     } finally {
       setupHost.remove();
@@ -239,11 +240,11 @@ async function main() {
 
   async function handleExport() {
     if (!htmlModel || !cssModel || !jsModel) {
-      setStatus('Export unavailable.');
+      setStatus(__( 'Export unavailable.', 'wp-livecode' ));
       return;
     }
 
-    setStatus('Exporting...');
+    setStatus(__( 'Exporting...', 'wp-livecode' ));
 
     const result = await exportLivecode({
       apiFetch: wp.apiFetch,
@@ -263,7 +264,7 @@ async function main() {
     });
 
     if (result.ok) {
-      setStatus('Exported.');
+      setStatus(__( 'Exported.', 'wp-livecode' ));
       window.setTimeout(() => {
         if (!saveInProgress) {
           setStatus('');
@@ -272,7 +273,11 @@ async function main() {
       return;
     }
 
-    setStatus(`Export error: ${result.error ?? 'Export failed.'}`);
+    if (result.error) {
+      setStatus(sprintf(__( 'Export error: %s', 'wp-livecode' ), result.error));
+    } else {
+      setStatus(__( 'Export failed.', 'wp-livecode' ));
+    }
   }
 
   async function handleSave() {
@@ -280,7 +285,7 @@ async function main() {
       return;
     }
     saveInProgress = true;
-    setStatus('Saving...');
+    setStatus(__( 'Saving...', 'wp-livecode' ));
 
     const result = await saveLivecode({
       apiFetch: wp.apiFetch,
@@ -296,16 +301,16 @@ async function main() {
 
     if (result.ok) {
       markSavedState();
-      setStatus('Saved.');
+      setStatus(__( 'Saved.', 'wp-livecode' ));
       window.setTimeout(() => {
         if (!tailwindCompiler?.isInFlight()) {
           setStatus('');
         }
       }, 1200);
-    } else if (result.error === 'Save failed.') {
-      setStatus('Save failed.');
+    } else if (result.error) {
+      setStatus(sprintf(__( 'Save error: %s', 'wp-livecode' ), result.error));
     } else {
-      setStatus(`Save error: ${result.error ?? 'Save failed.'}`);
+      setStatus(__( 'Save failed.', 'wp-livecode' ));
     }
 
     saveInProgress = false;
@@ -320,7 +325,7 @@ async function main() {
       editorCollapsed,
       settingsOpen,
       tailwindEnabled,
-      statusText: 'Loading Monaco...',
+      statusText: __( 'Loading Monaco...', 'wp-livecode' ),
       hasUnsavedChanges: false,
     },
     {
@@ -361,7 +366,7 @@ async function main() {
       return;
     }
     event.preventDefault();
-    event.returnValue = '変更が保存されない可能性があります';
+    event.returnValue = __( 'You may have unsaved changes.', 'wp-livecode' );
   };
 
   window.addEventListener('beforeunload', handleBeforeUnload);
