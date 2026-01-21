@@ -48,5 +48,5 @@ HTML is stored in the post content. CSS/JS and other settings are stored in post
 
 == Credits ==
 This plugin bundles third-party libraries:
-* Monaco Editor - MIT License - https://github.com/microsoft/monaco-editor
+* Monaco Editor - MIT License (see assets/monaco/LICENSE) - https://github.com/microsoft/monaco-editor
 * TailwindPHP - MIT License - https://github.com/dnnsjsk/tailwindphp
