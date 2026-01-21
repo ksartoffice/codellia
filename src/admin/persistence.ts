@@ -6,7 +6,7 @@ type ApiFetch = (args: any) => Promise<any>;
 type TailwindCompilerDeps = {
   apiFetch: ApiFetch;
   restCompileUrl: string;
-  post_id: number;
+  postId: number;
   getHtml: () => string;
   getCss: () => string;
   isTailwindEnabled: () => boolean;
@@ -40,7 +40,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         url: deps.restCompileUrl,
         method: 'POST',
         data: {
-          post_id: deps.post_id,
+          post_id: deps.postId,
           html: deps.getHtml(),
           css: deps.getCss(),
         },
@@ -85,7 +85,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
 type SaveParams = {
   apiFetch: ApiFetch;
   restUrl: string;
-  post_id: number;
+  postId: number;
   html: string;
   css: string;
   tailwindEnabled: boolean;
@@ -99,7 +99,7 @@ export async function saveLivecode(
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const payload: Record<string, any> = {
-      post_id: params.post_id,
+      post_id: params.postId,
       html: params.html,
       css: params.css,
       tailwindEnabled: params.tailwindEnabled,
@@ -129,7 +129,7 @@ export async function saveLivecode(
 type ExportParams = {
   apiFetch: ApiFetch;
   restCompileUrl: string;
-  post_id: number;
+  postId: number;
   html: string;
   css: string;
   tailwindEnabled: boolean;
@@ -152,7 +152,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
           url: params.restCompileUrl,
           method: 'POST',
           data: {
-      post_id: params.post_id,
+            post_id: params.postId,
             html: params.html,
             css: params.css,
           },
@@ -188,7 +188,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `livecode-${params.post_id}.json`;
+    link.download = `livecode-${params.postId}.json`;
     document.body.append(link);
     link.click();
     link.remove();

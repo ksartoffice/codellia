@@ -56,6 +56,7 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 
 async function main() {
   const cfg = window.WP_LIVECODE;
+  const postId = cfg.post_id;
   const mount = document.getElementById('wp-livecode-app');
   if (!mount) return;
 
@@ -88,7 +89,7 @@ async function main() {
     try {
       const result = await runSetupWizard({
         container: setupHost,
-        post_id: cfg.post_id,
+        postId,
         restUrl: cfg.setupRestUrl,
         importRestUrl: cfg.importRestUrl,
         apiFetch: wp?.apiFetch,
@@ -250,7 +251,7 @@ async function main() {
     const result = await exportLivecode({
       apiFetch: wp.apiFetch,
       restCompileUrl: cfg.restCompileUrl,
-      post_id: cfg.post_id,
+      postId,
       html: htmlModel.getValue(),
       css: cssModel.getValue(),
       tailwindEnabled,
@@ -292,7 +293,7 @@ async function main() {
     const result = await saveLivecode({
       apiFetch: wp.apiFetch,
       restUrl: cfg.restUrl,
-      post_id: cfg.post_id,
+      postId,
       html: htmlModel.getValue(),
       css: cssModel.getValue(),
       tailwindEnabled,
@@ -513,7 +514,7 @@ async function main() {
 
   preview = createPreviewController({
     iframe: ui.iframe,
-    post_id: cfg.post_id,
+    postId,
     targetOrigin,
     monaco,
     htmlModel,
@@ -538,7 +539,7 @@ async function main() {
           url: cfg.renderShortcodesUrl,
           method: 'POST',
           data: {
-            post_id: cfg.post_id,
+            post_id: postId,
             shortcodes: items.map((item) => ({ id: item.id, shortcode: item.shortcode })),
           },
         });
@@ -569,7 +570,7 @@ async function main() {
   tailwindCompiler = createTailwindCompiler({
     apiFetch: wp.apiFetch,
     restCompileUrl: cfg.restCompileUrl,
-    post_id: cfg.post_id,
+    postId,
     getHtml: () => htmlModel.getValue(),
     getCss: () => cssModel.getValue(),
     isTailwindEnabled: () => tailwindEnabled,
@@ -661,7 +662,7 @@ async function main() {
     header: ui.settingsHeader,
     data: cfg.settingsData,
     restUrl: cfg.settingsRestUrl,
-    post_id: cfg.post_id,
+    postId,
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
     onJavaScriptToggle: setJavaScriptEnabled,

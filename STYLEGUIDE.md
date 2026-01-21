@@ -22,5 +22,9 @@ This document captures project-wide naming conventions. Keep it in sync with the
 - Booleans: *Enabled suffix (jsEnabled, shadowDomEnabled, shortcodeEnabled, liveHighlightEnabled, tailwindEnabled)
 - Tailwind flag: tailwindEnabled (not tailwind)
 
+## JS Internal vs API Boundary
+- JS/TS internal identifiers use camelCase (postId).
+- API boundary (REST payloads, URLs, shortcode attrs) uses snake_case (post_id).
+
 ## Shortcodes
 - Attributes: post_id

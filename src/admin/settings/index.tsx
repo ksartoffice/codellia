@@ -67,7 +67,7 @@ type SettingsConfig = {
   header?: HTMLElement;
   data: SettingsData;
   restUrl: string;
-  post_id: number;
+  postId: number;
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
   onJavaScriptToggle?: (enabled: boolean) => void;
@@ -883,7 +883,7 @@ function TagsModal({
 function SettingsSidebar({
   data,
   restUrl,
-  post_id,
+  postId,
   backUrl,
   apiFetch,
   header,
@@ -988,7 +988,7 @@ function SettingsSidebar({
         url: restUrl,
         method: 'POST',
         data: {
-          post_id,
+          post_id: postId,
           updates,
         },
       });
@@ -1003,7 +1003,7 @@ function SettingsSidebar({
 
       return response;
     },
-    [apiFetch, restUrl, post_id]
+    [apiFetch, restUrl, postId]
   );
 
   const canEditJavaScript = Boolean(settings.canEditJavaScript);
@@ -1335,7 +1335,7 @@ function SettingsSidebar({
 
       {activeTab === 'design' ? (
         <DesignSettingsPanel
-          post_id={post_id}
+          postId={postId}
           jsEnabled={jsEnabled}
           onToggleJavaScript={handleJavaScriptToggle}
           shadowDomEnabled={shadowDomEnabled}

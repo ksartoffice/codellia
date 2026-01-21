@@ -11,7 +11,7 @@ import type { ImportPayload } from './types';
 
 type SetupWizardConfig = {
   container: HTMLElement;
-  post_id: number;
+  postId: number;
   restUrl: string;
   importRestUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
@@ -28,7 +28,7 @@ type SetupWizardResult = {
 };
 
 type SetupWizardProps = {
-  post_id: number;
+  postId: number;
   restUrl: string;
   importRestUrl?: string;
   apiFetch: (args: any) => Promise<any>;
@@ -135,7 +135,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
 }
 
 function SetupWizard({
-  post_id,
+  postId,
   restUrl,
   importRestUrl,
   apiFetch,
@@ -196,7 +196,7 @@ function SetupWizard({
           url: importRestUrl,
           method: 'POST',
           data: {
-            post_id,
+            post_id: postId,
             payload: importPayload,
           },
         });
@@ -225,7 +225,7 @@ function SetupWizard({
           url: restUrl,
           method: 'POST',
           data: {
-            post_id,
+            post_id: postId,
             mode,
           },
         });
@@ -367,7 +367,7 @@ export function runSetupWizard(config: SetupWizardConfig): Promise<SetupWizardRe
 
     const node = (
       <SetupWizard
-        post_id={config.post_id}
+        postId={config.postId}
         restUrl={config.restUrl}
         importRestUrl={config.importRestUrl}
         apiFetch={apiFetch}

@@ -2,7 +2,7 @@ import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress
 import { __, sprintf } from '@wordpress/i18n';
 
 type DesignSettingsPanelProps = {
-  post_id: number;
+  postId: number;
   jsEnabled: boolean;
   onToggleJavaScript: (enabled: boolean) => void;
   shadowDomEnabled: boolean;
@@ -27,7 +27,7 @@ const MAX_EXTERNAL_SCRIPTS = 5;
 const MAX_EXTERNAL_STYLES = 5;
 
 export function DesignSettingsPanel({
-  post_id,
+  postId,
   jsEnabled,
   onToggleJavaScript,
   shadowDomEnabled,
@@ -54,7 +54,7 @@ export function DesignSettingsPanel({
   const hasScripts = externalScripts.length > 0;
   const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
   const hasStyles = externalStyles.length > 0;
-  const shortcodeText = `[livecode post_id="${post_id}"]`;
+  const shortcodeText = `[livecode post_id="${postId}"]`;
 
   useEffect(() => {
     return () => {
