@@ -727,6 +727,14 @@ msgstr "表示"
 msgid "Hide"
 msgstr "非表示"
 
+#: assets/dist/main.js:1
+msgid "View post"
+msgstr "投稿を表示"
+
+#: assets/dist/main.js:1
+msgid "Preview"
+msgstr "プレビュー"
+
 #: includes/class-wp-livecode-admin.php:67
 #: includes/class-wp-livecode-admin.php:68
 #: assets/dist/main.js:1
