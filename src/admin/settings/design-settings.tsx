@@ -277,6 +277,7 @@ export function DesignSettingsPanel({
           </button>
         )}
         <div className="lc-settingsHelp">
+          {/* translators: %d: maximum number of items. */}
           {sprintf(
             __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'wp-livecode' ),
             MAX_EXTERNAL_SCRIPTS
@@ -342,6 +343,7 @@ export function DesignSettingsPanel({
           </button>
         )}
         <div className="lc-settingsHelp">
+          {/* translators: %d: maximum number of items. */}
           {sprintf(
             __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'wp-livecode' ),
             MAX_EXTERNAL_STYLES

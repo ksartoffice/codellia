@@ -287,14 +287,15 @@ class Rest_Import {
 						)
 					);
 				} catch ( \Throwable $e ) {
-				return new \WP_REST_Response(
-					array(
-						'ok'    => false,
-						'error' => sprintf(
-							__( 'Tailwind compile failed: %s', 'wp-livecode' ),
-							$e->getMessage()
+					return new \WP_REST_Response(
+						array(
+							'ok'    => false,
+							'error' => sprintf(
+								/* translators: %s: error message. */
+								__( 'Tailwind compile failed: %s', 'wp-livecode' ),
+								$e->getMessage()
+							),
 						),
-					),
 					500
 				);
 			}

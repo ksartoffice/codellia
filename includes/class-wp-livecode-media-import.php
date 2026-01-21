@@ -117,6 +117,7 @@ class Media_Import {
 
 		if ( ! current_user_can( 'upload_files' ) ) {
 			$warnings[]           = sprintf(
+				/* translators: %s: image URL. */
 				__( 'Skipping image import (missing upload_files): %s', 'wp-livecode' ),
 				$normalized
 			);
@@ -134,6 +135,7 @@ class Media_Import {
 		$temp_file = download_url( $normalized, 30 );
 		if ( is_wp_error( $temp_file ) ) {
 			$warnings[]           = sprintf(
+				/* translators: 1: image URL, 2: error message. */
 				__( 'Failed to download image: %1$s (%2$s)', 'wp-livecode' ),
 				$normalized,
 				$temp_file->get_error_message()
@@ -154,6 +156,7 @@ class Media_Import {
 		if ( is_wp_error( $attachment_id ) ) {
 			wp_delete_file( $temp_file );
 			$warnings[]           = sprintf(
+				/* translators: 1: image URL, 2: error message. */
 				__( 'Failed to sideload image: %1$s (%2$s)', 'wp-livecode' ),
 				$normalized,
 				$attachment_id->get_error_message()
@@ -428,6 +431,7 @@ class Media_Import {
 		$mime = wp_get_image_mime( $file );
 		if ( ! $mime ) {
 			$warnings[] = sprintf(
+				/* translators: %s: image URL. */
 				__( 'Unable to detect image type: %s', 'wp-livecode' ),
 				$source_url
 			);
@@ -437,6 +441,7 @@ class Media_Import {
 		$ext = wp_get_default_extension_for_mime_type( $mime );
 		if ( ! $ext ) {
 			$warnings[] = sprintf(
+				/* translators: 1: mime type, 2: image URL. */
 				__( 'Unsupported image type (%1$s): %2$s', 'wp-livecode' ),
 				$mime,
 				$source_url

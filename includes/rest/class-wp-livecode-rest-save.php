@@ -93,6 +93,7 @@ class Rest_Save {
 					array(
 						'ok'    => false,
 						'error' => sprintf(
+							/* translators: %s: error message. */
 							__( 'Tailwind compile failed: %s', 'wp-livecode' ),
 							$e->getMessage()
 						),
@@ -153,6 +154,7 @@ class Rest_Save {
 				array(
 					'ok'    => false,
 					'error' => sprintf(
+						/* translators: %s: error message. */
 						__( 'Tailwind compile failed: %s', 'wp-livecode' ),
 						$e->getMessage()
 					),

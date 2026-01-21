@@ -63,9 +63,8 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
       if (currentToken !== tailwindCompileToken) {
         return;
       }
-      deps.onStatus(
-        sprintf(__( 'Tailwind error: %s', 'wp-livecode' ), e?.message ?? e)
-      );
+      /* translators: %s: error message. */
+      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'wp-livecode' ), e?.message ?? e));
     } finally {
       if (currentToken === tailwindCompileToken) {
         tailwindCompileInFlight = false;

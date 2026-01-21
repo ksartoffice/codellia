@@ -274,6 +274,7 @@ async function main() {
     }
 
     if (result.error) {
+      /* translators: %s: error message. */
       setStatus(sprintf(__( 'Export error: %s', 'wp-livecode' ), result.error));
     } else {
       setStatus(__( 'Export failed.', 'wp-livecode' ));
@@ -308,6 +309,7 @@ async function main() {
         }
       }, 1200);
     } else if (result.error) {
+      /* translators: %s: error message. */
       setStatus(sprintf(__( 'Save error: %s', 'wp-livecode' ), result.error));
     } else {
       setStatus(__( 'Save failed.', 'wp-livecode' ));
