@@ -296,9 +296,9 @@ class Rest_Import {
 								$e->getMessage()
 							),
 						),
-					500
-				);
-			}
+						500
+					);
+				}
 			}
 		}
 

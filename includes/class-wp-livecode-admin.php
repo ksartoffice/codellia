@@ -15,21 +15,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles admin UI routes and assets.
  */
 class Admin {
-	const MENU_SLUG = 'wp-livecode';
-	const SETTINGS_SLUG = 'wp-livecode-settings';
-	const SETTINGS_GROUP = 'wp_livecode_settings';
-	const OPTION_DELETE_ON_UNINSTALL = 'wp_livecode_delete_on_uninstall';
 
+	const MENU_SLUG                  = 'wp-livecode';
+	const SETTINGS_SLUG              = 'wp-livecode-settings';
+	const SETTINGS_GROUP             = 'wp_livecode_settings';
+	const OPTION_DELETE_ON_UNINSTALL = 'wp_livecode_delete_on_uninstall';
 	/**
 	 * Register admin hooks.
 	 */
 	public static function init(): void {
+
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'admin_action_wp_livecode', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=wp_livecode.
 	}
-
 	/**
 	 * Redirect from admin.php?action=wp_livecode to the custom editor page.
 	 */
@@ -52,6 +52,7 @@ class Admin {
 	 * Register the hidden admin page entry.
 	 */
 	public static function register_menu(): void {
+
 		// Hidden admin page (no menu entry). Accessed via redirects only.
 		add_submenu_page(
 			null,
@@ -76,6 +77,7 @@ class Admin {
 	 * Register settings for the plugin.
 	 */
 	public static function register_settings(): void {
+
 		register_setting(
 			self::SETTINGS_GROUP,
 			self::OPTION_DELETE_ON_UNINSTALL,
@@ -109,6 +111,7 @@ class Admin {
 	 * @return string
 	 */
 	public static function sanitize_delete_on_uninstall( $value ): string {
+
 		return '1' === $value ? '1' : '0';
 	}
 
@@ -116,6 +119,7 @@ class Admin {
 	 * Render cleanup section description.
 	 */
 	public static function render_cleanup_section(): void {
+
 		echo '<p>' . esc_html__( 'Choose whether LiveCode posts should be deleted when the plugin is uninstalled.', 'wp-livecode' ) . '</p>';
 	}
 
@@ -123,6 +127,7 @@ class Admin {
 	 * Render delete-on-uninstall checkbox field.
 	 */
 	public static function render_delete_on_uninstall_field(): void {
+
 		$value = get_option( self::OPTION_DELETE_ON_UNINSTALL, '0' );
 		echo '<label>';
 		echo '<input type="checkbox" name="' . esc_attr( self::OPTION_DELETE_ON_UNINSTALL ) . '" value="1" ' . checked( '1', $value, false ) . ' />';
@@ -153,6 +158,7 @@ class Admin {
 	 * Render settings page.
 	 */
 	public static function render_settings_page(): void {
+
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -166,7 +172,6 @@ class Admin {
 		echo '</form>';
 		echo '</div>';
 	}
-
 	/**
 	 * Enqueue admin assets for the LiveCode editor.
 	 *
