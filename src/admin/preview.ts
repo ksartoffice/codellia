@@ -414,7 +414,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     deps.iframe.contentWindow?.postMessage(
       {
         type: 'LC_INIT',
-        postId: deps.postId,
+        post_id: deps.postId,
       },
       deps.targetOrigin
     );

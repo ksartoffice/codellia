@@ -1,6 +1,7 @@
 /.git
 /.gitignore
 /AGENTS.md
+/STYLEGUIDE.md
 /node_modules
 /src
 /tests

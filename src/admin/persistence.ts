@@ -40,7 +40,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         url: deps.restCompileUrl,
         method: 'POST',
         data: {
-          postId: deps.postId,
+          post_id: deps.postId,
           html: deps.getHtml(),
           css: deps.getCss(),
         },
@@ -89,7 +89,7 @@ type SaveParams = {
   html: string;
   css: string;
   tailwindEnabled: boolean;
-  canEditJavaScript: boolean;
+  canEditJs: boolean;
   js: string;
   jsEnabled: boolean;
 };
@@ -99,12 +99,12 @@ export async function saveLivecode(
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const payload: Record<string, any> = {
-      postId: params.postId,
+      post_id: params.postId,
       html: params.html,
       css: params.css,
-      tailwind: params.tailwindEnabled,
+      tailwindEnabled: params.tailwindEnabled,
     };
-    if (params.canEditJavaScript) {
+    if (params.canEditJs) {
       payload.js = params.js;
       payload.jsEnabled = params.jsEnabled;
     }
@@ -152,7 +152,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
           url: params.restCompileUrl,
           method: 'POST',
           data: {
-            postId: params.postId,
+            post_id: params.postId,
             html: params.html,
             css: params.css,
           },
@@ -171,7 +171,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
       version: 1,
       html: params.html,
       css: params.css,
-      tailwind: params.tailwindEnabled,
+      tailwindEnabled: params.tailwindEnabled,
       generatedCss: params.tailwindEnabled ? (generatedCss || params.tailwindCss) : '',
       js: params.js,
       jsEnabled: params.jsEnabled,

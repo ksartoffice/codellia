@@ -8,6 +8,7 @@
   const externalStyleAttr = 'data-lc-external-style';
   const LC_ATTR_NAME = 'data-lc-id';
   const config = window.WP_LIVECODE_PREVIEW || {};
+  const postId = config.post_id || null;
   const markerStart =
     config.markers && config.markers.start ? String(config.markers.start) : 'wp-livecode:start';
   const markerEnd =
@@ -713,7 +714,7 @@
     const data = event.data || {};
     if (data.type === 'LC_INIT') {
       isReady = true;
-      reply('LC_READY', { postId: config.postId || null });
+      reply('LC_READY', { post_id: postId });
       return;
     }
     if (data.type === 'LC_RENDER') {
@@ -757,5 +758,5 @@
   });
 
   attachDomSelector();
-  reply('LC_READY', { postId: config.postId || null });
+  reply('LC_READY', { post_id: postId });
 })();

@@ -24,14 +24,14 @@ class Rest_Save {
 	 * @return \WP_REST_Response
 	 */
 	public static function save( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id          = absint( $request->get_param( 'postId' ) );
+		$post_id          = absint( $request->get_param( 'post_id' ) );
 		$html             = (string) $request->get_param( 'html' );
 		$css_input        = (string) $request->get_param( 'css' );
 		$js_input         = (string) $request->get_param( 'js' );
 		$has_js           = $request->has_param( 'js' );
 		$has_js_enabled   = $request->has_param( 'jsEnabled' );
 		$js_enabled       = rest_sanitize_boolean( $request->get_param( 'jsEnabled' ) );
-		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwind' ) );
+		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwindEnabled' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
 			return new \WP_REST_Response(
@@ -128,7 +128,7 @@ class Rest_Save {
 	 * @return \WP_REST_Response
 	 */
 	public static function compile_tailwind( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id   = absint( $request->get_param( 'postId' ) );
+		$post_id   = absint( $request->get_param( 'post_id' ) );
 		$html      = (string) $request->get_param( 'html' );
 		$css_input = (string) $request->get_param( 'css' );
 

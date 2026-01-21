@@ -27,7 +27,7 @@ class Rest_Import {
 	 * @return \WP_REST_Response
 	 */
 	public static function import_payload( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'postId' ) );
+		$post_id = absint( $request->get_param( 'post_id' ) );
 		$payload = $request->get_param( 'payload' );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
@@ -91,16 +91,15 @@ class Rest_Import {
 			);
 		}
 
-		if ( ! array_key_exists( 'tailwind', $payload ) || ! is_bool( $payload['tailwind'] ) ) {
+		if ( ! array_key_exists( 'tailwindEnabled', $payload ) || ! is_bool( $payload['tailwindEnabled'] ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid tailwind flag.', 'wp-livecode' ),
+					'error' => __( 'Invalid tailwindEnabled value.', 'wp-livecode' ),
 				),
 				400
 			);
 		}
-
 		$js_input = '';
 		if ( array_key_exists( 'js', $payload ) ) {
 			if ( ! is_string( $payload['js'] ) ) {
@@ -245,7 +244,7 @@ class Rest_Import {
 
 		$html             = $payload['html'];
 		$css_input        = $payload['css'];
-		$tailwind_enabled = $payload['tailwind'];
+		$tailwind_enabled = $payload['tailwindEnabled'];
 		$import_warnings  = array();
 		$imported_images  = array();
 

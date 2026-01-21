@@ -74,8 +74,8 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: __( 'Invalid CSS value.', 'wp-livecode' ) };
   }
 
-  if (typeof raw.tailwind !== 'boolean') {
-    return { error: __( 'Invalid tailwind flag.', 'wp-livecode' ) };
+  if (typeof raw.tailwindEnabled !== 'boolean') {
+    return { error: __( 'Invalid tailwindEnabled value.', 'wp-livecode' ) };
   }
 
   if (raw.generatedCss !== undefined && typeof raw.generatedCss !== 'string') {
@@ -121,7 +121,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       version: 1,
       html: raw.html,
       css: raw.css,
-      tailwind: raw.tailwind,
+      tailwindEnabled: raw.tailwindEnabled,
       generatedCss: raw.generatedCss,
       js: raw.js ?? '',
       jsEnabled: raw.jsEnabled ?? false,
@@ -196,7 +196,7 @@ function SetupWizard({
           url: importRestUrl,
           method: 'POST',
           data: {
-            postId,
+            post_id: postId,
             payload: importPayload,
           },
         });
@@ -214,7 +214,7 @@ function SetupWizard({
           : importPayload;
 
         onComplete({
-          tailwindEnabled: Boolean(response.tailwindEnabled ?? importPayload.tailwind),
+          tailwindEnabled: Boolean(response.tailwindEnabled ?? importPayload.tailwindEnabled),
           imported: {
             payload: normalizedPayload,
             settingsData: response.settingsData,
@@ -225,7 +225,7 @@ function SetupWizard({
           url: restUrl,
           method: 'POST',
           data: {
-            postId,
+            post_id: postId,
             mode,
           },
         });

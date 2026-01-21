@@ -21,12 +21,12 @@ declare const wp: any;
 declare global {
   interface Window {
     WP_LIVECODE: {
-      postId: number;
+      post_id: number;
       initialHtml: string;
       initialCss: string;
       initialJs: string;
       jsEnabled: boolean;
-      canEditJavaScript: boolean;
+      canEditJs: boolean;
       previewUrl: string;
       monacoVsPath: string;
       restUrl: string;
@@ -56,6 +56,7 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 
 async function main() {
   const cfg = window.WP_LIVECODE;
+  const postId = cfg.post_id;
   const mount = document.getElementById('wp-livecode-app');
   if (!mount) return;
 
@@ -88,7 +89,7 @@ async function main() {
     try {
       const result = await runSetupWizard({
         container: setupHost,
-        postId: cfg.postId,
+        postId,
         restUrl: cfg.setupRestUrl,
         importRestUrl: cfg.importRestUrl,
         apiFetch: wp?.apiFetch,
@@ -116,8 +117,8 @@ async function main() {
     cfg.initialCss = payload.css;
     cfg.initialJs = payload.js ?? '';
     cfg.jsEnabled = payload.jsEnabled ?? false;
-    cfg.tailwindEnabled = payload.tailwind;
-    tailwindEnabled = payload.tailwind;
+    cfg.tailwindEnabled = payload.tailwindEnabled;
+    tailwindEnabled = payload.tailwindEnabled;
     cfg.settingsData =
       importedState.settingsData ?? {
         ...cfg.settingsData,
@@ -158,7 +159,7 @@ async function main() {
   let editorsReady = false;
   let hasUnsavedChanges = false;
   let lastSaved = { html: '', css: '', js: '' };
-  const canEditJavaScript = Boolean(cfg.canEditJavaScript);
+  const canEditJs = Boolean(cfg.canEditJs);
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -250,7 +251,7 @@ async function main() {
     const result = await exportLivecode({
       apiFetch: wp.apiFetch,
       restCompileUrl: cfg.restCompileUrl,
-      postId: cfg.postId,
+      postId,
       html: htmlModel.getValue(),
       css: cssModel.getValue(),
       tailwindEnabled,
@@ -292,11 +293,11 @@ async function main() {
     const result = await saveLivecode({
       apiFetch: wp.apiFetch,
       restUrl: cfg.restUrl,
-      postId: cfg.postId,
+      postId,
       html: htmlModel.getValue(),
       css: cssModel.getValue(),
       tailwindEnabled,
-      canEditJavaScript,
+      canEditJs,
       js: jsModel.getValue(),
       jsEnabled,
     });
@@ -353,7 +354,7 @@ async function main() {
     initialJs: cfg.initialJs ?? '',
     tailwindEnabled,
     useTailwindDefault: !importedState,
-    canEditJavaScript,
+    canEditJs,
     htmlContainer: ui.htmlEditorDiv,
     cssContainer: ui.cssEditorDiv,
     jsContainer: ui.jsEditorDiv,
@@ -513,7 +514,7 @@ async function main() {
 
   preview = createPreviewController({
     iframe: ui.iframe,
-    postId: cfg.postId,
+    postId,
     targetOrigin,
     monaco,
     htmlModel,
@@ -538,7 +539,7 @@ async function main() {
           url: cfg.renderShortcodesUrl,
           method: 'POST',
           data: {
-            postId: cfg.postId,
+            post_id: postId,
             shortcodes: items.map((item) => ({ id: item.id, shortcode: item.shortcode })),
           },
         });
@@ -569,7 +570,7 @@ async function main() {
   tailwindCompiler = createTailwindCompiler({
     apiFetch: wp.apiFetch,
     restCompileUrl: cfg.restCompileUrl,
-    postId: cfg.postId,
+    postId,
     getHtml: () => htmlModel.getValue(),
     getCss: () => cssModel.getValue(),
     isTailwindEnabled: () => tailwindEnabled,
@@ -588,7 +589,7 @@ async function main() {
   sendRenderDebounced = debounce(() => preview?.sendRender(), 120);
   compileTailwindDebounced = debounce(() => tailwindCompiler?.compile(), 300);
 
-  const setJavaScriptEnabled = (enabled: boolean) => {
+  const setJsEnabled = (enabled: boolean) => {
     jsEnabled = enabled;
     if (!jsEnabled && activeCssTab === 'js') {
       setCssTab('css');
@@ -661,10 +662,10 @@ async function main() {
     header: ui.settingsHeader,
     data: cfg.settingsData,
     restUrl: cfg.settingsRestUrl,
-    postId: cfg.postId,
+    postId,
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
-    onJavaScriptToggle: setJavaScriptEnabled,
+    onJsToggle: setJsEnabled,
     onShadowDomToggle: setShadowDomEnabled,
     onShortcodeToggle: (enabled) => {
       shortcodeEnabled = enabled;
@@ -835,7 +836,7 @@ async function main() {
   ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
 
   setTailwindEnabled(tailwindEnabled);
-  setJavaScriptEnabled(jsEnabled);
+  setJsEnabled(jsEnabled);
   preview?.flushPendingJsAction();
 
   htmlModel.onDidChangeContent(() => {
@@ -871,12 +872,12 @@ async function main() {
     syncUnsavedUi();
   });
 
-  // 初回の iframe load 後に送る
+  // ������ iframe load ���ɑ���
   ui.iframe.addEventListener('load', () => {
     preview?.handleIframeLoad();
   });
 
-  // iframe -> parent への通信：DOM セレクタの受け取りや初期化に用いる
+  // iframe -> parent �ւ̒ʐM�FDOM �Z���N�^�̎󂯎����⏉�����ɗp����
   window.addEventListener('message', (event) => {
     preview?.handleMessage(event);
   });

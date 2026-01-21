@@ -44,7 +44,7 @@ class Rest {
 				'callback'            => array( Rest_Preview::class, 'render_shortcodes' ),
 				'permission_callback' => array( __CLASS__, 'permission_check' ),
 				'args'                => array(
-					'postId'     => array(
+					'post_id'    => array(
 						'type'     => 'integer',
 						'required' => true,
 					),
@@ -64,15 +64,15 @@ class Rest {
 				'callback'            => array( Rest_Save::class, 'compile_tailwind' ),
 				'permission_callback' => array( __CLASS__, 'permission_check' ),
 				'args'                => array(
-					'postId' => array(
+					'post_id' => array(
 						'type'     => 'integer',
 						'required' => true,
 					),
-					'html'   => array(
+					'html'    => array(
 						'type'     => 'string',
 						'required' => true,
 					),
-					'css'    => array(
+					'css'     => array(
 						'type'     => 'string',
 						'required' => false,
 					),
@@ -88,11 +88,11 @@ class Rest {
 				'callback'            => array( Rest_Setup::class, 'setup_mode' ),
 				'permission_callback' => array( __CLASS__, 'permission_check' ),
 				'args'                => array(
-					'postId' => array(
+					'post_id' => array(
 						'type'     => 'integer',
 						'required' => true,
 					),
-					'mode'   => array(
+					'mode'    => array(
 						'type'     => 'string',
 						'required' => true,
 					),
@@ -108,7 +108,7 @@ class Rest {
 				'callback'            => array( Rest_Import::class, 'import_payload' ),
 				'permission_callback' => array( __CLASS__, 'permission_check' ),
 				'args'                => array(
-					'postId'  => array(
+					'post_id' => array(
 						'type'     => 'integer',
 						'required' => true,
 					),
@@ -128,7 +128,7 @@ class Rest {
 				'callback'            => array( Rest_Settings::class, 'update_settings' ),
 				'permission_callback' => array( __CLASS__, 'permission_check' ),
 				'args'                => array(
-					'postId'  => array(
+					'post_id' => array(
 						'type'     => 'integer',
 						'required' => true,
 					),
@@ -148,7 +148,7 @@ class Rest {
 	 * @return bool
 	 */
 	public static function permission_check( \WP_REST_Request $request ): bool {
-		$post_id = absint( $request->get_param( 'postId' ) );
+		$post_id = absint( $request->get_param( 'post_id' ) );
 		if ( 0 >= $post_id ) {
 			return false;
 		}

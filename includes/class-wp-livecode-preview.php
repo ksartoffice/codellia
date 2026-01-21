@@ -155,7 +155,7 @@ class Preview {
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$payload                = array(
 			'allowedOrigin'        => $admin_origin,
-			'postId'               => self::$post_id,
+			'post_id'              => self::$post_id,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'markers'              => array(
 				'start' => self::MARKER_START,

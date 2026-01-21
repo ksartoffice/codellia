@@ -22,7 +22,7 @@ class Rest_Preview {
 	 * @return \WP_REST_Response
 	 */
 	public static function render_shortcodes( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'postId' ) );
+		$post_id = absint( $request->get_param( 'post_id' ) );
 		$items   = $request->get_param( 'shortcodes' );
 
 		if ( ! $post_id || ! Post_Type::is_livecode_post( $post_id ) || ! $items || ! is_array( $items ) ) {

@@ -57,7 +57,7 @@ export type SettingsData = {
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   liveHighlightEnabled: boolean;
-  canEditJavaScript: boolean;
+  canEditJs: boolean;
   externalScripts: string[];
   externalStyles: string[];
 };
@@ -70,7 +70,7 @@ type SettingsConfig = {
   postId: number;
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
-  onJavaScriptToggle?: (enabled: boolean) => void;
+  onJsToggle?: (enabled: boolean) => void;
   onShadowDomToggle?: (enabled: boolean) => void;
   onShortcodeToggle?: (enabled: boolean) => void;
   onLiveHighlightToggle?: (enabled: boolean) => void;
@@ -236,7 +236,21 @@ function Modal({ title, onClose, error, children }: ModalProps) {
             onClick={onClose}
             aria-label={__( 'Close', 'wp-livecode' )}
           >
-            ×
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-x-icon lucide-x"
+            >
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
           </button>
         </div>
         <div className="lc-modalBody">{children}</div>
@@ -887,7 +901,7 @@ function SettingsSidebar({
   backUrl,
   apiFetch,
   header,
-  onJavaScriptToggle,
+  onJsToggle,
   onShadowDomToggle,
   onShortcodeToggle,
   onLiveHighlightToggle,
@@ -902,10 +916,10 @@ function SettingsSidebar({
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
-  const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
-  const [enableShadowDom, setEnableShadowDom] = useState(Boolean(data.shadowDomEnabled));
-  const [enableShortcode, setEnableShortcode] = useState(Boolean(data.shortcodeEnabled));
-  const [enableLiveHighlight, setEnableLiveHighlight] = useState(
+  const [jsEnabled, setJsEnabled] = useState(Boolean(data.jsEnabled));
+  const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
+  const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
+  const [liveHighlightEnabled, setLiveHighlightEnabled] = useState(
     resolveLiveHighlightEnabled(data.liveHighlightEnabled)
   );
   const [designError, setDesignError] = useState('');
@@ -921,19 +935,19 @@ function SettingsSidebar({
   }, [settings.title]);
 
   useEffect(() => {
-    setEnableJavaScript(Boolean(settings.jsEnabled));
+    setJsEnabled(Boolean(settings.jsEnabled));
   }, [settings.jsEnabled]);
 
   useEffect(() => {
-    setEnableShadowDom(Boolean(settings.shadowDomEnabled));
+    setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
   }, [settings.shadowDomEnabled]);
 
   useEffect(() => {
-    setEnableShortcode(Boolean(settings.shortcodeEnabled));
+    setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
   }, [settings.shortcodeEnabled]);
 
   useEffect(() => {
-    setEnableLiveHighlight(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
+    setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
   }, [settings.liveHighlightEnabled]);
 
   useEffect(() => {
@@ -962,20 +976,20 @@ function SettingsSidebar({
   }, [settings.externalStyles, onExternalStylesChange]);
 
   useEffect(() => {
-    onJavaScriptToggle?.(enableJavaScript);
-  }, [enableJavaScript, onJavaScriptToggle]);
+    onJsToggle?.(jsEnabled);
+  }, [jsEnabled, onJsToggle]);
 
   useEffect(() => {
-    onShadowDomToggle?.(enableShadowDom);
-  }, [enableShadowDom, onShadowDomToggle]);
+    onShadowDomToggle?.(shadowDomEnabled);
+  }, [shadowDomEnabled, onShadowDomToggle]);
 
   useEffect(() => {
-    onShortcodeToggle?.(enableShortcode);
-  }, [enableShortcode, onShortcodeToggle]);
+    onShortcodeToggle?.(shortcodeEnabled);
+  }, [shortcodeEnabled, onShortcodeToggle]);
 
   useEffect(() => {
-    onLiveHighlightToggle?.(enableLiveHighlight);
-  }, [enableLiveHighlight, onLiveHighlightToggle]);
+    onLiveHighlightToggle?.(liveHighlightEnabled);
+  }, [liveHighlightEnabled, onLiveHighlightToggle]);
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
@@ -988,7 +1002,7 @@ function SettingsSidebar({
         url: restUrl,
         method: 'POST',
         data: {
-          postId,
+          post_id: postId,
           updates,
         },
       });
@@ -1006,7 +1020,7 @@ function SettingsSidebar({
     [apiFetch, restUrl, postId]
   );
 
-  const canEditJavaScript = Boolean(settings.canEditJavaScript);
+  const canEditJs = Boolean(settings.canEditJs);
 
   const normalizeList = (list: string[]) =>
     list
@@ -1016,56 +1030,56 @@ function SettingsSidebar({
   const isSameList = (left: string[], right: string[]) =>
     left.length === right.length && left.every((value, index) => value === right[index]);
 
-  const handleJavaScriptToggle = async (enabled: boolean) => {
-    if (!canEditJavaScript) {
+  const handleJsToggle = async (enabled: boolean) => {
+    if (!canEditJs) {
       return;
     }
     setDesignError('');
-    setEnableJavaScript(enabled);
+    setJsEnabled(enabled);
     try {
-      await updateSettings({ enableJavaScript: enabled });
+      await updateSettings({ jsEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableJavaScript(Boolean(settings.jsEnabled));
+      setJsEnabled(Boolean(settings.jsEnabled));
     }
   };
 
   const handleShadowDomToggle = async (enabled: boolean) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     setDesignError('');
-    setEnableShadowDom(enabled);
+    setShadowDomEnabled(enabled);
     try {
-      await updateSettings({ enableShadowDom: enabled });
+      await updateSettings({ shadowDomEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableShadowDom(Boolean(settings.shadowDomEnabled));
+      setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
     }
   };
 
   const handleShortcodeToggle = async (enabled: boolean) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     setDesignError('');
-    setEnableShortcode(enabled);
+    setShortcodeEnabled(enabled);
     try {
-      await updateSettings({ enableShortcode: enabled });
+      await updateSettings({ shortcodeEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableShortcode(Boolean(settings.shortcodeEnabled));
+      setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
     }
   };
 
   const handleLiveHighlightToggle = async (enabled: boolean) => {
     setDesignError('');
-    setEnableLiveHighlight(enabled);
+    setLiveHighlightEnabled(enabled);
     try {
-      await updateSettings({ enableLiveHighlight: enabled });
+      await updateSettings({ liveHighlightEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableLiveHighlight(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
+      setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
     }
   };
 
@@ -1074,7 +1088,7 @@ function SettingsSidebar({
   };
 
   const handleExternalScriptsCommit = async (next: string[]) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     const normalizedNext = normalizeList(next);
@@ -1098,7 +1112,7 @@ function SettingsSidebar({
   };
 
   const handleExternalStylesCommit = async (next: string[]) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     const normalizedNext = normalizeList(next);
@@ -1336,13 +1350,13 @@ function SettingsSidebar({
       {activeTab === 'design' ? (
         <DesignSettingsPanel
           postId={postId}
-          enableJavaScript={enableJavaScript}
-          onToggleJavaScript={handleJavaScriptToggle}
-          enableShadowDom={enableShadowDom}
+          jsEnabled={jsEnabled}
+          onToggleJs={handleJsToggle}
+          shadowDomEnabled={shadowDomEnabled}
           onToggleShadowDom={handleShadowDomToggle}
-          enableShortcode={enableShortcode}
+          shortcodeEnabled={shortcodeEnabled}
           onToggleShortcode={handleShortcodeToggle}
-          enableLiveHighlight={enableLiveHighlight}
+          liveHighlightEnabled={liveHighlightEnabled}
           onToggleLiveHighlight={handleLiveHighlightToggle}
           externalScripts={externalScripts}
           onChangeExternalScripts={handleExternalScriptsChange}
@@ -1350,7 +1364,7 @@ function SettingsSidebar({
           externalStyles={externalStyles}
           onChangeExternalStyles={handleExternalStylesChange}
           onCommitExternalStyles={handleExternalStylesCommit}
-          disabled={!canEditJavaScript}
+          disabled={!canEditJs}
           error={designError}
           externalScriptsError={externalScriptsError}
           externalStylesError={externalStylesError}
