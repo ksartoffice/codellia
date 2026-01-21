@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<phpunit bootstrap="tests/bootstrap.php" colors="true">
+	<testsuites>
+		<testsuite name="WP LiveCode">
+			<directory prefix="test-" suffix=".php">./tests</directory>
+		</testsuite>
+	</testsuites>
+	<php>
+		<env name="WP_TESTS_DIR" value=""/>
+	</php>
+</phpunit>

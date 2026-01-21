@@ -1,75 +1,116 @@
 <?php
+/**
+ * REST handler for importing LiveCode data.
+ *
+ * @package WP_LiveCode
+ */
+
 namespace WPLiveCode;
 
 use TailwindPHP\tw;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * REST callbacks for LiveCode import.
+ */
 class Rest_Import {
 	private const MAX_EXTERNAL_SCRIPTS = 5;
-	private const MAX_EXTERNAL_STYLES = 5;
+	private const MAX_EXTERNAL_STYLES  = 5;
 
+	/**
+	 * Import a LiveCode JSON payload into a post.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
 	public static function import_payload( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$payload = $request->get_param( 'payload' );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid post type.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid post type.',
+				),
+				400
+			);
 		}
 
 		if ( ! current_user_can( 'unfiltered_html' ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Permission denied.',
-			], 403 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				),
+				403
+			);
 		}
 
 		if ( ! is_array( $payload ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid import payload.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid import payload.',
+				),
+				400
+			);
 		}
 
 		$version = isset( $payload['version'] ) ? (int) $payload['version'] : 0;
-		if ( $version !== 1 ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Unsupported import version.',
-			], 400 );
+		if ( 1 !== $version ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Unsupported import version.',
+				),
+				400
+			);
 		}
 
 		if ( ! array_key_exists( 'html', $payload ) || ! is_string( $payload['html'] ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid HTML value.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid HTML value.',
+				),
+				400
+			);
 		}
 
 		if ( ! array_key_exists( 'css', $payload ) || ! is_string( $payload['css'] ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid CSS value.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid CSS value.',
+				),
+				400
+			);
 		}
 
 		if ( ! array_key_exists( 'tailwind', $payload ) || ! is_bool( $payload['tailwind'] ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid tailwind flag.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid tailwind flag.',
+				),
+				400
+			);
 		}
 
 		$js_input = '';
 		if ( array_key_exists( 'js', $payload ) ) {
 			if ( ! is_string( $payload['js'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid JavaScript value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid JavaScript value.',
+					),
+					400
+				);
 			}
 			$js_input = $payload['js'];
 		}
@@ -77,10 +118,13 @@ class Rest_Import {
 		$js_enabled = false;
 		if ( array_key_exists( 'jsEnabled', $payload ) ) {
 			if ( ! is_bool( $payload['jsEnabled'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid jsEnabled value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid jsEnabled value.',
+					),
+					400
+				);
 			}
 			$js_enabled = $payload['jsEnabled'];
 		}
@@ -88,10 +132,13 @@ class Rest_Import {
 		$shadow_dom_enabled = false;
 		if ( array_key_exists( 'shadowDomEnabled', $payload ) ) {
 			if ( ! is_bool( $payload['shadowDomEnabled'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid shadowDomEnabled value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid shadowDomEnabled value.',
+					),
+					400
+				);
 			}
 			$shadow_dom_enabled = $payload['shadowDomEnabled'];
 		}
@@ -99,10 +146,13 @@ class Rest_Import {
 		$shortcode_enabled = false;
 		if ( array_key_exists( 'shortcodeEnabled', $payload ) ) {
 			if ( ! is_bool( $payload['shortcodeEnabled'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid shortcodeEnabled value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid shortcodeEnabled value.',
+					),
+					400
+				);
 			}
 			$shortcode_enabled = $payload['shortcodeEnabled'];
 		}
@@ -110,10 +160,13 @@ class Rest_Import {
 		$live_highlight_enabled = null;
 		if ( array_key_exists( 'liveHighlightEnabled', $payload ) ) {
 			if ( ! is_bool( $payload['liveHighlightEnabled'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid liveHighlightEnabled value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid liveHighlightEnabled value.',
+					),
+					400
+				);
 			}
 			$live_highlight_enabled = $payload['liveHighlightEnabled'];
 		}
@@ -121,65 +174,80 @@ class Rest_Import {
 		$generated_css_input = '';
 		if ( array_key_exists( 'generatedCss', $payload ) ) {
 			if ( ! is_string( $payload['generatedCss'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid generatedCss value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid generatedCss value.',
+					),
+					400
+				);
 			}
 			$generated_css_input = $payload['generatedCss'];
 		}
 
-		$external_scripts = [];
+		$external_scripts = array();
 		if ( array_key_exists( 'externalScripts', $payload ) ) {
 			if ( ! is_array( $payload['externalScripts'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid externalScripts value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid externalScripts value.',
+					),
+					400
+				);
 			}
 
-			$error = null;
+			$error            = null;
 			$external_scripts = External_Scripts::validate_list(
 				array_values( $payload['externalScripts'] ),
 				self::MAX_EXTERNAL_SCRIPTS,
 				$error
 			);
 			if ( null === $external_scripts ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => $error ?: 'Invalid externalScripts value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => null !== $error ? $error : 'Invalid externalScripts value.',
+					),
+					400
+				);
 			}
 		}
 
-		$external_styles = [];
+		$external_styles = array();
 		if ( array_key_exists( 'externalStyles', $payload ) ) {
 			if ( ! is_array( $payload['externalStyles'] ) ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Invalid externalStyles value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Invalid externalStyles value.',
+					),
+					400
+				);
 			}
 
-			$error = null;
+			$error           = null;
 			$external_styles = External_Styles::validate_list(
 				array_values( $payload['externalStyles'] ),
 				self::MAX_EXTERNAL_STYLES,
 				$error
 			);
 			if ( null === $external_styles ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => $error ?: 'Invalid externalStyles value.',
-				], 400 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => null !== $error ? $error : 'Invalid externalStyles value.',
+					),
+					400
+				);
 			}
 		}
 
-		$html    = $payload['html'];
-		$css_input = $payload['css'];
+		$html             = $payload['html'];
+		$css_input        = $payload['css'];
 		$tailwind_enabled = $payload['tailwind'];
-		$import_warnings = [];
-		$imported_images = [];
+		$import_warnings  = array();
+		$imported_images  = array();
 
 		$html = Media_Import::localize_external_images(
 			$html,
@@ -188,33 +256,44 @@ class Rest_Import {
 			$imported_images
 		);
 
-		$result = wp_update_post( [
-			'ID'           => $post_id,
-			'post_content' => $html,
-		], true );
+		$result = wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => $html,
+			),
+			true
+		);
 
 		if ( is_wp_error( $result ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => $result->get_error_message(),
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => $result->get_error_message(),
+				),
+				400
+			);
 		}
 
 		$compiled_css = '';
 		if ( $tailwind_enabled ) {
-			if ( $generated_css_input !== '' ) {
+			if ( '' !== $generated_css_input ) {
 				$compiled_css = $generated_css_input;
 			} else {
 				try {
-					$compiled_css = tw::generate( [
-						'content' => $html,
-						'css'     => $css_input,
-					] );
+					$compiled_css = tw::generate(
+						array(
+							'content' => $html,
+							'css'     => $css_input,
+						)
+					);
 				} catch ( \Throwable $e ) {
-					return new \WP_REST_Response( [
-						'ok'    => false,
-						'error' => 'Tailwind compile failed: ' . $e->getMessage(),
-					], 500 );
+					return new \WP_REST_Response(
+						array(
+							'ok'    => false,
+							'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+						),
+						500
+					);
 				}
 			}
 		}
@@ -257,12 +336,12 @@ class Rest_Import {
 			);
 		}
 
-		$response = [
+		$response = array(
 			'ok'              => true,
 			'html'            => $html,
 			'tailwindEnabled' => $tailwind_enabled,
 			'settingsData'    => Rest_Settings::build_settings_payload( $post_id ),
-		];
+		);
 
 		if ( ! empty( $import_warnings ) ) {
 			$response['importWarnings'] = array_values( $import_warnings );

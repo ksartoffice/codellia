@@ -1,35 +1,54 @@
 <?php
+/**
+ * REST handlers for preview rendering.
+ *
+ * @package WP_LiveCode
+ */
+
 namespace WPLiveCode;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * REST callbacks for rendering shortcodes.
+ */
 class Rest_Preview {
 	/**
 	 * Render shortcode blocks on the server and return rendered HTML mapped to an id.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
 	 */
 	public static function render_shortcodes( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id = absint( $request->get_param( 'postId' ) );
 		$items   = $request->get_param( 'shortcodes' );
 
 		if ( ! $post_id || ! Post_Type::is_livecode_post( $post_id ) || ! $items || ! is_array( $items ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid parameters.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid parameters.',
+				),
+				400
+			);
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Post not found.',
-			], 404 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Post not found.',
+				),
+				404
+			);
 		}
 
-		$results   = [];
-		$cache_map = [];
+		$results   = array();
+		$cache_map = array();
 
-		$previous_post = $GLOBALS['post'] ?? null;
 		setup_postdata( $post );
 
 		foreach ( $items as $entry ) {
@@ -39,11 +58,11 @@ class Rest_Preview {
 			$id        = isset( $entry['id'] ) ? sanitize_key( (string) $entry['id'] ) : '';
 			$shortcode = isset( $entry['shortcode'] ) ? (string) $entry['shortcode'] : '';
 
-			if ( $id === '' ) {
+			if ( '' === $id ) {
 				continue;
 			}
 
-			if ( $shortcode === '' ) {
+			if ( '' === $shortcode ) {
 				$results[ $id ] = '';
 				continue;
 			}
@@ -60,16 +79,14 @@ class Rest_Preview {
 			$cache_map[ $cache_key ] = $rendered;
 		}
 
-		if ( $previous_post instanceof \WP_Post ) {
-			$GLOBALS['post'] = $previous_post;
-			setup_postdata( $previous_post );
-		} else {
-			wp_reset_postdata();
-		}
+		wp_reset_postdata();
 
-		return new \WP_REST_Response( [
-			'ok'      => true,
-			'results' => $results,
-		], 200 );
+		return new \WP_REST_Response(
+			array(
+				'ok'      => true,
+				'results' => $results,
+			),
+			200
+		);
 	}
 }

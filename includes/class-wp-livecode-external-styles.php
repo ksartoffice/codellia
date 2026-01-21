@@ -1,16 +1,34 @@
 <?php
+/**
+ * External style helpers for WP LiveCode.
+ *
+ * @package WP_LiveCode
+ */
+
 namespace WPLiveCode;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * Validates and sanitizes external stylesheet URLs.
+ */
 class External_Styles {
+	/**
+	 * Fetch external styles list for a LiveCode post.
+	 *
+	 * @param int      $post_id LiveCode post ID.
+	 * @param int|null $max     Optional max items.
+	 * @return array
+	 */
 	public static function get_external_styles( int $post_id, ?int $max = null ): array {
-		$raw = get_post_meta( $post_id, '_lc_external_styles', true );
-		$list = [];
+		$raw  = get_post_meta( $post_id, '_lc_external_styles', true );
+		$list = array();
 
 		if ( is_array( $raw ) ) {
 			$list = $raw;
-		} elseif ( is_string( $raw ) && $raw !== '' ) {
+		} elseif ( is_string( $raw ) && '' !== $raw ) {
 			$decoded = json_decode( $raw, true );
 			if ( is_array( $decoded ) ) {
 				$list = $decoded;
@@ -20,15 +38,23 @@ class External_Styles {
 		return self::sanitize_list( $list, $max );
 	}
 
+	/**
+	 * Validate a list of external stylesheet URLs.
+	 *
+	 * @param array       $raw   Raw list of URLs.
+	 * @param int|null    $max   Optional max items.
+	 * @param string|null $error Error message output.
+	 * @return array|null
+	 */
 	public static function validate_list( array $raw, ?int $max = null, ?string &$error = null ): ?array {
-		$sanitized = [];
+		$sanitized = array();
 		foreach ( array_values( $raw ) as $style_url ) {
 			if ( ! is_string( $style_url ) ) {
 				$error = 'Invalid externalStyles value.';
 				return null;
 			}
 			$style_url = trim( $style_url );
-			if ( $style_url === '' ) {
+			if ( '' === $style_url ) {
 				continue;
 			}
 			$clean_url = self::sanitize_url( $style_url );
@@ -40,7 +66,7 @@ class External_Styles {
 		}
 
 		$sanitized = array_values( array_unique( $sanitized ) );
-		if ( null !== $max && count( $sanitized ) > $max ) {
+		if ( null !== $max && $max < count( $sanitized ) ) {
 			$error = 'External styles exceed the maximum allowed.';
 			return null;
 		}
@@ -48,14 +74,21 @@ class External_Styles {
 		return $sanitized;
 	}
 
+	/**
+	 * Sanitize a list of external stylesheet URLs.
+	 *
+	 * @param array    $raw Raw list of URLs.
+	 * @param int|null $max Optional max items.
+	 * @return array
+	 */
 	public static function sanitize_list( array $raw, ?int $max = null ): array {
-		$sanitized = [];
+		$sanitized = array();
 		foreach ( array_values( $raw ) as $style_url ) {
 			if ( ! is_string( $style_url ) ) {
 				continue;
 			}
 			$style_url = trim( $style_url );
-			if ( $style_url === '' ) {
+			if ( '' === $style_url ) {
 				continue;
 			}
 			$clean_url = self::sanitize_url( $style_url );
@@ -65,16 +98,22 @@ class External_Styles {
 		}
 
 		$sanitized = array_values( array_unique( $sanitized ) );
-		if ( null !== $max && count( $sanitized ) > $max ) {
+		if ( null !== $max && $max < count( $sanitized ) ) {
 			$sanitized = array_slice( $sanitized, 0, $max );
 		}
 
 		return $sanitized;
 	}
 
+	/**
+	 * Sanitize and validate a single external URL.
+	 *
+	 * @param string $url URL to sanitize.
+	 * @return string|null
+	 */
 	private static function sanitize_url( string $url ): ?string {
 		$url = trim( $url );
-		if ( $url === '' ) {
+		if ( '' === $url ) {
 			return null;
 		}
 
@@ -83,9 +122,9 @@ class External_Styles {
 			return null;
 		}
 
-		$parts = wp_parse_url( $validated );
+		$parts  = wp_parse_url( $validated );
 		$scheme = isset( $parts['scheme'] ) ? strtolower( $parts['scheme'] ) : '';
-		if ( $scheme !== 'https' ) {
+		if ( 'https' !== $scheme ) {
 			return null;
 		}
 

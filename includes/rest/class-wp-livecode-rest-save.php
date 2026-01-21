@@ -1,67 +1,101 @@
 <?php
+/**
+ * REST handlers for saving LiveCode content.
+ *
+ * @package WP_LiveCode
+ */
+
 namespace WPLiveCode;
 
 use TailwindPHP\tw;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * REST callbacks for save and compile.
+ */
 class Rest_Save {
+	/**
+	 * Save LiveCode post content and metadata.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
 	public static function save( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'postId' ) );
-		$html    = (string) $request->get_param( 'html' );
-		$css_input = (string) $request->get_param( 'css' );
-		$js_input = (string) $request->get_param( 'js' );
-		$has_js = $request->has_param( 'js' );
-		$has_js_enabled = $request->has_param( 'jsEnabled' );
-		$js_enabled = rest_sanitize_boolean( $request->get_param( 'jsEnabled' ) );
+		$post_id          = absint( $request->get_param( 'postId' ) );
+		$html             = (string) $request->get_param( 'html' );
+		$css_input        = (string) $request->get_param( 'css' );
+		$js_input         = (string) $request->get_param( 'js' );
+		$has_js           = $request->has_param( 'js' );
+		$has_js_enabled   = $request->has_param( 'jsEnabled' );
+		$js_enabled       = rest_sanitize_boolean( $request->get_param( 'jsEnabled' ) );
 		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwind' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid post type.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid post type.',
+				),
+				400
+			);
 		}
 
 		if ( ( $has_js || $has_js_enabled ) && ! current_user_can( 'unfiltered_html' ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Permission denied.',
-			], 403 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Permission denied.',
+				),
+				403
+			);
 		}
 
 		$tailwind_meta   = get_post_meta( $post_id, '_lc_tailwind', true );
-		$tailwind_locked = get_post_meta( $post_id, '_lc_tailwind_locked', true ) === '1';
-		$has_tailwind    = $tailwind_meta !== '';
+		$tailwind_locked = '1' === get_post_meta( $post_id, '_lc_tailwind_locked', true );
+		$has_tailwind    = '' !== $tailwind_meta;
 
 		if ( $tailwind_locked || $has_tailwind ) {
-			$tailwind_enabled = $tailwind_meta === '1';
+			$tailwind_enabled = '1' === $tailwind_meta;
 		}
 
-		$result = wp_update_post( [
-			'ID'           => $post_id,
-			'post_content' => $html,
-		], true );
+		$result = wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => $html,
+			),
+			true
+		);
 
 		if ( is_wp_error( $result ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => $result->get_error_message(),
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => $result->get_error_message(),
+				),
+				400
+			);
 		}
 
 		$compiled_css = '';
 		if ( $tailwind_enabled ) {
 			try {
-				$compiled_css = tw::generate( [
-					'content' => $html,
-					'css'     => $css_input,
-				] );
+				$compiled_css = tw::generate(
+					array(
+						'content' => $html,
+						'css'     => $css_input,
+					)
+				);
 			} catch ( \Throwable $e ) {
-				return new \WP_REST_Response( [
-					'ok'    => false,
-					'error' => 'Tailwind compile failed: ' . $e->getMessage(),
-				], 500 );
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+					),
+					500
+				);
 			}
 		}
 
@@ -80,36 +114,53 @@ class Rest_Save {
 		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 
-		return new \WP_REST_Response( [ 'ok' => true ], 200 );
+		return new \WP_REST_Response( array( 'ok' => true ), 200 );
 	}
 
+	/**
+	 * Compile Tailwind CSS for preview.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
 	public static function compile_tailwind( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'postId' ) );
-		$html    = (string) $request->get_param( 'html' );
+		$post_id   = absint( $request->get_param( 'postId' ) );
+		$html      = (string) $request->get_param( 'html' );
 		$css_input = (string) $request->get_param( 'css' );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Invalid post type.',
-			], 400 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Invalid post type.',
+				),
+				400
+			);
 		}
 
 		try {
-			$css = tw::generate( [
-				'content' => $html,
-				'css'     => $css_input,
-			] );
+			$css = tw::generate(
+				array(
+					'content' => $html,
+					'css'     => $css_input,
+				)
+			);
 		} catch ( \Throwable $e ) {
-			return new \WP_REST_Response( [
-				'ok'    => false,
-				'error' => 'Tailwind compile failed: ' . $e->getMessage(),
-			], 500 );
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+				),
+				500
+			);
 		}
 
-		return new \WP_REST_Response( [
-			'ok'  => true,
-			'css' => $css,
-		], 200 );
+		return new \WP_REST_Response(
+			array(
+				'ok'  => true,
+				'css' => $css,
+			),
+			200
+		);
 	}
 }
