@@ -112,7 +112,7 @@ class Admin {
 		wp_register_script(
 			'wp-livecode-admin',
 			WP_LIVECODE_URL . 'assets/dist/main.js',
-			array( 'wp-livecode-monaco-loader', 'wp-api-fetch', 'wp-element' ),
+			array( 'wp-livecode-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n' ),
 			WP_LIVECODE_VERSION,
 			true
 		);
@@ -127,6 +127,12 @@ class Admin {
 		wp_enqueue_script( 'wp-livecode-admin' );
 		wp_enqueue_style( 'wp-livecode-admin' );
 		wp_enqueue_media();
+
+		wp_set_script_translations(
+			'wp-livecode-admin',
+			'wp-livecode',
+			WP_LIVECODE_PATH . 'languages'
+		);
 
 		// Inject initial data for the admin app.
 		$post       = $post_id ? get_post( $post_id ) : null;

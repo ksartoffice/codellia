@@ -11,13 +11,14 @@ export default defineConfig({
     cssCodeSplit: false, 
     rollupOptions: {
       input: 'src/admin/main.ts',
-      external: ['@wordpress/element'],
+      external: ['@wordpress/element', '@wordpress/i18n'],
       output: {
         entryFileNames: 'main.js',
         format: 'iife',
         inlineDynamicImports: true,
         globals: {
           '@wordpress/element': 'wp.element',
+          '@wordpress/i18n': 'wp.i18n',
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name && assetInfo.name.endsWith('.css')) return 'style.css';

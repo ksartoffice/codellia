@@ -1,0 +1,297 @@
+# Copyright (C) 2026 WP LiveCode
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP LiveCode 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-livecode\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-01-21T03:39:41+01:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-livecode\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: wp-livecode.php
+#: includes/class-wp-livecode-admin.php:54
+#: includes/class-wp-livecode-admin.php:55
+#: includes/class-wp-livecode-admin.php:68
+msgid "WP LiveCode"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp-livecode.php
+msgid "https://wordpress.org/plugins/wp-livecode/"
+msgstr ""
+
+#. Description of the plugin
+#: wp-livecode.php
+msgid "Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:35
+#: includes/class-wp-livecode-admin.php:68
+#: includes/class-wp-livecode-preview.php:78
+msgid "post_id is required."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:38
+#: includes/class-wp-livecode-admin.php:72
+msgid "This editor is only available for LiveCode posts."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:41
+#: includes/class-wp-livecode-admin.php:75
+#: includes/class-wp-livecode-preview.php:82
+#: includes/rest/class-wp-livecode-rest-import.php:47
+#: includes/rest/class-wp-livecode-rest-save.php:50
+#: includes/rest/class-wp-livecode-rest-settings.php:230
+#: includes/rest/class-wp-livecode-rest-settings.php:294
+#: includes/rest/class-wp-livecode-rest-settings.php:365
+#: includes/rest/class-wp-livecode-rest-settings.php:379
+#: includes/rest/class-wp-livecode-rest-settings.php:393
+#: includes/rest/class-wp-livecode-rest-settings.php:412
+#: includes/rest/class-wp-livecode-rest-settings.php:461
+msgid "Permission denied."
+msgstr ""
+
+#: includes/class-wp-livecode-external-scripts.php:53
+#: includes/rest/class-wp-livecode-rest-import.php:194
+#: includes/rest/class-wp-livecode-rest-import.php:210
+msgid "Invalid externalScripts value."
+msgstr ""
+
+#: includes/class-wp-livecode-external-scripts.php:62
+#: includes/rest/class-wp-livecode-rest-settings.php:439
+msgid "External scripts must be valid https:// URLs."
+msgstr ""
+
+#: includes/class-wp-livecode-external-scripts.php:70
+msgid "External scripts exceed the maximum allowed."
+msgstr ""
+
+#: includes/class-wp-livecode-external-styles.php:53
+#: includes/rest/class-wp-livecode-rest-import.php:223
+#: includes/rest/class-wp-livecode-rest-import.php:239
+msgid "Invalid externalStyles value."
+msgstr ""
+
+#: includes/class-wp-livecode-external-styles.php:62
+#: includes/rest/class-wp-livecode-rest-settings.php:488
+msgid "External styles must be valid https:// URLs."
+msgstr ""
+
+#: includes/class-wp-livecode-external-styles.php:70
+msgid "External styles exceed the maximum allowed."
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:43
+msgid "HTML parser unavailable; external images were not imported."
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:109
+msgid "Skipped invalid image URL."
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:120
+#, php-format
+msgid "Skipping image import (missing upload_files): %s"
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:137
+#, php-format
+msgid "Failed to download image: %1$s (%2$s)"
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:157
+#, php-format
+msgid "Failed to sideload image: %1$s (%2$s)"
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:431
+#, php-format
+msgid "Unable to detect image type: %s"
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:440
+#, php-format
+msgid "Unsupported image type (%1$s): %2$s"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:53
+msgctxt "post type general name"
+msgid "LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:54
+msgctxt "post type singular name"
+msgid "LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:55
+msgctxt "livecode"
+msgid "Add New"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:56
+msgid "Add New LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:57
+msgid "Edit LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:58
+msgid "New LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:59
+#: includes/class-wp-livecode-post-type.php:60
+msgid "View LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:61
+msgid "Search LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:62
+msgid "No LiveCode found"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:63
+msgid "No LiveCode found in Trash"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:64
+#: includes/class-wp-livecode-post-type.php:69
+msgid "LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:65
+msgid "LiveCode Archives"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:210
+msgid "TailwindCSS"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:226
+msgid "Untitled LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-preview.php:86
+msgid "Invalid preview token."
+msgstr ""
+
+#: includes/class-wp-livecode-preview.php:90
+#: includes/rest/class-wp-livecode-rest-import.php:37
+#: includes/rest/class-wp-livecode-rest-save.php:40
+#: includes/rest/class-wp-livecode-rest-save.php:138
+#: includes/rest/class-wp-livecode-rest-setup.php:32
+msgid "Invalid post type."
+msgstr ""
+
+#: includes/class-wp-livecode-preview.php:94
+#: includes/rest/class-wp-livecode-rest-preview.php:43
+#: includes/rest/class-wp-livecode-rest-settings.php:215
+msgid "Post not found."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:57
+msgid "Invalid import payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:68
+msgid "Unsupported import version."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:78
+msgid "Invalid HTML value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:88
+msgid "Invalid CSS value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:98
+msgid "Invalid tailwind flag."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:110
+msgid "Invalid JavaScript value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:124
+msgid "Invalid jsEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:138
+msgid "Invalid shadowDomEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:152
+msgid "Invalid shortcodeEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:166
+msgid "Invalid liveHighlightEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:180
+msgid "Invalid generatedCss value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:294
+#: includes/rest/class-wp-livecode-rest-save.php:96
+#: includes/rest/class-wp-livecode-rest-save.php:156
+#, php-format
+msgid "Tailwind compile failed: %s"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-preview.php:32
+msgid "Invalid parameters."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:43
+msgid "Draft"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:47
+msgid "Pending"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:51
+msgid "Private"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:55
+msgid "Scheduled"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:59
+msgid "Published"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:82
+msgid "Default"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:204
+msgid "Invalid payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:421
+msgid "Invalid external scripts payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:470
+msgid "Invalid external styles payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-setup.php:42
+msgid "Invalid setup mode."
+msgstr ""
