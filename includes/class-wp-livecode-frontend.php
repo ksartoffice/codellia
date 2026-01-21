@@ -200,6 +200,7 @@ class Frontend {
 		}
 
 		$content = (string) $post->post_content;
+		$content = do_shortcode( $content );
 
 		if ( self::is_shadow_dom_enabled( $post_id ) ) {
 			++self::$shortcode_instance;
