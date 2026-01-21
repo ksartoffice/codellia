@@ -100,7 +100,6 @@ class Rest_Import {
 				400
 			);
 		}
-
 		$js_input = '';
 		if ( array_key_exists( 'js', $payload ) ) {
 			if ( ! is_string( $payload['js'] ) ) {

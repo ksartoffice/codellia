@@ -68,11 +68,11 @@ class Rest {
 						'type'     => 'integer',
 						'required' => true,
 					),
-					'html'   => array(
+					'html'    => array(
 						'type'     => 'string',
 						'required' => true,
 					),
-					'css'    => array(
+					'css'     => array(
 						'type'     => 'string',
 						'required' => false,
 					),
@@ -92,7 +92,7 @@ class Rest {
 						'type'     => 'integer',
 						'required' => true,
 					),
-					'mode'   => array(
+					'mode'    => array(
 						'type'     => 'string',
 						'required' => true,
 					),
