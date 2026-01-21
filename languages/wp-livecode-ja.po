@@ -1,0 +1,833 @@
+# Copyright (C) 2026 WP LiveCode
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP LiveCode 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-livecode\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-01-21T03:57:30+01:00\n"
+"PO-Revision-Date: 2026-01-21 00:00+0000\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-livecode\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: wp-livecode.php
+#: includes/class-wp-livecode-admin.php:54
+#: includes/class-wp-livecode-admin.php:55
+#: includes/class-wp-livecode-admin.php:68
+msgid "WP LiveCode"
+msgstr "WP LiveCode"
+
+#. Plugin URI of the plugin
+#: wp-livecode.php
+msgid "https://wordpress.org/plugins/wp-livecode/"
+msgstr "https://wordpress.org/plugins/wp-livecode/"
+
+#. Description of the plugin
+#: wp-livecode.php
+msgid "Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview."
+msgstr "カスタムの LiveCode 投稿タイプ、Monaco Editor、ライブプレビューを備えた HTML/CSS/JS ライブエディター。"
+
+#: includes/class-wp-livecode-admin.php:35
+#: includes/class-wp-livecode-admin.php:68
+#: includes/class-wp-livecode-preview.php:78
+msgid "post_id is required."
+msgstr "post_id は必須です。"
+
+#: includes/class-wp-livecode-admin.php:38
+#: includes/class-wp-livecode-admin.php:72
+msgid "This editor is only available for LiveCode posts."
+msgstr "このエディターは LiveCode 投稿でのみ利用できます。"
+
+#: includes/class-wp-livecode-admin.php:41
+#: includes/class-wp-livecode-admin.php:75
+#: includes/class-wp-livecode-preview.php:82
+#: includes/rest/class-wp-livecode-rest-import.php:47
+#: includes/rest/class-wp-livecode-rest-save.php:50
+#: includes/rest/class-wp-livecode-rest-settings.php:230
+#: includes/rest/class-wp-livecode-rest-settings.php:294
+#: includes/rest/class-wp-livecode-rest-settings.php:365
+#: includes/rest/class-wp-livecode-rest-settings.php:379
+#: includes/rest/class-wp-livecode-rest-settings.php:393
+#: includes/rest/class-wp-livecode-rest-settings.php:412
+#: includes/rest/class-wp-livecode-rest-settings.php:461
+msgid "Permission denied."
+msgstr "権限がありません。"
+
+#: includes/class-wp-livecode-external-scripts.php:53
+#: includes/rest/class-wp-livecode-rest-import.php:194
+#: includes/rest/class-wp-livecode-rest-import.php:210
+#: assets/dist/main.js:1
+msgid "Invalid externalScripts value."
+msgstr "externalScripts の値が不正です。"
+
+#: includes/class-wp-livecode-external-scripts.php:62
+#: includes/rest/class-wp-livecode-rest-settings.php:439
+msgid "External scripts must be valid https:// URLs."
+msgstr "外部スクリプトは有効な https:// URL である必要があります。"
+
+#: includes/class-wp-livecode-external-scripts.php:70
+msgid "External scripts exceed the maximum allowed."
+msgstr "外部スクリプトが上限を超えています。"
+
+#: includes/class-wp-livecode-external-styles.php:53
+#: includes/rest/class-wp-livecode-rest-import.php:223
+#: includes/rest/class-wp-livecode-rest-import.php:239
+#: assets/dist/main.js:1
+msgid "Invalid externalStyles value."
+msgstr "externalStyles の値が不正です。"
+
+#: includes/class-wp-livecode-external-styles.php:62
+#: includes/rest/class-wp-livecode-rest-settings.php:488
+msgid "External styles must be valid https:// URLs."
+msgstr "外部スタイルは有効な https:// URL である必要があります。"
+
+#: includes/class-wp-livecode-external-styles.php:70
+msgid "External styles exceed the maximum allowed."
+msgstr "外部スタイルが上限を超えています。"
+
+#: includes/class-wp-livecode-media-import.php:43
+msgid "HTML parser unavailable; external images were not imported."
+msgstr "HTML パーサーが利用できないため、外部画像をインポートできませんでした。"
+
+#: includes/class-wp-livecode-media-import.php:109
+msgid "Skipped invalid image URL."
+msgstr "不正な画像 URL をスキップしました。"
+
+#. translators: %s: image URL.
+#: includes/class-wp-livecode-media-import.php:121
+#, php-format
+msgid "Skipping image import (missing upload_files): %s"
+msgstr "画像のインポートをスキップしました（upload_files 権限がありません）: %s"
+
+#. translators: 1: image URL, 2: error message.
+#: includes/class-wp-livecode-media-import.php:139
+#, php-format
+msgid "Failed to download image: %1$s (%2$s)"
+msgstr "画像のダウンロードに失敗しました: %1$s (%2$s)"
+
+#. translators: 1: image URL, 2: error message.
+#: includes/class-wp-livecode-media-import.php:160
+#, php-format
+msgid "Failed to sideload image: %1$s (%2$s)"
+msgstr "画像のサイドロードに失敗しました: %1$s (%2$s)"
+
+#. translators: %s: image URL.
+#: includes/class-wp-livecode-media-import.php:435
+#, php-format
+msgid "Unable to detect image type: %s"
+msgstr "画像タイプを判別できません: %s"
+
+#. translators: 1: mime type, 2: image URL.
+#: includes/class-wp-livecode-media-import.php:445
+#, php-format
+msgid "Unsupported image type (%1$s): %2$s"
+msgstr "サポートされていない画像タイプ (%1$s): %2$s"
+
+#: includes/class-wp-livecode-post-type.php:53
+msgctxt "post type general name"
+msgid "LiveCode"
+msgstr "LiveCode"
+
+#: includes/class-wp-livecode-post-type.php:54
+msgctxt "post type singular name"
+msgid "LiveCode"
+msgstr "LiveCode"
+
+#: includes/class-wp-livecode-post-type.php:55
+msgctxt "livecode"
+msgid "Add New"
+msgstr "新規追加"
+
+#: includes/class-wp-livecode-post-type.php:56
+msgid "Add New LiveCode"
+msgstr "LiveCode を新規追加"
+
+#: includes/class-wp-livecode-post-type.php:57
+msgid "Edit LiveCode"
+msgstr "LiveCode を編集"
+
+#: includes/class-wp-livecode-post-type.php:58
+msgid "New LiveCode"
+msgstr "新規 LiveCode"
+
+#: includes/class-wp-livecode-post-type.php:59
+#: includes/class-wp-livecode-post-type.php:60
+msgid "View LiveCode"
+msgstr "LiveCode を表示"
+
+#: includes/class-wp-livecode-post-type.php:61
+msgid "Search LiveCode"
+msgstr "LiveCode を検索"
+
+#: includes/class-wp-livecode-post-type.php:62
+msgid "No LiveCode found"
+msgstr "LiveCode が見つかりません"
+
+#: includes/class-wp-livecode-post-type.php:63
+msgid "No LiveCode found in Trash"
+msgstr "ゴミ箱に LiveCode はありません"
+
+#: includes/class-wp-livecode-post-type.php:64
+#: includes/class-wp-livecode-post-type.php:69
+msgid "LiveCode"
+msgstr "LiveCode"
+
+#: includes/class-wp-livecode-post-type.php:65
+msgid "LiveCode Archives"
+msgstr "LiveCode アーカイブ"
+
+#: includes/class-wp-livecode-post-type.php:210
+#: assets/dist/main.js:1
+msgid "TailwindCSS"
+msgstr "TailwindCSS"
+
+#: includes/class-wp-livecode-post-type.php:226
+msgid "Untitled LiveCode"
+msgstr "無題の LiveCode"
+
+#: includes/class-wp-livecode-preview.php:86
+msgid "Invalid preview token."
+msgstr "プレビュートークンが無効です。"
+
+#: includes/class-wp-livecode-preview.php:90
+#: includes/rest/class-wp-livecode-rest-import.php:37
+#: includes/rest/class-wp-livecode-rest-save.php:40
+#: includes/rest/class-wp-livecode-rest-save.php:139
+#: includes/rest/class-wp-livecode-rest-setup.php:32
+msgid "Invalid post type."
+msgstr "投稿タイプが無効です。"
+
+#: includes/class-wp-livecode-preview.php:94
+#: includes/rest/class-wp-livecode-rest-preview.php:43
+#: includes/rest/class-wp-livecode-rest-settings.php:215
+msgid "Post not found."
+msgstr "投稿が見つかりません。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:57
+msgid "Invalid import payload."
+msgstr "インポートのペイロードが無効です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:68
+#: assets/dist/main.js:1
+msgid "Unsupported import version."
+msgstr "サポートされていないインポートバージョンです。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:78
+#: assets/dist/main.js:1
+msgid "Invalid HTML value."
+msgstr "HTML の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:88
+#: assets/dist/main.js:1
+msgid "Invalid CSS value."
+msgstr "CSS の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:98
+#: assets/dist/main.js:1
+msgid "Invalid tailwind flag."
+msgstr "Tailwind フラグが不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:110
+#: assets/dist/main.js:1
+msgid "Invalid JavaScript value."
+msgstr "JavaScript の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:124
+#: assets/dist/main.js:1
+msgid "Invalid jsEnabled value."
+msgstr "jsEnabled の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:138
+#: assets/dist/main.js:1
+msgid "Invalid shadowDomEnabled value."
+msgstr "shadowDomEnabled の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:152
+#: assets/dist/main.js:1
+msgid "Invalid shortcodeEnabled value."
+msgstr "shortcodeEnabled の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:166
+#: assets/dist/main.js:1
+msgid "Invalid liveHighlightEnabled value."
+msgstr "liveHighlightEnabled の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:180
+#: assets/dist/main.js:1
+msgid "Invalid generatedCss value."
+msgstr "generatedCss の値が不正です。"
+
+#. translators: %s: error message.
+#: includes/rest/class-wp-livecode-rest-import.php:295
+#: includes/rest/class-wp-livecode-rest-save.php:97
+#: includes/rest/class-wp-livecode-rest-save.php:158
+#, php-format
+msgid "Tailwind compile failed: %s"
+msgstr "Tailwind のコンパイルに失敗しました: %s"
+
+#: includes/rest/class-wp-livecode-rest-preview.php:32
+msgid "Invalid parameters."
+msgstr "パラメータが不正です。"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:43
+msgid "Draft"
+msgstr "下書き"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:47
+msgid "Pending"
+msgstr "レビュー待ち"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:51
+#: assets/dist/main.js:1
+msgid "Private"
+msgstr "非公開"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:55
+msgid "Scheduled"
+msgstr "予約済み"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:59
+msgid "Published"
+msgstr "公開済み"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:82
+msgid "Default"
+msgstr "デフォルト"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:204
+msgid "Invalid payload."
+msgstr "ペイロードが不正です。"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:421
+msgid "Invalid external scripts payload."
+msgstr "外部スクリプトのペイロードが不正です。"
+
+#: includes/rest/class-wp-livecode-rest-settings.php:470
+msgid "Invalid external styles payload."
+msgstr "外部スタイルのペイロードが不正です。"
+
+#: includes/rest/class-wp-livecode-rest-setup.php:42
+msgid "Invalid setup mode."
+msgstr "セットアップモードが不正です。"
+
+#: assets/dist/main.js:1
+msgid "JavaScript settings"
+msgstr "JavaScript 設定"
+
+#: assets/dist/main.js:1
+msgid "Enable JavaScript"
+msgstr "JavaScript を有効化"
+
+#: assets/dist/main.js:1
+msgid "Enable Shadow DOM"
+msgstr "Shadow DOM を有効化"
+
+#: assets/dist/main.js:1
+msgid "Enable shortcode"
+msgstr "ショートコードを有効化"
+
+#: assets/dist/main.js:1
+msgid "Requires unfiltered_html capability."
+msgstr "unfiltered_html 権限が必要です。"
+
+#: assets/dist/main.js:1
+msgid "Preview settings"
+msgstr "プレビュー設定"
+
+#: assets/dist/main.js:1
+msgid "Enable live edit highlight"
+msgstr "ライブ編集ハイライトを有効化"
+
+#: assets/dist/main.js:1
+msgid "External scripts"
+msgstr "外部スクリプト"
+
+#: assets/dist/main.js:1
+msgid "https://example.com/script.js"
+msgstr "https://example.com/script.js"
+
+#: assets/dist/main.js:1
+msgid "Remove external script"
+msgstr "外部スクリプトを削除"
+
+#: assets/dist/main.js:1
+msgid "Remove"
+msgstr "削除"
+
+#: assets/dist/main.js:1
+msgid "Add external script"
+msgstr "外部スクリプトを追加"
+
+#: assets/dist/main.js:1
+msgid "Add"
+msgstr "追加"
+
+#: assets/dist/main.js:1
+#, js-format
+msgid "Only URLs starting with https:// are allowed. You can add up to %d items."
+msgstr "https:// で始まる URL のみ利用できます。最大 %d 件まで追加できます。"
+
+#: assets/dist/main.js:1
+msgid "External styles"
+msgstr "外部スタイル"
+
+#: assets/dist/main.js:1
+msgid "https://example.com/style.css"
+msgstr "https://example.com/style.css"
+
+#: assets/dist/main.js:1
+msgid "Remove external style"
+msgstr "外部スタイルを削除"
+
+#: assets/dist/main.js:1
+msgid "Add external style"
+msgstr "外部スタイルを追加"
+
+#: assets/dist/main.js:1
+msgid "Shortcode"
+msgstr "ショートコード"
+
+#: assets/dist/main.js:1
+msgid "You can paste this into a shortcode block in Gutenberg or Elementor."
+msgstr "Gutenberg または Elementor のショートコードブロックに貼り付けてください。"
+
+#: assets/dist/main.js:1
+msgid "LiveCode shortcode"
+msgstr "LiveCode ショートコード"
+
+#: assets/dist/main.js:1
+msgid "Copy shortcode"
+msgstr "ショートコードをコピー"
+
+#: assets/dist/main.js:1
+msgid "Copied"
+msgstr "コピーしました"
+
+#: assets/dist/main.js:1
+msgid "Copy"
+msgstr "コピー"
+
+#: assets/dist/main.js:1
+msgid "Copied."
+msgstr "コピーしました。"
+
+#: assets/dist/main.js:1
+msgid "Copy failed."
+msgstr "コピーに失敗しました。"
+
+#: assets/dist/main.js:1
+msgid "Elements"
+msgstr "要素"
+
+#: assets/dist/main.js:1
+msgid "Text"
+msgstr "テキスト"
+
+#: assets/dist/main.js:1
+msgid "Attributes"
+msgstr "属性"
+
+#: assets/dist/main.js:1
+msgid "Attribute name"
+msgstr "属性名"
+
+#: assets/dist/main.js:1
+msgid "Value"
+msgstr "値"
+
+#: assets/dist/main.js:1
+msgid "Remove attribute"
+msgstr "属性を削除"
+
+#: assets/dist/main.js:1
+msgid "Add attribute"
+msgstr "属性を追加"
+
+#: assets/dist/main.js:1
+msgid "Public"
+msgstr "公開"
+
+#: assets/dist/main.js:1
+msgid "Password protected"
+msgstr "パスワード保護"
+
+#: assets/dist/main.js:1
+msgid "Update failed."
+msgstr "更新に失敗しました。"
+
+#: assets/dist/main.js:1
+msgid "Not set"
+msgstr "未設定"
+
+#: assets/dist/main.js:1
+msgid "Close"
+msgstr "閉じる"
+
+#: assets/dist/main.js:1
+msgid "Status & visibility"
+msgstr "ステータスと公開状態"
+
+#: assets/dist/main.js:1
+msgid "Status"
+msgstr "ステータス"
+
+#: assets/dist/main.js:1
+msgid "Visibility"
+msgstr "公開状態"
+
+#: assets/dist/main.js:1
+msgid "Password"
+msgstr "パスワード"
+
+#: assets/dist/main.js:1
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: assets/dist/main.js:1
+msgid "Save"
+msgstr "保存"
+
+#: assets/dist/main.js:1
+msgid "Publish"
+msgstr "公開"
+
+#: assets/dist/main.js:1
+msgid "Publish date"
+msgstr "公開日時"
+
+#: assets/dist/main.js:1
+msgid "Slug"
+msgstr "スラッグ"
+
+#: assets/dist/main.js:1
+msgid "Author"
+msgstr "投稿者"
+
+#: assets/dist/main.js:1
+msgid "Template"
+msgstr "テンプレート"
+
+#: assets/dist/main.js:1
+msgid "Discussion"
+msgstr "ディスカッション"
+
+#: assets/dist/main.js:1
+msgid "Comments"
+msgstr "コメント"
+
+#: assets/dist/main.js:1
+msgid "Allow comments"
+msgstr "コメントを許可"
+
+#: assets/dist/main.js:1
+msgid "Allow trackbacks/pingbacks"
+msgstr "トラックバック/ピンバックを許可"
+
+#: assets/dist/main.js:1
+msgid "Format"
+msgstr "フォーマット"
+
+#: assets/dist/main.js:1
+msgid "Select featured image"
+msgstr "アイキャッチ画像を選択"
+
+#: assets/dist/main.js:1
+msgid "Select"
+msgstr "選択"
+
+#: assets/dist/main.js:1
+msgid "Featured image"
+msgstr "アイキャッチ画像"
+
+#: assets/dist/main.js:1
+msgid "No image set."
+msgstr "画像が設定されていません。"
+
+#: assets/dist/main.js:1
+msgid "Image"
+msgstr "画像"
+
+#: assets/dist/main.js:1
+msgid "Select from media library"
+msgstr "メディアライブラリから選択"
+
+#: assets/dist/main.js:1
+msgid "Attachment ID"
+msgstr "添付ファイル ID"
+
+#: assets/dist/main.js:1
+msgid "Categories"
+msgstr "カテゴリー"
+
+#: assets/dist/main.js:1
+msgid "New category"
+msgstr "新規カテゴリー"
+
+#: assets/dist/main.js:1
+msgid "Category name"
+msgstr "カテゴリー名"
+
+#: assets/dist/main.js:1
+msgid "Tags"
+msgstr "タグ"
+
+#: assets/dist/main.js:1
+msgid "Enter tags separated by commas"
+msgstr "カンマ区切りでタグを入力"
+
+#: assets/dist/main.js:1
+msgid "Example: landing, update, hero"
+msgstr "例: landing, update, hero"
+
+#: assets/dist/main.js:1
+msgid "Move this post to the trash?"
+msgstr "この投稿をゴミ箱に移動しますか？"
+
+#: assets/dist/main.js:1
+msgid "Settings tabs"
+msgstr "設定タブ"
+
+#: assets/dist/main.js:1
+msgid "Post"
+msgstr "投稿"
+
+#: assets/dist/main.js:1
+msgid "Design"
+msgstr "デザイン"
+
+#: assets/dist/main.js:1
+msgid "Close settings panel"
+msgstr "設定パネルを閉じる"
+
+#: assets/dist/main.js:1
+msgid "Title"
+msgstr "タイトル"
+
+#: assets/dist/main.js:1
+msgid "Immediately"
+msgstr "すぐに"
+
+#: assets/dist/main.js:1
+msgid "Open"
+msgstr "開放"
+
+#: assets/dist/main.js:1
+msgid "Closed"
+msgstr "閉鎖"
+
+#: assets/dist/main.js:1
+msgid "Move to trash"
+msgstr "ゴミ箱に移動"
+
+#: assets/dist/main.js:1
+msgid "Set"
+msgstr "設定"
+
+#: assets/dist/main.js:1
+msgid "Settings unavailable."
+msgstr "設定を取得できません。"
+
+#: assets/dist/main.js:1
+msgid "Import file is not a valid JSON object."
+msgstr "インポートファイルが正しい JSON オブジェクトではありません。"
+
+#: assets/dist/main.js:1
+msgid "Invalid JSON file."
+msgstr "無効な JSON ファイルです。"
+
+#: assets/dist/main.js:1
+msgid "Import unavailable."
+msgstr "インポートできません。"
+
+#: assets/dist/main.js:1
+msgid "Select a JSON file to import."
+msgstr "インポートする JSON ファイルを選択してください。"
+
+#: assets/dist/main.js:1
+msgid "Import failed."
+msgstr "インポートに失敗しました。"
+
+#: assets/dist/main.js:1
+#: assets/dist/main.js:23
+msgid "Setup failed."
+msgstr "セットアップに失敗しました。"
+
+#: assets/dist/main.js:1
+msgid "Choose editor mode"
+msgstr "エディターモードを選択"
+
+#: assets/dist/main.js:1
+msgid "Select TailwindCSS or Normal mode. This choice cannot be changed later."
+msgstr "TailwindCSS または通常モードを選択してください。この選択は後から変更できません。"
+
+#: assets/dist/main.js:1
+msgid "Normal (HTML/CSS)"
+msgstr "通常（HTML/CSS）"
+
+#: assets/dist/main.js:1
+msgid "Edit HTML and CSS directly with Monaco."
+msgstr "Monaco で HTML と CSS を直接編集します。"
+
+#: assets/dist/main.js:1
+msgid "Use utility classes. CSS is compiled automatically."
+msgstr "ユーティリティクラスを使用します。CSS は自動でコンパイルされます。"
+
+#: assets/dist/main.js:1
+msgid "Import JSON"
+msgstr "JSON をインポート"
+
+#: assets/dist/main.js:1
+msgid "Restore from an exported LiveCode JSON file."
+msgstr "エクスポートした LiveCode JSON ファイルから復元します。"
+
+#: assets/dist/main.js:1
+msgid "Choose JSON file"
+msgstr "JSON ファイルを選択"
+
+#: assets/dist/main.js:1
+msgid "No file selected."
+msgstr "ファイルが選択されていません。"
+
+#: assets/dist/main.js:1
+msgid "This choice is locked for this LiveCode page."
+msgstr "この LiveCode ページでは選択が固定されています。"
+
+#: assets/dist/main.js:1
+msgid "Back"
+msgstr "戻る"
+
+#: assets/dist/main.js:1
+#: assets/dist/main.js:23
+msgid "Saving..."
+msgstr "保存中..."
+
+#: assets/dist/main.js:1
+msgid "Continue"
+msgstr "続行"
+
+#: assets/dist/main.js:1
+msgid "Setup unavailable."
+msgstr "セットアップを実行できません。"
+
+#: assets/dist/main.js:1
+msgid "wp.apiFetch is unavailable."
+msgstr "wp.apiFetch を利用できません。"
+
+#: assets/dist/main.js:1
+msgid "Show"
+msgstr "表示"
+
+#: assets/dist/main.js:1
+msgid "Hide"
+msgstr "非表示"
+
+#: assets/dist/main.js:1
+msgid "Settings"
+msgstr "設定"
+
+#: assets/dist/main.js:1
+msgid "Close settings"
+msgstr "設定を閉じる"
+
+#: assets/dist/main.js:1
+msgid "Unsaved changes"
+msgstr "未保存の変更"
+
+#: assets/dist/main.js:1
+msgid "Back to WordPress"
+msgstr "WordPress に戻る"
+
+#: assets/dist/main.js:1
+msgid "Undo"
+msgstr "元に戻す"
+
+#: assets/dist/main.js:1
+msgid "Redo"
+msgstr "やり直す"
+
+#: assets/dist/main.js:1
+msgid "TailwindCSS enabled"
+msgstr "TailwindCSS が有効"
+
+#: assets/dist/main.js:1
+msgid "Export"
+msgstr "エクスポート"
+
+#: assets/dist/main.js:1
+msgid "HTML"
+msgstr "HTML"
+
+#: assets/dist/main.js:1
+msgid "CSS"
+msgstr "CSS"
+
+#: assets/dist/main.js:1
+msgid "JavaScript"
+msgstr "JavaScript"
+
+#: assets/dist/main.js:1
+msgid "Run"
+msgstr "実行"
+
+#: assets/dist/main.js:23
+msgid "Tailwind compile failed."
+msgstr "Tailwind のコンパイルに失敗しました。"
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Tailwind error: %s"
+msgstr "Tailwind エラー: %s"
+
+#: assets/dist/main.js:23
+msgid "Setup wizard unavailable."
+msgstr "セットアップウィザードを利用できません。"
+
+#: assets/dist/main.js:23
+msgid "Export unavailable."
+msgstr "エクスポートできません。"
+
+#: assets/dist/main.js:23
+msgid "Exporting..."
+msgstr "エクスポート中..."
+
+#: assets/dist/main.js:23
+msgid "Exported."
+msgstr "エクスポートしました。"
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Export error: %s"
+msgstr "エクスポートエラー: %s"
+
+#: assets/dist/main.js:23
+msgid "Export failed."
+msgstr "エクスポートに失敗しました。"
+
+#: assets/dist/main.js:23
+msgid "Saved."
+msgstr "保存しました。"
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Save error: %s"
+msgstr "保存エラー: %s"
+
+#: assets/dist/main.js:23
+msgid "Save failed."
+msgstr "保存に失敗しました。"
+
+#: assets/dist/main.js:23
+msgid "Loading Monaco..."
+msgstr "Monaco を読み込み中..."
+
+#: assets/dist/main.js:23
+msgid "You may have unsaved changes."
+msgstr "未保存の変更があります。"

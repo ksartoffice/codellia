@@ -29,7 +29,7 @@ class Rest_Preview {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid parameters.',
+					'error' => __( 'Invalid parameters.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -40,7 +40,7 @@ class Rest_Preview {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Post not found.',
+					'error' => __( 'Post not found.', 'wp-livecode' ),
 				),
 				404
 			);

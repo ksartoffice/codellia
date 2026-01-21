@@ -9,17 +9,18 @@
     "plugin-zip": "npm run build && composer install --no-dev --optimize-autoloader && wp-scripts plugin-zip && composer install"
   },
   "files": [
-  "assets/dist/**",
-  "assets/monaco/**",
-  "includes/**",
-  "vendor/**",
-  "readme.txt",
-  "wp-livecode.php",
-  "LICENSE"
-],
+    "assets/dist/**",
+    "assets/monaco/**",
+    "includes/**",
+    "vendor/**",
+    "readme.txt",
+    "wp-livecode.php",
+    "LICENSE"
+  ],
   "dependencies": {
     "@wordpress/components": "^31.0.0",
     "@wordpress/element": "^6.37.0",
+    "@wordpress/i18n": "^6.10.0",
     "@wordpress/icons": "^11.4.0",
     "emmet-monaco-es": "^5.6.1",
     "monaco-editor": "^0.55.1",

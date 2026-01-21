@@ -1,0 +1,831 @@
+# Copyright (C) 2026 WP LiveCode
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP LiveCode 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-livecode\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-01-21T03:57:30+01:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-livecode\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: wp-livecode.php
+#: includes/class-wp-livecode-admin.php:54
+#: includes/class-wp-livecode-admin.php:55
+#: includes/class-wp-livecode-admin.php:68
+msgid "WP LiveCode"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp-livecode.php
+msgid "https://wordpress.org/plugins/wp-livecode/"
+msgstr ""
+
+#. Description of the plugin
+#: wp-livecode.php
+msgid "Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:35
+#: includes/class-wp-livecode-admin.php:68
+#: includes/class-wp-livecode-preview.php:78
+msgid "post_id is required."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:38
+#: includes/class-wp-livecode-admin.php:72
+msgid "This editor is only available for LiveCode posts."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:41
+#: includes/class-wp-livecode-admin.php:75
+#: includes/class-wp-livecode-preview.php:82
+#: includes/rest/class-wp-livecode-rest-import.php:47
+#: includes/rest/class-wp-livecode-rest-save.php:50
+#: includes/rest/class-wp-livecode-rest-settings.php:230
+#: includes/rest/class-wp-livecode-rest-settings.php:294
+#: includes/rest/class-wp-livecode-rest-settings.php:365
+#: includes/rest/class-wp-livecode-rest-settings.php:379
+#: includes/rest/class-wp-livecode-rest-settings.php:393
+#: includes/rest/class-wp-livecode-rest-settings.php:412
+#: includes/rest/class-wp-livecode-rest-settings.php:461
+msgid "Permission denied."
+msgstr ""
+
+#: includes/class-wp-livecode-external-scripts.php:53
+#: includes/rest/class-wp-livecode-rest-import.php:194
+#: includes/rest/class-wp-livecode-rest-import.php:210
+#: assets/dist/main.js:1
+msgid "Invalid externalScripts value."
+msgstr ""
+
+#: includes/class-wp-livecode-external-scripts.php:62
+#: includes/rest/class-wp-livecode-rest-settings.php:439
+msgid "External scripts must be valid https:// URLs."
+msgstr ""
+
+#: includes/class-wp-livecode-external-scripts.php:70
+msgid "External scripts exceed the maximum allowed."
+msgstr ""
+
+#: includes/class-wp-livecode-external-styles.php:53
+#: includes/rest/class-wp-livecode-rest-import.php:223
+#: includes/rest/class-wp-livecode-rest-import.php:239
+#: assets/dist/main.js:1
+msgid "Invalid externalStyles value."
+msgstr ""
+
+#: includes/class-wp-livecode-external-styles.php:62
+#: includes/rest/class-wp-livecode-rest-settings.php:488
+msgid "External styles must be valid https:// URLs."
+msgstr ""
+
+#: includes/class-wp-livecode-external-styles.php:70
+msgid "External styles exceed the maximum allowed."
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:43
+msgid "HTML parser unavailable; external images were not imported."
+msgstr ""
+
+#: includes/class-wp-livecode-media-import.php:109
+msgid "Skipped invalid image URL."
+msgstr ""
+
+#. translators: %s: image URL.
+#: includes/class-wp-livecode-media-import.php:121
+#, php-format
+msgid "Skipping image import (missing upload_files): %s"
+msgstr ""
+
+#. translators: 1: image URL, 2: error message.
+#: includes/class-wp-livecode-media-import.php:139
+#, php-format
+msgid "Failed to download image: %1$s (%2$s)"
+msgstr ""
+
+#. translators: 1: image URL, 2: error message.
+#: includes/class-wp-livecode-media-import.php:160
+#, php-format
+msgid "Failed to sideload image: %1$s (%2$s)"
+msgstr ""
+
+#. translators: %s: image URL.
+#: includes/class-wp-livecode-media-import.php:435
+#, php-format
+msgid "Unable to detect image type: %s"
+msgstr ""
+
+#. translators: 1: mime type, 2: image URL.
+#: includes/class-wp-livecode-media-import.php:445
+#, php-format
+msgid "Unsupported image type (%1$s): %2$s"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:53
+msgctxt "post type general name"
+msgid "LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:54
+msgctxt "post type singular name"
+msgid "LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:55
+msgctxt "livecode"
+msgid "Add New"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:56
+msgid "Add New LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:57
+msgid "Edit LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:58
+msgid "New LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:59
+#: includes/class-wp-livecode-post-type.php:60
+msgid "View LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:61
+msgid "Search LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:62
+msgid "No LiveCode found"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:63
+msgid "No LiveCode found in Trash"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:64
+#: includes/class-wp-livecode-post-type.php:69
+msgid "LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:65
+msgid "LiveCode Archives"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:210
+#: assets/dist/main.js:1
+msgid "TailwindCSS"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:226
+msgid "Untitled LiveCode"
+msgstr ""
+
+#: includes/class-wp-livecode-preview.php:86
+msgid "Invalid preview token."
+msgstr ""
+
+#: includes/class-wp-livecode-preview.php:90
+#: includes/rest/class-wp-livecode-rest-import.php:37
+#: includes/rest/class-wp-livecode-rest-save.php:40
+#: includes/rest/class-wp-livecode-rest-save.php:139
+#: includes/rest/class-wp-livecode-rest-setup.php:32
+msgid "Invalid post type."
+msgstr ""
+
+#: includes/class-wp-livecode-preview.php:94
+#: includes/rest/class-wp-livecode-rest-preview.php:43
+#: includes/rest/class-wp-livecode-rest-settings.php:215
+msgid "Post not found."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:57
+msgid "Invalid import payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:68
+#: assets/dist/main.js:1
+msgid "Unsupported import version."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:78
+#: assets/dist/main.js:1
+msgid "Invalid HTML value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:88
+#: assets/dist/main.js:1
+msgid "Invalid CSS value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:98
+#: assets/dist/main.js:1
+msgid "Invalid tailwind flag."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:110
+#: assets/dist/main.js:1
+msgid "Invalid JavaScript value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:124
+#: assets/dist/main.js:1
+msgid "Invalid jsEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:138
+#: assets/dist/main.js:1
+msgid "Invalid shadowDomEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:152
+#: assets/dist/main.js:1
+msgid "Invalid shortcodeEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:166
+#: assets/dist/main.js:1
+msgid "Invalid liveHighlightEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:180
+#: assets/dist/main.js:1
+msgid "Invalid generatedCss value."
+msgstr ""
+
+#. translators: %s: error message.
+#: includes/rest/class-wp-livecode-rest-import.php:295
+#: includes/rest/class-wp-livecode-rest-save.php:97
+#: includes/rest/class-wp-livecode-rest-save.php:158
+#, php-format
+msgid "Tailwind compile failed: %s"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-preview.php:32
+msgid "Invalid parameters."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:43
+msgid "Draft"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:47
+msgid "Pending"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:51
+#: assets/dist/main.js:1
+msgid "Private"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:55
+msgid "Scheduled"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:59
+msgid "Published"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:82
+msgid "Default"
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:204
+msgid "Invalid payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:421
+msgid "Invalid external scripts payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-settings.php:470
+msgid "Invalid external styles payload."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-setup.php:42
+msgid "Invalid setup mode."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "JavaScript settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable JavaScript"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable Shadow DOM"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Requires unfiltered_html capability."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Preview settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable live edit highlight"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "External scripts"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "https://example.com/script.js"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove external script"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add external script"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add"
+msgstr ""
+
+#: assets/dist/main.js:1
+#, js-format
+msgid "Only URLs starting with https:// are allowed. You can add up to %d items."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "External styles"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "https://example.com/style.css"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove external style"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add external style"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "You can paste this into a shortcode block in Gutenberg or Elementor."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "LiveCode shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copy shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copied"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copy"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copied."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copy failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Elements"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Text"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Attributes"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Attribute name"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Value"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove attribute"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add attribute"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Public"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Password protected"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Update failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Not set"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Close"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Status & visibility"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Status"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Visibility"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Password"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Cancel"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Save"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Publish"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Publish date"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Slug"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Author"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Template"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Discussion"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Comments"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Allow comments"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Allow trackbacks/pingbacks"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Format"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select featured image"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Featured image"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "No image set."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Image"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select from media library"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Attachment ID"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Categories"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "New category"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Category name"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Tags"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enter tags separated by commas"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Example: landing, update, hero"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Move this post to the trash?"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Settings tabs"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Post"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Design"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Close settings panel"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Title"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Immediately"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Open"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Closed"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Move to trash"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Set"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Settings unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import file is not a valid JSON object."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Invalid JSON file."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select a JSON file to import."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+#: assets/dist/main.js:23
+msgid "Setup failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Choose editor mode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select TailwindCSS or Normal mode. This choice cannot be changed later."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Normal (HTML/CSS)"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Edit HTML and CSS directly with Monaco."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Use utility classes. CSS is compiled automatically."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import JSON"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Restore from an exported LiveCode JSON file."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Choose JSON file"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "No file selected."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "This choice is locked for this LiveCode page."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Back"
+msgstr ""
+
+#: assets/dist/main.js:1
+#: assets/dist/main.js:23
+msgid "Saving..."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Continue"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Setup unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "wp.apiFetch is unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Show"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Hide"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Close settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Unsaved changes"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Back to WordPress"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Undo"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Redo"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "TailwindCSS enabled"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Export"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "HTML"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "CSS"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "JavaScript"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Run"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Tailwind compile failed."
+msgstr ""
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Tailwind error: %s"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Setup wizard unavailable."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Export unavailable."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Exporting..."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Exported."
+msgstr ""
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Export error: %s"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Export failed."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Saved."
+msgstr ""
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Save error: %s"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Save failed."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Loading Monaco..."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "You may have unsaved changes."
+msgstr ""

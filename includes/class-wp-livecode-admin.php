@@ -32,13 +32,13 @@ class Admin {
 	public static function action_redirect(): void {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
-			wp_die( 'post_id is required.' );
+			wp_die( esc_html__( 'post_id is required.', 'wp-livecode' ) );
 		}
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			wp_die( 'This editor is only available for LiveCode posts.' );
+			wp_die( esc_html__( 'This editor is only available for LiveCode posts.', 'wp-livecode' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( 'Permission denied.' );
+			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
 		}
 		wp_safe_redirect( Post_Type::get_editor_url( $post_id ) );
 		exit;
@@ -51,8 +51,8 @@ class Admin {
 		// Hidden admin page (no menu entry). Accessed via redirects only.
 		add_submenu_page(
 			null,
-			'WP LiveCode',
-			'WP LiveCode',
+			__( 'WP LiveCode', 'wp-livecode' ),
+			__( 'WP LiveCode', 'wp-livecode' ),
 			'edit_posts',
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -65,14 +65,14 @@ class Admin {
 	public static function render_page(): void {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
-			echo '<div class="wrap"><h1>WP LiveCode</h1><p>post_id is required.</p></div>';
+			echo '<div class="wrap"><h1>' . esc_html__( 'WP LiveCode', 'wp-livecode' ) . '</h1><p>' . esc_html__( 'post_id is required.', 'wp-livecode' ) . '</p></div>';
 			return;
 		}
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			wp_die( 'This editor is only available for LiveCode posts.' );
+			wp_die( esc_html__( 'This editor is only available for LiveCode posts.', 'wp-livecode' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( 'Permission denied.' );
+			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
 		}
 
 		echo '<div id="wp-livecode-app" data-post-id="' . esc_attr( $post_id ) . '"></div>';
@@ -112,7 +112,7 @@ class Admin {
 		wp_register_script(
 			'wp-livecode-admin',
 			WP_LIVECODE_URL . 'assets/dist/main.js',
-			array( 'wp-livecode-monaco-loader', 'wp-api-fetch', 'wp-element' ),
+			array( 'wp-livecode-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n' ),
 			WP_LIVECODE_VERSION,
 			true
 		);
@@ -127,6 +127,12 @@ class Admin {
 		wp_enqueue_script( 'wp-livecode-admin' );
 		wp_enqueue_style( 'wp-livecode-admin' );
 		wp_enqueue_media();
+
+		wp_set_script_translations(
+			'wp-livecode-admin',
+			'wp-livecode',
+			WP_LIVECODE_PATH . 'languages'
+		);
 
 		// Inject initial data for the admin app.
 		$post       = $post_id ? get_post( $post_id ) : null;

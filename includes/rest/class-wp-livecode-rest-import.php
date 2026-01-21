@@ -34,7 +34,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid post type.',
+					'error' => __( 'Invalid post type.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -44,7 +44,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Permission denied.',
+					'error' => __( 'Permission denied.', 'wp-livecode' ),
 				),
 				403
 			);
@@ -54,7 +54,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid import payload.',
+					'error' => __( 'Invalid import payload.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -65,7 +65,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Unsupported import version.',
+					'error' => __( 'Unsupported import version.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -75,7 +75,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid HTML value.',
+					'error' => __( 'Invalid HTML value.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -85,7 +85,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid CSS value.',
+					'error' => __( 'Invalid CSS value.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -95,7 +95,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid tailwind flag.',
+					'error' => __( 'Invalid tailwind flag.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -107,7 +107,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid JavaScript value.',
+						'error' => __( 'Invalid JavaScript value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -121,7 +121,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid jsEnabled value.',
+						'error' => __( 'Invalid jsEnabled value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -135,7 +135,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid shadowDomEnabled value.',
+						'error' => __( 'Invalid shadowDomEnabled value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -149,7 +149,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid shortcodeEnabled value.',
+						'error' => __( 'Invalid shortcodeEnabled value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -163,7 +163,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid liveHighlightEnabled value.',
+						'error' => __( 'Invalid liveHighlightEnabled value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -177,7 +177,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid generatedCss value.',
+						'error' => __( 'Invalid generatedCss value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -191,7 +191,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid externalScripts value.',
+						'error' => __( 'Invalid externalScripts value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -207,7 +207,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : 'Invalid externalScripts value.',
+						'error' => null !== $error ? $error : __( 'Invalid externalScripts value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -220,7 +220,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid externalStyles value.',
+						'error' => __( 'Invalid externalStyles value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -236,7 +236,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : 'Invalid externalStyles value.',
+						'error' => null !== $error ? $error : __( 'Invalid externalStyles value.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -290,11 +290,15 @@ class Rest_Import {
 					return new \WP_REST_Response(
 						array(
 							'ok'    => false,
-							'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+							'error' => sprintf(
+								/* translators: %s: error message. */
+								__( 'Tailwind compile failed: %s', 'wp-livecode' ),
+								$e->getMessage()
+							),
 						),
-						500
-					);
-				}
+					500
+				);
+			}
 			}
 		}
 
