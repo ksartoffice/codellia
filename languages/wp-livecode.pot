@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-21T03:50:18+01:00\n"
+"POT-Creation-Date: 2026-01-21T03:57:30+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-livecode\n"
@@ -62,6 +62,7 @@ msgstr ""
 #: includes/class-wp-livecode-external-scripts.php:53
 #: includes/rest/class-wp-livecode-rest-import.php:194
 #: includes/rest/class-wp-livecode-rest-import.php:210
+#: assets/dist/main.js:1
 msgid "Invalid externalScripts value."
 msgstr ""
 
@@ -77,6 +78,7 @@ msgstr ""
 #: includes/class-wp-livecode-external-styles.php:53
 #: includes/rest/class-wp-livecode-rest-import.php:223
 #: includes/rest/class-wp-livecode-rest-import.php:239
+#: assets/dist/main.js:1
 msgid "Invalid externalStyles value."
 msgstr ""
 
@@ -181,6 +183,7 @@ msgid "LiveCode Archives"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:210
+#: assets/dist/main.js:1
 msgid "TailwindCSS"
 msgstr ""
 
@@ -211,42 +214,52 @@ msgid "Invalid import payload."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:68
+#: assets/dist/main.js:1
 msgid "Unsupported import version."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:78
+#: assets/dist/main.js:1
 msgid "Invalid HTML value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:88
+#: assets/dist/main.js:1
 msgid "Invalid CSS value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:98
+#: assets/dist/main.js:1
 msgid "Invalid tailwind flag."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:110
+#: assets/dist/main.js:1
 msgid "Invalid JavaScript value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:124
+#: assets/dist/main.js:1
 msgid "Invalid jsEnabled value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:138
+#: assets/dist/main.js:1
 msgid "Invalid shadowDomEnabled value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:152
+#: assets/dist/main.js:1
 msgid "Invalid shortcodeEnabled value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:166
+#: assets/dist/main.js:1
 msgid "Invalid liveHighlightEnabled value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:180
+#: assets/dist/main.js:1
 msgid "Invalid generatedCss value."
 msgstr ""
 
@@ -271,6 +284,7 @@ msgid "Pending"
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-settings.php:51
+#: assets/dist/main.js:1
 msgid "Private"
 msgstr ""
 
@@ -300,4 +314,518 @@ msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-setup.php:42
 msgid "Invalid setup mode."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "JavaScript settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable JavaScript"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable Shadow DOM"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Requires unfiltered_html capability."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Preview settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enable live edit highlight"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "External scripts"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "https://example.com/script.js"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove external script"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add external script"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add"
+msgstr ""
+
+#: assets/dist/main.js:1
+#, js-format
+msgid "Only URLs starting with https:// are allowed. You can add up to %d items."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "External styles"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "https://example.com/style.css"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove external style"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add external style"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "You can paste this into a shortcode block in Gutenberg or Elementor."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "LiveCode shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copy shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copied"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copy"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copied."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Copy failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Elements"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Text"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Attributes"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Attribute name"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Value"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Remove attribute"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Add attribute"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Public"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Password protected"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Update failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Not set"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Close"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Status & visibility"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Status"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Visibility"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Password"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Cancel"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Save"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Publish"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Publish date"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Slug"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Author"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Template"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Discussion"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Comments"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Allow comments"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Allow trackbacks/pingbacks"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Format"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select featured image"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Featured image"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "No image set."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Image"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select from media library"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Attachment ID"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Categories"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "New category"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Category name"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Tags"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Enter tags separated by commas"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Example: landing, update, hero"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Move this post to the trash?"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Settings tabs"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Post"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Design"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Close settings panel"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Title"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Immediately"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Open"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Closed"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Move to trash"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Set"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Settings unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import file is not a valid JSON object."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Invalid JSON file."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select a JSON file to import."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+#: assets/dist/main.js:23
+msgid "Setup failed."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Choose editor mode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Select TailwindCSS or Normal mode. This choice cannot be changed later."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Normal (HTML/CSS)"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Edit HTML and CSS directly with Monaco."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Use utility classes. CSS is compiled automatically."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Import JSON"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Restore from an exported LiveCode JSON file."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Choose JSON file"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "No file selected."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "This choice is locked for this LiveCode page."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Back"
+msgstr ""
+
+#: assets/dist/main.js:1
+#: assets/dist/main.js:23
+msgid "Saving..."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Continue"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Setup unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "wp.apiFetch is unavailable."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Show"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Hide"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Close settings"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Unsaved changes"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Back to WordPress"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Undo"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Redo"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "TailwindCSS enabled"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Export"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "HTML"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "CSS"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "JavaScript"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Run"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Tailwind compile failed."
+msgstr ""
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Tailwind error: %s"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Setup wizard unavailable."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Export unavailable."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Exporting..."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Exported."
+msgstr ""
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Export error: %s"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Export failed."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Saved."
+msgstr ""
+
+#: assets/dist/main.js:23
+#, js-format
+msgid "Save error: %s"
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Save failed."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "Loading Monaco..."
+msgstr ""
+
+#: assets/dist/main.js:23
+msgid "You may have unsaved changes."
 msgstr ""
