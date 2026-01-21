@@ -37,7 +37,7 @@ class Rest_Save {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid post type.',
+					'error' => __( 'Invalid post type.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -47,7 +47,7 @@ class Rest_Save {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Permission denied.',
+					'error' => __( 'Permission denied.', 'wp-livecode' ),
 				),
 				403
 			);
@@ -92,7 +92,10 @@ class Rest_Save {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+						'error' => sprintf(
+							__( 'Tailwind compile failed: %s', 'wp-livecode' ),
+							$e->getMessage()
+						),
 					),
 					500
 				);
@@ -132,7 +135,7 @@ class Rest_Save {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid post type.',
+					'error' => __( 'Invalid post type.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -149,7 +152,10 @@ class Rest_Save {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Tailwind compile failed: ' . $e->getMessage(),
+					'error' => sprintf(
+						__( 'Tailwind compile failed: %s', 'wp-livecode' ),
+						$e->getMessage()
+					),
 				),
 				500
 			);

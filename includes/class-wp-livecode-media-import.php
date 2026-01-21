@@ -40,7 +40,7 @@ class Media_Import {
 			return self::localize_with_tag_processor( $html, $post_id, $warnings, $imported );
 		}
 
-		$warnings[] = 'HTML parser unavailable; external images were not imported.';
+		$warnings[] = __( 'HTML parser unavailable; external images were not imported.', 'wp-livecode' );
 		return $html;
 	}
 
@@ -106,7 +106,7 @@ class Media_Import {
 	): ?array {
 		$normalized = self::normalize_url( $source_url );
 		if ( '' === $normalized ) {
-			$warnings[] = 'Skipped invalid image URL.';
+			$warnings[] = __( 'Skipped invalid image URL.', 'wp-livecode' );
 			return null;
 		}
 
@@ -116,7 +116,10 @@ class Media_Import {
 		}
 
 		if ( ! current_user_can( 'upload_files' ) ) {
-			$warnings[]           = sprintf( 'Skipping image import (missing upload_files): %s', $normalized );
+			$warnings[]           = sprintf(
+				__( 'Skipping image import (missing upload_files): %s', 'wp-livecode' ),
+				$normalized
+			);
 			$cache[ $normalized ] = 0;
 			return null;
 		}
@@ -131,7 +134,7 @@ class Media_Import {
 		$temp_file = download_url( $normalized, 30 );
 		if ( is_wp_error( $temp_file ) ) {
 			$warnings[]           = sprintf(
-				'Failed to download image: %s (%s)',
+				__( 'Failed to download image: %1$s (%2$s)', 'wp-livecode' ),
 				$normalized,
 				$temp_file->get_error_message()
 			);
@@ -151,7 +154,7 @@ class Media_Import {
 		if ( is_wp_error( $attachment_id ) ) {
 			wp_delete_file( $temp_file );
 			$warnings[]           = sprintf(
-				'Failed to sideload image: %s (%s)',
+				__( 'Failed to sideload image: %1$s (%2$s)', 'wp-livecode' ),
 				$normalized,
 				$attachment_id->get_error_message()
 			);
@@ -424,13 +427,20 @@ class Media_Import {
 
 		$mime = wp_get_image_mime( $file );
 		if ( ! $mime ) {
-			$warnings[] = sprintf( 'Unable to detect image type: %s', $source_url );
+			$warnings[] = sprintf(
+				__( 'Unable to detect image type: %s', 'wp-livecode' ),
+				$source_url
+			);
 			return $filename;
 		}
 
 		$ext = wp_get_default_extension_for_mime_type( $mime );
 		if ( ! $ext ) {
-			$warnings[] = sprintf( 'Unsupported image type (%s): %s', $mime, $source_url );
+			$warnings[] = sprintf(
+				__( 'Unsupported image type (%1$s): %2$s', 'wp-livecode' ),
+				$mime,
+				$source_url
+			);
 			return $filename;
 		}
 

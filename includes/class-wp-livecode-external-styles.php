@@ -50,7 +50,7 @@ class External_Styles {
 		$sanitized = array();
 		foreach ( array_values( $raw ) as $style_url ) {
 			if ( ! is_string( $style_url ) ) {
-				$error = 'Invalid externalStyles value.';
+				$error = __( 'Invalid externalStyles value.', 'wp-livecode' );
 				return null;
 			}
 			$style_url = trim( $style_url );
@@ -59,7 +59,7 @@ class External_Styles {
 			}
 			$clean_url = self::sanitize_url( $style_url );
 			if ( ! $clean_url ) {
-				$error = 'External styles must be valid https:// URLs.';
+				$error = __( 'External styles must be valid https:// URLs.', 'wp-livecode' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -67,7 +67,7 @@ class External_Styles {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = 'External styles exceed the maximum allowed.';
+			$error = __( 'External styles exceed the maximum allowed.', 'wp-livecode' );
 			return null;
 		}
 

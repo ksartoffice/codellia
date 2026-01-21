@@ -29,7 +29,7 @@ class Rest_Setup {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid post type.',
+					'error' => __( 'Invalid post type.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -39,7 +39,7 @@ class Rest_Setup {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid setup mode.',
+					'error' => __( 'Invalid setup mode.', 'wp-livecode' ),
 				),
 				400
 			);

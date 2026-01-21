@@ -50,23 +50,23 @@ class Post_Type {
 	 */
 	public static function register(): void {
 		$labels = array(
-			'name'               => 'LiveCode',
-			'singular_name'      => 'LiveCode',
-			'add_new'            => 'Add New',
-			'add_new_item'       => 'Add New LiveCode',
-			'edit_item'          => 'Edit LiveCode',
-			'new_item'           => 'New LiveCode',
-			'view_item'          => 'View LiveCode',
-			'view_items'         => 'View LiveCode',
-			'search_items'       => 'Search LiveCode',
-			'not_found'          => 'No LiveCode found',
-			'not_found_in_trash' => 'No LiveCode found in Trash',
-			'all_items'          => 'LiveCode',
-			'archives'           => 'LiveCode Archives',
+			'name'               => _x( 'LiveCode', 'post type general name', 'wp-livecode' ),
+			'singular_name'      => _x( 'LiveCode', 'post type singular name', 'wp-livecode' ),
+			'add_new'            => _x( 'Add New', 'livecode', 'wp-livecode' ),
+			'add_new_item'       => __( 'Add New LiveCode', 'wp-livecode' ),
+			'edit_item'          => __( 'Edit LiveCode', 'wp-livecode' ),
+			'new_item'           => __( 'New LiveCode', 'wp-livecode' ),
+			'view_item'          => __( 'View LiveCode', 'wp-livecode' ),
+			'view_items'         => __( 'View LiveCode', 'wp-livecode' ),
+			'search_items'       => __( 'Search LiveCode', 'wp-livecode' ),
+			'not_found'          => __( 'No LiveCode found', 'wp-livecode' ),
+			'not_found_in_trash' => __( 'No LiveCode found in Trash', 'wp-livecode' ),
+			'all_items'          => __( 'LiveCode', 'wp-livecode' ),
+			'archives'           => __( 'LiveCode Archives', 'wp-livecode' ),
 		);
 
 		$args = array(
-			'label'               => 'LiveCode',
+			'label'               => __( 'LiveCode', 'wp-livecode' ),
 			'labels'              => $labels,
 			'public'              => true,
 			'exclude_from_search' => false,
@@ -207,7 +207,7 @@ class Post_Type {
 
 		$is_tailwind = '1' === get_post_meta( $post->ID, '_lc_tailwind', true );
 		if ( $is_tailwind ) {
-			$states['livecode_tailwind'] = 'TailwindCSS';
+			$states['livecode_tailwind'] = __( 'TailwindCSS', 'wp-livecode' );
 		}
 
 		return $states;
@@ -223,7 +223,7 @@ class Post_Type {
 			array(
 				'post_type'   => self::POST_TYPE,
 				'post_status' => 'draft',
-				'post_title'  => 'Untitled LiveCode',
+				'post_title'  => __( 'Untitled LiveCode', 'wp-livecode' ),
 			),
 			true
 		);

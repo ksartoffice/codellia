@@ -40,23 +40,23 @@ class Rest_Settings {
 		$status_options = array(
 			array(
 				'value' => 'draft',
-				'label' => '下書き',
+				'label' => __( 'Draft', 'wp-livecode' ),
 			),
 			array(
 				'value' => 'pending',
-				'label' => '保留中',
+				'label' => __( 'Pending', 'wp-livecode' ),
 			),
 			array(
 				'value' => 'private',
-				'label' => '非公開',
+				'label' => __( 'Private', 'wp-livecode' ),
 			),
 			array(
 				'value' => 'future',
-				'label' => '予約済み',
+				'label' => __( 'Scheduled', 'wp-livecode' ),
 			),
 			array(
 				'value' => 'publish',
-				'label' => '公開済み',
+				'label' => __( 'Published', 'wp-livecode' ),
 			),
 		);
 
@@ -79,7 +79,7 @@ class Rest_Settings {
 		$templates = array(
 			array(
 				'value' => 'default',
-				'label' => 'デフォルト',
+				'label' => __( 'Default', 'wp-livecode' ),
 			),
 		);
 
@@ -201,7 +201,7 @@ class Rest_Settings {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Invalid payload.',
+					'error' => __( 'Invalid payload.', 'wp-livecode' ),
 				),
 				400
 			);
@@ -212,7 +212,7 @@ class Rest_Settings {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => 'Post not found.',
+					'error' => __( 'Post not found.', 'wp-livecode' ),
 				),
 				404
 			);
@@ -227,7 +227,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Permission denied.',
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
 					),
 					403
 				);
@@ -291,7 +291,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Permission denied.',
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
 					),
 					403
 				);
@@ -362,7 +362,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Permission denied.',
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
 					),
 					403
 				);
@@ -376,7 +376,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Permission denied.',
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
 					),
 					403
 				);
@@ -390,7 +390,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Permission denied.',
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
 					),
 					403
 				);
@@ -409,7 +409,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Permission denied.',
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
 					),
 					403
 				);
@@ -418,7 +418,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid external scripts payload.',
+						'error' => __( 'Invalid external scripts payload.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -436,7 +436,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : 'External scripts must be valid https:// URLs.',
+						'error' => null !== $error ? $error : __( 'External scripts must be valid https:// URLs.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -458,7 +458,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Permission denied.',
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
 					),
 					403
 				);
@@ -467,7 +467,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => 'Invalid external styles payload.',
+						'error' => __( 'Invalid external styles payload.', 'wp-livecode' ),
 					),
 					400
 				);
@@ -485,7 +485,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : 'External styles must be valid https:// URLs.',
+						'error' => null !== $error ? $error : __( 'External styles must be valid https:// URLs.', 'wp-livecode' ),
 					),
 					400
 				);

@@ -50,7 +50,7 @@ class External_Scripts {
 		$sanitized = array();
 		foreach ( array_values( $raw ) as $script_url ) {
 			if ( ! is_string( $script_url ) ) {
-				$error = 'Invalid externalScripts value.';
+				$error = __( 'Invalid externalScripts value.', 'wp-livecode' );
 				return null;
 			}
 			$script_url = trim( $script_url );
@@ -59,7 +59,7 @@ class External_Scripts {
 			}
 			$clean_url = self::sanitize_url( $script_url );
 			if ( ! $clean_url ) {
-				$error = 'External scripts must be valid https:// URLs.';
+				$error = __( 'External scripts must be valid https:// URLs.', 'wp-livecode' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -67,7 +67,7 @@ class External_Scripts {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = 'External scripts exceed the maximum allowed.';
+			$error = __( 'External scripts exceed the maximum allowed.', 'wp-livecode' );
 			return null;
 		}
 

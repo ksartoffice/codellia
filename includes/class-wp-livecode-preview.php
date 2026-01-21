@@ -75,23 +75,23 @@ class Preview {
 		$token   = (string) get_query_var( 'token' );
 
 		if ( ! $post_id ) {
-			wp_die( 'post_id is required.' );
+			wp_die( esc_html__( 'post_id is required.', 'wp-livecode' ) );
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( 'Permission denied.' );
+			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
 		}
 
 		if ( ! wp_verify_nonce( $token, 'lc_preview_' . $post_id ) ) {
-			wp_die( 'Invalid preview token.' );
+			wp_die( esc_html__( 'Invalid preview token.', 'wp-livecode' ) );
 		}
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			wp_die( 'Invalid post type.' );
+			wp_die( esc_html__( 'Invalid post type.', 'wp-livecode' ) );
 		}
 
 		if ( ! get_post( $post_id ) ) {
-			wp_die( 'Post not found.' );
+			wp_die( esc_html__( 'Post not found.', 'wp-livecode' ) );
 		}
 
 		self::$post_id    = $post_id;
