@@ -713,7 +713,7 @@
     const data = event.data || {};
     if (data.type === 'LC_INIT') {
       isReady = true;
-      reply('LC_READY', { postId: config.postId || null });
+      reply('LC_READY', { post_id: config.post_id || null });
       return;
     }
     if (data.type === 'LC_RENDER') {
@@ -757,5 +757,5 @@
   });
 
   attachDomSelector();
-  reply('LC_READY', { postId: config.postId || null });
+  reply('LC_READY', { post_id: config.post_id || null });
 })();

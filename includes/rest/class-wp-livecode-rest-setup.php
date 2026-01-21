@@ -22,7 +22,7 @@ class Rest_Setup {
 	 * @return \WP_REST_Response
 	 */
 	public static function setup_mode( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'postId' ) );
+		$post_id = absint( $request->get_param( 'post_id' ) );
 		$mode    = sanitize_key( (string) $request->get_param( 'mode' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {

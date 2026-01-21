@@ -194,7 +194,7 @@ class Rest_Settings {
 	 * @return \WP_REST_Response
 	 */
 	public static function update_settings( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'postId' ) );
+		$post_id = absint( $request->get_param( 'post_id' ) );
 		$updates = $request->get_param( 'updates' );
 
 		if ( ! is_array( $updates ) ) {
@@ -357,7 +357,7 @@ class Rest_Settings {
 			wp_set_post_terms( $post_id, $tags, 'post_tag', false );
 		}
 
-		if ( array_key_exists( 'enableJavaScript', $updates ) ) {
+		if ( array_key_exists( 'jsEnabled', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 				return new \WP_REST_Response(
 					array(
@@ -367,11 +367,11 @@ class Rest_Settings {
 					403
 				);
 			}
-			$js_enabled = rest_sanitize_boolean( $updates['enableJavaScript'] );
+			$js_enabled = rest_sanitize_boolean( $updates['jsEnabled'] );
 			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
 		}
 
-		if ( array_key_exists( 'enableShadowDom', $updates ) ) {
+		if ( array_key_exists( 'shadowDomEnabled', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 				return new \WP_REST_Response(
 					array(
@@ -381,11 +381,11 @@ class Rest_Settings {
 					403
 				);
 			}
-			$shadow_dom_enabled = rest_sanitize_boolean( $updates['enableShadowDom'] );
+			$shadow_dom_enabled = rest_sanitize_boolean( $updates['shadowDomEnabled'] );
 			update_post_meta( $post_id, '_lc_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		}
 
-		if ( array_key_exists( 'enableShortcode', $updates ) ) {
+		if ( array_key_exists( 'shortcodeEnabled', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 				return new \WP_REST_Response(
 					array(
@@ -395,12 +395,12 @@ class Rest_Settings {
 					403
 				);
 			}
-			$shortcode_enabled = rest_sanitize_boolean( $updates['enableShortcode'] );
+			$shortcode_enabled = rest_sanitize_boolean( $updates['shortcodeEnabled'] );
 			update_post_meta( $post_id, '_lc_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
 		}
 
-		if ( array_key_exists( 'enableLiveHighlight', $updates ) ) {
-			$live_highlight_enabled = rest_sanitize_boolean( $updates['enableLiveHighlight'] );
+		if ( array_key_exists( 'liveHighlightEnabled', $updates ) ) {
+			$live_highlight_enabled = rest_sanitize_boolean( $updates['liveHighlightEnabled'] );
 			update_post_meta( $post_id, '_lc_live_highlight', $live_highlight_enabled ? '1' : '0' );
 		}
 

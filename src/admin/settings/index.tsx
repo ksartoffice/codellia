@@ -67,7 +67,7 @@ type SettingsConfig = {
   header?: HTMLElement;
   data: SettingsData;
   restUrl: string;
-  postId: number;
+  post_id: number;
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
   onJavaScriptToggle?: (enabled: boolean) => void;
@@ -236,7 +236,7 @@ function Modal({ title, onClose, error, children }: ModalProps) {
             onClick={onClose}
             aria-label={__( 'Close', 'wp-livecode' )}
           >
-            ×
+            ÁE
           </button>
         </div>
         <div className="lc-modalBody">{children}</div>
@@ -883,7 +883,7 @@ function TagsModal({
 function SettingsSidebar({
   data,
   restUrl,
-  postId,
+  post_id,
   backUrl,
   apiFetch,
   header,
@@ -902,10 +902,10 @@ function SettingsSidebar({
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
-  const [enableJavaScript, setEnableJavaScript] = useState(Boolean(data.jsEnabled));
-  const [enableShadowDom, setEnableShadowDom] = useState(Boolean(data.shadowDomEnabled));
-  const [enableShortcode, setEnableShortcode] = useState(Boolean(data.shortcodeEnabled));
-  const [enableLiveHighlight, setEnableLiveHighlight] = useState(
+  const [jsEnabled, setJsEnabled] = useState(Boolean(data.jsEnabled));
+  const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
+  const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
+  const [liveHighlightEnabled, setLiveHighlightEnabled] = useState(
     resolveLiveHighlightEnabled(data.liveHighlightEnabled)
   );
   const [designError, setDesignError] = useState('');
@@ -921,19 +921,19 @@ function SettingsSidebar({
   }, [settings.title]);
 
   useEffect(() => {
-    setEnableJavaScript(Boolean(settings.jsEnabled));
+    setJsEnabled(Boolean(settings.jsEnabled));
   }, [settings.jsEnabled]);
 
   useEffect(() => {
-    setEnableShadowDom(Boolean(settings.shadowDomEnabled));
+    setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
   }, [settings.shadowDomEnabled]);
 
   useEffect(() => {
-    setEnableShortcode(Boolean(settings.shortcodeEnabled));
+    setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
   }, [settings.shortcodeEnabled]);
 
   useEffect(() => {
-    setEnableLiveHighlight(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
+    setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
   }, [settings.liveHighlightEnabled]);
 
   useEffect(() => {
@@ -962,20 +962,20 @@ function SettingsSidebar({
   }, [settings.externalStyles, onExternalStylesChange]);
 
   useEffect(() => {
-    onJavaScriptToggle?.(enableJavaScript);
-  }, [enableJavaScript, onJavaScriptToggle]);
+    onJavaScriptToggle?.(jsEnabled);
+  }, [jsEnabled, onJavaScriptToggle]);
 
   useEffect(() => {
-    onShadowDomToggle?.(enableShadowDom);
-  }, [enableShadowDom, onShadowDomToggle]);
+    onShadowDomToggle?.(shadowDomEnabled);
+  }, [shadowDomEnabled, onShadowDomToggle]);
 
   useEffect(() => {
-    onShortcodeToggle?.(enableShortcode);
-  }, [enableShortcode, onShortcodeToggle]);
+    onShortcodeToggle?.(shortcodeEnabled);
+  }, [shortcodeEnabled, onShortcodeToggle]);
 
   useEffect(() => {
-    onLiveHighlightToggle?.(enableLiveHighlight);
-  }, [enableLiveHighlight, onLiveHighlightToggle]);
+    onLiveHighlightToggle?.(liveHighlightEnabled);
+  }, [liveHighlightEnabled, onLiveHighlightToggle]);
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
@@ -988,7 +988,7 @@ function SettingsSidebar({
         url: restUrl,
         method: 'POST',
         data: {
-          postId,
+          post_id,
           updates,
         },
       });
@@ -1003,7 +1003,7 @@ function SettingsSidebar({
 
       return response;
     },
-    [apiFetch, restUrl, postId]
+    [apiFetch, restUrl, post_id]
   );
 
   const canEditJavaScript = Boolean(settings.canEditJavaScript);
@@ -1021,12 +1021,12 @@ function SettingsSidebar({
       return;
     }
     setDesignError('');
-    setEnableJavaScript(enabled);
+    setJsEnabled(enabled);
     try {
-      await updateSettings({ enableJavaScript: enabled });
+      await updateSettings({ jsEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableJavaScript(Boolean(settings.jsEnabled));
+      setJsEnabled(Boolean(settings.jsEnabled));
     }
   };
 
@@ -1035,12 +1035,12 @@ function SettingsSidebar({
       return;
     }
     setDesignError('');
-    setEnableShadowDom(enabled);
+    setShadowDomEnabled(enabled);
     try {
-      await updateSettings({ enableShadowDom: enabled });
+      await updateSettings({ shadowDomEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableShadowDom(Boolean(settings.shadowDomEnabled));
+      setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
     }
   };
 
@@ -1049,23 +1049,23 @@ function SettingsSidebar({
       return;
     }
     setDesignError('');
-    setEnableShortcode(enabled);
+    setShortcodeEnabled(enabled);
     try {
-      await updateSettings({ enableShortcode: enabled });
+      await updateSettings({ shortcodeEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableShortcode(Boolean(settings.shortcodeEnabled));
+      setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
     }
   };
 
   const handleLiveHighlightToggle = async (enabled: boolean) => {
     setDesignError('');
-    setEnableLiveHighlight(enabled);
+    setLiveHighlightEnabled(enabled);
     try {
-      await updateSettings({ enableLiveHighlight: enabled });
+      await updateSettings({ liveHighlightEnabled: enabled });
     } catch (err: any) {
       setDesignError(err?.message || String(err));
-      setEnableLiveHighlight(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
+      setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
     }
   };
 
@@ -1335,14 +1335,14 @@ function SettingsSidebar({
 
       {activeTab === 'design' ? (
         <DesignSettingsPanel
-          postId={postId}
-          enableJavaScript={enableJavaScript}
+          post_id={post_id}
+          jsEnabled={jsEnabled}
           onToggleJavaScript={handleJavaScriptToggle}
-          enableShadowDom={enableShadowDom}
+          shadowDomEnabled={shadowDomEnabled}
           onToggleShadowDom={handleShadowDomToggle}
-          enableShortcode={enableShortcode}
+          shortcodeEnabled={shortcodeEnabled}
           onToggleShortcode={handleShortcodeToggle}
-          enableLiveHighlight={enableLiveHighlight}
+          liveHighlightEnabled={liveHighlightEnabled}
           onToggleLiveHighlight={handleLiveHighlightToggle}
           externalScripts={externalScripts}
           onChangeExternalScripts={handleExternalScriptsChange}

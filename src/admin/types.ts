@@ -4,7 +4,7 @@ export type ImportPayload = {
   version: number;
   html: string;
   css: string;
-  tailwind: boolean;
+  tailwindEnabled: boolean;
   generatedCss?: string;
   js?: string;
   jsEnabled?: boolean;
@@ -24,7 +24,7 @@ export type ExportPayload = {
   version: 1;
   html: string;
   css: string;
-  tailwind: boolean;
+  tailwindEnabled: boolean;
   generatedCss: string;
   js: string;
   jsEnabled: boolean;

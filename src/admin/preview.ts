@@ -47,7 +47,7 @@ export type PreviewController = {
 
 type PreviewControllerDeps = {
   iframe: HTMLIFrameElement;
-  postId: number;
+  post_id: number;
   targetOrigin: string;
   monaco: MonacoType;
   htmlModel: import('monaco-editor').editor.ITextModel;
@@ -414,7 +414,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     deps.iframe.contentWindow?.postMessage(
       {
         type: 'LC_INIT',
-        postId: deps.postId,
+        post_id: deps.post_id,
       },
       deps.targetOrigin
     );

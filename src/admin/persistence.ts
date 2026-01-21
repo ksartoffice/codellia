@@ -6,7 +6,7 @@ type ApiFetch = (args: any) => Promise<any>;
 type TailwindCompilerDeps = {
   apiFetch: ApiFetch;
   restCompileUrl: string;
-  postId: number;
+  post_id: number;
   getHtml: () => string;
   getCss: () => string;
   isTailwindEnabled: () => boolean;
@@ -40,7 +40,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         url: deps.restCompileUrl,
         method: 'POST',
         data: {
-          postId: deps.postId,
+          post_id: deps.post_id,
           html: deps.getHtml(),
           css: deps.getCss(),
         },
@@ -85,7 +85,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
 type SaveParams = {
   apiFetch: ApiFetch;
   restUrl: string;
-  postId: number;
+  post_id: number;
   html: string;
   css: string;
   tailwindEnabled: boolean;
@@ -99,10 +99,10 @@ export async function saveLivecode(
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const payload: Record<string, any> = {
-      postId: params.postId,
+      post_id: params.post_id,
       html: params.html,
       css: params.css,
-      tailwind: params.tailwindEnabled,
+      tailwindEnabled: params.tailwindEnabled,
     };
     if (params.canEditJavaScript) {
       payload.js = params.js;
@@ -129,7 +129,7 @@ export async function saveLivecode(
 type ExportParams = {
   apiFetch: ApiFetch;
   restCompileUrl: string;
-  postId: number;
+  post_id: number;
   html: string;
   css: string;
   tailwindEnabled: boolean;
@@ -152,7 +152,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
           url: params.restCompileUrl,
           method: 'POST',
           data: {
-            postId: params.postId,
+      post_id: params.post_id,
             html: params.html,
             css: params.css,
           },
@@ -171,7 +171,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
       version: 1,
       html: params.html,
       css: params.css,
-      tailwind: params.tailwindEnabled,
+      tailwindEnabled: params.tailwindEnabled,
       generatedCss: params.tailwindEnabled ? (generatedCss || params.tailwindCss) : '',
       js: params.js,
       jsEnabled: params.jsEnabled,
@@ -188,7 +188,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `livecode-${params.postId}.json`;
+    link.download = `livecode-${params.post_id}.json`;
     document.body.append(link);
     link.click();
     link.remove();

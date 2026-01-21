@@ -2,14 +2,14 @@ import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress
 import { __, sprintf } from '@wordpress/i18n';
 
 type DesignSettingsPanelProps = {
-  postId: number;
-  enableJavaScript: boolean;
+  post_id: number;
+  jsEnabled: boolean;
   onToggleJavaScript: (enabled: boolean) => void;
-  enableShadowDom: boolean;
+  shadowDomEnabled: boolean;
   onToggleShadowDom: (enabled: boolean) => void;
-  enableShortcode: boolean;
+  shortcodeEnabled: boolean;
   onToggleShortcode: (enabled: boolean) => void;
-  enableLiveHighlight: boolean;
+  liveHighlightEnabled: boolean;
   onToggleLiveHighlight: (enabled: boolean) => void;
   externalScripts: string[];
   onChangeExternalScripts: (scripts: string[]) => void;
@@ -27,14 +27,14 @@ const MAX_EXTERNAL_SCRIPTS = 5;
 const MAX_EXTERNAL_STYLES = 5;
 
 export function DesignSettingsPanel({
-  postId,
-  enableJavaScript,
+  post_id,
+  jsEnabled,
   onToggleJavaScript,
-  enableShadowDom,
+  shadowDomEnabled,
   onToggleShadowDom,
-  enableShortcode,
+  shortcodeEnabled,
   onToggleShortcode,
-  enableLiveHighlight,
+  liveHighlightEnabled,
   onToggleLiveHighlight,
   externalScripts,
   onChangeExternalScripts,
@@ -54,7 +54,7 @@ export function DesignSettingsPanel({
   const hasScripts = externalScripts.length > 0;
   const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
   const hasStyles = externalStyles.length > 0;
-  const shortcodeText = `[livecode post_id="${postId}"]`;
+  const shortcodeText = `[livecode post_id="${post_id}"]`;
 
   useEffect(() => {
     return () => {
@@ -155,7 +155,7 @@ export function DesignSettingsPanel({
           <label className="lc-toggle">
             <input
               type="checkbox"
-              checked={enableJavaScript}
+              checked={jsEnabled}
               aria-label={__( 'Enable JavaScript', 'wp-livecode' )}
               onChange={(event) => onToggleJavaScript(event.target.checked)}
               disabled={disabled}
@@ -170,7 +170,7 @@ export function DesignSettingsPanel({
           <label className="lc-toggle">
             <input
               type="checkbox"
-              checked={enableShadowDom}
+              checked={shadowDomEnabled}
               aria-label={__( 'Enable Shadow DOM', 'wp-livecode' )}
               onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
@@ -185,7 +185,7 @@ export function DesignSettingsPanel({
           <label className="lc-toggle">
             <input
               type="checkbox"
-              checked={enableShortcode}
+              checked={shortcodeEnabled}
               aria-label={__( 'Enable shortcode', 'wp-livecode' )}
               onChange={(event) => onToggleShortcode(event.target.checked)}
               disabled={disabled}
@@ -212,7 +212,7 @@ export function DesignSettingsPanel({
           <label className="lc-toggle">
             <input
               type="checkbox"
-              checked={enableLiveHighlight}
+              checked={liveHighlightEnabled}
               aria-label={__( 'Enable live edit highlight', 'wp-livecode' )}
               onChange={(event) => onToggleLiveHighlight(event.target.checked)}
             />
@@ -221,7 +221,7 @@ export function DesignSettingsPanel({
         </div>
       </div>
 
-      {enableJavaScript ? (
+      {jsEnabled ? (
         <div className="lc-settingsSection">
           <div className="lc-settingsSectionTitle">
             {__( 'External scripts', 'wp-livecode' )}
@@ -353,7 +353,7 @@ export function DesignSettingsPanel({
           <div className="lc-settingsError">{externalStylesError}</div>
         ) : null}
       </div>
-      {enableShortcode ? (
+      {shortcodeEnabled ? (
         <div className="lc-settingsSection">
           <div className="lc-settingsSectionTitle">
             {__( 'Shortcode', 'wp-livecode' )}

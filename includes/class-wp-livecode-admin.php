@@ -249,7 +249,7 @@ class Admin {
 			: home_url( '/' );
 
 		$data = array(
-			'postId'            => $post_id,
+			'post_id'           => $post_id,
 			'initialHtml'       => $html,
 			'initialCss'        => $css,
 			'initialJs'         => $js,

@@ -21,7 +21,7 @@ declare const wp: any;
 declare global {
   interface Window {
     WP_LIVECODE: {
-      postId: number;
+      post_id: number;
       initialHtml: string;
       initialCss: string;
       initialJs: string;
@@ -88,7 +88,7 @@ async function main() {
     try {
       const result = await runSetupWizard({
         container: setupHost,
-        postId: cfg.postId,
+        post_id: cfg.post_id,
         restUrl: cfg.setupRestUrl,
         importRestUrl: cfg.importRestUrl,
         apiFetch: wp?.apiFetch,
@@ -116,8 +116,8 @@ async function main() {
     cfg.initialCss = payload.css;
     cfg.initialJs = payload.js ?? '';
     cfg.jsEnabled = payload.jsEnabled ?? false;
-    cfg.tailwindEnabled = payload.tailwind;
-    tailwindEnabled = payload.tailwind;
+    cfg.tailwindEnabled = payload.tailwindEnabled;
+    tailwindEnabled = payload.tailwindEnabled;
     cfg.settingsData =
       importedState.settingsData ?? {
         ...cfg.settingsData,
@@ -250,7 +250,7 @@ async function main() {
     const result = await exportLivecode({
       apiFetch: wp.apiFetch,
       restCompileUrl: cfg.restCompileUrl,
-      postId: cfg.postId,
+      post_id: cfg.post_id,
       html: htmlModel.getValue(),
       css: cssModel.getValue(),
       tailwindEnabled,
@@ -292,7 +292,7 @@ async function main() {
     const result = await saveLivecode({
       apiFetch: wp.apiFetch,
       restUrl: cfg.restUrl,
-      postId: cfg.postId,
+      post_id: cfg.post_id,
       html: htmlModel.getValue(),
       css: cssModel.getValue(),
       tailwindEnabled,
@@ -513,7 +513,7 @@ async function main() {
 
   preview = createPreviewController({
     iframe: ui.iframe,
-    postId: cfg.postId,
+    post_id: cfg.post_id,
     targetOrigin,
     monaco,
     htmlModel,
@@ -538,7 +538,7 @@ async function main() {
           url: cfg.renderShortcodesUrl,
           method: 'POST',
           data: {
-            postId: cfg.postId,
+            post_id: cfg.post_id,
             shortcodes: items.map((item) => ({ id: item.id, shortcode: item.shortcode })),
           },
         });
@@ -569,7 +569,7 @@ async function main() {
   tailwindCompiler = createTailwindCompiler({
     apiFetch: wp.apiFetch,
     restCompileUrl: cfg.restCompileUrl,
-    postId: cfg.postId,
+    post_id: cfg.post_id,
     getHtml: () => htmlModel.getValue(),
     getCss: () => cssModel.getValue(),
     isTailwindEnabled: () => tailwindEnabled,
@@ -661,7 +661,7 @@ async function main() {
     header: ui.settingsHeader,
     data: cfg.settingsData,
     restUrl: cfg.settingsRestUrl,
-    postId: cfg.postId,
+    post_id: cfg.post_id,
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
     onJavaScriptToggle: setJavaScriptEnabled,
@@ -871,12 +871,12 @@ async function main() {
     syncUnsavedUi();
   });
 
-  // 初回の iframe load 後に送る
+  // ������ iframe load ���ɑ���
   ui.iframe.addEventListener('load', () => {
     preview?.handleIframeLoad();
   });
 
-  // iframe -> parent への通信：DOM セレクタの受け取りや初期化に用いる
+  // iframe -> parent �ւ̒ʐM�FDOM �Z���N�^�̎󂯎����⏉�����ɗp����
   window.addEventListener('message', (event) => {
     preview?.handleMessage(event);
   });
