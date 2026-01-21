@@ -116,7 +116,7 @@ class Media_Import {
 		}
 
 		if ( ! current_user_can( 'upload_files' ) ) {
-			$warnings[]           = sprintf(
+			$warnings[] = sprintf(
 				/* translators: %s: image URL. */
 				__( 'Skipping image import (missing upload_files): %s', 'wp-livecode' ),
 				$normalized
@@ -134,7 +134,7 @@ class Media_Import {
 		self::ensure_media_dependencies();
 		$temp_file = download_url( $normalized, 30 );
 		if ( is_wp_error( $temp_file ) ) {
-			$warnings[]           = sprintf(
+			$warnings[] = sprintf(
 				/* translators: 1: image URL, 2: error message. */
 				__( 'Failed to download image: %1$s (%2$s)', 'wp-livecode' ),
 				$normalized,
@@ -155,7 +155,7 @@ class Media_Import {
 		$attachment_id = media_handle_sideload( $file_array, $post_id );
 		if ( is_wp_error( $attachment_id ) ) {
 			wp_delete_file( $temp_file );
-			$warnings[]           = sprintf(
+			$warnings[] = sprintf(
 				/* translators: 1: image URL, 2: error message. */
 				__( 'Failed to sideload image: %1$s (%2$s)', 'wp-livecode' ),
 				$normalized,

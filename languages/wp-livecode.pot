@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-21T03:57:30+01:00\n"
+"POT-Creation-Date: 2026-01-21T05:49:23+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-livecode\n"
@@ -17,9 +17,9 @@ msgstr ""
 #. Plugin Name of the plugin
 #. Author of the plugin
 #: wp-livecode.php
-#: includes/class-wp-livecode-admin.php:54
-#: includes/class-wp-livecode-admin.php:55
-#: includes/class-wp-livecode-admin.php:68
+#: includes/class-wp-livecode-admin.php:58
+#: includes/class-wp-livecode-admin.php:59
+#: includes/class-wp-livecode-admin.php:139
 msgid "WP LiveCode"
 msgstr ""
 
@@ -33,19 +33,19 @@ msgstr ""
 msgid "Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview."
 msgstr ""
 
-#: includes/class-wp-livecode-admin.php:35
-#: includes/class-wp-livecode-admin.php:68
+#: includes/class-wp-livecode-admin.php:39
+#: includes/class-wp-livecode-admin.php:139
 #: includes/class-wp-livecode-preview.php:78
 msgid "post_id is required."
 msgstr ""
 
-#: includes/class-wp-livecode-admin.php:38
-#: includes/class-wp-livecode-admin.php:72
+#: includes/class-wp-livecode-admin.php:42
+#: includes/class-wp-livecode-admin.php:143
 msgid "This editor is only available for LiveCode posts."
 msgstr ""
 
-#: includes/class-wp-livecode-admin.php:41
-#: includes/class-wp-livecode-admin.php:75
+#: includes/class-wp-livecode-admin.php:45
+#: includes/class-wp-livecode-admin.php:146
 #: includes/class-wp-livecode-preview.php:82
 #: includes/rest/class-wp-livecode-rest-import.php:47
 #: includes/rest/class-wp-livecode-rest-save.php:50
@@ -57,6 +57,32 @@ msgstr ""
 #: includes/rest/class-wp-livecode-rest-settings.php:412
 #: includes/rest/class-wp-livecode-rest-settings.php:461
 msgid "Permission denied."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:67
+#: includes/class-wp-livecode-admin.php:68
+#: assets/dist/main.js:1
+msgid "Settings"
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:91
+msgid "Cleanup"
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:98
+msgid "Delete data on uninstall"
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:119
+msgid "Choose whether LiveCode posts should be deleted when the plugin is uninstalled."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:129
+msgid "Delete all LiveCode posts on uninstall (imported media is kept)."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:161
+msgid "WP LiveCode Settings"
 msgstr ""
 
 #: includes/class-wp-livecode-external-scripts.php:53
@@ -725,10 +751,6 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Hide"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Settings"
 msgstr ""
 
 #: assets/dist/main.js:1

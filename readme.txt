@@ -34,6 +34,9 @@ Use the shortcode: [livecode post_id="123"].
 = Can I switch between Normal and Tailwind modes? =
 The setup wizard lets you choose Normal or Tailwind. The choice is locked per LiveCode post.
 
+= Does the plugin delete data on uninstall? =
+By default, LiveCode posts are kept when the plugin is uninstalled. You can enable data removal from the LiveCode > Settings screen.
+
 = Where is the code stored? =
 HTML is stored in the post content. CSS/JS and other settings are stored in post meta.
 
@@ -48,5 +51,5 @@ HTML is stored in the post content. CSS/JS and other settings are stored in post
 
 == Credits ==
 This plugin bundles third-party libraries:
-* Monaco Editor - MIT License - https://github.com/microsoft/monaco-editor
+* Monaco Editor - MIT License (see assets/monaco/LICENSE) - https://github.com/microsoft/monaco-editor
 * TailwindPHP - MIT License - https://github.com/dnnsjsk/tailwindphp

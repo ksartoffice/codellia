@@ -15,17 +15,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles admin UI routes and assets.
  */
 class Admin {
-	const MENU_SLUG = 'wp-livecode';
 
+	const MENU_SLUG                  = 'wp-livecode';
+	const SETTINGS_SLUG              = 'wp-livecode-settings';
+	const SETTINGS_GROUP             = 'wp_livecode_settings';
+	const OPTION_DELETE_ON_UNINSTALL = 'wp_livecode_delete_on_uninstall';
 	/**
 	 * Register admin hooks.
 	 */
 	public static function init(): void {
+
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'admin_action_wp_livecode', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=wp_livecode.
 	}
-
 	/**
 	 * Redirect from admin.php?action=wp_livecode to the custom editor page.
 	 */
@@ -48,6 +52,7 @@ class Admin {
 	 * Register the hidden admin page entry.
 	 */
 	public static function register_menu(): void {
+
 		// Hidden admin page (no menu entry). Accessed via redirects only.
 		add_submenu_page(
 			null,
@@ -57,6 +62,77 @@ class Admin {
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' )
 		);
+
+		add_submenu_page(
+			'edit.php?post_type=' . Post_Type::POST_TYPE,
+			__( 'Settings', 'wp-livecode' ),
+			__( 'Settings', 'wp-livecode' ),
+			'manage_options',
+			self::SETTINGS_SLUG,
+			array( __CLASS__, 'render_settings_page' )
+		);
+	}
+
+	/**
+	 * Register settings for the plugin.
+	 */
+	public static function register_settings(): void {
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::OPTION_DELETE_ON_UNINSTALL,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_delete_on_uninstall' ),
+				'default'           => '0',
+			)
+		);
+
+		add_settings_section(
+			'wp_livecode_cleanup',
+			__( 'Cleanup', 'wp-livecode' ),
+			array( __CLASS__, 'render_cleanup_section' ),
+			self::SETTINGS_SLUG
+		);
+
+		add_settings_field(
+			self::OPTION_DELETE_ON_UNINSTALL,
+			__( 'Delete data on uninstall', 'wp-livecode' ),
+			array( __CLASS__, 'render_delete_on_uninstall_field' ),
+			self::SETTINGS_SLUG,
+			'wp_livecode_cleanup'
+		);
+	}
+
+	/**
+	 * Sanitize delete-on-uninstall value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_delete_on_uninstall( $value ): string {
+
+		return '1' === $value ? '1' : '0';
+	}
+
+	/**
+	 * Render cleanup section description.
+	 */
+	public static function render_cleanup_section(): void {
+
+		echo '<p>' . esc_html__( 'Choose whether LiveCode posts should be deleted when the plugin is uninstalled.', 'wp-livecode' ) . '</p>';
+	}
+
+	/**
+	 * Render delete-on-uninstall checkbox field.
+	 */
+	public static function render_delete_on_uninstall_field(): void {
+
+		$value = get_option( self::OPTION_DELETE_ON_UNINSTALL, '0' );
+		echo '<label>';
+		echo '<input type="checkbox" name="' . esc_attr( self::OPTION_DELETE_ON_UNINSTALL ) . '" value="1" ' . checked( '1', $value, false ) . ' />';
+		echo ' ' . esc_html__( 'Delete all LiveCode posts on uninstall (imported media is kept).', 'wp-livecode' );
+		echo '</label>';
 	}
 
 	/**
@@ -78,6 +154,24 @@ class Admin {
 		echo '<div id="wp-livecode-app" data-post-id="' . esc_attr( $post_id ) . '"></div>';
 	}
 
+	/**
+	 * Render settings page.
+	 */
+	public static function render_settings_page(): void {
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		echo '<div class="wrap">';
+		echo '<h1>' . esc_html__( 'WP LiveCode Settings', 'wp-livecode' ) . '</h1>';
+		echo '<form action="options.php" method="post">';
+		settings_fields( self::SETTINGS_GROUP );
+		do_settings_sections( self::SETTINGS_SLUG );
+		submit_button();
+		echo '</form>';
+		echo '</div>';
+	}
 	/**
 	 * Enqueue admin assets for the LiveCode editor.
 	 *
