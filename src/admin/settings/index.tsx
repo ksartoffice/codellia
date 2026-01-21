@@ -57,7 +57,7 @@ export type SettingsData = {
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   liveHighlightEnabled: boolean;
-  canEditJavaScript: boolean;
+  canEditJs: boolean;
   externalScripts: string[];
   externalStyles: string[];
 };
@@ -70,7 +70,7 @@ type SettingsConfig = {
   postId: number;
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
-  onJavaScriptToggle?: (enabled: boolean) => void;
+  onJsToggle?: (enabled: boolean) => void;
   onShadowDomToggle?: (enabled: boolean) => void;
   onShortcodeToggle?: (enabled: boolean) => void;
   onLiveHighlightToggle?: (enabled: boolean) => void;
@@ -887,7 +887,7 @@ function SettingsSidebar({
   backUrl,
   apiFetch,
   header,
-  onJavaScriptToggle,
+  onJsToggle,
   onShadowDomToggle,
   onShortcodeToggle,
   onLiveHighlightToggle,
@@ -962,8 +962,8 @@ function SettingsSidebar({
   }, [settings.externalStyles, onExternalStylesChange]);
 
   useEffect(() => {
-    onJavaScriptToggle?.(jsEnabled);
-  }, [jsEnabled, onJavaScriptToggle]);
+    onJsToggle?.(jsEnabled);
+  }, [jsEnabled, onJsToggle]);
 
   useEffect(() => {
     onShadowDomToggle?.(shadowDomEnabled);
@@ -1006,7 +1006,7 @@ function SettingsSidebar({
     [apiFetch, restUrl, postId]
   );
 
-  const canEditJavaScript = Boolean(settings.canEditJavaScript);
+  const canEditJs = Boolean(settings.canEditJs);
 
   const normalizeList = (list: string[]) =>
     list
@@ -1016,8 +1016,8 @@ function SettingsSidebar({
   const isSameList = (left: string[], right: string[]) =>
     left.length === right.length && left.every((value, index) => value === right[index]);
 
-  const handleJavaScriptToggle = async (enabled: boolean) => {
-    if (!canEditJavaScript) {
+  const handleJsToggle = async (enabled: boolean) => {
+    if (!canEditJs) {
       return;
     }
     setDesignError('');
@@ -1031,7 +1031,7 @@ function SettingsSidebar({
   };
 
   const handleShadowDomToggle = async (enabled: boolean) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     setDesignError('');
@@ -1045,7 +1045,7 @@ function SettingsSidebar({
   };
 
   const handleShortcodeToggle = async (enabled: boolean) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     setDesignError('');
@@ -1074,7 +1074,7 @@ function SettingsSidebar({
   };
 
   const handleExternalScriptsCommit = async (next: string[]) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     const normalizedNext = normalizeList(next);
@@ -1098,7 +1098,7 @@ function SettingsSidebar({
   };
 
   const handleExternalStylesCommit = async (next: string[]) => {
-    if (!canEditJavaScript) {
+    if (!canEditJs) {
       return;
     }
     const normalizedNext = normalizeList(next);
@@ -1337,7 +1337,7 @@ function SettingsSidebar({
         <DesignSettingsPanel
           postId={postId}
           jsEnabled={jsEnabled}
-          onToggleJavaScript={handleJavaScriptToggle}
+          onToggleJs={handleJsToggle}
           shadowDomEnabled={shadowDomEnabled}
           onToggleShadowDom={handleShadowDomToggle}
           shortcodeEnabled={shortcodeEnabled}
@@ -1350,7 +1350,7 @@ function SettingsSidebar({
           externalStyles={externalStyles}
           onChangeExternalStyles={handleExternalStylesChange}
           onCommitExternalStyles={handleExternalStylesCommit}
-          disabled={!canEditJavaScript}
+          disabled={!canEditJs}
           error={designError}
           externalScriptsError={externalScriptsError}
           externalStylesError={externalStylesError}

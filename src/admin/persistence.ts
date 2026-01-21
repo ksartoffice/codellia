@@ -89,7 +89,7 @@ type SaveParams = {
   html: string;
   css: string;
   tailwindEnabled: boolean;
-  canEditJavaScript: boolean;
+  canEditJs: boolean;
   js: string;
   jsEnabled: boolean;
 };
@@ -104,7 +104,7 @@ export async function saveLivecode(
       css: params.css,
       tailwindEnabled: params.tailwindEnabled,
     };
-    if (params.canEditJavaScript) {
+    if (params.canEditJs) {
       payload.js = params.js;
       payload.jsEnabled = params.jsEnabled;
     }

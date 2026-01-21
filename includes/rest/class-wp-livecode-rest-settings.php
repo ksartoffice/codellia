@@ -181,7 +181,7 @@ class Rest_Settings {
 			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_lc_shadow_dom', true ),
 			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_lc_shortcode_enabled', true ),
 			'liveHighlightEnabled' => $live_highlight_enabled,
-			'canEditJavaScript'    => current_user_can( 'unfiltered_html' ),
+			'canEditJs'            => current_user_can( 'unfiltered_html' ),
 			'externalScripts'      => External_Scripts::get_external_scripts( $post_id, self::MAX_EXTERNAL_SCRIPTS ),
 			'externalStyles'       => External_Styles::get_external_styles( $post_id, self::MAX_EXTERNAL_STYLES ),
 		);

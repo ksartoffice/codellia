@@ -26,7 +26,7 @@ declare global {
       initialCss: string;
       initialJs: string;
       jsEnabled: boolean;
-      canEditJavaScript: boolean;
+      canEditJs: boolean;
       previewUrl: string;
       monacoVsPath: string;
       restUrl: string;
@@ -159,7 +159,7 @@ async function main() {
   let editorsReady = false;
   let hasUnsavedChanges = false;
   let lastSaved = { html: '', css: '', js: '' };
-  const canEditJavaScript = Boolean(cfg.canEditJavaScript);
+  const canEditJs = Boolean(cfg.canEditJs);
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -297,7 +297,7 @@ async function main() {
       html: htmlModel.getValue(),
       css: cssModel.getValue(),
       tailwindEnabled,
-      canEditJavaScript,
+      canEditJs,
       js: jsModel.getValue(),
       jsEnabled,
     });
@@ -354,7 +354,7 @@ async function main() {
     initialJs: cfg.initialJs ?? '',
     tailwindEnabled,
     useTailwindDefault: !importedState,
-    canEditJavaScript,
+    canEditJs,
     htmlContainer: ui.htmlEditorDiv,
     cssContainer: ui.cssEditorDiv,
     jsContainer: ui.jsEditorDiv,
@@ -589,7 +589,7 @@ async function main() {
   sendRenderDebounced = debounce(() => preview?.sendRender(), 120);
   compileTailwindDebounced = debounce(() => tailwindCompiler?.compile(), 300);
 
-  const setJavaScriptEnabled = (enabled: boolean) => {
+  const setJsEnabled = (enabled: boolean) => {
     jsEnabled = enabled;
     if (!jsEnabled && activeCssTab === 'js') {
       setCssTab('css');
@@ -665,7 +665,7 @@ async function main() {
     postId,
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
-    onJavaScriptToggle: setJavaScriptEnabled,
+    onJsToggle: setJsEnabled,
     onShadowDomToggle: setShadowDomEnabled,
     onShortcodeToggle: (enabled) => {
       shortcodeEnabled = enabled;
@@ -836,7 +836,7 @@ async function main() {
   ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
 
   setTailwindEnabled(tailwindEnabled);
-  setJavaScriptEnabled(jsEnabled);
+  setJsEnabled(jsEnabled);
   preview?.flushPendingJsAction();
 
   htmlModel.onDidChangeContent(() => {

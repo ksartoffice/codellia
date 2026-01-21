@@ -19,7 +19,7 @@ type MonacoInitOptions = {
   initialJs: string;
   tailwindEnabled: boolean;
   useTailwindDefault: boolean;
-  canEditJavaScript: boolean;
+  canEditJs: boolean;
   htmlContainer: HTMLElement;
   cssContainer: HTMLElement;
   jsContainer: HTMLElement;
@@ -86,7 +86,7 @@ export async function initMonacoEditors(options: MonacoInitOptions): Promise<Mon
     automaticLayout: true,
     minimap: { enabled: false },
     fontSize: 13,
-    readOnly: !options.canEditJavaScript,
+    readOnly: !options.canEditJs,
   });
 
   return {

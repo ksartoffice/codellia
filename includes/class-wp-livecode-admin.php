@@ -254,7 +254,7 @@ class Admin {
 			'initialCss'          => $css,
 			'initialJs'           => $js,
 			'jsEnabled'           => $js_enabled,
-			'canEditJavaScript'   => current_user_can( 'unfiltered_html' ),
+			'canEditJs'           => current_user_can( 'unfiltered_html' ),
 			'previewUrl'          => $preview_url,
 			'monacoVsPath'        => WP_LIVECODE_URL . 'assets/monaco/vs',
 			'restUrl'             => rest_url( 'wp-livecode/v1/save' ),

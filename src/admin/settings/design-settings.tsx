@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 type DesignSettingsPanelProps = {
   postId: number;
   jsEnabled: boolean;
-  onToggleJavaScript: (enabled: boolean) => void;
+  onToggleJs: (enabled: boolean) => void;
   shadowDomEnabled: boolean;
   onToggleShadowDom: (enabled: boolean) => void;
   shortcodeEnabled: boolean;
@@ -29,7 +29,7 @@ const MAX_EXTERNAL_STYLES = 5;
 export function DesignSettingsPanel({
   postId,
   jsEnabled,
-  onToggleJavaScript,
+  onToggleJs,
   shadowDomEnabled,
   onToggleShadowDom,
   shortcodeEnabled,
@@ -157,7 +157,7 @@ export function DesignSettingsPanel({
               type="checkbox"
               checked={jsEnabled}
               aria-label={__( 'Enable JavaScript', 'wp-livecode' )}
-              onChange={(event) => onToggleJavaScript(event.target.checked)}
+              onChange={(event) => onToggleJs(event.target.checked)}
               disabled={disabled}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
