@@ -63,6 +63,7 @@ type PreviewControllerDeps = {
   getExternalScripts: () => string[];
   getExternalStyles: () => string[];
   isTailwindEnabled: () => boolean;
+  renderShortcodes?: (items: ShortcodePlaceholder[]) => Promise<Record<string, string>>;
   onSelect?: (lcId: string) => void;
   onOpenElementsTab?: () => void;
 };
@@ -71,6 +72,8 @@ const LC_ATTR_NAME = 'data-lc-id';
 const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
 const SHORTCODE_REGEX =
   /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
+const HTML_NS = 'http://www.w3.org/1999/xhtml';
+const SKIP_SHORTCODE_TAGS = new Set(['script', 'style', 'textarea']);
 
 function isElement(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.Element {
   return (node as DefaultTreeAdapterTypes.Element).tagName !== undefined;
@@ -82,6 +85,10 @@ function isParentNode(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAd
 
 function isTemplateElement(node: DefaultTreeAdapterTypes.Element): node is DefaultTreeAdapterTypes.Template {
   return node.tagName === 'template' && Boolean((node as DefaultTreeAdapterTypes.Template).content);
+}
+
+function isTextNode(node: DefaultTreeAdapterTypes.Node): node is DefaultTreeAdapterTypes.TextNode {
+  return (node as DefaultTreeAdapterTypes.TextNode).nodeName === '#text';
 }
 
 function escapeHtml(value: string): string {
@@ -159,6 +166,145 @@ function walkCanonicalTree(
   }
 }
 
+function createTextNode(value: string): DefaultTreeAdapterTypes.TextNode {
+  return {
+    nodeName: '#text',
+    value,
+    parentNode: null,
+  };
+}
+
+function createPlaceholderNode(id: string): DefaultTreeAdapterTypes.Element {
+  return {
+    nodeName: 'span',
+    tagName: 'span',
+    attrs: [{ name: SC_PLACEHOLDER_ATTR, value: id }],
+    namespaceURI: HTML_NS,
+    childNodes: [],
+    parentNode: null,
+  };
+}
+
+function splitTextWithShortcodes(
+  text: string,
+  nextId: () => string,
+  shortcodes: ShortcodePlaceholder[]
+): DefaultTreeAdapterTypes.Node[] | null {
+  if (!text.includes('[')) {
+    return null;
+  }
+  SHORTCODE_REGEX.lastIndex = 0;
+  let match: RegExpExecArray | null = null;
+  let lastIndex = 0;
+  let changed = false;
+  const nodes: DefaultTreeAdapterTypes.Node[] = [];
+
+  while ((match = SHORTCODE_REGEX.exec(text))) {
+    const full = match[0];
+    const matchIndex = match.index ?? 0;
+    if (matchIndex > lastIndex) {
+      nodes.push(createTextNode(text.slice(lastIndex, matchIndex)));
+    }
+    const isEscaped = match[1] === '[' && match[6] === ']';
+    if (isEscaped) {
+      const unescaped = full.slice(1, -1);
+      nodes.push(createTextNode(unescaped));
+    } else {
+      const id = nextId();
+      nodes.push(createPlaceholderNode(id));
+      shortcodes.push({
+        id,
+        shortcode: full,
+        startOffset: matchIndex,
+        endOffset: matchIndex + full.length,
+      });
+    }
+    lastIndex = matchIndex + full.length;
+    changed = true;
+  }
+
+  if (!changed) {
+    return null;
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(createTextNode(text.slice(lastIndex)));
+  }
+
+  return nodes;
+}
+
+function replaceShortcodesWithPlaceholders(html: string): {
+  htmlWithPlaceholders: string;
+  shortcodes: ShortcodePlaceholder[];
+} {
+  if (!html.includes('[')) {
+    return { htmlWithPlaceholders: html, shortcodes: [] };
+  }
+
+  const fragment = parse5.parseFragment(html);
+  const shortcodes: ShortcodePlaceholder[] = [];
+  let seq = 0;
+  const nextId = () => `sc-${++seq}`;
+
+  const walk = (node: DefaultTreeAdapterTypes.ParentNode) => {
+    const children = node.childNodes || [];
+    for (let i = 0; i < children.length; i += 1) {
+      const child = children[i];
+      if (isElement(child)) {
+        if (SKIP_SHORTCODE_TAGS.has(child.tagName)) {
+          continue;
+        }
+        walk(child);
+        if (isTemplateElement(child)) {
+          walk(child.content);
+        }
+        continue;
+      }
+      if (isTextNode(child)) {
+        const replacementNodes = splitTextWithShortcodes(child.value, nextId, shortcodes);
+        if (replacementNodes) {
+          children.splice(i, 1, ...replacementNodes);
+          replacementNodes.forEach((nodeItem) => {
+            nodeItem.parentNode = node;
+          });
+          i += replacementNodes.length - 1;
+        }
+        continue;
+      }
+      if (isParentNode(child)) {
+        walk(child);
+      }
+    }
+  };
+
+  walk(fragment);
+
+  return {
+    htmlWithPlaceholders: parse5.serialize(fragment),
+    shortcodes,
+  };
+}
+
+function applyShortcodeResults(
+  html: string,
+  shortcodes: ShortcodePlaceholder[],
+  results: Record<string, string>
+): string {
+  if (!shortcodes.length) {
+    return html;
+  }
+  let output = html;
+  shortcodes.forEach((entry) => {
+    const placeholder = `<span ${SC_PLACEHOLDER_ATTR}="${entry.id}"></span>`;
+    const replacement = Object.prototype.hasOwnProperty.call(results, entry.id)
+      ? results[entry.id]
+      : entry.shortcode;
+    output = output.split(placeholder).join(replacement ?? '');
+  });
+  return output;
+}
+
 // canonical HTML を生成しつつ data-lc-id とソース位置のマッピングを保持
 function canonicalizeHtml(html: string): CanonicalResult {
   try {
@@ -193,6 +339,9 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   let canonicalDomRoot: HTMLElement | null = null;
   let lcSourceMap: Record<string, SourceRange> = {};
   let lastCanonicalError: string | null = null;
+  let lastShortcodeSourceHtml = '';
+  let lastShortcodeRenderedHtml = '';
+  let renderToken = 0;
   let selectionDecorations: string[] = [];
   let cssSelectionDecorations: string[] = [];
   let lastSelectedLcId: string | null = null;
@@ -214,6 +363,37 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     canonicalCacheHtml = '';
     canonicalDomCacheHtml = '';
     canonicalDomRoot = null;
+    lastShortcodeSourceHtml = '';
+    lastShortcodeRenderedHtml = '';
+  };
+
+  const renderShortcodesIfNeeded = async (html: string, token: number) => {
+    if (!deps.renderShortcodes) {
+      return html;
+    }
+    if (html === lastShortcodeSourceHtml) {
+      return lastShortcodeRenderedHtml || html;
+    }
+    const { htmlWithPlaceholders, shortcodes } = replaceShortcodesWithPlaceholders(html);
+    if (!shortcodes.length) {
+      lastShortcodeSourceHtml = html;
+      lastShortcodeRenderedHtml = htmlWithPlaceholders;
+      return htmlWithPlaceholders;
+    }
+    try {
+      const results = await deps.renderShortcodes(shortcodes);
+      if (token !== renderToken) {
+        return html;
+      }
+      const resolved = applyShortcodeResults(htmlWithPlaceholders, shortcodes, results || {});
+      lastShortcodeSourceHtml = html;
+      lastShortcodeRenderedHtml = resolved;
+      return resolved;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('[WP LiveCode] Shortcode render failed', error);
+      return htmlWithPlaceholders;
+    }
   };
 
   const getCanonicalDomRoot = () => {
@@ -253,7 +433,6 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
 
     const payload = {
       type: 'LC_RENDER',
-      canonicalHTML: canonical.canonicalHTML,
       cssText: deps.getPreviewCss(),
       shadowDomEnabled: deps.getShadowDomEnabled(),
       liveHighlightEnabled: deps.getLiveHighlightEnabled(),
@@ -262,7 +441,22 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       pendingRender = true;
       return;
     }
-    deps.iframe.contentWindow?.postMessage(payload, deps.targetOrigin);
+    const currentToken = ++renderToken;
+    const dispatch = async () => {
+      const html = await renderShortcodesIfNeeded(canonical.canonicalHTML, currentToken);
+      if (currentToken !== renderToken) {
+        return;
+      }
+      if (!previewReady) {
+        pendingRender = true;
+        return;
+      }
+      deps.iframe.contentWindow?.postMessage(
+        { ...payload, canonicalHTML: html },
+        deps.targetOrigin
+      );
+    };
+    void dispatch();
   };
 
   const sendCssUpdate = (cssText: string) => {

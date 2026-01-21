@@ -259,6 +259,7 @@ class Admin {
 			'monacoVsPath'      => WP_LIVECODE_URL . 'assets/monaco/vs',
 			'restUrl'           => rest_url( 'wp-livecode/v1/save' ),
 			'restCompileUrl'    => rest_url( 'wp-livecode/v1/compile-tailwind' ),
+			'renderShortcodesUrl' => rest_url( 'wp-livecode/v1/render-shortcodes' ),
 			'setupRestUrl'      => rest_url( 'wp-livecode/v1/setup' ),
 			'importRestUrl'     => rest_url( 'wp-livecode/v1/import' ),
 			'backUrl'           => $back_url,
