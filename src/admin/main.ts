@@ -28,6 +28,7 @@ declare global {
       jsEnabled: boolean;
       canEditJs: boolean;
       previewUrl: string;
+      iframePreviewUrl?: string;
       monacoVsPath: string;
       restUrl: string;
       restCompileUrl: string;
@@ -57,7 +58,6 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 async function main() {
   const cfg = window.WP_LIVECODE;
   const initialViewUrl = cfg.settingsData?.viewUrl || '';
-  const previewUrl = cfg.previewUrl || '';
   const postId = cfg.post_id;
   const mount = document.getElementById('wp-livecode-app');
   if (!mount) return;
@@ -339,7 +339,6 @@ async function main() {
       statusText: __( 'Loading Monaco...', 'wp-livecode' ),
       hasUnsavedChanges: false,
       viewPostUrl,
-      previewUrl,
       postStatus,
     },
     {
@@ -353,8 +352,9 @@ async function main() {
   );
 
   // iframe
-  ui.iframe.src = cfg.previewUrl;
-  const targetOrigin = new URL(cfg.previewUrl).origin;
+  const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
+  ui.iframe.src = iframePreviewUrl;
+  const targetOrigin = new URL(iframePreviewUrl).origin;
 
   // Monaco
   const monacoSetup = await initMonacoEditors({
