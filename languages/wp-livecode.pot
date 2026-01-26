@@ -65,6 +65,22 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+#: includes/class-wp-livecode-admin.php:103
+msgid "Permalink"
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:110
+msgid "LiveCode slug"
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:160
+msgid "Change the URL slug for LiveCode posts. Existing URLs will change after saving."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:169
+msgid "Allowed: lowercase letters, numbers, and hyphens. Default: wp-livecode."
+msgstr ""
+
 #: includes/class-wp-livecode-admin.php:91
 msgid "Cleanup"
 msgstr ""

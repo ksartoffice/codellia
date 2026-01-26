@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Registers and manages the LiveCode custom post type.
  */
-class Post_Type {
+	class Post_Type {
 	const POST_TYPE = 'wp_livecode';
 	const SLUG      = 'wp-livecode';
 
@@ -46,6 +46,7 @@ class Post_Type {
 	 * Register the custom post type.
 	 */
 	public static function register(): void {
+		$slug = self::get_slug();
 		$labels = array(
 			'name'               => _x( 'LiveCode', 'post type general name', 'wp-livecode' ),
 			'singular_name'      => _x( 'LiveCode', 'post type singular name', 'wp-livecode' ),
@@ -74,7 +75,7 @@ class Post_Type {
 			'show_in_admin_bar'   => true,
 			'has_archive'         => true,
 			'rewrite'             => array(
-				'slug'       => self::SLUG,
+				'slug'       => $slug,
 				'with_front' => false,
 			),
 			'supports'            => array( 'title', 'editor', 'author', 'thumbnail' ),
@@ -85,6 +86,18 @@ class Post_Type {
 		);
 
 		register_post_type( self::POST_TYPE, $args );
+	}
+
+	/**
+	 * Resolve the current slug for the LiveCode post type.
+	 *
+	 * @return string
+	 */
+	public static function get_slug(): string {
+		$value = get_option( Admin::OPTION_POST_SLUG, self::SLUG );
+		$slug  = sanitize_title( (string) $value );
+
+		return '' !== $slug ? $slug : self::SLUG;
 	}
 
 	/**

@@ -757,6 +757,22 @@ msgstr "Monaco を読み込み中..."
 msgid "You may have unsaved changes."
 msgstr "未保存の変更があります。"
 
+#: includes/class-wp-livecode-admin.php:103
+msgid "Permalink"
+msgstr "パーマリンク"
+
+#: includes/class-wp-livecode-admin.php:110
+msgid "LiveCode slug"
+msgstr "LiveCode スラッグ"
+
+#: includes/class-wp-livecode-admin.php:160
+msgid "Change the URL slug for LiveCode posts. Existing URLs will change after saving."
+msgstr "LiveCode 投稿の URL スラッグを変更します。保存後は既存の URL が変更されます。"
+
+#: includes/class-wp-livecode-admin.php:169
+msgid "Allowed: lowercase letters, numbers, and hyphens. Default: wp-livecode."
+msgstr "使用可能: 英小文字、数字、ハイフン。初期値: wp-livecode。"
+
 #: includes/class-wp-livecode-admin.php:91
 msgid "Cleanup"
 msgstr "クリーンアップ"
