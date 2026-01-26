@@ -463,10 +463,6 @@ msgid "Update failed."
 msgstr "更新に失敗しました。"
 
 #: assets/dist/main.js:1
-msgid "Not set"
-msgstr "未設定"
-
-#: assets/dist/main.js:1
 msgid "Close"
 msgstr "閉じる"
 
@@ -517,30 +513,6 @@ msgstr "メディアライブラリから選択"
 #: assets/dist/main.js:1
 msgid "Attachment ID"
 msgstr "添付ファイル ID"
-
-#: assets/dist/main.js:1
-msgid "Categories"
-msgstr "カテゴリー"
-
-#: assets/dist/main.js:1
-msgid "New category"
-msgstr "新規カテゴリー"
-
-#: assets/dist/main.js:1
-msgid "Category name"
-msgstr "カテゴリー名"
-
-#: assets/dist/main.js:1
-msgid "Tags"
-msgstr "タグ"
-
-#: assets/dist/main.js:1
-msgid "Enter tags separated by commas"
-msgstr "カンマ区切りでタグを入力"
-
-#: assets/dist/main.js:1
-msgid "Example: landing, update, hero"
-msgstr "例: landing, update, hero"
 
 #: assets/dist/main.js:1
 msgid "Move this post to the trash?"

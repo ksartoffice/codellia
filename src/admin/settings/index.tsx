@@ -104,8 +104,6 @@ type ActiveModal =
   | 'status'
   | 'template'
   | 'featured'
-  | 'categories'
-  | 'tags'
   | null;
 
 type SettingsTab = 'post' | 'design' | 'elements';
@@ -165,22 +163,6 @@ function getStatusLabel(settings: SettingsData) {
     return getOptionLabel(settings.statusOptions, preset.value);
   }
   return getOptionLabel(settings.statusOptions, settings.status);
-}
-
-function createChipList(items: string[]) {
-  return (
-    <div className="lc-chipList">
-      {items.length ? (
-        items.map((item) => (
-          <span className="lc-chip" key={item}>
-            {item}
-          </span>
-        ))
-      ) : (
-        <span className="lc-chipEmpty">{__( 'Not set', 'wp-livecode' )}</span>
-      )}
-    </div>
-  );
 }
 
 function SettingsSection({
@@ -492,141 +474,6 @@ function FeaturedModal({
   );
 }
 
-function CategoriesModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [selected, setSelected] = useState(() => new Set(settings.categories));
-  const [newCategory, setNewCategory] = useState('');
-  const [error, setError] = useState('');
-
-  const toggleCategory = (id: number) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({
-        categories: Array.from(selected),
-        newCategory: newCategory.trim(),
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Categories', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Categories', 'wp-livecode' )}</div>
-          {settings.categoriesList.map((category) => (
-            <label className="lc-checkboxRow" key={category.id}>
-              <input
-                type="checkbox"
-                checked={selected.has(category.id)}
-                onChange={() => toggleCategory(category.id)}
-              />
-              {category.name}
-            </label>
-          ))}
-        </div>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'New category', 'wp-livecode' )}</div>
-          <input
-            type="text"
-            className="lc-formInput"
-            placeholder={__( 'Category name', 'wp-livecode' )}
-            value={newCategory}
-            onChange={(event) => setNewCategory(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function TagsModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [tags, setTags] = useState(settings.tags.join(', '));
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({
-        tags: tags
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Tags', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Tags', 'wp-livecode' )}</div>
-          <input
-            type="text"
-            className="lc-formInput"
-            placeholder={__( 'Enter tags separated by commas', 'wp-livecode' )}
-            value={tags}
-            onChange={(event) => setTags(event.target.value)}
-          />
-          <div className="lc-formHint">
-            {__( 'Example: landing, update, hero', 'wp-livecode' )}
-          </div>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
 function SettingsSidebar({
   data,
   restUrl,
@@ -920,14 +767,6 @@ function SettingsSidebar({
     [settings.status, settings.visibility, settings.statusOptions]
   );
 
-  const categoryNames = useMemo(
-    () =>
-      settings.categoriesList
-        .filter((category) => settings.categories.includes(category.id))
-        .map((category) => category.name),
-    [settings.categories, settings.categoriesList]
-  );
-
   const tabs = (
     <div className="lc-settingsTabsRow">
       <div
@@ -1059,21 +898,6 @@ function SettingsSidebar({
             />
           </SettingsSection>
 
-          <SettingsSection title={__( 'Categories', 'wp-livecode' )}>
-            <SettingsItem
-              label={__( 'Categories', 'wp-livecode' )}
-              value={createChipList(categoryNames)}
-              onClick={() => setActiveModal('categories')}
-            />
-          </SettingsSection>
-
-          <SettingsSection title={__( 'Tags', 'wp-livecode' )}>
-            <SettingsItem
-              label={__( 'Tags', 'wp-livecode' )}
-              value={createChipList(settings.tags)}
-              onClick={() => setActiveModal('tags')}
-            />
-          </SettingsSection>
         </Fragment>
       ) : null}
 
@@ -1113,12 +937,6 @@ function SettingsSidebar({
       ) : null}
       {activeTab === 'post' && activeModal === 'featured' ? (
         <FeaturedModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'categories' ? (
-        <CategoriesModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'tags' ? (
-        <TagsModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
     </Fragment>
   );

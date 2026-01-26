@@ -489,10 +489,6 @@ msgid "Update failed."
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Not set"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Close"
 msgstr ""
 
@@ -542,30 +538,6 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Attachment ID"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Categories"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "New category"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Category name"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Tags"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Enter tags separated by commas"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Example: landing, update, hero"
 msgstr ""
 
 #: assets/dist/main.js:1
