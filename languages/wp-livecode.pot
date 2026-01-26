@@ -513,43 +513,7 @@ msgid "Save"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Publish"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Publish date"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Slug"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Author"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Template"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Discussion"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Comments"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Allow comments"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Allow trackbacks/pingbacks"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Format"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -626,18 +590,6 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Title"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Immediately"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Open"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Closed"
 msgstr ""
 
 #: assets/dist/main.js:1

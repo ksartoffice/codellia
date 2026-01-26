@@ -102,12 +102,7 @@ type ModalProps = {
 
 type ActiveModal =
   | 'status'
-  | 'publish'
-  | 'slug'
-  | 'author'
   | 'template'
-  | 'discussion'
-  | 'format'
   | 'featured'
   | 'categories'
   | 'tags'
@@ -146,11 +141,6 @@ function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-li
     if (typeof nestedMessage === 'string' && nestedMessage.trim()) return nestedMessage;
   }
   return fallback;
-}
-
-function formatDateForSave(value: string) {
-  if (!value) return '';
-  return `${value.replace('T', ' ')}:00`;
 }
 
 function getOptionLabel(options: SettingsOption[], value: string) {
@@ -349,155 +339,6 @@ function StatusModal({
   );
 }
 
-function PublishModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [date, setDate] = useState(settings.dateLocal || '');
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ date: formatDateForSave(date) });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Publish', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Publish date', 'wp-livecode' )}</div>
-          <input
-            type="datetime-local"
-            className="lc-formInput"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function SlugModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [slug, setSlug] = useState(settings.slug || '');
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ slug });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Slug', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Slug', 'wp-livecode' )}</div>
-          <input
-            type="text"
-            className="lc-formInput"
-            value={slug}
-            onChange={(event) => setSlug(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function AuthorModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [author, setAuthor] = useState(String(settings.author));
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ author: Number(author) });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Author', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Author', 'wp-livecode' )}</div>
-          <select
-            className="lc-formSelect"
-            value={author}
-            onChange={(event) => setAuthor(event.target.value)}
-          >
-            {settings.authors.map((authorItem) => (
-              <option key={authorItem.id} value={authorItem.id}>
-                {authorItem.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
 function TemplateModal({
   settings,
   onClose,
@@ -534,121 +375,6 @@ function TemplateModal({
             {settings.templates.map((templateItem) => (
               <option key={templateItem.value} value={templateItem.value}>
                 {templateItem.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function DiscussionModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [commentOpen, setCommentOpen] = useState(settings.commentStatus === 'open');
-  const [pingOpen, setPingOpen] = useState(settings.pingStatus === 'open');
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({
-        commentStatus: commentOpen ? 'open' : 'closed',
-        pingStatus: pingOpen ? 'open' : 'closed',
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Discussion', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Comments', 'wp-livecode' )}</div>
-          <label className="lc-checkboxRow">
-            <input
-              type="checkbox"
-              checked={commentOpen}
-              onChange={(event) => setCommentOpen(event.target.checked)}
-            />
-            {__( 'Allow comments', 'wp-livecode' )}
-          </label>
-          <label className="lc-checkboxRow">
-            <input
-              type="checkbox"
-              checked={pingOpen}
-              onChange={(event) => setPingOpen(event.target.checked)}
-            />
-            {__( 'Allow trackbacks/pingbacks', 'wp-livecode' )}
-          </label>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function FormatModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [format, setFormat] = useState(settings.format);
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ format });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Format', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Format', 'wp-livecode' )}</div>
-          <select
-            className="lc-formSelect"
-            value={format}
-            onChange={(event) => setFormat(event.target.value)}
-          >
-            {settings.formats.map((formatItem) => (
-              <option key={formatItem.value} value={formatItem.value}>
-                {formatItem.label}
               </option>
             ))}
           </select>
@@ -1304,38 +1030,9 @@ function SettingsSidebar({
               onClick={() => setActiveModal('status')}
             />
             <SettingsItem
-              label={__( 'Publish', 'wp-livecode' )}
-              value={settings.dateLabel || __( 'Immediately', 'wp-livecode' )}
-              onClick={() => setActiveModal('publish')}
-            />
-            <SettingsItem
-              label={__( 'Slug', 'wp-livecode' )}
-              value={settings.slug || '-'}
-              onClick={() => setActiveModal('slug')}
-            />
-            <SettingsItem
-              label={__( 'Author', 'wp-livecode' )}
-              value={settings.authors.find((author) => author.id === settings.author)?.name || '-'}
-              onClick={() => setActiveModal('author')}
-            />
-            <SettingsItem
               label={__( 'Template', 'wp-livecode' )}
               value={getOptionLabel(settings.templates, settings.template)}
               onClick={() => setActiveModal('template')}
-            />
-            <SettingsItem
-              label={__( 'Discussion', 'wp-livecode' )}
-              value={
-                settings.commentStatus === 'open'
-                  ? __( 'Open', 'wp-livecode' )
-                  : __( 'Closed', 'wp-livecode' )
-              }
-              onClick={() => setActiveModal('discussion')}
-            />
-            <SettingsItem
-              label={__( 'Format', 'wp-livecode' )}
-              value={getOptionLabel(settings.formats, settings.format)}
-              onClick={() => setActiveModal('format')}
             />
             {settings.canTrash && (
               <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
@@ -1411,23 +1108,8 @@ function SettingsSidebar({
       {activeTab === 'post' && activeModal === 'status' ? (
         <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
-      {activeTab === 'post' && activeModal === 'publish' ? (
-        <PublishModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'slug' ? (
-        <SlugModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'author' ? (
-        <AuthorModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
       {activeTab === 'post' && activeModal === 'template' ? (
         <TemplateModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'discussion' ? (
-        <DiscussionModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'format' ? (
-        <FormatModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
       {activeTab === 'post' && activeModal === 'featured' ? (
         <FeaturedModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />

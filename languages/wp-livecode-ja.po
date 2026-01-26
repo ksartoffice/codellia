@@ -487,44 +487,8 @@ msgid "Save"
 msgstr "保存"
 
 #: assets/dist/main.js:1
-msgid "Publish"
-msgstr "公開"
-
-#: assets/dist/main.js:1
-msgid "Publish date"
-msgstr "公開日時"
-
-#: assets/dist/main.js:1
-msgid "Slug"
-msgstr "スラッグ"
-
-#: assets/dist/main.js:1
-msgid "Author"
-msgstr "投稿者"
-
-#: assets/dist/main.js:1
 msgid "Template"
 msgstr "テンプレート"
-
-#: assets/dist/main.js:1
-msgid "Discussion"
-msgstr "ディスカッション"
-
-#: assets/dist/main.js:1
-msgid "Comments"
-msgstr "コメント"
-
-#: assets/dist/main.js:1
-msgid "Allow comments"
-msgstr "コメントを許可"
-
-#: assets/dist/main.js:1
-msgid "Allow trackbacks/pingbacks"
-msgstr "トラックバック/ピンバックを許可"
-
-#: assets/dist/main.js:1
-msgid "Format"
-msgstr "フォーマット"
 
 #: assets/dist/main.js:1
 msgid "Select featured image"
@@ -601,18 +565,6 @@ msgstr "設定パネルを閉じる"
 #: assets/dist/main.js:1
 msgid "Title"
 msgstr "タイトル"
-
-#: assets/dist/main.js:1
-msgid "Immediately"
-msgstr "すぐに"
-
-#: assets/dist/main.js:1
-msgid "Open"
-msgstr "開放"
-
-#: assets/dist/main.js:1
-msgid "Closed"
-msgstr "閉鎖"
 
 #: assets/dist/main.js:1
 msgid "Move to trash"
