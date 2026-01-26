@@ -684,22 +684,6 @@ function SettingsSidebar({
     }
   };
 
-  const handleTrash = async () => {
-    if (!window.confirm(__( 'Move this post to the trash?', 'wp-livecode' ))) {
-      return;
-    }
-    try {
-      const response = await updateSettings({ status: 'trash' });
-      if (response?.redirectUrl) {
-        window.location.href = response.redirectUrl;
-      } else if (backUrl) {
-        window.location.href = backUrl;
-      }
-    } catch (err: any) {
-      window.alert(err?.message || String(err));
-    }
-  };
-
   const statusText = useMemo(
     () => getStatusLabel(settings),
     [settings.status, settings.visibility, settings.statusOptions]
@@ -806,11 +790,6 @@ function SettingsSidebar({
               value={statusText}
               onClick={() => setActiveModal('status')}
             />
-            {settings.canTrash && (
-              <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
-                {__( 'Move to trash', 'wp-livecode' )}
-              </button>
-            )}
           </SettingsSection>
 
           <SettingsSection title={__( 'Featured image', 'wp-livecode' )}>

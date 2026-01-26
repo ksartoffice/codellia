@@ -557,10 +557,6 @@ msgid "Attachment ID"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Move this post to the trash?"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Settings tabs"
 msgstr ""
 
@@ -578,10 +574,6 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Title"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Move to trash"
 msgstr ""
 
 #: assets/dist/main.js:1

@@ -515,10 +515,6 @@ msgid "Attachment ID"
 msgstr "添付ファイル ID"
 
 #: assets/dist/main.js:1
-msgid "Move this post to the trash?"
-msgstr "この投稿をゴミ箱に移動しますか？"
-
-#: assets/dist/main.js:1
 msgid "Settings tabs"
 msgstr "設定タブ"
 
@@ -537,10 +533,6 @@ msgstr "設定パネルを閉じる"
 #: assets/dist/main.js:1
 msgid "Title"
 msgstr "タイトル"
-
-#: assets/dist/main.js:1
-msgid "Move to trash"
-msgstr "ゴミ箱に移動"
 
 #: assets/dist/main.js:1
 msgid "Set"
