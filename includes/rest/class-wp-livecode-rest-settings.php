@@ -160,6 +160,7 @@ class Rest_Settings {
 			'dateLocal'            => get_post_time( 'Y-m-d\\TH:i', false, $post ),
 			'dateLabel'            => get_post_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), false, $post ),
 			'slug'                 => (string) $post->post_name,
+			'viewUrl'              => (string) get_permalink( $post_id ),
 			'author'               => (int) $post->post_author,
 			'commentStatus'        => (string) $post->comment_status,
 			'pingStatus'           => (string) $post->ping_status,

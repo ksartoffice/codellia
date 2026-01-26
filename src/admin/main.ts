@@ -56,6 +56,8 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 
 async function main() {
   const cfg = window.WP_LIVECODE;
+  const initialViewUrl = cfg.settingsData?.viewUrl || '';
+  const previewUrl = cfg.previewUrl || '';
   const postId = cfg.post_id;
   const mount = document.getElementById('wp-livecode-app');
   if (!mount) return;
@@ -130,6 +132,9 @@ async function main() {
         liveHighlightEnabled:
           payload.liveHighlightEnabled ?? cfg.settingsData.liveHighlightEnabled ?? true,
       };
+    if (initialViewUrl && cfg.settingsData && !cfg.settingsData.viewUrl) {
+      cfg.settingsData.viewUrl = initialViewUrl;
+    }
   }
 
   let monaco: MonacoType;
@@ -160,6 +165,8 @@ async function main() {
   let hasUnsavedChanges = false;
   let lastSaved = { html: '', css: '', js: '' };
   const canEditJs = Boolean(cfg.canEditJs);
+  let viewPostUrl = cfg.settingsData?.viewUrl || '';
+  let postStatus = cfg.settingsData?.status || 'draft';
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -331,6 +338,9 @@ async function main() {
       tailwindEnabled,
       statusText: __( 'Loading Monaco...', 'wp-livecode' ),
       hasUnsavedChanges: false,
+      viewPostUrl,
+      previewUrl,
+      postStatus,
     },
     {
       onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
@@ -682,6 +692,11 @@ async function main() {
     onTabChange: (tab) => {
       activeSettingsTab = tab;
       syncElementsTabState();
+    },
+    onSettingsUpdate: (nextSettings) => {
+      viewPostUrl = nextSettings.viewUrl || viewPostUrl;
+      postStatus = nextSettings.status || postStatus;
+      toolbarApi?.update({ viewPostUrl, postStatus });
     },
     onClosePanel: () => setSettingsOpen(false),
     elementsApi,

@@ -36,6 +36,7 @@ export type SettingsData = {
   dateLocal?: string;
   dateLabel?: string;
   slug: string;
+  viewUrl?: string;
   author: number;
   commentStatus: 'open' | 'closed';
   pingStatus: 'open' | 'closed';
@@ -77,6 +78,7 @@ type SettingsConfig = {
   onExternalScriptsChange?: (scripts: string[]) => void;
   onExternalStylesChange?: (styles: string[]) => void;
   onTabChange?: (tab: SettingsTab) => void;
+  onSettingsUpdate?: (settings: SettingsData) => void;
   onClosePanel?: () => void;
   elementsApi?: ElementsSettingsApi;
 };
@@ -908,6 +910,7 @@ function SettingsSidebar({
   onExternalScriptsChange,
   onExternalStylesChange,
   onTabChange,
+  onSettingsUpdate,
   onClosePanel,
   elementsApi,
 }: SettingsConfig) {
@@ -1012,12 +1015,14 @@ function SettingsSidebar({
       }
 
       if (response?.settings) {
-        setSettings(response.settings as SettingsData);
+        const nextSettings = response.settings as SettingsData;
+        setSettings(nextSettings);
+        onSettingsUpdate?.(nextSettings);
       }
 
       return response;
     },
-    [apiFetch, restUrl, postId]
+    [apiFetch, restUrl, postId, onSettingsUpdate]
   );
 
   const canEditJs = Boolean(settings.canEditJs);
