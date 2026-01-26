@@ -761,6 +761,10 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
+#: assets/admin/editor-bridge.js
+msgid "Edit with WP LiveCode"
+msgstr ""
+
 #: assets/dist/main.js:1
 msgid "Close settings"
 msgstr ""

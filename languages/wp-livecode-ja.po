@@ -735,6 +735,10 @@ msgstr "投稿を表示"
 msgid "Preview"
 msgstr "プレビュー"
 
+#: assets/admin/editor-bridge.js
+msgid "Edit with WP LiveCode"
+msgstr "WP LiveCodeで編集"
+
 #: includes/class-wp-livecode-admin.php:67
 #: includes/class-wp-livecode-admin.php:68
 #: assets/dist/main.js:1
