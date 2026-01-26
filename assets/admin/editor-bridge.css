@@ -1,0 +1,38 @@
+.wp-livecode-editor-bridge {
+  margin: 12px 0;
+}
+
+.wp-livecode-editor-bridge__title {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.wp-livecode-editor-bridge__description {
+  margin: 0 0 16px;
+  color: #50575e;
+}
+
+.wp-livecode-editor-bridge__button.is-busy {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.block-editor-page.post-type-wp_livecode .block-editor-inserter,
+.block-editor-page.post-type-wp_livecode .block-editor-inserter__toggle,
+.block-editor-page.post-type-wp_livecode .block-editor-default-block-appender,
+.block-editor-page.post-type-wp_livecode .block-editor-block-list__insertion-point,
+.block-editor-page.post-type-wp_livecode .block-editor-block-list__block-appender {
+  display: none !important;
+}
+
+.block-editor-page.post-type-wp_livecode .block-editor-block-list__layout,
+.block-editor-page.post-type-wp_livecode .block-editor-writing-flow {
+  pointer-events: none;
+  user-select: none;
+}
+
+.wp-livecode-editor-toolbar {
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+}
