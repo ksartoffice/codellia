@@ -281,6 +281,11 @@ msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:166
 #: assets/dist/main.js:1
+msgid "Invalid singlePageEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:166
+#: assets/dist/main.js:1
 msgid "Invalid liveHighlightEnabled value."
 msgstr ""
 
@@ -356,6 +361,10 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Enable shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Do not publish as single page"
 msgstr ""
 
 #: assets/dist/main.js:1

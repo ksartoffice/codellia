@@ -9,6 +9,8 @@ type DesignSettingsPanelProps = {
   onToggleShadowDom: (enabled: boolean) => void;
   shortcodeEnabled: boolean;
   onToggleShortcode: (enabled: boolean) => void;
+  singlePageEnabled: boolean;
+  onToggleSinglePage: (enabled: boolean) => void;
   liveHighlightEnabled: boolean;
   onToggleLiveHighlight: (enabled: boolean) => void;
   externalScripts: string[];
@@ -34,6 +36,8 @@ export function DesignSettingsPanel({
   onToggleShadowDom,
   shortcodeEnabled,
   onToggleShortcode,
+  singlePageEnabled,
+  onToggleSinglePage,
   liveHighlightEnabled,
   onToggleLiveHighlight,
   externalScripts,
@@ -193,6 +197,23 @@ export function DesignSettingsPanel({
             <span className="lc-toggleTrack" aria-hidden="true" />
           </label>
         </div>
+        {shortcodeEnabled ? (
+          <div className="lc-settingsItem lc-settingsToggle">
+            <div className="lc-settingsItemLabel">
+              {__( 'Do not publish as single page', 'wp-livecode' )}
+            </div>
+            <label className="lc-toggle">
+              <input
+                type="checkbox"
+                checked={!singlePageEnabled}
+                aria-label={__( 'Do not publish as single page', 'wp-livecode' )}
+                onChange={(event) => onToggleSinglePage(!event.target.checked)}
+                disabled={disabled}
+              />
+              <span className="lc-toggleTrack" aria-hidden="true" />
+            </label>
+          </div>
+        ) : null}
         {disabled ? (
           <div className="lc-settingsHelp">
             {__( 'Requires unfiltered_html capability.', 'wp-livecode' )}

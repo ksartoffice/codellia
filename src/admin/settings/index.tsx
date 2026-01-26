@@ -57,6 +57,7 @@ export type SettingsData = {
   jsEnabled: boolean;
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
+  singlePageEnabled: boolean;
   liveHighlightEnabled: boolean;
   canEditJs: boolean;
   externalScripts: string[];
@@ -917,11 +918,16 @@ function SettingsSidebar({
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
+  const resolveSinglePageEnabled = (value?: boolean) =>
+    value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
   const [jsEnabled, setJsEnabled] = useState(Boolean(data.jsEnabled));
   const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
   const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
+  const [singlePageEnabled, setSinglePageEnabled] = useState(
+    resolveSinglePageEnabled(data.singlePageEnabled)
+  );
   const [liveHighlightEnabled, setLiveHighlightEnabled] = useState(
     resolveLiveHighlightEnabled(data.liveHighlightEnabled)
   );
@@ -948,6 +954,10 @@ function SettingsSidebar({
   useEffect(() => {
     setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
   }, [settings.shortcodeEnabled]);
+
+  useEffect(() => {
+    setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
+  }, [settings.singlePageEnabled]);
 
   useEffect(() => {
     setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
@@ -1074,6 +1084,20 @@ function SettingsSidebar({
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
+    }
+  };
+
+  const handleSinglePageToggle = async (enabled: boolean) => {
+    if (!canEditJs) {
+      return;
+    }
+    setDesignError('');
+    setSinglePageEnabled(enabled);
+    try {
+      await updateSettings({ singlePageEnabled: enabled });
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
     }
   };
 
@@ -1361,6 +1385,8 @@ function SettingsSidebar({
           onToggleShadowDom={handleShadowDomToggle}
           shortcodeEnabled={shortcodeEnabled}
           onToggleShortcode={handleShortcodeToggle}
+          singlePageEnabled={singlePageEnabled}
+          onToggleSinglePage={handleSinglePageToggle}
           liveHighlightEnabled={liveHighlightEnabled}
           onToggleLiveHighlight={handleLiveHighlightToggle}
           externalScripts={externalScripts}

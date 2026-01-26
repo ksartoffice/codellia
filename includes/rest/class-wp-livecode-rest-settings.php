@@ -145,6 +145,7 @@ class Rest_Settings {
 
 		$highlight_meta         = get_post_meta( $post_id, '_lc_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
+		$single_page_enabled    = Post_Type::is_single_page_enabled( $post_id );
 
 		$template_slug = get_page_template_slug( $post_id );
 		$template_slug = $template_slug ? $template_slug : 'default';
@@ -160,7 +161,7 @@ class Rest_Settings {
 			'dateLocal'            => get_post_time( 'Y-m-d\\TH:i', false, $post ),
 			'dateLabel'            => get_post_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), false, $post ),
 			'slug'                 => (string) $post->post_name,
-			'viewUrl'              => (string) get_permalink( $post_id ),
+			'viewUrl'              => $single_page_enabled ? (string) get_permalink( $post_id ) : '',
 			'author'               => (int) $post->post_author,
 			'commentStatus'        => (string) $post->comment_status,
 			'pingStatus'           => (string) $post->ping_status,
@@ -181,6 +182,7 @@ class Rest_Settings {
 			'jsEnabled'            => '1' === get_post_meta( $post_id, '_lc_js_enabled', true ),
 			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_lc_shadow_dom', true ),
 			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_lc_shortcode_enabled', true ),
+			'singlePageEnabled'    => $single_page_enabled,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'canEditJs'            => current_user_can( 'unfiltered_html' ),
 			'externalScripts'      => External_Scripts::get_external_scripts( $post_id, self::MAX_EXTERNAL_SCRIPTS ),
@@ -398,6 +400,20 @@ class Rest_Settings {
 			}
 			$shortcode_enabled = rest_sanitize_boolean( $updates['shortcodeEnabled'] );
 			update_post_meta( $post_id, '_lc_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
+		}
+
+		if ( array_key_exists( 'singlePageEnabled', $updates ) ) {
+			if ( ! current_user_can( 'unfiltered_html' ) ) {
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => __( 'Permission denied.', 'wp-livecode' ),
+					),
+					403
+				);
+			}
+			$single_page_enabled = rest_sanitize_boolean( $updates['singlePageEnabled'] );
+			update_post_meta( $post_id, '_lc_single_page_enabled', $single_page_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'liveHighlightEnabled', $updates ) ) {

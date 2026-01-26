@@ -129,6 +129,8 @@ async function main() {
         externalStyles: payload.externalStyles ?? [],
         shadowDomEnabled: payload.shadowDomEnabled ?? false,
         shortcodeEnabled: payload.shortcodeEnabled ?? cfg.settingsData.shortcodeEnabled ?? false,
+        singlePageEnabled:
+          payload.singlePageEnabled ?? cfg.settingsData.singlePageEnabled ?? true,
         liveHighlightEnabled:
           payload.liveHighlightEnabled ?? cfg.settingsData.liveHighlightEnabled ?? true,
       };
@@ -153,6 +155,7 @@ async function main() {
   let jsEnabled = Boolean(cfg.jsEnabled);
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
   let shortcodeEnabled = Boolean(cfg.settingsData?.shortcodeEnabled);
+  let singlePageEnabled = cfg.settingsData?.singlePageEnabled ?? true;
   let liveHighlightEnabled = cfg.settingsData?.liveHighlightEnabled ?? true;
   let externalScripts = Array.isArray(cfg.settingsData?.externalScripts)
     ? [...cfg.settingsData.externalScripts]
@@ -269,6 +272,7 @@ async function main() {
       externalStyles,
       shadowDomEnabled,
       shortcodeEnabled,
+      singlePageEnabled,
       liveHighlightEnabled,
     });
 
@@ -694,8 +698,11 @@ async function main() {
       syncElementsTabState();
     },
     onSettingsUpdate: (nextSettings) => {
-      viewPostUrl = nextSettings.viewUrl || viewPostUrl;
+      if (typeof nextSettings.viewUrl === 'string') {
+        viewPostUrl = nextSettings.viewUrl;
+      }
       postStatus = nextSettings.status || postStatus;
+      singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
       toolbarApi?.update({ viewPostUrl, postStatus });
     },
     onClosePanel: () => setSettingsOpen(false),

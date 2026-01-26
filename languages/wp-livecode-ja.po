@@ -255,6 +255,11 @@ msgstr "shortcodeEnabled の値が不正です。"
 
 #: includes/rest/class-wp-livecode-rest-import.php:166
 #: assets/dist/main.js:1
+msgid "Invalid singlePageEnabled value."
+msgstr "singlePageEnabled の値が不正です。"
+
+#: includes/rest/class-wp-livecode-rest-import.php:166
+#: assets/dist/main.js:1
 msgid "Invalid liveHighlightEnabled value."
 msgstr "liveHighlightEnabled の値が不正です。"
 
@@ -331,6 +336,10 @@ msgstr "Shadow DOM を有効化"
 #: assets/dist/main.js:1
 msgid "Enable shortcode"
 msgstr "ショートコードを有効化"
+
+#: assets/dist/main.js:1
+msgid "Do not publish as single page"
+msgstr "シングルページとして公開しない"
 
 #: assets/dist/main.js:1
 msgid "Requires unfiltered_html capability."
