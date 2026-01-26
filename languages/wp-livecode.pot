@@ -485,14 +485,6 @@ msgid "Add attribute"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Public"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Password protected"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Update failed."
 msgstr ""
 
@@ -505,15 +497,7 @@ msgid "Close"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Status & visibility"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Status"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Visibility"
 msgstr ""
 
 #: assets/dist/main.js:1

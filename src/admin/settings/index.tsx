@@ -115,10 +115,19 @@ type ActiveModal =
 
 type SettingsTab = 'post' | 'design' | 'elements';
 
-const VISIBILITY_OPTIONS = [
-  { value: 'public', label: __( 'Public', 'wp-livecode' ) },
-  { value: 'private', label: __( 'Private', 'wp-livecode' ) },
-  { value: 'password', label: __( 'Password protected', 'wp-livecode' ) },
+type StatusPresetValue = 'draft' | 'pending' | 'private' | 'publish';
+
+type StatusPreset = {
+  value: StatusPresetValue;
+  status: string;
+  visibility: SettingsData['visibility'];
+};
+
+const STATUS_PRESETS: StatusPreset[] = [
+  { value: 'draft', status: 'draft', visibility: 'public' },
+  { value: 'pending', status: 'pending', visibility: 'public' },
+  { value: 'private', status: 'private', visibility: 'private' },
+  { value: 'publish', status: 'publish', visibility: 'public' },
 ];
 
 function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-livecode' )) {
@@ -148,8 +157,24 @@ function getOptionLabel(options: SettingsOption[], value: string) {
   return options.find((option) => option.value === value)?.label || value || '-';
 }
 
-function getVisibilityLabel(value: SettingsData['visibility']) {
-  return VISIBILITY_OPTIONS.find((option) => option.value === value)?.label || value;
+function resolveStatusPresetValue(
+  status: string,
+  visibility: SettingsData['visibility']
+): StatusPresetValue {
+  if (status === 'private' || visibility === 'private') return 'private';
+  if (status === 'pending') return 'pending';
+  if (status === 'draft' || status === 'auto-draft') return 'draft';
+  if (status === 'publish' || status === 'future') return 'publish';
+  return 'draft';
+}
+
+function getStatusLabel(settings: SettingsData) {
+  const presetValue = resolveStatusPresetValue(settings.status, settings.visibility);
+  const preset = STATUS_PRESETS.find((option) => option.value === presetValue);
+  if (preset) {
+    return getOptionLabel(settings.statusOptions, preset.value);
+  }
+  return getOptionLabel(settings.statusOptions, settings.status);
 }
 
 function createChipList(items: string[]) {
@@ -273,16 +298,17 @@ function StatusModal({
   onClose: () => void;
   updateSettings: UpdateSettings;
 }) {
-  const [status, setStatus] = useState(settings.status);
-  const [visibility, setVisibility] = useState(settings.visibility);
-  const [password, setPassword] = useState(settings.password || '');
+  const [presetValue, setPresetValue] = useState<StatusPresetValue>(
+    resolveStatusPresetValue(settings.status, settings.visibility)
+  );
   const [error, setError] = useState('');
 
   const onSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
     setError('');
     try {
-      await updateSettings({ status, visibility, password });
+      const preset = STATUS_PRESETS.find((option) => option.value === presetValue) || STATUS_PRESETS[0];
+      await updateSettings({ status: preset.status, visibility: preset.visibility });
       onClose();
     } catch (err: any) {
       setError(err?.message || String(err));
@@ -290,47 +316,25 @@ function StatusModal({
   };
 
   return (
-    <Modal title={__( 'Status & visibility', 'wp-livecode' )} onClose={onClose} error={error}>
+    <Modal title={__( 'Status', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
           <div className="lc-formLabel">{__( 'Status', 'wp-livecode' )}</div>
-          {settings.statusOptions.map((option) => (
+          {STATUS_PRESETS.map((option) => (
             <label className="lc-radioRow" key={option.value}>
               <input
                 type="radio"
                 name="lc-status"
                 value={option.value}
-                checked={status === option.value}
+                checked={presetValue === option.value}
                 disabled={option.value === 'publish' && !settings.canPublish}
-                onChange={() => setStatus(option.value)}
+                onChange={() => setPresetValue(option.value)}
               />
-              <span className="lc-radioText">{option.label}</span>
+              <span className="lc-radioText">
+                {getOptionLabel(settings.statusOptions, option.value)}
+              </span>
             </label>
           ))}
-        </div>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Visibility', 'wp-livecode' )}</div>
-          {VISIBILITY_OPTIONS.map((option) => (
-            <label className="lc-radioRow" key={option.value}>
-              <input
-                type="radio"
-                name="lc-visibility"
-                value={option.value}
-                checked={visibility === option.value}
-                onChange={() => setVisibility(option.value as SettingsData['visibility'])}
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-          <div className={`lc-formRow${visibility === 'password' ? ' is-visible' : ''}`}>
-            <input
-              type="text"
-              className="lc-formInput"
-              placeholder={__( 'Password', 'wp-livecode' )}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </div>
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
@@ -1186,8 +1190,8 @@ function SettingsSidebar({
   };
 
   const statusText = useMemo(
-    () => `${getOptionLabel(settings.statusOptions, settings.status)} / ${getVisibilityLabel(settings.visibility)}`,
-    [settings.statusOptions, settings.status, settings.visibility]
+    () => getStatusLabel(settings),
+    [settings.status, settings.visibility, settings.statusOptions]
   );
 
   const categoryNames = useMemo(
@@ -1295,7 +1299,7 @@ function SettingsSidebar({
 
           <SettingsSection title={__( 'Post', 'wp-livecode' )}>
             <SettingsItem
-              label={__( 'Status & visibility', 'wp-livecode' )}
+              label={__( 'Status', 'wp-livecode' )}
               value={statusText}
               onClick={() => setActiveModal('status')}
             />

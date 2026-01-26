@@ -459,14 +459,6 @@ msgid "Add attribute"
 msgstr "属性を追加"
 
 #: assets/dist/main.js:1
-msgid "Public"
-msgstr "公開"
-
-#: assets/dist/main.js:1
-msgid "Password protected"
-msgstr "パスワード保護"
-
-#: assets/dist/main.js:1
 msgid "Update failed."
 msgstr "更新に失敗しました。"
 
@@ -479,16 +471,8 @@ msgid "Close"
 msgstr "閉じる"
 
 #: assets/dist/main.js:1
-msgid "Status & visibility"
-msgstr "ステータスと公開状態"
-
-#: assets/dist/main.js:1
 msgid "Status"
 msgstr "ステータス"
-
-#: assets/dist/main.js:1
-msgid "Visibility"
-msgstr "公開状態"
 
 #: assets/dist/main.js:1
 msgid "Password"
