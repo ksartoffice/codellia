@@ -31,6 +31,7 @@ class Admin {
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'admin_action_wp_livecode', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=wp_livecode.
+		add_action( 'load-post-new.php', array( __CLASS__, 'maybe_redirect_new_post' ) );
 		add_action( 'update_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_update' ), 10, 2 );
 		add_action( 'add_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_add' ), 10, 2 );
 		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 20 );
@@ -50,6 +51,29 @@ class Admin {
 			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
 		}
 		wp_safe_redirect( Post_Type::get_editor_url( $post_id ) );
+		exit;
+	}
+
+	/**
+	 * Redirect new LiveCode posts directly to the custom editor.
+	 */
+	public static function maybe_redirect_new_post(): void {
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : 'post'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( Post_Type::POST_TYPE !== $post_type ) {
+			return;
+		}
+
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->create_posts ) ) {
+			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
+		}
+
+		$post = get_default_post_to_edit( $post_type, true );
+		if ( ! $post || is_wp_error( $post ) ) {
+			return;
+		}
+
+		wp_safe_redirect( Post_Type::get_editor_url( (int) $post->ID ) );
 		exit;
 	}
 
