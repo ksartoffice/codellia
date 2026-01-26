@@ -24,6 +24,7 @@ class Post_Type {
 	public static function init(): void {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_filter( 'display_post_states', array( __CLASS__, 'add_tailwind_state' ), 10, 2 );
+		add_filter( 'get_edit_post_link', array( __CLASS__, 'filter_edit_post_link' ), 10, 3 );
 	}
 
 	/**
@@ -146,6 +147,26 @@ class Post_Type {
 		}
 
 		return $states;
+	}
+
+	/**
+	 * Override the edit link to point to the LiveCode editor on the front end.
+	 *
+	 * @param string $link Default edit link.
+	 * @param int    $post_id Post ID.
+	 * @param string $context Context.
+	 * @return string
+	 */
+	public static function filter_edit_post_link( string $link, int $post_id, string $context ): string {
+		if ( is_admin() ) {
+			return $link;
+		}
+
+		if ( ! self::is_livecode_post( $post_id ) ) {
+			return $link;
+		}
+
+		return self::get_editor_url( $post_id );
 	}
 
 }
