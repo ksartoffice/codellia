@@ -509,10 +509,6 @@ msgid "Save"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Template"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Select featured image"
 msgstr ""
 

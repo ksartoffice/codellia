@@ -102,7 +102,6 @@ type ModalProps = {
 
 type ActiveModal =
   | 'status'
-  | 'template'
   | 'featured'
   | null;
 
@@ -307,59 +306,6 @@ function StatusModal({
               </span>
             </label>
           ))}
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function TemplateModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [template, setTemplate] = useState(settings.template);
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ template });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Template', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Template', 'wp-livecode' )}</div>
-          <select
-            className="lc-formSelect"
-            value={template}
-            onChange={(event) => setTemplate(event.target.value)}
-          >
-            {settings.templates.map((templateItem) => (
-              <option key={templateItem.value} value={templateItem.value}>
-                {templateItem.label}
-              </option>
-            ))}
-          </select>
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
@@ -868,11 +814,6 @@ function SettingsSidebar({
               value={statusText}
               onClick={() => setActiveModal('status')}
             />
-            <SettingsItem
-              label={__( 'Template', 'wp-livecode' )}
-              value={getOptionLabel(settings.templates, settings.template)}
-              onClick={() => setActiveModal('template')}
-            />
             {settings.canTrash && (
               <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
                 {__( 'Move to trash', 'wp-livecode' )}
@@ -931,9 +872,6 @@ function SettingsSidebar({
 
       {activeTab === 'post' && activeModal === 'status' ? (
         <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'template' ? (
-        <TemplateModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
       {activeTab === 'post' && activeModal === 'featured' ? (
         <FeaturedModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />

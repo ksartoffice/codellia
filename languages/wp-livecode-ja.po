@@ -483,10 +483,6 @@ msgid "Save"
 msgstr "保存"
 
 #: assets/dist/main.js:1
-msgid "Template"
-msgstr "テンプレート"
-
-#: assets/dist/main.js:1
 msgid "Select featured image"
 msgstr "アイキャッチ画像を選択"
 
