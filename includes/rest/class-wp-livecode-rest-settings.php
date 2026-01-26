@@ -109,39 +109,9 @@ class Rest_Settings {
 			}
 		}
 
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'category',
-				'hide_empty' => false,
-			)
-		);
-		if ( is_wp_error( $terms ) ) {
-			$terms = array();
-		}
-
-		$categories_list = array_map(
-			static function ( $term ) {
-				return array(
-					'id'   => (int) $term->term_id,
-					'name' => (string) $term->name,
-				);
-			},
-			$terms
-		);
-
 		$featured_id  = (int) get_post_thumbnail_id( $post_id );
 		$featured_url = $featured_id ? wp_get_attachment_image_url( $featured_id, 'medium' ) : '';
 		$featured_alt = $featured_id ? (string) get_post_meta( $featured_id, '_wp_attachment_image_alt', true ) : '';
-
-		$category_ids = wp_get_post_terms( $post_id, 'category', array( 'fields' => 'ids' ) );
-		if ( is_wp_error( $category_ids ) ) {
-			$category_ids = array();
-		}
-
-		$tag_names = wp_get_post_terms( $post_id, 'post_tag', array( 'fields' => 'names' ) );
-		if ( is_wp_error( $tag_names ) ) {
-			$tag_names = array();
-		}
 
 		$highlight_meta         = get_post_meta( $post_id, '_lc_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
@@ -167,8 +137,6 @@ class Rest_Settings {
 			'pingStatus'           => (string) $post->ping_status,
 			'template'             => (string) $template_slug,
 			'format'               => (string) $post_format,
-			'categories'           => array_map( 'intval', (array) $category_ids ),
-			'tags'                 => (array) $tag_names,
 			'featuredImageId'      => $featured_id,
 			'featuredImageUrl'     => $featured_url ? (string) $featured_url : '',
 			'featuredImageAlt'     => $featured_alt,
@@ -176,7 +144,6 @@ class Rest_Settings {
 			'authors'              => $authors,
 			'templates'            => $templates,
 			'formats'              => $formats,
-			'categoriesList'       => $categories_list,
 			'canPublish'           => current_user_can( 'publish_post', $post_id ),
 			'canTrash'             => current_user_can( 'delete_post', $post_id ),
 			'jsEnabled'            => '1' === get_post_meta( $post_id, '_lc_js_enabled', true ),
@@ -339,25 +306,6 @@ class Rest_Settings {
 			} else {
 				delete_post_thumbnail( $post_id );
 			}
-		}
-
-		if ( isset( $updates['categories'] ) && is_array( $updates['categories'] ) ) {
-			$category_ids = array_map( 'absint', $updates['categories'] );
-			if ( isset( $updates['newCategory'] ) && is_string( $updates['newCategory'] ) ) {
-				$new_name = sanitize_text_field( $updates['newCategory'] );
-				if ( '' !== $new_name ) {
-					$created = wp_insert_term( $new_name, 'category' );
-					if ( ! is_wp_error( $created ) && isset( $created['term_id'] ) ) {
-						$category_ids[] = (int) $created['term_id'];
-					}
-				}
-			}
-			wp_set_post_terms( $post_id, $category_ids, 'category', false );
-		}
-
-		if ( isset( $updates['tags'] ) && is_array( $updates['tags'] ) ) {
-			$tags = array_filter( array_map( 'sanitize_text_field', $updates['tags'] ) );
-			wp_set_post_terms( $post_id, $tags, 'post_tag', false );
 		}
 
 		if ( array_key_exists( 'jsEnabled', $updates ) ) {

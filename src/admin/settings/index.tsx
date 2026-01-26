@@ -23,11 +23,6 @@ type SettingsAuthor = {
   name: string;
 };
 
-type SettingsCategory = {
-  id: number;
-  name: string;
-};
-
 export type SettingsData = {
   title: string;
   status: string;
@@ -42,8 +37,6 @@ export type SettingsData = {
   pingStatus: 'open' | 'closed';
   template: string;
   format: string;
-  categories: number[];
-  tags: string[];
   featuredImageId: number;
   featuredImageUrl?: string;
   featuredImageAlt?: string;
@@ -51,7 +44,6 @@ export type SettingsData = {
   authors: SettingsAuthor[];
   templates: SettingsOption[];
   formats: SettingsOption[];
-  categoriesList: SettingsCategory[];
   canPublish: boolean;
   canTrash: boolean;
   jsEnabled: boolean;

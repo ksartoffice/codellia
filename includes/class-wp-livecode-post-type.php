@@ -80,7 +80,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 				'with_front' => false,
 			),
 			'supports'            => array( 'title', 'editor', 'author', 'thumbnail' ),
-			'taxonomies'          => array( 'category', 'post_tag' ),
 			'show_in_rest'        => true,
 			'menu_position'       => 21,
 			'menu_icon'           => 'dashicons-editor-code',
