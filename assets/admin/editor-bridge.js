@@ -1,0 +1,168 @@
+(function (wp) {
+  var wpRef = wp || {};
+  var __ = wpRef.i18n && wpRef.i18n.__ ? wpRef.i18n.__ : function (text) {
+    return text;
+  };
+  var domReady = wpRef.domReady
+    ? wpRef.domReady
+    : function (callback) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', callback);
+        } else {
+          callback();
+        }
+      };
+
+  var data = window.WP_LIVECODE_EDITOR || {};
+  var actionUrl = data.actionUrl || '';
+
+  var getPostIdFromBlock = function () {
+    if (!wpRef.data || !wpRef.data.select) {
+      return 0;
+    }
+    var selector = wpRef.data.select('core/editor');
+    if (!selector || !selector.getCurrentPostId) {
+      return 0;
+    }
+    return Number(selector.getCurrentPostId()) || 0;
+  };
+
+  var getPostIdFromClassic = function () {
+    var input = document.getElementById('post_ID');
+    if (!input) {
+      return 0;
+    }
+    return Number(input.value) || 0;
+  };
+
+  var redirectToLiveCode = function (postId) {
+    if (!actionUrl || !postId) {
+      return;
+    }
+    window.location.href = actionUrl + '&post_id=' + postId;
+  };
+
+  var waitForPostAndRedirect = function (button, getPostId) {
+    if (!wpRef.data || !wpRef.data.dispatch) {
+      return;
+    }
+
+    var dispatch = wpRef.data.dispatch('core/editor');
+    if (!dispatch || !dispatch.savePost) {
+      return;
+    }
+
+    button.classList.add('is-busy');
+    button.textContent = __( 'Saving...', 'wp-livecode' );
+
+    dispatch.savePost();
+    var unsubscribe = wpRef.data.subscribe(function () {
+      var selector = wpRef.data.select('core/editor');
+      var isSaving =
+        (selector && selector.isSavingPost && selector.isSavingPost()) ||
+        (selector && selector.isAutosavingPost && selector.isAutosavingPost());
+      var id = getPostId();
+      if (!isSaving && id) {
+        unsubscribe();
+        redirectToLiveCode(id);
+      }
+    });
+  };
+
+  var insertBlockToolbarButton = function () {
+    var toolbar = document.querySelector('.edit-post-header-toolbar');
+    if (!toolbar) {
+      return;
+    }
+    if (document.querySelector('.wp-livecode-editor-toolbar')) {
+      return;
+    }
+
+    var container = document.createElement('div');
+    container.className = 'wp-livecode-editor-toolbar';
+
+    var button = document.createElement('a');
+    button.className = 'components-button is-primary wp-livecode-editor-toolbar__button';
+    button.href = '#';
+    button.textContent = __( 'Edit with WP LiveCode', 'wp-livecode' );
+
+    button.addEventListener('click', function (event) {
+      event.preventDefault();
+      var postId = getPostIdFromBlock() || Number(data.postId) || 0;
+      if (postId) {
+        redirectToLiveCode(postId);
+        return;
+      }
+
+      waitForPostAndRedirect(button, getPostIdFromBlock);
+    });
+
+    container.appendChild(button);
+
+    if (toolbar.children.length > 1) {
+      toolbar.insertBefore(container, toolbar.children[1]);
+    } else {
+      toolbar.appendChild(container);
+    }
+  };
+
+  var setupBlockEditor = function () {
+    insertBlockToolbarButton();
+
+    var observerTarget =
+      document.querySelector('.interface-interface-skeleton__header') ||
+      document.body;
+    var observer = new MutationObserver(function () {
+      insertBlockToolbarButton();
+    });
+    observer.observe(observerTarget, { childList: true, subtree: true });
+
+    window.addEventListener('unload', function () {
+      observer.disconnect();
+    });
+  };
+
+  var setupClassicEditor = function () {
+    if (document.querySelector('.wp-livecode-editor-bridge')) {
+      return;
+    }
+
+    var container = document.createElement('div');
+    container.className = 'wp-livecode-editor-bridge';
+
+    var button = document.createElement('a');
+    button.className = 'button button-primary wp-livecode-editor-bridge__button';
+    button.textContent = __( 'Edit with WP LiveCode', 'wp-livecode' );
+    button.href = '#';
+
+    container.appendChild(button);
+
+    var titleDiv = document.getElementById('titlediv');
+    if (titleDiv && titleDiv.parentNode) {
+      titleDiv.insertAdjacentElement('afterend', container);
+    } else {
+      var content = document.getElementById('post-body-content');
+      if (content) {
+        content.prepend(container);
+      }
+    }
+
+    button.addEventListener('click', function (event) {
+      event.preventDefault();
+      var postId = getPostIdFromClassic() || Number(data.postId) || 0;
+      redirectToLiveCode(postId);
+    });
+  };
+
+  domReady(function () {
+    if (!document.body.classList.contains('post-type-wp_livecode')) {
+      return;
+    }
+
+    if (document.body.classList.contains('block-editor-page')) {
+      setupBlockEditor();
+    } else {
+      setupClassicEditor();
+    }
+  });
+})(window.wp);

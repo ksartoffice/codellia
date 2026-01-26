@@ -1,5 +1,6 @@
 /node_modules
-/assets
+/assets/dist/
+/assets/monaco/
 /vendor
 /.wordpress
 /.wordpress-tests-lib

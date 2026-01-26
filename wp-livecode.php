@@ -33,6 +33,7 @@ if ( file_exists( $autoload ) ) {
 
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-post-type.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-admin.php';
+require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-editor-bridge.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-media-import.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-external-scripts.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-external-styles.php';
@@ -53,6 +54,7 @@ add_action(
 
 		// Admin UI.
 		\WPLiveCode\Admin::init();
+		\WPLiveCode\Editor_Bridge::init();
 
 		// REST endpoints.
 		\WPLiveCode\Rest::init();

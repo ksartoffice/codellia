@@ -16,7 +16,6 @@ type ToolbarState = {
   statusText: string;
   hasUnsavedChanges: boolean;
   viewPostUrl: string;
-  previewUrl: string;
   postStatus: string;
 };
 
@@ -70,7 +69,6 @@ function Toolbar({
   statusText,
   hasUnsavedChanges,
   viewPostUrl,
-  previewUrl,
   postStatus,
   onUndo,
   onRedo,
@@ -90,7 +88,8 @@ function Toolbar({
   const showUnsaved = statusText === '' && hasUnsavedChanges;
   const statusLabel =
     statusText || (showUnsaved ? __( 'Unsaved changes', 'wp-livecode' ) : '');
-  const targetUrl = (isPublished && viewPostUrl) ? viewPostUrl : (previewUrl || viewPostUrl);
+  const previewLink = buildPreviewUrl(viewPostUrl);
+  const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
   return (
     <Fragment>
@@ -184,6 +183,26 @@ function Toolbar({
       </div>
     </Fragment>
   );
+}
+
+function buildPreviewUrl(url: string) {
+  if (!url) {
+    return '';
+  }
+
+  try {
+    const previewUrl = new URL(url, window.location.origin);
+    previewUrl.searchParams.set('preview', 'true');
+    return previewUrl.toString();
+  } catch {
+    const hashIndex = url.indexOf('#');
+    const hasQuery = url.includes('?');
+    const suffix = (hasQuery ? '&' : '?') + 'preview=true';
+    if (hashIndex === -1) {
+      return url + suffix;
+    }
+    return url.slice(0, hashIndex) + suffix + url.slice(hashIndex);
+  }
 }
 
 export function mountToolbar(
