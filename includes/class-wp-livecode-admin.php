@@ -234,7 +234,7 @@ class Admin {
 		$css        = $post_id ? (string) get_post_meta( $post_id, '_lc_css', true ) : '';
 		$js         = $post_id ? (string) get_post_meta( $post_id, '_lc_js', true ) : '';
 		$js_enabled = $post_id ? get_post_meta( $post_id, '_lc_js_enabled', true ) === '1' : false;
-		$back_url   = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
+		$back_url   = $post_id ? get_edit_post_link( $post_id, 'raw' ) : admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 
 		$preview_token = $post_id ? wp_create_nonce( 'lc_preview_' . $post_id ) : '';
 		$preview_url   = $post_id
