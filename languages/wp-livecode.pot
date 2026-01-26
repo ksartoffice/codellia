@@ -224,6 +224,10 @@ msgstr ""
 msgid "LiveCode Archives"
 msgstr ""
 
+#: includes/class-wp-livecode-post-type.php:185
+msgid "Edit in LiveCode"
+msgstr ""
+
 #: includes/class-wp-livecode-post-type.php:210
 #: assets/dist/main.js:1
 msgid "TailwindCSS"

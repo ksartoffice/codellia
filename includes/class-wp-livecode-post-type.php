@@ -25,6 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_filter( 'display_post_states', array( __CLASS__, 'add_tailwind_state' ), 10, 2 );
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'filter_edit_post_link' ), 10, 3 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'add_livecode_row_action' ), 10, 2 );
 	}
 
 	/**
@@ -160,6 +161,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 		}
 
 		return $states;
+	}
+
+	/**
+	 * Add a LiveCode editor link to post row actions.
+	 *
+	 * @param array    $actions Row actions.
+	 * @param \WP_Post $post Post object.
+	 * @return array
+	 */
+	public static function add_livecode_row_action( array $actions, \WP_Post $post ): array {
+		if ( self::POST_TYPE !== $post->post_type ) {
+			return $actions;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+			return $actions;
+		}
+
+		$actions['livecode_edit'] = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url( self::get_editor_url( $post->ID ) ),
+			esc_html__( 'Edit in LiveCode', 'wp-livecode' )
+		);
+
+		return $actions;
 	}
 
 	/**
