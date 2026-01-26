@@ -184,7 +184,7 @@ msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:59
 #: includes/class-wp-livecode-post-type.php:60
-msgid "View LiveCode"
+msgid "View on front end"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:61

@@ -158,8 +158,8 @@ msgstr "新規 LiveCode"
 
 #: includes/class-wp-livecode-post-type.php:59
 #: includes/class-wp-livecode-post-type.php:60
-msgid "View LiveCode"
-msgstr "LiveCode を表示"
+msgid "View on front end"
+msgstr "フロントを表示"
 
 #: includes/class-wp-livecode-post-type.php:61
 msgid "Search LiveCode"
