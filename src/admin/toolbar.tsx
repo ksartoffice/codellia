@@ -9,11 +9,14 @@ import {
   ChevronLeft,
   Download,
   ExternalLink,
+  Monitor,
   PanelLeftClose,
   PanelLeftOpen,
   Redo2,
   Save,
   Settings,
+  Smartphone,
+  Tablet,
   Undo2,
 } from 'lucide';
 import { renderLucideIcon } from './lucide-icons';
@@ -71,6 +74,15 @@ const ICONS = {
   panelOpen: renderLucideIcon(PanelLeftOpen, {
     class: 'lucide lucide-panel-left-open-icon lucide-panel-left-open',
   }),
+  desktop: renderLucideIcon(Monitor, {
+    class: 'lucide lucide-monitor-icon lucide-monitor',
+  }),
+  tablet: renderLucideIcon(Tablet, {
+    class: 'lucide lucide-tablet-icon lucide-tablet',
+  }),
+  mobile: renderLucideIcon(Smartphone, {
+    class: 'lucide lucide-smartphone-icon lucide-smartphone',
+  }),
   settings: renderLucideIcon(Settings, {
     class: 'lucide lucide-settings-icon lucide-settings',
   }),
@@ -114,6 +126,9 @@ function Toolbar({
   const settingsTitle = settingsOpen
     ? __( 'Close settings', 'wp-livecode' )
     : __( 'Settings', 'wp-livecode' );
+  const viewportDesktopLabel = __( 'Desktop', 'wp-livecode' );
+  const viewportTabletLabel = __( 'Tablet', 'wp-livecode' );
+  const viewportMobileLabel = __( 'Mobile', 'wp-livecode' );
   const showUnsaved = statusText === '' && hasUnsavedChanges;
   const statusLabel =
     statusText || (showUnsaved ? __( 'Unsaved changes', 'wp-livecode' ) : '');
@@ -161,54 +176,82 @@ function Toolbar({
         <span className={`lc-status${showUnsaved ? ' is-unsaved' : ''}`}>{statusLabel}</span>
       </div>
       <div className="lc-toolbarGroup lc-toolbarRight">
-        {tailwindEnabled ? (
-          <span
-            className="lc-tailwindBadge"
-            title={__( 'TailwindCSS enabled', 'wp-livecode' )}
-            aria-label={__( 'TailwindCSS enabled', 'wp-livecode' )}
-            role="img"
-            dangerouslySetInnerHTML={{ __html: TAILWIND_ICON }}
-          />
-        ) : null}
-        {showViewPost ? (
-          <a
-            className="lc-btn lc-btn-stack lc-btn-view"
-            href={targetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={viewPostLabel}
-            aria-label={viewPostLabel}
+        <div className="lc-toolbarCluster lc-toolbarCluster-viewports">
+          <button
+            className="lc-btn lc-btn-icon lc-btn-viewport"
+            type="button"
+            title={viewportDesktopLabel}
+            aria-label={viewportDesktopLabel}
           >
-            <IconLabel label={viewPostLabel} svg={ICONS.viewPost} />
-          </a>
-        ) : null}
-        <button
-          className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
-          type="button"
-          onClick={onSave}
-          title={__( 'Save', 'wp-livecode' )}
-        >
-          <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
-        </button>
-        <button
-          className="lc-btn lc-btn-stack"
-          type="button"
-          onClick={onExport}
-          title={__( 'Export', 'wp-livecode' )}
-        >
-          <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
-        </button>
-        <button
-          className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
-          type="button"
-          onClick={onToggleSettings}
-          title={settingsTitle}
-          aria-label={settingsTitle}
-          aria-expanded={settingsOpen}
-          aria-controls="lc-settings"
-        >
-          <IconLabel label={settingsLabel} svg={ICONS.settings} />
-        </button>
+            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.desktop }} />
+          </button>
+          <button
+            className="lc-btn lc-btn-icon lc-btn-viewport"
+            type="button"
+            title={viewportTabletLabel}
+            aria-label={viewportTabletLabel}
+          >
+            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.tablet }} />
+          </button>
+          <button
+            className="lc-btn lc-btn-icon lc-btn-viewport"
+            type="button"
+            title={viewportMobileLabel}
+            aria-label={viewportMobileLabel}
+          >
+            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.mobile }} />
+          </button>
+        </div>
+        <div className="lc-toolbarCluster lc-toolbarCluster-main">
+          {tailwindEnabled ? (
+            <span
+              className="lc-tailwindBadge"
+              title={__( 'TailwindCSS enabled', 'wp-livecode' )}
+              aria-label={__( 'TailwindCSS enabled', 'wp-livecode' )}
+              role="img"
+              dangerouslySetInnerHTML={{ __html: TAILWIND_ICON }}
+            />
+          ) : null}
+          {showViewPost ? (
+            <a
+              className="lc-btn lc-btn-stack lc-btn-view"
+              href={targetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={viewPostLabel}
+              aria-label={viewPostLabel}
+            >
+              <IconLabel label={viewPostLabel} svg={ICONS.viewPost} />
+            </a>
+          ) : null}
+          <button
+            className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+            type="button"
+            onClick={onSave}
+            title={__( 'Save', 'wp-livecode' )}
+          >
+            <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
+          </button>
+          <button
+            className="lc-btn lc-btn-stack"
+            type="button"
+            onClick={onExport}
+            title={__( 'Export', 'wp-livecode' )}
+          >
+            <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
+          </button>
+          <button
+            className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
+            type="button"
+            onClick={onToggleSettings}
+            title={settingsTitle}
+            aria-label={settingsTitle}
+            aria-expanded={settingsOpen}
+            aria-controls="lc-settings"
+          >
+            <IconLabel label={settingsLabel} svg={ICONS.settings} />
+          </button>
+        </div>
       </div>
     </Fragment>
   );

@@ -62,6 +62,17 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 8px;
 }
 
+.lc-toolbarCluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-toolbarCluster-main {
+  padding-left: 10px;
+  border-left: 1px solid #2b2f38;
+}
+
 .lc-toolbarLeft {
   justify-self: start;
 }
@@ -123,6 +134,12 @@ body.admin_page_wp-livecode #wpbody-content {
   padding: 6px 8px;
   min-width: 56px;
   text-align: center;
+}
+
+.lc-btn-icon {
+  padding: 6px;
+  min-width: 32px;
+  justify-content: center;
 }
 
 .lc-btn-stack .lc-btnLabel {
