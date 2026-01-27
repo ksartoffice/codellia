@@ -32,3 +32,5 @@ foreach ( $posts as $post_id ) {
 }
 
 delete_option( 'wp_livecode_delete_on_uninstall' );
+delete_option( 'wp_livecode_post_slug' );
+delete_option( 'wp_livecode_flush_rewrite' );

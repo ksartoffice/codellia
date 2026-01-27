@@ -19,6 +19,8 @@ class Admin {
 	const MENU_SLUG                  = 'wp-livecode';
 	const SETTINGS_SLUG              = 'wp-livecode-settings';
 	const SETTINGS_GROUP             = 'wp_livecode_settings';
+	const OPTION_POST_SLUG           = 'wp_livecode_post_slug';
+	const OPTION_FLUSH_REWRITE       = 'wp_livecode_flush_rewrite';
 	const OPTION_DELETE_ON_UNINSTALL = 'wp_livecode_delete_on_uninstall';
 	/**
 	 * Register admin hooks.
@@ -29,6 +31,10 @@ class Admin {
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'admin_action_wp_livecode', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=wp_livecode.
+		add_action( 'load-post-new.php', array( __CLASS__, 'maybe_redirect_new_post' ) );
+		add_action( 'update_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_update' ), 10, 2 );
+		add_action( 'add_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_add' ), 10, 2 );
+		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 20 );
 	}
 	/**
 	 * Redirect from admin.php?action=wp_livecode to the custom editor page.
@@ -45,6 +51,29 @@ class Admin {
 			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
 		}
 		wp_safe_redirect( Post_Type::get_editor_url( $post_id ) );
+		exit;
+	}
+
+	/**
+	 * Redirect new LiveCode posts directly to the custom editor.
+	 */
+	public static function maybe_redirect_new_post(): void {
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : 'post'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( Post_Type::POST_TYPE !== $post_type ) {
+			return;
+		}
+
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->create_posts ) ) {
+			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
+		}
+
+		$post = get_default_post_to_edit( $post_type, true );
+		if ( ! $post || is_wp_error( $post ) ) {
+			return;
+		}
+
+		wp_safe_redirect( Post_Type::get_editor_url( (int) $post->ID ) );
 		exit;
 	}
 
@@ -80,12 +109,37 @@ class Admin {
 
 		register_setting(
 			self::SETTINGS_GROUP,
+			self::OPTION_POST_SLUG,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_post_slug' ),
+				'default'           => Post_Type::SLUG,
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
 			self::OPTION_DELETE_ON_UNINSTALL,
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_delete_on_uninstall' ),
 				'default'           => '0',
 			)
+		);
+
+		add_settings_section(
+			'wp_livecode_permalink',
+			__( 'Permalink', 'wp-livecode' ),
+			array( __CLASS__, 'render_permalink_section' ),
+			self::SETTINGS_SLUG
+		);
+
+		add_settings_field(
+			self::OPTION_POST_SLUG,
+			__( 'LiveCode slug', 'wp-livecode' ),
+			array( __CLASS__, 'render_post_slug_field' ),
+			self::SETTINGS_SLUG,
+			'wp_livecode_permalink'
 		);
 
 		add_settings_section(
@@ -113,6 +167,70 @@ class Admin {
 	public static function sanitize_delete_on_uninstall( $value ): string {
 
 		return '1' === $value ? '1' : '0';
+	}
+
+	/**
+	 * Sanitize post slug value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_post_slug( $value ): string {
+		$slug = sanitize_title( (string) $value );
+		return '' !== $slug ? $slug : Post_Type::SLUG;
+	}
+
+	/**
+	 * Flush rewrite rules when the post slug changes.
+	 *
+	 * @param string $old_value Old value.
+	 * @param string $new_value New value.
+	 */
+	public static function handle_post_slug_update( $old_value, $new_value ): void {
+		if ( (string) $old_value !== (string) $new_value ) {
+			update_option( self::OPTION_FLUSH_REWRITE, '1' );
+		}
+	}
+
+	/**
+	 * Flush rewrite rules when the post slug is added for the first time.
+	 *
+	 * @param string $option Option name.
+	 * @param string $value Option value.
+	 */
+	public static function handle_post_slug_add( $option, $value ): void {
+		if ( (string) $value !== '' ) {
+			update_option( self::OPTION_FLUSH_REWRITE, '1' );
+		}
+	}
+
+	/**
+	 * Flush rewrite rules after the post type is registered.
+	 */
+	public static function maybe_flush_rewrite_rules(): void {
+		$should_flush = get_option( self::OPTION_FLUSH_REWRITE, '0' );
+		if ( '1' !== $should_flush ) {
+			return;
+		}
+
+		flush_rewrite_rules( false );
+		delete_option( self::OPTION_FLUSH_REWRITE );
+	}
+
+	/**
+	 * Render permalink section description.
+	 */
+	public static function render_permalink_section(): void {
+		echo '<p>' . esc_html__( 'Change the URL slug for LiveCode posts. Existing URLs will change after saving.', 'wp-livecode' ) . '</p>';
+	}
+
+	/**
+	 * Render post slug input field.
+	 */
+	public static function render_post_slug_field(): void {
+		$value = get_option( self::OPTION_POST_SLUG, Post_Type::SLUG );
+		echo '<input type="text" class="regular-text" name="' . esc_attr( self::OPTION_POST_SLUG ) . '" value="' . esc_attr( $value ) . '" />';
+		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: wp-livecode.', 'wp-livecode' ) . '</p>';
 	}
 
 	/**

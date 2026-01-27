@@ -156,6 +156,20 @@ class Rest_Import {
 			$shortcode_enabled = $payload['shortcodeEnabled'];
 		}
 
+		$single_page_enabled = null;
+		if ( array_key_exists( 'singlePageEnabled', $payload ) ) {
+			if ( ! is_bool( $payload['singlePageEnabled'] ) ) {
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => __( 'Invalid singlePageEnabled value.', 'wp-livecode' ),
+					),
+					400
+				);
+			}
+			$single_page_enabled = $payload['singlePageEnabled'];
+		}
+
 		$live_highlight_enabled = null;
 		if ( array_key_exists( 'liveHighlightEnabled', $payload ) ) {
 			if ( ! is_bool( $payload['liveHighlightEnabled'] ) ) {
@@ -306,6 +320,9 @@ class Rest_Import {
 		update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
+		if ( null !== $single_page_enabled ) {
+			update_post_meta( $post_id, '_lc_single_page_enabled', $single_page_enabled ? '1' : '0' );
+		}
 		if ( null !== $live_highlight_enabled ) {
 			update_post_meta( $post_id, '_lc_live_highlight', $live_highlight_enabled ? '1' : '0' );
 		}

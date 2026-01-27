@@ -140,6 +140,7 @@ type ExportParams = {
   externalStyles: string[];
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
+  singlePageEnabled: boolean;
   liveHighlightEnabled: boolean;
 };
 
@@ -179,6 +180,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
       externalStyles: [...params.externalStyles],
       shadowDomEnabled: params.shadowDomEnabled,
       shortcodeEnabled: params.shortcodeEnabled,
+      singlePageEnabled: params.singlePageEnabled,
       liveHighlightEnabled: params.liveHighlightEnabled,
     };
 

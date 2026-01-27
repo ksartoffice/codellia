@@ -65,6 +65,22 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+#: includes/class-wp-livecode-admin.php:103
+msgid "Permalink"
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:110
+msgid "LiveCode slug"
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:160
+msgid "Change the URL slug for LiveCode posts. Existing URLs will change after saving."
+msgstr ""
+
+#: includes/class-wp-livecode-admin.php:169
+msgid "Allowed: lowercase letters, numbers, and hyphens. Default: wp-livecode."
+msgstr ""
+
 #: includes/class-wp-livecode-admin.php:91
 msgid "Cleanup"
 msgstr ""
@@ -184,7 +200,7 @@ msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:59
 #: includes/class-wp-livecode-post-type.php:60
-msgid "View LiveCode"
+msgid "View on front end"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:61
@@ -206,6 +222,10 @@ msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:65
 msgid "LiveCode Archives"
+msgstr ""
+
+#: includes/class-wp-livecode-post-type.php:185
+msgid "Edit in LiveCode"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:210
@@ -277,6 +297,11 @@ msgstr ""
 #: includes/rest/class-wp-livecode-rest-import.php:152
 #: assets/dist/main.js:1
 msgid "Invalid shortcodeEnabled value."
+msgstr ""
+
+#: includes/rest/class-wp-livecode-rest-import.php:166
+#: assets/dist/main.js:1
+msgid "Invalid singlePageEnabled value."
 msgstr ""
 
 #: includes/rest/class-wp-livecode-rest-import.php:166
@@ -356,6 +381,10 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Enable shortcode"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Do not publish as single page"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -476,19 +505,7 @@ msgid "Add attribute"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Public"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Password protected"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Update failed."
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Not set"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -496,15 +513,7 @@ msgid "Close"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Status & visibility"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Status"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Visibility"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -520,99 +529,7 @@ msgid "Save"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Publish"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Publish date"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Slug"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Author"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Template"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Discussion"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Comments"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Allow comments"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Allow trackbacks/pingbacks"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Format"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Select featured image"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Select"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Featured image"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "No image set."
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Image"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Select from media library"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Attachment ID"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Categories"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "New category"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Category name"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Tags"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Enter tags separated by commas"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Example: landing, update, hero"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Move this post to the trash?"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -633,26 +550,6 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Title"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Immediately"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Open"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Closed"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Move to trash"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Set"
 msgstr ""
 
 #: assets/dist/main.js:1

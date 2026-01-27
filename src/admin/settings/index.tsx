@@ -23,11 +23,6 @@ type SettingsAuthor = {
   name: string;
 };
 
-type SettingsCategory = {
-  id: number;
-  name: string;
-};
-
 export type SettingsData = {
   title: string;
   status: string;
@@ -42,8 +37,6 @@ export type SettingsData = {
   pingStatus: 'open' | 'closed';
   template: string;
   format: string;
-  categories: number[];
-  tags: string[];
   featuredImageId: number;
   featuredImageUrl?: string;
   featuredImageAlt?: string;
@@ -51,12 +44,12 @@ export type SettingsData = {
   authors: SettingsAuthor[];
   templates: SettingsOption[];
   formats: SettingsOption[];
-  categoriesList: SettingsCategory[];
   canPublish: boolean;
   canTrash: boolean;
   jsEnabled: boolean;
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
+  singlePageEnabled: boolean;
   liveHighlightEnabled: boolean;
   canEditJs: boolean;
   externalScripts: string[];
@@ -101,23 +94,23 @@ type ModalProps = {
 
 type ActiveModal =
   | 'status'
-  | 'publish'
-  | 'slug'
-  | 'author'
-  | 'template'
-  | 'discussion'
-  | 'format'
-  | 'featured'
-  | 'categories'
-  | 'tags'
   | null;
 
 type SettingsTab = 'post' | 'design' | 'elements';
 
-const VISIBILITY_OPTIONS = [
-  { value: 'public', label: __( 'Public', 'wp-livecode' ) },
-  { value: 'private', label: __( 'Private', 'wp-livecode' ) },
-  { value: 'password', label: __( 'Password protected', 'wp-livecode' ) },
+type StatusPresetValue = 'draft' | 'pending' | 'private' | 'publish';
+
+type StatusPreset = {
+  value: StatusPresetValue;
+  status: string;
+  visibility: SettingsData['visibility'];
+};
+
+const STATUS_PRESETS: StatusPreset[] = [
+  { value: 'draft', status: 'draft', visibility: 'public' },
+  { value: 'pending', status: 'pending', visibility: 'public' },
+  { value: 'private', status: 'private', visibility: 'private' },
+  { value: 'publish', status: 'publish', visibility: 'public' },
 ];
 
 function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-livecode' )) {
@@ -138,33 +131,28 @@ function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-li
   return fallback;
 }
 
-function formatDateForSave(value: string) {
-  if (!value) return '';
-  return `${value.replace('T', ' ')}:00`;
-}
-
 function getOptionLabel(options: SettingsOption[], value: string) {
   return options.find((option) => option.value === value)?.label || value || '-';
 }
 
-function getVisibilityLabel(value: SettingsData['visibility']) {
-  return VISIBILITY_OPTIONS.find((option) => option.value === value)?.label || value;
+function resolveStatusPresetValue(
+  status: string,
+  visibility: SettingsData['visibility']
+): StatusPresetValue {
+  if (status === 'private' || visibility === 'private') return 'private';
+  if (status === 'pending') return 'pending';
+  if (status === 'draft' || status === 'auto-draft') return 'draft';
+  if (status === 'publish' || status === 'future') return 'publish';
+  return 'draft';
 }
 
-function createChipList(items: string[]) {
-  return (
-    <div className="lc-chipList">
-      {items.length ? (
-        items.map((item) => (
-          <span className="lc-chip" key={item}>
-            {item}
-          </span>
-        ))
-      ) : (
-        <span className="lc-chipEmpty">{__( 'Not set', 'wp-livecode' )}</span>
-      )}
-    </div>
-  );
+function getStatusLabel(settings: SettingsData) {
+  const presetValue = resolveStatusPresetValue(settings.status, settings.visibility);
+  const preset = STATUS_PRESETS.find((option) => option.value === presetValue);
+  if (preset) {
+    return getOptionLabel(settings.statusOptions, preset.value);
+  }
+  return getOptionLabel(settings.statusOptions, settings.status);
 }
 
 function SettingsSection({
@@ -272,16 +260,17 @@ function StatusModal({
   onClose: () => void;
   updateSettings: UpdateSettings;
 }) {
-  const [status, setStatus] = useState(settings.status);
-  const [visibility, setVisibility] = useState(settings.visibility);
-  const [password, setPassword] = useState(settings.password || '');
+  const [presetValue, setPresetValue] = useState<StatusPresetValue>(
+    resolveStatusPresetValue(settings.status, settings.visibility)
+  );
   const [error, setError] = useState('');
 
   const onSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
     setError('');
     try {
-      await updateSettings({ status, visibility, password });
+      const preset = STATUS_PRESETS.find((option) => option.value === presetValue) || STATUS_PRESETS[0];
+      await updateSettings({ status: preset.status, visibility: preset.visibility });
       onClose();
     } catch (err: any) {
       setError(err?.message || String(err));
@@ -289,599 +278,25 @@ function StatusModal({
   };
 
   return (
-    <Modal title={__( 'Status & visibility', 'wp-livecode' )} onClose={onClose} error={error}>
+    <Modal title={__( 'Status', 'wp-livecode' )} onClose={onClose} error={error}>
       <form className="lc-modalForm" onSubmit={onSubmit}>
         <div className="lc-formGroup">
           <div className="lc-formLabel">{__( 'Status', 'wp-livecode' )}</div>
-          {settings.statusOptions.map((option) => (
+          {STATUS_PRESETS.map((option) => (
             <label className="lc-radioRow" key={option.value}>
               <input
                 type="radio"
                 name="lc-status"
                 value={option.value}
-                checked={status === option.value}
+                checked={presetValue === option.value}
                 disabled={option.value === 'publish' && !settings.canPublish}
-                onChange={() => setStatus(option.value)}
+                onChange={() => setPresetValue(option.value)}
               />
-              <span className="lc-radioText">{option.label}</span>
+              <span className="lc-radioText">
+                {getOptionLabel(settings.statusOptions, option.value)}
+              </span>
             </label>
           ))}
-        </div>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Visibility', 'wp-livecode' )}</div>
-          {VISIBILITY_OPTIONS.map((option) => (
-            <label className="lc-radioRow" key={option.value}>
-              <input
-                type="radio"
-                name="lc-visibility"
-                value={option.value}
-                checked={visibility === option.value}
-                onChange={() => setVisibility(option.value as SettingsData['visibility'])}
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-          <div className={`lc-formRow${visibility === 'password' ? ' is-visible' : ''}`}>
-            <input
-              type="text"
-              className="lc-formInput"
-              placeholder={__( 'Password', 'wp-livecode' )}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </div>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function PublishModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [date, setDate] = useState(settings.dateLocal || '');
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ date: formatDateForSave(date) });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Publish', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Publish date', 'wp-livecode' )}</div>
-          <input
-            type="datetime-local"
-            className="lc-formInput"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function SlugModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [slug, setSlug] = useState(settings.slug || '');
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ slug });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Slug', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Slug', 'wp-livecode' )}</div>
-          <input
-            type="text"
-            className="lc-formInput"
-            value={slug}
-            onChange={(event) => setSlug(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function AuthorModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [author, setAuthor] = useState(String(settings.author));
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ author: Number(author) });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Author', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Author', 'wp-livecode' )}</div>
-          <select
-            className="lc-formSelect"
-            value={author}
-            onChange={(event) => setAuthor(event.target.value)}
-          >
-            {settings.authors.map((authorItem) => (
-              <option key={authorItem.id} value={authorItem.id}>
-                {authorItem.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function TemplateModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [template, setTemplate] = useState(settings.template);
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ template });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Template', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Template', 'wp-livecode' )}</div>
-          <select
-            className="lc-formSelect"
-            value={template}
-            onChange={(event) => setTemplate(event.target.value)}
-          >
-            {settings.templates.map((templateItem) => (
-              <option key={templateItem.value} value={templateItem.value}>
-                {templateItem.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function DiscussionModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [commentOpen, setCommentOpen] = useState(settings.commentStatus === 'open');
-  const [pingOpen, setPingOpen] = useState(settings.pingStatus === 'open');
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({
-        commentStatus: commentOpen ? 'open' : 'closed',
-        pingStatus: pingOpen ? 'open' : 'closed',
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Discussion', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Comments', 'wp-livecode' )}</div>
-          <label className="lc-checkboxRow">
-            <input
-              type="checkbox"
-              checked={commentOpen}
-              onChange={(event) => setCommentOpen(event.target.checked)}
-            />
-            {__( 'Allow comments', 'wp-livecode' )}
-          </label>
-          <label className="lc-checkboxRow">
-            <input
-              type="checkbox"
-              checked={pingOpen}
-              onChange={(event) => setPingOpen(event.target.checked)}
-            />
-            {__( 'Allow trackbacks/pingbacks', 'wp-livecode' )}
-          </label>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function FormatModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [format, setFormat] = useState(settings.format);
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({ format });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Format', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Format', 'wp-livecode' )}</div>
-          <select
-            className="lc-formSelect"
-            value={format}
-            onChange={(event) => setFormat(event.target.value)}
-          >
-            {settings.formats.map((formatItem) => (
-              <option key={formatItem.value} value={formatItem.value}>
-                {formatItem.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function FeaturedModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [imageId, setImageId] = useState(
-    settings.featuredImageId ? String(settings.featuredImageId) : ''
-  );
-  const [imageUrl, setImageUrl] = useState(settings.featuredImageUrl || '');
-  const [imageAlt, setImageAlt] = useState(settings.featuredImageAlt || '');
-  const [error, setError] = useState('');
-  const media = (window as any).wp?.media;
-
-  const handleSelect = () => {
-    if (!media) return;
-    const frame = media({
-      title: __( 'Select featured image', 'wp-livecode' ),
-      button: { text: __( 'Select', 'wp-livecode' ) },
-      multiple: false,
-    });
-    frame.on('select', () => {
-      const attachment = frame.state().get('selection').first()?.toJSON();
-      if (!attachment) return;
-      setImageId(String(attachment.id || ''));
-      setImageUrl(attachment.sizes?.medium?.url || attachment.url || '');
-      setImageAlt(attachment.alt || '');
-    });
-    frame.open();
-  };
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      const featuredImageId = Number(imageId || 0);
-      await updateSettings({ featuredImageId });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  const handleRemove = async () => {
-    setError('');
-    try {
-      await updateSettings({ featuredImageId: 0 });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Featured image', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-featurePreview">
-          {imageUrl ? (
-            <img src={imageUrl} alt={imageAlt} />
-          ) : (
-            __( 'No image set.', 'wp-livecode' )
-          )}
-        </div>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Image', 'wp-livecode' )}</div>
-          <button className="lc-btn" type="button" onClick={handleSelect} disabled={!media}>
-            {__( 'Select from media library', 'wp-livecode' )}
-          </button>
-          <input
-            type="number"
-            className="lc-formInput"
-            placeholder={__( 'Attachment ID', 'wp-livecode' )}
-            value={imageId}
-            onChange={(event) => setImageId(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button
-            className="lc-btn lc-btn-danger"
-            type="button"
-            onClick={handleRemove}
-            disabled={!settings.featuredImageId}
-          >
-            {__( 'Remove', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function CategoriesModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [selected, setSelected] = useState(() => new Set(settings.categories));
-  const [newCategory, setNewCategory] = useState('');
-  const [error, setError] = useState('');
-
-  const toggleCategory = (id: number) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({
-        categories: Array.from(selected),
-        newCategory: newCategory.trim(),
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Categories', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Categories', 'wp-livecode' )}</div>
-          {settings.categoriesList.map((category) => (
-            <label className="lc-checkboxRow" key={category.id}>
-              <input
-                type="checkbox"
-                checked={selected.has(category.id)}
-                onChange={() => toggleCategory(category.id)}
-              />
-              {category.name}
-            </label>
-          ))}
-        </div>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'New category', 'wp-livecode' )}</div>
-          <input
-            type="text"
-            className="lc-formInput"
-            placeholder={__( 'Category name', 'wp-livecode' )}
-            value={newCategory}
-            onChange={(event) => setNewCategory(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function TagsModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [tags, setTags] = useState(settings.tags.join(', '));
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await updateSettings({
-        tags: tags
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Tags', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Tags', 'wp-livecode' )}</div>
-          <input
-            type="text"
-            className="lc-formInput"
-            placeholder={__( 'Enter tags separated by commas', 'wp-livecode' )}
-            value={tags}
-            onChange={(event) => setTags(event.target.value)}
-          />
-          <div className="lc-formHint">
-            {__( 'Example: landing, update, hero', 'wp-livecode' )}
-          </div>
         </div>
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
@@ -917,11 +332,16 @@ function SettingsSidebar({
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [activeTab, setActiveTab] = useState<SettingsTab>('post');
+  const resolveSinglePageEnabled = (value?: boolean) =>
+    value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
   const [jsEnabled, setJsEnabled] = useState(Boolean(data.jsEnabled));
   const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
   const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
+  const [singlePageEnabled, setSinglePageEnabled] = useState(
+    resolveSinglePageEnabled(data.singlePageEnabled)
+  );
   const [liveHighlightEnabled, setLiveHighlightEnabled] = useState(
     resolveLiveHighlightEnabled(data.liveHighlightEnabled)
   );
@@ -948,6 +368,10 @@ function SettingsSidebar({
   useEffect(() => {
     setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
   }, [settings.shortcodeEnabled]);
+
+  useEffect(() => {
+    setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
+  }, [settings.singlePageEnabled]);
 
   useEffect(() => {
     setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
@@ -1069,11 +493,36 @@ function SettingsSidebar({
     }
     setDesignError('');
     setShortcodeEnabled(enabled);
+    const shouldEnableSinglePage = !enabled && !singlePageEnabled;
+    if (shouldEnableSinglePage) {
+      setSinglePageEnabled(true);
+    }
     try {
-      await updateSettings({ shortcodeEnabled: enabled });
+      if (shouldEnableSinglePage) {
+        await updateSettings({ shortcodeEnabled: enabled, singlePageEnabled: true });
+      } else {
+        await updateSettings({ shortcodeEnabled: enabled });
+      }
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
+      if (shouldEnableSinglePage) {
+        setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
+      }
+    }
+  };
+
+  const handleSinglePageToggle = async (enabled: boolean) => {
+    if (!canEditJs) {
+      return;
+    }
+    setDesignError('');
+    setSinglePageEnabled(enabled);
+    try {
+      await updateSettings({ singlePageEnabled: enabled });
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
     }
   };
 
@@ -1145,33 +594,9 @@ function SettingsSidebar({
     }
   };
 
-  const handleTrash = async () => {
-    if (!window.confirm(__( 'Move this post to the trash?', 'wp-livecode' ))) {
-      return;
-    }
-    try {
-      const response = await updateSettings({ status: 'trash' });
-      if (response?.redirectUrl) {
-        window.location.href = response.redirectUrl;
-      } else if (backUrl) {
-        window.location.href = backUrl;
-      }
-    } catch (err: any) {
-      window.alert(err?.message || String(err));
-    }
-  };
-
   const statusText = useMemo(
-    () => `${getOptionLabel(settings.statusOptions, settings.status)} / ${getVisibilityLabel(settings.visibility)}`,
-    [settings.statusOptions, settings.status, settings.visibility]
-  );
-
-  const categoryNames = useMemo(
-    () =>
-      settings.categoriesList
-        .filter((category) => settings.categories.includes(category.id))
-        .map((category) => category.name),
-    [settings.categories, settings.categoriesList]
+    () => getStatusLabel(settings),
+    [settings.status, settings.visibility, settings.statusOptions]
   );
 
   const tabs = (
@@ -1271,84 +696,13 @@ function SettingsSidebar({
 
           <SettingsSection title={__( 'Post', 'wp-livecode' )}>
             <SettingsItem
-              label={__( 'Status & visibility', 'wp-livecode' )}
+              label={__( 'Status', 'wp-livecode' )}
               value={statusText}
               onClick={() => setActiveModal('status')}
             />
-            <SettingsItem
-              label={__( 'Publish', 'wp-livecode' )}
-              value={settings.dateLabel || __( 'Immediately', 'wp-livecode' )}
-              onClick={() => setActiveModal('publish')}
-            />
-            <SettingsItem
-              label={__( 'Slug', 'wp-livecode' )}
-              value={settings.slug || '-'}
-              onClick={() => setActiveModal('slug')}
-            />
-            <SettingsItem
-              label={__( 'Author', 'wp-livecode' )}
-              value={settings.authors.find((author) => author.id === settings.author)?.name || '-'}
-              onClick={() => setActiveModal('author')}
-            />
-            <SettingsItem
-              label={__( 'Template', 'wp-livecode' )}
-              value={getOptionLabel(settings.templates, settings.template)}
-              onClick={() => setActiveModal('template')}
-            />
-            <SettingsItem
-              label={__( 'Discussion', 'wp-livecode' )}
-              value={
-                settings.commentStatus === 'open'
-                  ? __( 'Open', 'wp-livecode' )
-                  : __( 'Closed', 'wp-livecode' )
-              }
-              onClick={() => setActiveModal('discussion')}
-            />
-            <SettingsItem
-              label={__( 'Format', 'wp-livecode' )}
-              value={getOptionLabel(settings.formats, settings.format)}
-              onClick={() => setActiveModal('format')}
-            />
-            {settings.canTrash && (
-              <button className="lc-btn lc-btn-danger lc-settingsTrash" type="button" onClick={handleTrash}>
-                {__( 'Move to trash', 'wp-livecode' )}
-              </button>
-            )}
           </SettingsSection>
 
-          <SettingsSection title={__( 'Featured image', 'wp-livecode' )}>
-            <SettingsItem
-              label={__( 'Featured image', 'wp-livecode' )}
-              value={
-                settings.featuredImageUrl ? (
-                  <img
-                    src={settings.featuredImageUrl}
-                    alt={settings.featuredImageAlt || ''}
-                    className="lc-featureThumb"
-                  />
-                ) : (
-                  __( 'Set', 'wp-livecode' )
-                )
-              }
-              onClick={() => setActiveModal('featured')}
-            />
-          </SettingsSection>
 
-          <SettingsSection title={__( 'Categories', 'wp-livecode' )}>
-            <SettingsItem
-              label={__( 'Categories', 'wp-livecode' )}
-              value={createChipList(categoryNames)}
-              onClick={() => setActiveModal('categories')}
-            />
-          </SettingsSection>
-
-          <SettingsSection title={__( 'Tags', 'wp-livecode' )}>
-            <SettingsItem
-              label={__( 'Tags', 'wp-livecode' )}
-              value={createChipList(settings.tags)}
-              onClick={() => setActiveModal('tags')}
-            />
-          </SettingsSection>
         </Fragment>
       ) : null}
 
@@ -1361,6 +715,8 @@ function SettingsSidebar({
           onToggleShadowDom={handleShadowDomToggle}
           shortcodeEnabled={shortcodeEnabled}
           onToggleShortcode={handleShortcodeToggle}
+          singlePageEnabled={singlePageEnabled}
+          onToggleSinglePage={handleSinglePageToggle}
           liveHighlightEnabled={liveHighlightEnabled}
           onToggleLiveHighlight={handleLiveHighlightToggle}
           externalScripts={externalScripts}
@@ -1380,33 +736,6 @@ function SettingsSidebar({
 
       {activeTab === 'post' && activeModal === 'status' ? (
         <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'publish' ? (
-        <PublishModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'slug' ? (
-        <SlugModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'author' ? (
-        <AuthorModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'template' ? (
-        <TemplateModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'discussion' ? (
-        <DiscussionModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'format' ? (
-        <FormatModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'featured' ? (
-        <FeaturedModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'categories' ? (
-        <CategoriesModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'tags' ? (
-        <TagsModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
     </Fragment>
   );

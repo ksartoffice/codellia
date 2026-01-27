@@ -12,6 +12,7 @@ export type ImportPayload = {
   externalStyles?: string[];
   shadowDomEnabled?: boolean;
   shortcodeEnabled?: boolean;
+  singlePageEnabled?: boolean;
   liveHighlightEnabled?: boolean;
 };
 
@@ -32,5 +33,6 @@ export type ExportPayload = {
   externalStyles: string[];
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
+  singlePageEnabled: boolean;
   liveHighlightEnabled: boolean;
 };

@@ -98,6 +98,10 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: __( 'Invalid shortcodeEnabled value.', 'wp-livecode' ) };
   }
 
+  if (raw.singlePageEnabled !== undefined && typeof raw.singlePageEnabled !== 'boolean') {
+    return { error: __( 'Invalid singlePageEnabled value.', 'wp-livecode' ) };
+  }
+
   if (raw.liveHighlightEnabled !== undefined && typeof raw.liveHighlightEnabled !== 'boolean') {
     return { error: __( 'Invalid liveHighlightEnabled value.', 'wp-livecode' ) };
   }
@@ -129,6 +133,7 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       externalStyles: raw.externalStyles ?? [],
       shadowDomEnabled: raw.shadowDomEnabled ?? false,
       shortcodeEnabled: raw.shortcodeEnabled ?? false,
+      singlePageEnabled: raw.singlePageEnabled ?? true,
       liveHighlightEnabled: raw.liveHighlightEnabled,
     },
   };

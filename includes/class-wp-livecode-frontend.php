@@ -36,10 +36,132 @@ class Frontend {
 	 */
 	public static function init(): void {
 		add_action( 'wp', array( __CLASS__, 'maybe_disable_autop' ) );
+		add_action( 'template_redirect', array( __CLASS__, 'maybe_redirect_single_page' ) );
+		add_action( 'wp_head', array( __CLASS__, 'maybe_add_noindex' ), 1 );
+		add_action( 'pre_get_posts', array( __CLASS__, 'exclude_single_page_from_query' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_js' ) );
 		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 20 );
 		add_shortcode( 'livecode', array( __CLASS__, 'shortcode' ) );
+	}
+
+	/**
+	 * Check whether single page view is disabled for a post.
+	 *
+	 * @param int $post_id LiveCode post ID.
+	 * @return bool
+	 */
+	private static function is_single_page_disabled( int $post_id ): bool {
+		return ! Post_Type::is_single_page_enabled( $post_id );
+	}
+
+	/**
+	 * Redirect single page requests when disabled.
+	 */
+	public static function maybe_redirect_single_page(): void {
+		if ( is_admin() || get_query_var( 'lc_preview' ) ) {
+			return;
+		}
+
+		if ( ! is_singular( Post_Type::POST_TYPE ) ) {
+			return;
+		}
+
+		$post_id = get_queried_object_id();
+		if ( ! $post_id ) {
+			return;
+		}
+
+		if ( ! self::is_single_page_disabled( $post_id ) ) {
+			return;
+		}
+
+		$target = apply_filters( 'wp_livecode_single_page_redirect', home_url( '/' ), $post_id );
+		if ( '404' === $target ) {
+			global $wp_query;
+			$wp_query->set_404();
+			status_header( 404 );
+			nocache_headers();
+			include get_404_template();
+			exit;
+		}
+
+		if ( is_string( $target ) && '' !== $target ) {
+			wp_safe_redirect( $target );
+			exit;
+		}
+	}
+
+	/**
+	 * Output noindex meta when single page is disabled.
+	 */
+	public static function maybe_add_noindex(): void {
+		if ( is_admin() || get_query_var( 'lc_preview' ) ) {
+			return;
+		}
+
+		if ( ! is_singular( Post_Type::POST_TYPE ) ) {
+			return;
+		}
+
+		$post_id = get_queried_object_id();
+		if ( ! $post_id ) {
+			return;
+		}
+
+		if ( ! self::is_single_page_disabled( $post_id ) ) {
+			return;
+		}
+
+		echo '<meta name="robots" content="noindex">' . PHP_EOL;
+	}
+
+	/**
+	 * Exclude single-page-disabled posts from search and archives.
+	 *
+	 * @param \WP_Query $query Query instance.
+	 */
+	public static function exclude_single_page_from_query( \WP_Query $query ): void {
+		if ( is_admin() || ! $query->is_main_query() || $query->is_singular() ) {
+			return;
+		}
+
+		$post_type = $query->get( 'post_type' );
+		$should_filter = false;
+
+		if ( $query->is_search() ) {
+			$should_filter = true;
+		} elseif ( 'any' === $post_type ) {
+			$should_filter = true;
+		} elseif ( is_array( $post_type ) ) {
+			$should_filter = in_array( Post_Type::POST_TYPE, $post_type, true );
+		} elseif ( is_string( $post_type ) ) {
+			$should_filter = Post_Type::POST_TYPE === $post_type;
+		}
+
+		if ( ! $should_filter ) {
+			return;
+		}
+
+		$meta_query = $query->get( 'meta_query' );
+		if ( ! is_array( $meta_query ) ) {
+			$meta_query = array();
+		}
+
+		$meta_query[] = array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_lc_single_page_enabled',
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => '_lc_single_page_enabled',
+				'value'   => '1',
+				'compare' => '=',
+			),
+		);
+
+		$query->set( 'meta_query', $meta_query );
 	}
 
 	/**
