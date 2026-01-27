@@ -1,7 +1,15 @@
 import { defineConfig } from 'vite';
+import { fileURLToPath } from 'url';
 export default defineConfig({
   root: '.',
   base: '',
+  resolve: {
+    alias: {
+      lucide: fileURLToPath(
+        new URL('./node_modules/lucide/dist/esm/lucide/src/lucide.js', import.meta.url)
+      ),
+    },
+  },
   build: {
     outDir: 'assets/dist',
     assetsDir: '',

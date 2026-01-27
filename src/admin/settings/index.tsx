@@ -10,6 +10,8 @@ import {
   useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { X } from 'lucide';
+import { renderLucideIcon } from '../lucide-icons';
 import { DesignSettingsPanel } from './design-settings';
 import { ElementsSettingsPanel, type ElementsSettingsApi } from './elements-settings';
 
@@ -112,6 +114,10 @@ const STATUS_PRESETS: StatusPreset[] = [
   { value: 'private', status: 'private', visibility: 'private' },
   { value: 'publish', status: 'publish', visibility: 'public' },
 ];
+
+const CLOSE_ICON = renderLucideIcon(X, {
+  class: 'lucide lucide-x-icon lucide-x',
+});
 
 function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-livecode' )) {
   if (typeof error === 'string' && error.trim()) return error;
@@ -226,21 +232,10 @@ function Modal({ title, onClose, error, children }: ModalProps) {
             onClick={onClose}
             aria-label={__( 'Close', 'wp-livecode' )}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-x-icon lucide-x"
-            >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
+            <span
+              aria-hidden="true"
+              dangerouslySetInnerHTML={{ __html: CLOSE_ICON }}
+            />
           </button>
         </div>
         <div className="lc-modalBody">{children}</div>
@@ -640,21 +635,10 @@ function SettingsSidebar({
         aria-label={__( 'Close settings panel', 'wp-livecode' )}
         onClick={() => onClosePanel?.()}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="lucide lucide-x-icon lucide-x"
-        >
-          <path d="M18 6 6 18" />
-          <path d="m6 6 12 12" />
-        </svg>
+        <span
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: CLOSE_ICON }}
+        />
       </button>
     </div>
   );
