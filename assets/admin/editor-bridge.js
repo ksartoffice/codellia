@@ -84,7 +84,7 @@
     var button = document.createElement('a');
     button.className = 'components-button is-primary wp-livecode-editor-toolbar__button';
     button.href = '#';
-    button.textContent = __( 'Edit with WP LiveCode', 'wp-livecode' );
+    button.textContent = __( 'Edit with LiveCode', 'wp-livecode' );
 
     button.addEventListener('click', function (event) {
       event.preventDefault();
@@ -132,7 +132,7 @@
 
     var button = document.createElement('a');
     button.className = 'button button-primary wp-livecode-editor-bridge__button';
-    button.textContent = __( 'Edit with WP LiveCode', 'wp-livecode' );
+    button.textContent = __( 'Edit with LiveCode', 'wp-livecode' );
     button.href = '#';
 
     container.appendChild(button);

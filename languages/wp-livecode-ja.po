@@ -669,8 +669,8 @@ msgid "Preview"
 msgstr "プレビュー"
 
 #: assets/admin/editor-bridge.js
-msgid "Edit with WP LiveCode"
-msgstr "WP LiveCodeで編集"
+msgid "Edit with LiveCode"
+msgstr "LiveCodeで編集"
 
 #: includes/class-wp-livecode-admin.php:67
 #: includes/class-wp-livecode-admin.php:68

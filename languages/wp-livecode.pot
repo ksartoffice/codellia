@@ -711,7 +711,7 @@ msgid "Preview"
 msgstr ""
 
 #: assets/admin/editor-bridge.js
-msgid "Edit with WP LiveCode"
+msgid "Edit with LiveCode"
 msgstr ""
 
 #: assets/dist/main.js:1
