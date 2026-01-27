@@ -449,6 +449,26 @@ async function main() {
     }
   }
 
+  const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
+  const buildPreviewRefreshUrl = (url: string) => {
+    if (!url) {
+      return url;
+    }
+    try {
+      const refreshUrl = new URL(url, window.location.origin);
+      refreshUrl.searchParams.set('lc_refresh', Date.now().toString());
+      return refreshUrl.toString();
+    } catch {
+      const hasQuery = url.includes('?');
+      const hashIndex = url.indexOf('#');
+      const suffix = `${hasQuery ? '&' : '?'}lc_refresh=${Date.now()}`;
+      if (hashIndex === -1) {
+        return url + suffix;
+      }
+      return url.slice(0, hashIndex) + suffix + url.slice(hashIndex);
+    }
+  };
+
   toolbarApi = mountToolbar(
     ui.toolbar,
     {
@@ -489,12 +509,17 @@ async function main() {
             return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
           }
           const nextSettings = response.settings as SettingsData | undefined;
-          if (nextSettings?.title) {
-            postTitle = nextSettings.title;
-            toolbarApi?.update({ postTitle });
-            window.dispatchEvent(
-              new CustomEvent('lc-title-updated', { detail: { title: nextSettings.title } })
-            );
+          const resolvedTitle =
+            nextSettings && typeof nextSettings.title === 'string'
+              ? nextSettings.title
+              : nextTitle;
+          postTitle = resolvedTitle;
+          toolbarApi?.update({ postTitle });
+          window.dispatchEvent(
+            new CustomEvent('lc-title-updated', { detail: { title: resolvedTitle } })
+          );
+          if (iframePreviewUrl) {
+            ui.iframe.src = buildPreviewRefreshUrl(iframePreviewUrl);
           }
           return { ok: true };
         } catch (error: any) {
@@ -511,7 +536,6 @@ async function main() {
   createSnackbar('info', __( 'Loading Monaco...', 'wp-livecode' ), NOTICE_IDS.monaco);
 
   // iframe
-  const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
   ui.iframe.src = iframePreviewUrl;
   const targetOrigin = new URL(iframePreviewUrl).origin;
 
