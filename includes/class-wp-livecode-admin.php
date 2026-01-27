@@ -68,12 +68,19 @@ class Admin {
 			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
 		}
 
-		$post = get_default_post_to_edit( $post_type, true );
-		if ( ! $post || is_wp_error( $post ) ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => 'draft',
+				'post_title'  => __( 'Untitled LiveCode', 'wp-livecode' ),
+			),
+			true
+		);
+		if ( is_wp_error( $post_id ) ) {
 			return;
 		}
 
-		wp_safe_redirect( Post_Type::get_editor_url( (int) $post->ID ) );
+		wp_safe_redirect( Post_Type::get_editor_url( (int) $post_id ) );
 		exit;
 	}
 
