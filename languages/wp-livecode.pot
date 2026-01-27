@@ -747,7 +747,11 @@ msgid "Mobile"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "TailwindCSS enabled"
+msgid "Tailwind CSS"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Editing in Tailwind CSS mode"
 msgstr ""
 
 #: assets/dist/main.js:1
