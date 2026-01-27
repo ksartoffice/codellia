@@ -172,11 +172,8 @@ function Toolbar({
         >
           <IconLabel label={__( 'Redo', 'wp-livecode' )} svg={ICONS.redo} />
         </button>
-        <button className="lc-btn lc-btn-stack" type="button" onClick={onToggleEditor}>
-          <IconLabel label={toggleLabel} svg={toggleIcon} />
-        </button>
       </div>
-      <div className="lc-toolbarGroup lc-toolbarRight">
+      <div className="lc-toolbarGroup lc-toolbarCenter">
         <div className="lc-toolbarCluster lc-toolbarCluster-viewports">
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportDesktop ? ' is-active' : ''}`}
@@ -209,7 +206,14 @@ function Toolbar({
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.mobile }} />
           </button>
         </div>
-        <div className="lc-toolbarCluster lc-toolbarCluster-main">
+        <div className="lc-toolbarCluster lc-toolbarCluster-divider">
+          <button className="lc-btn lc-btn-stack" type="button" onClick={onToggleEditor}>
+            <IconLabel label={toggleLabel} svg={toggleIcon} />
+          </button>
+        </div>
+      </div>
+      <div className="lc-toolbarGroup lc-toolbarRight">
+        <div className="lc-toolbarCluster">
           {tailwindEnabled ? (
             <span
               className="lc-tailwindBadge"
@@ -232,12 +236,15 @@ function Toolbar({
             </a>
           ) : null}
           <button
-            className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+            className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
             type="button"
-            onClick={onSave}
-            title={__( 'Save', 'wp-livecode' )}
+            onClick={onToggleSettings}
+            title={settingsTitle}
+            aria-label={settingsTitle}
+            aria-expanded={settingsOpen}
+            aria-controls="lc-settings"
           >
-            <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
+            <IconLabel label={settingsLabel} svg={ICONS.settings} />
           </button>
           <button
             className="lc-btn lc-btn-stack"
@@ -248,15 +255,12 @@ function Toolbar({
             <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
           </button>
           <button
-            className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
+            className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
             type="button"
-            onClick={onToggleSettings}
-            title={settingsTitle}
-            aria-label={settingsTitle}
-            aria-expanded={settingsOpen}
-            aria-controls="lc-settings"
+            onClick={onSave}
+            title={__( 'Save', 'wp-livecode' )}
           >
-            <IconLabel label={settingsLabel} svg={ICONS.settings} />
+            <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
           </button>
         </div>
       </div>

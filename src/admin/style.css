@@ -68,7 +68,7 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 8px;
 }
 
-.lc-toolbarCluster-main {
+.lc-toolbarCluster-divider {
   padding-left: 10px;
   border-left: 1px solid #2b2f38;
 }
