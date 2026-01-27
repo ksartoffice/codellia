@@ -284,6 +284,42 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #3b7cff;
 }
 
+.lc-splitButton {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.lc-splitButton-main {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.lc-splitButton-toggle {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+  min-width: 32px;
+  padding: 6px;
+}
+
+.lc-splitMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #2b3340;
+  background: #1a1f27;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  z-index: 30;
+}
+
+.lc-splitMenuPlaceholder {
+  height: 6px;
+}
+
 .lc-btn-muted {
   background: #2a303b;
   border-color: #39414f;

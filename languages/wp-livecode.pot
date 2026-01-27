@@ -529,6 +529,10 @@ msgid "Save"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Save options"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Select"
 msgstr ""
 
@@ -784,4 +788,5 @@ msgstr ""
 #: assets/dist/main.js:23
 msgid "You may have unsaved changes."
 msgstr ""
+
 

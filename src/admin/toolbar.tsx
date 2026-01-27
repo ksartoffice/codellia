@@ -9,6 +9,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import {
   ChevronLeft,
+  ChevronDown,
   Download,
   ExternalLink,
   Monitor,
@@ -94,6 +95,9 @@ const ICONS = {
   settings: renderLucideIcon(Settings, {
     class: 'lucide lucide-settings-icon lucide-settings',
   }),
+  chevronDown: renderLucideIcon(ChevronDown, {
+    class: 'lucide lucide-chevron-down-icon lucide-chevron-down',
+  }),
   close: renderLucideIcon(X, {
     class: 'lucide lucide-x-icon lucide-x',
   }),
@@ -136,6 +140,7 @@ function Toolbar({
   const [titleDraft, setTitleDraft] = useState('');
   const [titleError, setTitleError] = useState('');
   const [titleSaving, setTitleSaving] = useState(false);
+  const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const toggleLabel = editorCollapsed
     ? __( 'Show code', 'wp-livecode' )
     : __( 'Hide code', 'wp-livecode' );
@@ -210,6 +215,22 @@ function Toolbar({
       event.preventDefault();
       closeTitleModal();
     }
+  };
+
+  useEffect(() => {
+    if (!saveMenuOpen) {
+      return;
+    }
+    const handleDocClick = () => setSaveMenuOpen(false);
+    document.addEventListener('click', handleDocClick);
+    return () => {
+      document.removeEventListener('click', handleDocClick);
+    };
+  }, [saveMenuOpen]);
+
+  const toggleSaveMenu = (event: { stopPropagation: () => void }) => {
+    event.stopPropagation();
+    setSaveMenuOpen((prev) => !prev);
   };
   return (
     <Fragment>
@@ -402,13 +423,35 @@ function Toolbar({
           >
             <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
           </button>
-          <button
-            className={`lc-btn lc-btn-save${hasUnsavedChanges ? ' is-unsaved' : ''}`}
-            type="button"
-            onClick={onSave}
-          >
-            <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
-          </button>
+          <div className="lc-splitButton">
+            <button
+              className={`lc-btn lc-btn-save lc-splitButton-main${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+              type="button"
+              onClick={onSave}
+            >
+              <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
+            </button>
+            <button
+              className={`lc-btn lc-btn-save lc-btn-icon lc-splitButton-toggle${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={saveMenuOpen}
+              aria-label={__( 'Save options', 'wp-livecode' )}
+              data-tooltip={__( 'Save options', 'wp-livecode' )}
+              onClick={toggleSaveMenu}
+            >
+              <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.chevronDown }} />
+            </button>
+            {saveMenuOpen ? (
+              <div
+                className="lc-splitMenu"
+                role="menu"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div className="lc-splitMenuPlaceholder" aria-hidden="true" />
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </Fragment>

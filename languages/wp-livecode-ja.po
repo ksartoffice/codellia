@@ -487,6 +487,10 @@ msgid "Save"
 msgstr "保存"
 
 #: assets/dist/main.js:1
+msgid "Save options"
+msgstr "保存オプション"
+
+#: assets/dist/main.js:1
 msgid "Select"
 msgstr "選択"
 
@@ -784,4 +788,5 @@ msgstr "アンインストール時に LiveCode 投稿をすべて削除しま�
 #: includes/class-wp-livecode-admin.php:161
 msgid "WP LiveCode Settings"
 msgstr "WP LiveCode 設定"
+
 
