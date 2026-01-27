@@ -1,28 +1,28 @@
 import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-export type ElementsSettingsAttribute = {
+export type ElementPanelAttribute = {
   name: string;
   value: string;
 };
 
-export type ElementsSettingsApi = {
+export type ElementPanelApi = {
   subscribeSelection: (listener: (lcId: string | null) => void) => () => void;
   subscribeContentChange: (listener: () => void) => () => void;
   getElementText: (lcId: string) => string | null;
   updateElementText: (lcId: string, text: string) => boolean;
-  getElementAttributes?: (lcId: string) => ElementsSettingsAttribute[] | null;
-  updateElementAttributes?: (lcId: string, attributes: ElementsSettingsAttribute[]) => boolean;
+  getElementAttributes?: (lcId: string) => ElementPanelAttribute[] | null;
+  updateElementAttributes?: (lcId: string, attributes: ElementPanelAttribute[]) => boolean;
 };
 
-type ElementsSettingsPanelProps = {
-  api?: ElementsSettingsApi;
+type ElementPanelProps = {
+  api?: ElementPanelApi;
 };
 
-export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
+export function ElementPanel({ api }: ElementPanelProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [value, setValue] = useState('');
-  const [attributes, setAttributes] = useState<ElementsSettingsAttribute[]>([]);
+  const [attributes, setAttributes] = useState<ElementPanelAttribute[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const [hasText, setHasText] = useState(false);
   const fieldId = 'lc-elements-text';
@@ -82,7 +82,7 @@ export function ElementsSettingsPanel({ api }: ElementsSettingsPanelProps) {
   };
 
   const commitAttributes = useCallback(
-    (nextAttributes: ElementsSettingsAttribute[]) => {
+    (nextAttributes: ElementPanelAttribute[]) => {
       setAttributes(nextAttributes);
       if (!selectedId || !api?.updateElementAttributes) {
         return;

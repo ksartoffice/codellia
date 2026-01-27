@@ -1,7 +1,7 @@
 import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
-type DesignSettingsPanelProps = {
+type SettingsPanelProps = {
   postId: number;
   jsEnabled: boolean;
   onToggleJs: (enabled: boolean) => void;
@@ -28,7 +28,7 @@ type DesignSettingsPanelProps = {
 const MAX_EXTERNAL_SCRIPTS = 5;
 const MAX_EXTERNAL_STYLES = 5;
 
-export function DesignSettingsPanel({
+export function SettingsPanel({
   postId,
   jsEnabled,
   onToggleJs,
@@ -50,7 +50,7 @@ export function DesignSettingsPanel({
   error,
   externalScriptsError,
   externalStylesError,
-}: DesignSettingsPanelProps) {
+}: SettingsPanelProps) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
   const copyTimeoutRef = useRef<number | null>(null);
   const shortcodeInputRef = useRef<HTMLInputElement | null>(null);

@@ -11,8 +11,8 @@ import {
 import { __ } from '@wordpress/i18n';
 import { X } from 'lucide';
 import { renderLucideIcon } from '../lucide-icons';
-import { DesignSettingsPanel } from './design-settings';
-import { ElementsSettingsPanel, type ElementsSettingsApi } from './elements-settings';
+import { SettingsPanel } from './settings-panel';
+import { ElementPanel, type ElementPanelApi } from './element-panel';
 
 type SettingsOption = {
   value: string;
@@ -74,7 +74,7 @@ type SettingsConfig = {
   onTabChange?: (tab: SettingsTab) => void;
   onSettingsUpdate?: (settings: SettingsData) => void;
   onClosePanel?: () => void;
-  elementsApi?: ElementsSettingsApi;
+  elementsApi?: ElementPanelApi;
 };
 
 type UpdateResponse = {
@@ -86,7 +86,7 @@ type UpdateResponse = {
 
 type UpdateSettings = (updates: Record<string, any>) => Promise<UpdateResponse>;
 
-type SettingsTab = 'design' | 'elements';
+type SettingsTab = 'settings' | 'elements';
 
 const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
@@ -131,7 +131,7 @@ function SettingsSidebar({
   elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
-  const [activeTab, setActiveTab] = useState<SettingsTab>('design');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('settings');
   const resolveSinglePageEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
@@ -385,11 +385,11 @@ function SettingsSidebar({
         aria-label={__( 'Settings tabs', 'wp-livecode' )}
       >
         <button
-          className={`lc-settingsTab${activeTab === 'design' ? ' is-active' : ''}`}
+          className={`lc-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
           type="button"
           role="tab"
-          aria-selected={activeTab === 'design'}
-          onClick={() => handleTabChange('design')}
+          aria-selected={activeTab === 'settings'}
+          onClick={() => handleTabChange('settings')}
         >
           {__( 'Settings', 'wp-livecode' )}
         </button>
@@ -423,8 +423,8 @@ function SettingsSidebar({
     <Fragment>
       {tabsNode}
 
-      {activeTab === 'design' ? (
-        <DesignSettingsPanel
+      {activeTab === 'settings' ? (
+        <SettingsPanel
           postId={postId}
           jsEnabled={jsEnabled}
           onToggleJs={handleJsToggle}
@@ -449,7 +449,7 @@ function SettingsSidebar({
         />
       ) : null}
 
-      {activeTab === 'elements' ? <ElementsSettingsPanel api={elementsApi} /> : null}
+      {activeTab === 'elements' ? <ElementPanel api={elementsApi} /> : null}
 
     </Fragment>
   );

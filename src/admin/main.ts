@@ -252,7 +252,7 @@ async function main() {
   let editorCollapsed = false;
   let settingsOpen = false;
   let viewportMode: ViewportMode = 'desktop';
-  let activeSettingsTab: 'post' | 'design' | 'elements' = 'post';
+  let activeSettingsTab: 'settings' | 'elements' = 'settings';
   let jsEnabled = Boolean(cfg.jsEnabled);
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
   let shortcodeEnabled = Boolean(cfg.settingsData?.shortcodeEnabled);
