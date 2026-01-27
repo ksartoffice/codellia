@@ -647,6 +647,18 @@ msgid "Redo"
 msgstr "やり直す"
 
 #: assets/dist/main.js:1
+msgid "Desktop"
+msgstr "デスクトップ"
+
+#: assets/dist/main.js:1
+msgid "Tablet"
+msgstr "タブレット"
+
+#: assets/dist/main.js:1
+msgid "Mobile"
+msgstr "モバイル"
+
+#: assets/dist/main.js:1
 msgid "TailwindCSS enabled"
 msgstr "TailwindCSS が有効"
 

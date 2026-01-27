@@ -683,6 +683,18 @@ msgid "Redo"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Desktop"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Tablet"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Mobile"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "TailwindCSS enabled"
 msgstr ""
 
