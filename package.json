@@ -23,6 +23,7 @@
     "@wordpress/i18n": "^6.10.0",
     "@wordpress/icons": "^11.4.0",
     "emmet-monaco-es": "^5.6.1",
+    "lucide": "^0.563.0",
     "monaco-editor": "^0.55.1",
     "parse5": "^8.0.0",
     "react": "^18.3.1",
