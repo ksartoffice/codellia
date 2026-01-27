@@ -1,4 +1,5 @@
 ﻿import './style.css';
+import { createElement, createRoot, render } from '@wordpress/element';
 import { initSettings, type SettingsData } from './settings';
 import { runSetupWizard } from './setup-wizard';
 import { mountToolbar, type ToolbarApi, type ViewportMode } from './toolbar';
@@ -55,12 +56,112 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
+const NOTICE_STORE = 'core/notices';
+const NOTICE_IDS = {
+  monaco: 'lc-monaco',
+  save: 'lc-save',
+  export: 'lc-export',
+  tailwind: 'lc-tailwind',
+};
+const NOTICE_SUCCESS_DURATION_MS = 3000;
+const NOTICE_ERROR_DURATION_MS = 5000;
+const NOTICE_OFFSET_GAP_PX = 8;
+
+const syncNoticeOffset = () => {
+  const toolbar = document.querySelector('.lc-toolbar') as HTMLElement | null;
+  if (!toolbar) {
+    return;
+  }
+  const base = toolbar.getBoundingClientRect().bottom + NOTICE_OFFSET_GAP_PX;
+  const list = document.querySelector('.lc-noticeHost .components-snackbar-list') as HTMLElement | null;
+  const noticeContainer = list?.querySelector('.components-snackbar-list__notices') as HTMLElement | null;
+  const firstNotice = noticeContainer?.firstElementChild as HTMLElement | null;
+  const noticeHeight = firstNotice?.getBoundingClientRect().height ?? 0;
+  const offset = Math.max(0, Math.round(base + noticeHeight));
+  document.documentElement.style.setProperty('--lc-notice-offset-top', `${offset}px`);
+};
+
+const createSnackbar = (
+  status: 'success' | 'error' | 'info' | 'warning',
+  message: string,
+  id?: string,
+  autoDismissMs?: number
+) => {
+  if (!wp?.data?.dispatch) {
+    return;
+  }
+  const options: Record<string, any> = {
+    type: 'snackbar',
+    isDismissible: true,
+  };
+  if (id) {
+    options.id = id;
+  }
+  wp.data.dispatch(NOTICE_STORE).createNotice(status, message, options);
+  window.setTimeout(() => {
+    syncNoticeOffset();
+  }, 0);
+  if (id && autoDismissMs) {
+    window.setTimeout(() => {
+      wp.data.dispatch(NOTICE_STORE).removeNotice(id);
+      syncNoticeOffset();
+    }, autoDismissMs);
+  }
+};
+
+const removeNotice = (id: string) => {
+  if (!wp?.data?.dispatch) {
+    return;
+  }
+  wp.data.dispatch(NOTICE_STORE).removeNotice(id);
+  window.setTimeout(() => {
+    syncNoticeOffset();
+  }, 0);
+};
+
+const mountNotices = () => {
+  if (!wp?.components?.SnackbarList || !wp?.data?.useSelect) {
+    return;
+  }
+  if (document.querySelector('.lc-noticeHost')) {
+    return;
+  }
+  const host = document.createElement('div');
+  host.className = 'lc-noticeHost';
+  document.body.append(host);
+
+  const SnackbarList = wp.components.SnackbarList;
+  const useSelect = wp.data.useSelect;
+  const Notices = () => {
+    const notices = useSelect((select: any) => select(NOTICE_STORE).getNotices(), []);
+    const snackbarNotices = Array.isArray(notices)
+      ? notices.filter((notice: any) => notice.type === 'snackbar')
+      : [];
+    return createElement(SnackbarList, {
+      notices: snackbarNotices,
+      onRemove: (id: string) => removeNotice(id),
+    });
+  };
+
+  const root = typeof createRoot === 'function' ? createRoot(host) : null;
+  const node = createElement(Notices);
+  if (root) {
+    root.render(node);
+  } else {
+    render(node, host);
+  }
+  window.setTimeout(() => {
+    syncNoticeOffset();
+  }, 0);
+};
+
 async function main() {
   const cfg = window.WP_LIVECODE;
   const initialViewUrl = cfg.settingsData?.viewUrl || '';
   const postId = cfg.post_id;
   const mount = document.getElementById('wp-livecode-app');
   if (!mount) return;
+  mountNotices();
 
   const ui = buildLayout(mount);
   ui.resizer.setAttribute('role', 'separator');
@@ -148,7 +249,6 @@ async function main() {
   let jsEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
   let tailwindCss = importedGeneratedCss;
-  let saveInProgress = false;
   let editorCollapsed = false;
   let settingsOpen = false;
   let viewportMode: ViewportMode = 'desktop';
@@ -233,13 +333,6 @@ async function main() {
     syncUnsavedUi();
   };
 
-  const setStatus = (text: string) => {
-    if (saveInProgress && text === '') {
-      return;
-    }
-    toolbarApi?.update({ statusText: text });
-  };
-
   const syncElementsTabState = () => {
     preview?.sendElementsTabState(settingsOpen && activeSettingsTab === 'elements');
   };
@@ -254,11 +347,16 @@ async function main() {
 
   async function handleExport() {
     if (!htmlModel || !cssModel || !jsModel) {
-      setStatus(__( 'Export unavailable.', 'wp-livecode' ));
+      createSnackbar(
+        'error',
+        __( 'Export unavailable.', 'wp-livecode' ),
+        NOTICE_IDS.export,
+        NOTICE_ERROR_DURATION_MS
+      );
       return;
     }
 
-    setStatus(__( 'Exporting...', 'wp-livecode' ));
+    createSnackbar('info', __( 'Exporting...', 'wp-livecode' ), NOTICE_IDS.export);
 
     const result = await exportLivecode({
       apiFetch: wp.apiFetch,
@@ -279,20 +377,30 @@ async function main() {
     });
 
     if (result.ok) {
-      setStatus(__( 'Exported.', 'wp-livecode' ));
-      window.setTimeout(() => {
-        if (!saveInProgress) {
-          setStatus('');
-        }
-      }, 1200);
+      createSnackbar(
+        'success',
+        __( 'Exported.', 'wp-livecode' ),
+        NOTICE_IDS.export,
+        NOTICE_SUCCESS_DURATION_MS
+      );
       return;
     }
 
     if (result.error) {
       /* translators: %s: error message. */
-      setStatus(sprintf(__( 'Export error: %s', 'wp-livecode' ), result.error));
+      createSnackbar(
+        'error',
+        sprintf(__( 'Export error: %s', 'wp-livecode' ), result.error),
+        NOTICE_IDS.export,
+        NOTICE_ERROR_DURATION_MS
+      );
     } else {
-      setStatus(__( 'Export failed.', 'wp-livecode' ));
+      createSnackbar(
+        'error',
+        __( 'Export failed.', 'wp-livecode' ),
+        NOTICE_IDS.export,
+        NOTICE_ERROR_DURATION_MS
+      );
     }
   }
 
@@ -300,8 +408,7 @@ async function main() {
     if (!htmlModel || !cssModel) {
       return;
     }
-    saveInProgress = true;
-    setStatus(__( 'Saving...', 'wp-livecode' ));
+    createSnackbar('info', __( 'Saving...', 'wp-livecode' ), NOTICE_IDS.save);
 
     const result = await saveLivecode({
       apiFetch: wp.apiFetch,
@@ -317,20 +424,28 @@ async function main() {
 
     if (result.ok) {
       markSavedState();
-      setStatus(__( 'Saved.', 'wp-livecode' ));
-      window.setTimeout(() => {
-        if (!tailwindCompiler?.isInFlight()) {
-          setStatus('');
-        }
-      }, 1200);
+      createSnackbar(
+        'success',
+        __( 'Saved.', 'wp-livecode' ),
+        NOTICE_IDS.save,
+        NOTICE_SUCCESS_DURATION_MS
+      );
     } else if (result.error) {
       /* translators: %s: error message. */
-      setStatus(sprintf(__( 'Save error: %s', 'wp-livecode' ), result.error));
+      createSnackbar(
+        'error',
+        sprintf(__( 'Save error: %s', 'wp-livecode' ), result.error),
+        NOTICE_IDS.save,
+        NOTICE_ERROR_DURATION_MS
+      );
     } else {
-      setStatus(__( 'Save failed.', 'wp-livecode' ));
+      createSnackbar(
+        'error',
+        __( 'Save failed.', 'wp-livecode' ),
+        NOTICE_IDS.save,
+        NOTICE_ERROR_DURATION_MS
+      );
     }
-
-    saveInProgress = false;
   }
 
   toolbarApi = mountToolbar(
@@ -343,7 +458,6 @@ async function main() {
       settingsOpen,
       tailwindEnabled,
       viewportMode,
-      statusText: __( 'Loading Monaco...', 'wp-livecode' ),
       hasUnsavedChanges: false,
       viewPostUrl,
       postStatus,
@@ -358,6 +472,9 @@ async function main() {
       onViewportChange: (mode) => setViewportMode(mode),
     }
   );
+  syncNoticeOffset();
+  window.setTimeout(syncNoticeOffset, 0);
+  createSnackbar('info', __( 'Loading Monaco...', 'wp-livecode' ), NOTICE_IDS.monaco);
 
   // iframe
   const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
@@ -380,7 +497,7 @@ async function main() {
 
   ({ monaco, htmlModel, cssModel, jsModel, htmlEditor, cssEditor, jsEditor } = monacoSetup);
 
-  toolbarApi?.update({ statusText: '' });
+  removeNotice(NOTICE_IDS.monaco);
   markSavedState();
 
   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -596,12 +713,8 @@ async function main() {
       tailwindCss = css;
       preview?.sendCssUpdate(css);
     },
-    onStatus: setStatus,
-    onStatusClear: () => {
-      if (!saveInProgress) {
-        setStatus('');
-      }
-    },
+    onStatus: (text) => createSnackbar('error', text, NOTICE_IDS.tailwind, NOTICE_ERROR_DURATION_MS),
+    onStatusClear: () => removeNotice(NOTICE_IDS.tailwind),
   });
 
   sendRenderDebounced = debounce(() => preview?.sendRender(), 120);
@@ -923,6 +1036,7 @@ async function main() {
     'resize',
     debounce(() => {
       applyViewportLayout();
+      syncNoticeOffset();
     }, 100)
   );
 
@@ -979,3 +1093,4 @@ main().catch((e) => {
   // eslint-disable-next-line no-console
   console.error(e);
 });
+

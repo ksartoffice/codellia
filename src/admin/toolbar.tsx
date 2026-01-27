@@ -31,7 +31,6 @@ type ToolbarState = {
   settingsOpen: boolean;
   tailwindEnabled: boolean;
   viewportMode: ViewportMode;
-  statusText: string;
   hasUnsavedChanges: boolean;
   viewPostUrl: string;
   postStatus: string;
@@ -111,7 +110,6 @@ function Toolbar({
   editorCollapsed,
   settingsOpen,
   tailwindEnabled,
-  statusText,
   hasUnsavedChanges,
   viewPostUrl,
   postStatus,
@@ -138,9 +136,6 @@ function Toolbar({
   const isViewportDesktop = viewportMode === 'desktop';
   const isViewportTablet = viewportMode === 'tablet';
   const isViewportMobile = viewportMode === 'mobile';
-  const showUnsaved = statusText === '' && hasUnsavedChanges;
-  const statusLabel =
-    statusText || (showUnsaved ? __( 'Unsaved changes', 'wp-livecode' ) : '');
   const previewLink = buildPreviewUrl(viewPostUrl);
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
@@ -180,9 +175,6 @@ function Toolbar({
         <button className="lc-btn lc-btn-stack" type="button" onClick={onToggleEditor}>
           <IconLabel label={toggleLabel} svg={toggleIcon} />
         </button>
-      </div>
-      <div className="lc-toolbarGroup lc-toolbarCenter">
-        <span className={`lc-status${showUnsaved ? ' is-unsaved' : ''}`}>{statusLabel}</span>
       </div>
       <div className="lc-toolbarGroup lc-toolbarRight">
         <div className="lc-toolbarCluster lc-toolbarCluster-viewports">
