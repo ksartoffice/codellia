@@ -4,3 +4,5 @@
 /vendor
 /.wordpress
 /.wordpress-tests-lib
+/languages/*.mo
+/languages/*.json
