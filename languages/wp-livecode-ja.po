@@ -439,6 +439,10 @@ msgid "Elements"
 msgstr "要素"
 
 #: assets/dist/main.js:1
+msgid "Select an element in the preview to edit its content and attributes."
+msgstr "プレビューで要素を選択すると、内容と属性を編集できます。"
+
+#: assets/dist/main.js:1
 msgid "Text"
 msgstr "テキスト"
 
@@ -820,6 +824,7 @@ msgstr "アンインストール時に LiveCode 投稿をすべて削除しま�
 #: includes/class-wp-livecode-admin.php:161
 msgid "WP LiveCode Settings"
 msgstr "WP LiveCode 設定"
+
 
 
 

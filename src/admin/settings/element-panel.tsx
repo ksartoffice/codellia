@@ -120,7 +120,14 @@ export function ElementPanel({ api }: ElementPanelProps) {
   };
 
   if (!isVisible) {
-    return null;
+    return (
+      <div className="lc-settingsSection">
+        <div className="lc-settingsSectionTitle">{__( 'Elements', 'wp-livecode' )}</div>
+        <div className="lc-settingsHelp">
+          {__( 'Select an element in the preview to edit its content and attributes.', 'wp-livecode' )}
+        </div>
+      </div>
+    );
   }
 
   return (
