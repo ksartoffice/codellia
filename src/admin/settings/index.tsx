@@ -594,11 +594,22 @@ function SettingsSidebar({
     }
     setDesignError('');
     setShortcodeEnabled(enabled);
+    const shouldEnableSinglePage = !enabled && !singlePageEnabled;
+    if (shouldEnableSinglePage) {
+      setSinglePageEnabled(true);
+    }
     try {
-      await updateSettings({ shortcodeEnabled: enabled });
+      if (shouldEnableSinglePage) {
+        await updateSettings({ shortcodeEnabled: enabled, singlePageEnabled: true });
+      } else {
+        await updateSettings({ shortcodeEnabled: enabled });
+      }
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
+      if (shouldEnableSinglePage) {
+        setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
+      }
     }
   };
 
