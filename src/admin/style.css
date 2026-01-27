@@ -85,6 +85,28 @@ body.admin_page_wp-livecode #wpbody-content {
   justify-self: end;
 }
 
+.lc-noticeHost {
+  position: fixed;
+  right: 16px;
+  left: auto;
+  top: var(--lc-notice-offset-top, 64px);
+  z-index: 100000;
+}
+
+.lc-noticeHost .components-snackbar-list {
+  position: fixed;
+  right: 16px !important;
+  top: var(--lc-notice-offset-top, 64px);
+  left: auto !important;
+  bottom: auto;
+  margin: 0;
+  width: auto;
+}
+
+.lc-noticeHost .components-snackbar-list__notices {
+  align-items: flex-end;
+}
+
 .lc-btn {
   display: inline-flex;
   align-items: center;
@@ -245,16 +267,6 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #fff;
   box-shadow: 0 0 0 2px rgba(47, 111, 235, 0.55);
 } */
-
-.lc-status {
-  color: #9aa1ab;
-  font-size: 12px;
-}
-
-.lc-status.is-unsaved {
-  font-size: 11px;
-  color: #8fa2c2;
-}
 
 .lc-tailwindBadge {
   display: inline-flex;

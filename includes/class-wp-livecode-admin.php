@@ -324,7 +324,7 @@ class Admin {
 		wp_register_script(
 			'wp-livecode-admin',
 			WP_LIVECODE_URL . 'assets/dist/main.js',
-			array( 'wp-livecode-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n' ),
+			array( 'wp-livecode-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n', 'wp-data', 'wp-components', 'wp-notices' ),
 			WP_LIVECODE_VERSION,
 			true
 		);
@@ -338,6 +338,7 @@ class Admin {
 
 		wp_enqueue_script( 'wp-livecode-admin' );
 		wp_enqueue_style( 'wp-livecode-admin' );
+		wp_enqueue_style( 'wp-components' );
 		wp_enqueue_media();
 
 		wp_set_script_translations(
