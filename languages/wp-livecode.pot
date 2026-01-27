@@ -529,6 +529,38 @@ msgid "Save"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Save draft"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Update"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Save for review"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Update as private"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Publish"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Move to review"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Make private"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Revert to draft"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Save options"
 msgstr ""
 
@@ -788,5 +820,6 @@ msgstr ""
 #: assets/dist/main.js:23
 msgid "You may have unsaved changes."
 msgstr ""
+
 
 

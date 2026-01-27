@@ -307,7 +307,7 @@ body.admin_page_wp-livecode #wpbody-content {
   position: absolute;
   right: 0;
   top: calc(100% + 6px);
-  min-width: 180px;
+  min-width: 220px;
   padding: 8px;
   border-radius: 10px;
   border: 1px solid #2b3340;
@@ -316,8 +316,47 @@ body.admin_page_wp-livecode #wpbody-content {
   z-index: 30;
 }
 
-.lc-splitMenuPlaceholder {
-  height: 6px;
+.lc-splitMenuTitle {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8f96a2;
+  padding: 2px 6px 8px;
+}
+
+.lc-splitMenuList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-splitMenuItem {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #e6e8ea;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.lc-splitMenuItem:hover,
+.lc-splitMenuItem:focus-visible {
+  border-color: #343c4a;
+  background: #202734;
+}
+
+.lc-splitMenuItem:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.lc-splitMenuLabel {
+  text-align: left;
 }
 
 .lc-btn-muted {

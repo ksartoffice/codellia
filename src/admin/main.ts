@@ -405,9 +405,9 @@ async function main() {
     }
   }
 
-  async function handleSave() {
+  async function handleSave(): Promise<{ ok: boolean; error?: string }> {
     if (!htmlModel || !cssModel) {
-      return;
+      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
     }
     createSnackbar('info', __( 'Saving...', 'wp-livecode' ), NOTICE_IDS.save);
 
@@ -431,6 +431,7 @@ async function main() {
         NOTICE_IDS.save,
         NOTICE_SUCCESS_DURATION_MS
       );
+      return { ok: true };
     } else if (result.error) {
       /* translators: %s: error message. */
       createSnackbar(
@@ -439,6 +440,7 @@ async function main() {
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
+      return { ok: false, error: result.error };
     } else {
       createSnackbar(
         'error',
@@ -446,6 +448,7 @@ async function main() {
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
+      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
     }
   }
 
@@ -521,6 +524,40 @@ async function main() {
           if (iframePreviewUrl) {
             ui.iframe.src = buildPreviewRefreshUrl(iframePreviewUrl);
           }
+          return { ok: true };
+        } catch (error: any) {
+          return {
+            ok: false,
+            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+          };
+        }
+      },
+      onUpdateStatus: async (nextStatus) => {
+        if (!cfg.settingsRestUrl || !wp?.apiFetch) {
+          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+        }
+        const updates =
+          nextStatus === 'private'
+            ? { status: 'private', visibility: 'private' }
+            : { status: nextStatus, visibility: 'public' };
+        try {
+          const response = await wp.apiFetch({
+            url: cfg.settingsRestUrl,
+            method: 'POST',
+            data: {
+              post_id: postId,
+              updates,
+            },
+          });
+          if (!response?.ok) {
+            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+          }
+          const nextSettings = response.settings as SettingsData | undefined;
+          postStatus =
+            nextSettings && typeof nextSettings.status === 'string'
+              ? nextSettings.status
+              : nextStatus;
+          toolbarApi?.update({ postStatus });
           return { ok: true };
         } catch (error: any) {
           return {

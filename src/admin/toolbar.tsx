@@ -45,11 +45,15 @@ type ToolbarHandlers = {
   onUndo: () => void;
   onRedo: () => void;
   onToggleEditor: () => void;
-  onSave: () => void;
+  onSave: () => Promise<{ ok: boolean; error?: string }>;
   onExport: () => void;
   onToggleSettings: () => void;
   onViewportChange: (mode: ViewportMode) => void;
   onUpdateTitle: (title: string) => Promise<{ ok: boolean; error?: string }>;
+  onUpdateStatus: (status: 'draft' | 'pending' | 'private' | 'publish') => Promise<{
+    ok: boolean;
+    error?: string;
+  }>;
 };
 
 export type ToolbarApi = {
@@ -135,12 +139,14 @@ function Toolbar({
   onToggleSettings,
   onViewportChange,
   onUpdateTitle,
+  onUpdateStatus,
 }: ToolbarState & ToolbarHandlers) {
   const [titleModalOpen, setTitleModalOpen] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const [titleError, setTitleError] = useState('');
   const [titleSaving, setTitleSaving] = useState(false);
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false);
   const toggleLabel = editorCollapsed
     ? __( 'Show code', 'wp-livecode' )
     : __( 'Hide code', 'wp-livecode' );
@@ -164,6 +170,22 @@ function Toolbar({
   const draftSuffix = isDraft ? __( '(Draft)', 'wp-livecode' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
+  const normalizedStatus =
+    postStatus === 'auto-draft' ? 'draft' : postStatus === 'future' ? 'publish' : postStatus;
+  const saveLabel =
+    normalizedStatus === 'draft'
+      ? __( 'Save draft', 'wp-livecode' )
+      : normalizedStatus === 'pending'
+        ? __( 'Save for review', 'wp-livecode' )
+        : normalizedStatus === 'private'
+          ? __( 'Update as private', 'wp-livecode' )
+          : __( 'Update', 'wp-livecode' );
+  const statusActions = [
+    { value: 'publish' as const, label: __( 'Publish', 'wp-livecode' ) },
+    { value: 'pending' as const, label: __( 'Move to review', 'wp-livecode' ) },
+    { value: 'private' as const, label: __( 'Make private', 'wp-livecode' ) },
+    { value: 'draft' as const, label: __( 'Revert to draft', 'wp-livecode' ) },
+  ];
   useEffect(() => {
     if (!titleModalOpen) {
       setTitleDraft(resolvedTitle);
@@ -231,6 +253,29 @@ function Toolbar({
   const toggleSaveMenu = (event: { stopPropagation: () => void }) => {
     event.stopPropagation();
     setSaveMenuOpen((prev) => !prev);
+  };
+
+  const handleStatusSelect = async (
+    event: { stopPropagation: () => void },
+    nextStatus: 'draft' | 'pending' | 'private' | 'publish'
+  ) => {
+    event.stopPropagation();
+    if (statusSaving || nextStatus === normalizedStatus) {
+      return;
+    }
+    setStatusSaving(true);
+    if (hasUnsavedChanges) {
+      const saveResult = await onSave();
+      if (!saveResult.ok) {
+        setStatusSaving(false);
+        return;
+      }
+    }
+    const result = await onUpdateStatus(nextStatus);
+    setStatusSaving(false);
+    if (result.ok) {
+      setSaveMenuOpen(false);
+    }
   };
   return (
     <Fragment>
@@ -429,7 +474,7 @@ function Toolbar({
               type="button"
               onClick={onSave}
             >
-              <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
+              <IconLabel label={saveLabel} svg={ICONS.save} />
             </button>
             <button
               className={`lc-btn lc-btn-save lc-btn-icon lc-splitButton-toggle${hasUnsavedChanges ? ' is-unsaved' : ''}`}
@@ -448,7 +493,31 @@ function Toolbar({
                 role="menu"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="lc-splitMenuPlaceholder" aria-hidden="true" />
+                <div className="lc-splitMenuTitle">
+                  {normalizedStatus === 'draft'
+                    ? __( 'Draft', 'wp-livecode' )
+                    : normalizedStatus === 'pending'
+                      ? __( 'Pending', 'wp-livecode' )
+                      : normalizedStatus === 'private'
+                        ? __( 'Private', 'wp-livecode' )
+                        : __( 'Published', 'wp-livecode' )}
+                </div>
+                <div className="lc-splitMenuList">
+                  {statusActions
+                    .filter((option) => option.value !== normalizedStatus)
+                    .map((option) => (
+                      <button
+                        key={option.value}
+                        className="lc-splitMenuItem"
+                        type="button"
+                        role="menuitem"
+                        onClick={(event) => handleStatusSelect(event, option.value)}
+                        disabled={statusSaving}
+                      >
+                        <span className="lc-splitMenuLabel">{option.label}</span>
+                      </button>
+                    ))}
+                </div>
               </div>
             ) : null}
           </div>
