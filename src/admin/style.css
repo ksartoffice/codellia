@@ -166,6 +166,7 @@ body.admin_page_wp-livecode #wpbody-content {
   min-width: 0;
   gap: 6px;
   flex: 0 1 auto;
+  cursor: pointer;
 }
 
 .lc-toolbarTitleText {
@@ -180,6 +181,16 @@ body.admin_page_wp-livecode #wpbody-content {
   flex: 0 0 auto;
   color: #c4cbd6;
   font-weight: 500;
+}
+
+.lc-toolbarTitle:hover {
+  border-color: #3a4252;
+  background: #1a1f27;
+}
+
+.lc-toolbarTitle:focus-visible {
+  outline: 2px solid #4c84ff;
+  outline-offset: 2px;
 }
 
 .lc-btnIcon {

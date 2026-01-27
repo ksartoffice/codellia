@@ -353,6 +353,22 @@ function SettingsSidebar({
   }, [settings.title]);
 
   useEffect(() => {
+    const handleTitleUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<{ title?: string }>).detail;
+      if (!detail) {
+        return;
+      }
+      const nextTitle = detail.title || '';
+      setSettings((prev) => ({ ...prev, title: nextTitle }));
+      setTitleDraft(nextTitle);
+    };
+    window.addEventListener('lc-title-updated', handleTitleUpdated as EventListener);
+    return () => {
+      window.removeEventListener('lc-title-updated', handleTitleUpdated as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
     setJsEnabled(Boolean(settings.jsEnabled));
   }, [settings.jsEnabled]);
 

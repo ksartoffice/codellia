@@ -472,6 +472,38 @@ async function main() {
       onExport: handleExport,
       onToggleSettings: () => setSettingsOpen(!settingsOpen),
       onViewportChange: (mode) => setViewportMode(mode),
+      onUpdateTitle: async (nextTitle) => {
+        if (!cfg.settingsRestUrl || !wp?.apiFetch) {
+          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+        }
+        try {
+          const response = await wp.apiFetch({
+            url: cfg.settingsRestUrl,
+            method: 'POST',
+            data: {
+              post_id: postId,
+              updates: { title: nextTitle },
+            },
+          });
+          if (!response?.ok) {
+            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+          }
+          const nextSettings = response.settings as SettingsData | undefined;
+          if (nextSettings?.title) {
+            postTitle = nextSettings.title;
+            toolbarApi?.update({ postTitle });
+            window.dispatchEvent(
+              new CustomEvent('lc-title-updated', { detail: { title: nextSettings.title } })
+            );
+          }
+          return { ok: true };
+        } catch (error: any) {
+          return {
+            ok: false,
+            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+          };
+        }
+      },
     }
   );
   syncNoticeOffset();

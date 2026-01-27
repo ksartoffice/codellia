@@ -3,6 +3,8 @@ import {
   Fragment,
   createRoot,
   render,
+  useEffect,
+  useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
@@ -18,6 +20,7 @@ import {
   Smartphone,
   Tablet,
   Undo2,
+  X,
 } from 'lucide';
 import { renderLucideIcon } from './lucide-icons';
 
@@ -45,6 +48,7 @@ type ToolbarHandlers = {
   onExport: () => void;
   onToggleSettings: () => void;
   onViewportChange: (mode: ViewportMode) => void;
+  onUpdateTitle: (title: string) => Promise<{ ok: boolean; error?: string }>;
 };
 
 export type ToolbarApi = {
@@ -90,6 +94,9 @@ const ICONS = {
   settings: renderLucideIcon(Settings, {
     class: 'lucide lucide-settings-icon lucide-settings',
   }),
+  close: renderLucideIcon(X, {
+    class: 'lucide lucide-x-icon lucide-x',
+  }),
 };
 
 const TAILWIND_ICON =
@@ -123,7 +130,12 @@ function Toolbar({
   onExport,
   onToggleSettings,
   onViewportChange,
+  onUpdateTitle,
 }: ToolbarState & ToolbarHandlers) {
+  const [titleModalOpen, setTitleModalOpen] = useState(false);
+  const [titleDraft, setTitleDraft] = useState('');
+  const [titleError, setTitleError] = useState('');
+  const [titleSaving, setTitleSaving] = useState(false);
   const toggleLabel = editorCollapsed
     ? __( 'Show code', 'wp-livecode' )
     : __( 'Hide code', 'wp-livecode' );
@@ -147,6 +159,58 @@ function Toolbar({
   const draftSuffix = isDraft ? __( '(Draft)', 'wp-livecode' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
+  useEffect(() => {
+    if (!titleModalOpen) {
+      setTitleDraft(resolvedTitle);
+      setTitleError('');
+    }
+  }, [resolvedTitle, titleModalOpen]);
+
+  const openTitleModal = () => {
+    setTitleDraft(resolvedTitle);
+    setTitleError('');
+    setTitleModalOpen(true);
+  };
+
+  const closeTitleModal = () => {
+    if (titleSaving) {
+      return;
+    }
+    setTitleModalOpen(false);
+  };
+
+  const handleTitleSave = async () => {
+    if (titleSaving) {
+      return;
+    }
+    setTitleSaving(true);
+    setTitleError('');
+    const result = await onUpdateTitle(titleDraft.trim());
+    if (result.ok) {
+      setTitleModalOpen(false);
+    } else {
+      setTitleError(result.error || __( 'Update failed.', 'wp-livecode' ));
+    }
+    setTitleSaving(false);
+  };
+
+  const handleTitleKeyDown = (event: { key: string; preventDefault: () => void }) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openTitleModal();
+    }
+  };
+
+  const handleTitleInputKeyDown = (event: { key: string; preventDefault: () => void }) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleTitleSave();
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeTitleModal();
+    }
+  };
   return (
     <Fragment>
       <div className="lc-toolbarGroup lc-toolbarLeft">
@@ -184,7 +248,15 @@ function Toolbar({
         </button>
       </div>
       <div className="lc-toolbarGroup lc-toolbarCenter">
-        <div className="lc-toolbarTitle" data-tooltip={titleTooltip} aria-label={titleText}>
+        <div
+          className="lc-toolbarTitle"
+          data-tooltip={titleTooltip}
+          aria-label={titleText}
+          role="button"
+          tabIndex={0}
+          onClick={openTitleModal}
+          onKeyDown={handleTitleKeyDown}
+        >
           <span className="lc-toolbarTitleText">{resolvedTitle}</span>
           {draftSuffix ? (
             <span className="lc-toolbarTitleSuffix">{draftSuffix}</span>
@@ -234,6 +306,61 @@ function Toolbar({
           </button>
         </div>
       </div>
+      {titleModalOpen ? (
+        <div className="lc-modal">
+          <div className="lc-modalBackdrop" onClick={closeTitleModal} />
+          <div className="lc-modalDialog" role="dialog" aria-modal="true">
+            <div className="lc-modalHeader">
+              <div className="lc-modalTitle">{__( 'Title', 'wp-livecode' )}</div>
+              <button
+                className="lc-modalClose"
+                type="button"
+                onClick={closeTitleModal}
+                aria-label={__( 'Close', 'wp-livecode' )}
+              >
+                <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS.close }} />
+              </button>
+            </div>
+            <div className="lc-modalBody">
+              <form
+                className="lc-modalForm"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleTitleSave();
+                }}
+              >
+                <div className="lc-formGroup">
+                  <label className="lc-formLabel" htmlFor="lc-title-modal-input">
+                    {__( 'Title', 'wp-livecode' )}
+                  </label>
+                  <input
+                    id="lc-title-modal-input"
+                    className="lc-formInput"
+                    type="text"
+                    value={titleDraft}
+                    onChange={(event) => setTitleDraft(event.target.value)}
+                    onKeyDown={handleTitleInputKeyDown}
+                    autoFocus
+                  />
+                </div>
+                {titleError ? <div className="lc-modalError">{titleError}</div> : null}
+                <div className="lc-modalActions">
+                  <button
+                    className="lc-btn lc-btn-secondary"
+                    type="button"
+                    onClick={closeTitleModal}
+                  >
+                    {__( 'Cancel', 'wp-livecode' )}
+                  </button>
+                  <button className="lc-btn lc-btn-primary" type="submit" disabled={titleSaving}>
+                    {titleSaving ? __( 'Saving...', 'wp-livecode' ) : __( 'Save', 'wp-livecode' )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="lc-toolbarGroup lc-toolbarRight">
         <div className="lc-toolbarCluster">
           {tailwindEnabled ? (
