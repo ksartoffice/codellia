@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
   ChevronLeft,
   ChevronDown,
@@ -170,8 +170,7 @@ function Toolbar({
   const draftSuffix = isDraft ? __( '(Draft)', 'wp-livecode' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
-  const normalizedStatus =
-    postStatus === 'auto-draft' ? 'draft' : postStatus === 'future' ? 'publish' : postStatus;
+  const normalizedStatus = postStatus === 'auto-draft' ? 'draft' : postStatus;
   const saveLabel =
     normalizedStatus === 'draft'
       ? __( 'Save draft', 'wp-livecode' )
@@ -494,13 +493,19 @@ function Toolbar({
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="lc-splitMenuTitle">
-                  {normalizedStatus === 'draft'
-                    ? __( 'Draft', 'wp-livecode' )
-                    : normalizedStatus === 'pending'
-                      ? __( 'Pending', 'wp-livecode' )
-                      : normalizedStatus === 'private'
-                        ? __( 'Private', 'wp-livecode' )
-                        : __( 'Published', 'wp-livecode' )}
+                  {/* translators: %s: current status label. */}
+                  {sprintf(
+                    __( 'Status: %s', 'wp-livecode' ),
+                    normalizedStatus === 'draft'
+                      ? __( 'Draft', 'wp-livecode' )
+                      : normalizedStatus === 'pending'
+                        ? __( 'Pending', 'wp-livecode' )
+                        : normalizedStatus === 'private'
+                          ? __( 'Private', 'wp-livecode' )
+                          : normalizedStatus === 'future'
+                            ? __( 'Scheduled', 'wp-livecode' )
+                            : __( 'Published', 'wp-livecode' )
+                  )}
                 </div>
                 <div className="lc-splitMenuList">
                   {statusActions

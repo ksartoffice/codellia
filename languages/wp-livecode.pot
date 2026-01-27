@@ -517,6 +517,14 @@ msgid "Status"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Status: %s"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Scheduled"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Password"
 msgstr ""
 
@@ -820,6 +828,7 @@ msgstr ""
 #: assets/dist/main.js:23
 msgid "You may have unsaved changes."
 msgstr ""
+
 
 
 
