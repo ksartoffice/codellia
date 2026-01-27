@@ -86,7 +86,7 @@ type UpdateResponse = {
 
 type UpdateSettings = (updates: Record<string, any>) => Promise<UpdateResponse>;
 
-type SettingsTab = 'post' | 'design' | 'elements';
+type SettingsTab = 'design' | 'elements';
 
 const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
@@ -131,7 +131,7 @@ function SettingsSidebar({
   elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
-  const [activeTab, setActiveTab] = useState<SettingsTab>('post');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('design');
   const resolveSinglePageEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
@@ -385,22 +385,13 @@ function SettingsSidebar({
         aria-label={__( 'Settings tabs', 'wp-livecode' )}
       >
         <button
-          className={`lc-settingsTab${activeTab === 'post' ? ' is-active' : ''}`}
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'post'}
-          onClick={() => handleTabChange('post')}
-        >
-          {__( 'Post', 'wp-livecode' )}
-        </button>
-        <button
           className={`lc-settingsTab${activeTab === 'design' ? ' is-active' : ''}`}
           type="button"
           role="tab"
           aria-selected={activeTab === 'design'}
           onClick={() => handleTabChange('design')}
         >
-          {__( 'Design', 'wp-livecode' )}
+          {__( 'Settings', 'wp-livecode' )}
         </button>
         <button
           className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}

@@ -539,14 +539,6 @@ msgid "Settings tabs"
 msgstr "設定タブ"
 
 #: assets/dist/main.js:1
-msgid "Post"
-msgstr "投稿"
-
-#: assets/dist/main.js:1
-msgid "Design"
-msgstr "デザイン"
-
-#: assets/dist/main.js:1
 msgid "Close settings panel"
 msgstr "設定パネルを閉じる"
 
