@@ -345,28 +345,6 @@ function SettingsSidebar({
   const [externalScriptsError, setExternalScriptsError] = useState('');
   const [externalStyles, setExternalStyles] = useState<string[]>(data.externalStyles || []);
   const [externalStylesError, setExternalStylesError] = useState('');
-  const [titleDraft, setTitleDraft] = useState(settings.title || '');
-  const [titleError, setTitleError] = useState('');
-
-  useEffect(() => {
-    setTitleDraft(settings.title || '');
-  }, [settings.title]);
-
-  useEffect(() => {
-    const handleTitleUpdated = (event: Event) => {
-      const detail = (event as CustomEvent<{ title?: string }>).detail;
-      if (!detail) {
-        return;
-      }
-      const nextTitle = detail.title || '';
-      setSettings((prev) => ({ ...prev, title: nextTitle }));
-      setTitleDraft(nextTitle);
-    };
-    window.addEventListener('lc-title-updated', handleTitleUpdated as EventListener);
-    return () => {
-      window.removeEventListener('lc-title-updated', handleTitleUpdated as EventListener);
-    };
-  }, []);
 
   useEffect(() => {
     setJsEnabled(Boolean(settings.jsEnabled));
@@ -596,15 +574,6 @@ function SettingsSidebar({
     }
   };
 
-  const handleTitleSave = async () => {
-    setTitleError('');
-    try {
-      await updateSettings({ title: titleDraft });
-    } catch (err: any) {
-      setTitleError(err?.message || String(err));
-    }
-  };
-
   const statusText = useMemo(
     () => getStatusLabel(settings),
     [settings.status, settings.visibility, settings.statusOptions]
@@ -667,33 +636,6 @@ function SettingsSidebar({
 
       {activeTab === 'post' ? (
         <Fragment>
-          <div className="lc-settingsTitle">
-            <div className="lc-settingsTitleLabel">{__( 'Title', 'wp-livecode' )}</div>
-            <div className="lc-settingsTitleRow">
-              <input
-                type="text"
-                className="lc-formInput lc-settingsTitleInput"
-                value={titleDraft}
-                onChange={(event) => setTitleDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault();
-                    handleTitleSave();
-                  }
-                }}
-              />
-              <button
-                className="lc-btn lc-btn-primary lc-settingsTitleSave"
-                type="button"
-                onClick={handleTitleSave}
-                disabled={titleDraft === settings.title}
-              >
-                {__( 'Save', 'wp-livecode' )}
-              </button>
-            </div>
-            <div className="lc-settingsTitleError">{titleError}</div>
-          </div>
-
           <SettingsSection title={__( 'Post', 'wp-livecode' )}>
             <SettingsItem
               label={__( 'Status', 'wp-livecode' )}
