@@ -1,7 +1,7 @@
 ﻿import './style.css';
 import { initSettings, type SettingsData } from './settings';
 import { runSetupWizard } from './setup-wizard';
-import { mountToolbar, type ToolbarApi } from './toolbar';
+import { mountToolbar, type ToolbarApi, type ViewportMode } from './toolbar';
 import { buildLayout } from './layout';
 import { initMonacoEditors, type MonacoType } from './monaco';
 import { createPreviewController, type PreviewController } from './preview';
@@ -151,6 +151,7 @@ async function main() {
   let saveInProgress = false;
   let editorCollapsed = false;
   let settingsOpen = false;
+  let viewportMode: ViewportMode = 'desktop';
   let activeSettingsTab: 'post' | 'design' | 'elements' = 'post';
   let jsEnabled = Boolean(cfg.jsEnabled);
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
@@ -248,6 +249,7 @@ async function main() {
     ui.app.classList.toggle('is-settings-open', open);
     toolbarApi?.update({ settingsOpen: open });
     syncElementsTabState();
+    applyViewportLayout();
   };
 
   async function handleExport() {
@@ -340,6 +342,7 @@ async function main() {
       editorCollapsed,
       settingsOpen,
       tailwindEnabled,
+      viewportMode,
       statusText: __( 'Loading Monaco...', 'wp-livecode' ),
       hasUnsavedChanges: false,
       viewPostUrl,
@@ -352,6 +355,7 @@ async function main() {
       onSave: handleSave,
       onExport: handleExport,
       onToggleSettings: () => setSettingsOpen(!settingsOpen),
+      onViewportChange: (mode) => setViewportMode(mode),
     }
   );
 
@@ -716,6 +720,11 @@ async function main() {
 
   const minLeftWidth = 320;
   const minRightWidth = 360;
+  const desktopMinPreviewWidth = 1024;
+  const viewportPresetWidths = {
+    mobile: 375,
+    tablet: 768,
+  } as const;
   const minEditorPaneHeight = 160;
   let isResizing = false;
   let isEditorResizing = false;
@@ -726,6 +735,58 @@ async function main() {
   let lastLeftWidth = ui.left.getBoundingClientRect().width || minLeftWidth;
   let lastHtmlHeight = 0;
   let editorSplitActive = false;
+
+  const getMainAvailableWidth = () => {
+    const mainRect = ui.main.getBoundingClientRect();
+    const settingsWidth = ui.settings.getBoundingClientRect().width;
+    const resizerWidth = ui.resizer.getBoundingClientRect().width;
+    return Math.max(0, mainRect.width - settingsWidth - resizerWidth);
+  };
+
+  const isStackedLayout = () => {
+    return window.getComputedStyle(ui.main).flexDirection === 'column';
+  };
+
+  const ensurePreviewWidth = (minWidth: number) => {
+    if (editorCollapsed || isStackedLayout()) {
+      return;
+    }
+    const available = getMainAvailableWidth();
+    const minPreviewWidth = Math.max(minRightWidth, minWidth);
+    const maxLeftWidth = Math.max(minLeftWidth, available - minPreviewWidth);
+    const currentLeft = ui.left.getBoundingClientRect().width;
+    const nextLeft = Math.min(currentLeft, maxLeftWidth);
+    if (Math.abs(currentLeft - nextLeft) > 0.5) {
+      setLeftWidth(nextLeft);
+    }
+  };
+
+  function applyViewportLayout(forceFit = false) {
+    if (viewportMode === 'desktop') {
+      ui.iframe.style.width = '100%';
+      ui.iframe.style.margin = '0';
+      if (forceFit) {
+        ensurePreviewWidth(desktopMinPreviewWidth);
+      }
+      return;
+    }
+
+    const presetWidth = viewportPresetWidths[viewportMode];
+    ui.iframe.style.width = `${presetWidth}px`;
+    ui.iframe.style.margin = '0 auto';
+    if (forceFit) {
+      ensurePreviewWidth(presetWidth);
+    }
+  }
+
+  function setViewportMode(mode: ViewportMode) {
+    if (viewportMode === mode) {
+      return;
+    }
+    viewportMode = mode;
+    toolbarApi?.update({ viewportMode });
+    applyViewportLayout(true);
+  }
 
   const setLeftWidth = (width: number) => {
     const clamped = Math.max(minLeftWidth, width);
@@ -780,6 +841,7 @@ async function main() {
       clearLeftWidth();
       setLeftWidth(lastLeftWidth || minLeftWidth);
     }
+    applyViewportLayout();
   };
 
   const onPointerMove = (event: PointerEvent) => {
@@ -857,9 +919,17 @@ async function main() {
   ui.editorResizer.addEventListener('pointerup', stopEditorResizing);
   ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
 
+  window.addEventListener(
+    'resize',
+    debounce(() => {
+      applyViewportLayout();
+    }, 100)
+  );
+
   setTailwindEnabled(tailwindEnabled);
   setJsEnabled(jsEnabled);
   preview?.flushPendingJsAction();
+  applyViewportLayout(true);
 
   htmlModel.onDidChangeContent(() => {
     preview?.resetCanonicalCache();

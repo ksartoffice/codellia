@@ -21,6 +21,8 @@ import {
 } from 'lucide';
 import { renderLucideIcon } from './lucide-icons';
 
+export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
+
 type ToolbarState = {
   backUrl: string;
   canUndo: boolean;
@@ -28,6 +30,7 @@ type ToolbarState = {
   editorCollapsed: boolean;
   settingsOpen: boolean;
   tailwindEnabled: boolean;
+  viewportMode: ViewportMode;
   statusText: string;
   hasUnsavedChanges: boolean;
   viewPostUrl: string;
@@ -41,6 +44,7 @@ type ToolbarHandlers = {
   onSave: () => void;
   onExport: () => void;
   onToggleSettings: () => void;
+  onViewportChange: (mode: ViewportMode) => void;
 };
 
 export type ToolbarApi = {
@@ -111,12 +115,14 @@ function Toolbar({
   hasUnsavedChanges,
   viewPostUrl,
   postStatus,
+  viewportMode,
   onUndo,
   onRedo,
   onToggleEditor,
   onSave,
   onExport,
   onToggleSettings,
+  onViewportChange,
 }: ToolbarState & ToolbarHandlers) {
   const toggleLabel = editorCollapsed ? __( 'Show', 'wp-livecode' ) : __( 'Hide', 'wp-livecode' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
@@ -129,6 +135,9 @@ function Toolbar({
   const viewportDesktopLabel = __( 'Desktop', 'wp-livecode' );
   const viewportTabletLabel = __( 'Tablet', 'wp-livecode' );
   const viewportMobileLabel = __( 'Mobile', 'wp-livecode' );
+  const isViewportDesktop = viewportMode === 'desktop';
+  const isViewportTablet = viewportMode === 'tablet';
+  const isViewportMobile = viewportMode === 'mobile';
   const showUnsaved = statusText === '' && hasUnsavedChanges;
   const statusLabel =
     statusText || (showUnsaved ? __( 'Unsaved changes', 'wp-livecode' ) : '');
@@ -178,26 +187,32 @@ function Toolbar({
       <div className="lc-toolbarGroup lc-toolbarRight">
         <div className="lc-toolbarCluster lc-toolbarCluster-viewports">
           <button
-            className="lc-btn lc-btn-icon lc-btn-viewport"
+            className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportDesktop ? ' is-active' : ''}`}
             type="button"
             title={viewportDesktopLabel}
             aria-label={viewportDesktopLabel}
+            aria-pressed={isViewportDesktop}
+            onClick={() => onViewportChange('desktop')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.desktop }} />
           </button>
           <button
-            className="lc-btn lc-btn-icon lc-btn-viewport"
+            className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportTablet ? ' is-active' : ''}`}
             type="button"
             title={viewportTabletLabel}
             aria-label={viewportTabletLabel}
+            aria-pressed={isViewportTablet}
+            onClick={() => onViewportChange('tablet')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.tablet }} />
           </button>
           <button
-            className="lc-btn lc-btn-icon lc-btn-viewport"
+            className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportMobile ? ' is-active' : ''}`}
             type="button"
             title={viewportMobileLabel}
             aria-label={viewportMobileLabel}
+            aria-pressed={isViewportMobile}
+            onClick={() => onViewportChange('mobile')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.mobile }} />
           </button>
