@@ -1,4 +1,4 @@
-# Copyright (C) 2026 WP LiveCode
+﻿# Copyright (C) 2026 WP LiveCode
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
@@ -651,6 +651,18 @@ msgid "Hide"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Show code"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Hide code"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "(Draft)"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "View post"
 msgstr ""
 
@@ -772,3 +784,4 @@ msgstr ""
 #: assets/dist/main.js:23
 msgid "You may have unsaved changes."
 msgstr ""
+

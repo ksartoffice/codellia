@@ -124,7 +124,9 @@ function Toolbar({
   onToggleSettings,
   onViewportChange,
 }: ToolbarState & ToolbarHandlers) {
-  const toggleLabel = editorCollapsed ? __( 'Show', 'wp-livecode' ) : __( 'Hide', 'wp-livecode' );
+  const toggleLabel = editorCollapsed
+    ? __( 'Show code', 'wp-livecode' )
+    : __( 'Hide code', 'wp-livecode' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
@@ -142,7 +144,7 @@ function Toolbar({
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
   const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'wp-livecode' );
-  const draftSuffix = isDraft ? __( '（下書き）', 'wp-livecode' ) : '';
+  const draftSuffix = isDraft ? __( '(Draft)', 'wp-livecode' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
   return (

@@ -1,4 +1,4 @@
-msgid ""
+﻿msgid ""
 msgstr ""
 "Project-Id-Version: WP LiveCode 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-livecode\n"
@@ -609,6 +609,18 @@ msgid "Hide"
 msgstr "非表示"
 
 #: assets/dist/main.js:1
+msgid "Show code"
+msgstr "コードの表示"
+
+#: assets/dist/main.js:1
+msgid "Hide code"
+msgstr "コードの非表示"
+
+#: assets/dist/main.js:1
+msgid "(Draft)"
+msgstr "（下書き）"
+
+#: assets/dist/main.js:1
 msgid "View post"
 msgstr "投稿を表示"
 
@@ -772,3 +784,4 @@ msgstr "アンインストール時に LiveCode 投稿をすべて削除しま�
 #: includes/class-wp-livecode-admin.php:161
 msgid "WP LiveCode Settings"
 msgstr "WP LiveCode 設定"
+
