@@ -34,6 +34,7 @@ type ToolbarState = {
   hasUnsavedChanges: boolean;
   viewPostUrl: string;
   postStatus: string;
+  postTitle: string;
 };
 
 type ToolbarHandlers = {
@@ -113,6 +114,7 @@ function Toolbar({
   hasUnsavedChanges,
   viewPostUrl,
   postStatus,
+  postTitle,
   viewportMode,
   onUndo,
   onRedo,
@@ -125,6 +127,7 @@ function Toolbar({
   const toggleLabel = editorCollapsed ? __( 'Show', 'wp-livecode' ) : __( 'Hide', 'wp-livecode' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
+  const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
   const viewPostLabel = isPublished ? __( 'View post', 'wp-livecode' ) : __( 'Preview', 'wp-livecode' );
   const settingsTitle = settingsOpen
     ? __( 'Close settings', 'wp-livecode' )
@@ -138,6 +141,10 @@ function Toolbar({
   const previewLink = buildPreviewUrl(viewPostUrl);
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
+  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'wp-livecode' );
+  const draftSuffix = isDraft ? __( '（下書き）', 'wp-livecode' ) : '';
+  const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
+  const titleTooltip = resolvedTitle;
   return (
     <Fragment>
       <div className="lc-toolbarGroup lc-toolbarLeft">
@@ -175,6 +182,12 @@ function Toolbar({
         </button>
       </div>
       <div className="lc-toolbarGroup lc-toolbarCenter">
+        <div className="lc-toolbarTitle" data-tooltip={titleTooltip} aria-label={titleText}>
+          <span className="lc-toolbarTitleText">{resolvedTitle}</span>
+          {draftSuffix ? (
+            <span className="lc-toolbarTitleSuffix">{draftSuffix}</span>
+          ) : null}
+        </div>
         <div className="lc-toolbarCluster lc-toolbarCluster-viewports">
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportDesktop ? ' is-active' : ''}`}

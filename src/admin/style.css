@@ -122,11 +122,11 @@ body.admin_page_wp-livecode #wpbody-content {
   text-decoration: none;
 }
 
-.lc-btn[data-tooltip] {
+.lc-toolbar [data-tooltip] {
   position: relative;
 }
 
-.lc-btn[data-tooltip]::after {
+.lc-toolbar [data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
   left: 50%;
@@ -146,10 +146,40 @@ body.admin_page_wp-livecode #wpbody-content {
   z-index: 5;
 }
 
-.lc-btn[data-tooltip]:hover::after,
-.lc-btn[data-tooltip]:focus-visible::after {
+.lc-toolbar [data-tooltip]:hover::after,
+.lc-toolbar [data-tooltip]:focus-visible::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+.lc-toolbarTitle {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #2b2f38;
+  background: #141821;
+  color: #e6e8ea;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  flex: 0 1 auto;
+}
+
+.lc-toolbarTitleText {
+  max-width: clamp(120px, 28vw, 240px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.lc-toolbarTitleSuffix {
+  flex: 0 0 auto;
+  color: #c4cbd6;
+  font-weight: 500;
 }
 
 .lc-btnIcon {

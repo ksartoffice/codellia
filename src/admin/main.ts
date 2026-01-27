@@ -271,6 +271,7 @@ async function main() {
   const canEditJs = Boolean(cfg.canEditJs);
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
+  let postTitle = cfg.settingsData?.title || '';
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -461,6 +462,7 @@ async function main() {
       hasUnsavedChanges: false,
       viewPostUrl,
       postStatus,
+      postTitle,
     },
     {
       onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
@@ -819,8 +821,9 @@ async function main() {
         viewPostUrl = nextSettings.viewUrl;
       }
       postStatus = nextSettings.status || postStatus;
+      postTitle = nextSettings.title || postTitle;
       singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
-      toolbarApi?.update({ viewPostUrl, postStatus });
+      toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
     },
     onClosePanel: () => setSettingsOpen(false),
     elementsApi,
