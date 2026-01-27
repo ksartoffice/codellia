@@ -94,7 +94,6 @@ type ModalProps = {
 
 type ActiveModal =
   | 'status'
-  | 'featured'
   | null;
 
 type SettingsTab = 'post' | 'design' | 'elements';
@@ -302,106 +301,6 @@ function StatusModal({
         <div className="lc-modalActions">
           <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
             {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function FeaturedModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [imageId, setImageId] = useState(
-    settings.featuredImageId ? String(settings.featuredImageId) : ''
-  );
-  const [imageUrl, setImageUrl] = useState(settings.featuredImageUrl || '');
-  const [imageAlt, setImageAlt] = useState(settings.featuredImageAlt || '');
-  const [error, setError] = useState('');
-  const media = (window as any).wp?.media;
-
-  const handleSelect = () => {
-    if (!media) return;
-    const frame = media({
-      title: __( 'Select featured image', 'wp-livecode' ),
-      button: { text: __( 'Select', 'wp-livecode' ) },
-      multiple: false,
-    });
-    frame.on('select', () => {
-      const attachment = frame.state().get('selection').first()?.toJSON();
-      if (!attachment) return;
-      setImageId(String(attachment.id || ''));
-      setImageUrl(attachment.sizes?.medium?.url || attachment.url || '');
-      setImageAlt(attachment.alt || '');
-    });
-    frame.open();
-  };
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      const featuredImageId = Number(imageId || 0);
-      await updateSettings({ featuredImageId });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  const handleRemove = async () => {
-    setError('');
-    try {
-      await updateSettings({ featuredImageId: 0 });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Featured image', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-featurePreview">
-          {imageUrl ? (
-            <img src={imageUrl} alt={imageAlt} />
-          ) : (
-            __( 'No image set.', 'wp-livecode' )
-          )}
-        </div>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Image', 'wp-livecode' )}</div>
-          <button className="lc-btn" type="button" onClick={handleSelect} disabled={!media}>
-            {__( 'Select from media library', 'wp-livecode' )}
-          </button>
-          <input
-            type="number"
-            className="lc-formInput"
-            placeholder={__( 'Attachment ID', 'wp-livecode' )}
-            value={imageId}
-            onChange={(event) => setImageId(event.target.value)}
-          />
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button
-            className="lc-btn lc-btn-danger"
-            type="button"
-            onClick={handleRemove}
-            disabled={!settings.featuredImageId}
-          >
-            {__( 'Remove', 'wp-livecode' )}
           </button>
           <button className="lc-btn lc-btn-primary" type="submit">
             {__( 'Save', 'wp-livecode' )}
@@ -803,23 +702,6 @@ function SettingsSidebar({
             />
           </SettingsSection>
 
-          <SettingsSection title={__( 'Featured image', 'wp-livecode' )}>
-            <SettingsItem
-              label={__( 'Featured image', 'wp-livecode' )}
-              value={
-                settings.featuredImageUrl ? (
-                  <img
-                    src={settings.featuredImageUrl}
-                    alt={settings.featuredImageAlt || ''}
-                    className="lc-featureThumb"
-                  />
-                ) : (
-                  __( 'Set', 'wp-livecode' )
-                )
-              }
-              onClick={() => setActiveModal('featured')}
-            />
-          </SettingsSection>
 
         </Fragment>
       ) : null}
@@ -854,9 +736,6 @@ function SettingsSidebar({
 
       {activeTab === 'post' && activeModal === 'status' ? (
         <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
-      {activeTab === 'post' && activeModal === 'featured' ? (
-        <FeaturedModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
       ) : null}
     </Fragment>
   );

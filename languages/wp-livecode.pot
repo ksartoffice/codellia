@@ -529,31 +529,7 @@ msgid "Save"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Select featured image"
-msgstr ""
-
-#: assets/dist/main.js:1
 msgid "Select"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Featured image"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "No image set."
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Image"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Select from media library"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Attachment ID"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -574,10 +550,6 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Title"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Set"
 msgstr ""
 
 #: assets/dist/main.js:1
