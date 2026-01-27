@@ -122,6 +122,36 @@ body.admin_page_wp-livecode #wpbody-content {
   text-decoration: none;
 }
 
+.lc-btn[data-tooltip] {
+  position: relative;
+}
+
+.lc-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%) translateY(-4px);
+  background: #0b0d12;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 5;
+}
+
+.lc-btn[data-tooltip]:hover::after,
+.lc-btn[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 .lc-btnIcon {
   display: inline-flex;
   align-items: center;

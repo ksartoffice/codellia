@@ -126,7 +126,6 @@ function Toolbar({
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const viewPostLabel = isPublished ? __( 'View post', 'wp-livecode' ) : __( 'Preview', 'wp-livecode' );
-  const settingsLabel = settingsOpen ? __( 'Close', 'wp-livecode' ) : __( 'Settings', 'wp-livecode' );
   const settingsTitle = settingsOpen
     ? __( 'Close settings', 'wp-livecode' )
     : __( 'Settings', 'wp-livecode' );
@@ -146,7 +145,7 @@ function Toolbar({
           className="lc-btn lc-btn-back"
           href={backUrl}
           aria-label={__( 'Back to WordPress', 'wp-livecode' )}
-          title={__( 'Back to WordPress', 'wp-livecode' )}
+          data-tooltip={__( 'Back to WordPress', 'wp-livecode' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
           <span
@@ -155,22 +154,24 @@ function Toolbar({
           />
         </a>
         <button
-          className={`lc-btn lc-btn-muted lc-btn-stack${canUndo ? ' is-active' : ''}`}
+          className={`lc-btn lc-btn-muted lc-btn-icon${canUndo ? ' is-active' : ''}`}
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          title={__( 'Undo', 'wp-livecode' )}
+          aria-label={__( 'Undo', 'wp-livecode' )}
+          data-tooltip={__( 'Undo', 'wp-livecode' )}
         >
-          <IconLabel label={__( 'Undo', 'wp-livecode' )} svg={ICONS.undo} />
+          <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.undo }} />
         </button>
         <button
-          className={`lc-btn lc-btn-muted lc-btn-stack${canRedo ? ' is-active' : ''}`}
+          className={`lc-btn lc-btn-muted lc-btn-icon${canRedo ? ' is-active' : ''}`}
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          title={__( 'Redo', 'wp-livecode' )}
+          aria-label={__( 'Redo', 'wp-livecode' )}
+          data-tooltip={__( 'Redo', 'wp-livecode' )}
         >
-          <IconLabel label={__( 'Redo', 'wp-livecode' )} svg={ICONS.redo} />
+          <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.redo }} />
         </button>
       </div>
       <div className="lc-toolbarGroup lc-toolbarCenter">
@@ -178,9 +179,9 @@ function Toolbar({
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportDesktop ? ' is-active' : ''}`}
             type="button"
-            title={viewportDesktopLabel}
             aria-label={viewportDesktopLabel}
             aria-pressed={isViewportDesktop}
+            data-tooltip={viewportDesktopLabel}
             onClick={() => onViewportChange('desktop')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.desktop }} />
@@ -188,9 +189,9 @@ function Toolbar({
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportTablet ? ' is-active' : ''}`}
             type="button"
-            title={viewportTabletLabel}
             aria-label={viewportTabletLabel}
             aria-pressed={isViewportTablet}
+            data-tooltip={viewportTabletLabel}
             onClick={() => onViewportChange('tablet')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.tablet }} />
@@ -198,17 +199,23 @@ function Toolbar({
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportMobile ? ' is-active' : ''}`}
             type="button"
-            title={viewportMobileLabel}
             aria-label={viewportMobileLabel}
             aria-pressed={isViewportMobile}
+            data-tooltip={viewportMobileLabel}
             onClick={() => onViewportChange('mobile')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.mobile }} />
           </button>
         </div>
         <div className="lc-toolbarCluster lc-toolbarCluster-divider">
-          <button className="lc-btn lc-btn-stack" type="button" onClick={onToggleEditor}>
-            <IconLabel label={toggleLabel} svg={toggleIcon} />
+          <button
+            className="lc-btn lc-btn-icon"
+            type="button"
+            onClick={onToggleEditor}
+            aria-label={toggleLabel}
+            data-tooltip={toggleLabel}
+          >
+            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: toggleIcon }} />
           </button>
         </div>
       </div>
@@ -225,40 +232,38 @@ function Toolbar({
           ) : null}
           {showViewPost ? (
             <a
-              className="lc-btn lc-btn-stack lc-btn-view"
+              className="lc-btn lc-btn-icon lc-btn-view"
               href={targetUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title={viewPostLabel}
               aria-label={viewPostLabel}
+              data-tooltip={viewPostLabel}
             >
-              <IconLabel label={viewPostLabel} svg={ICONS.viewPost} />
+              <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.viewPost }} />
             </a>
           ) : null}
           <button
-            className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
+            className={`lc-btn lc-btn-settings lc-btn-icon${settingsOpen ? ' is-active' : ''}`}
             type="button"
             onClick={onToggleSettings}
-            title={settingsTitle}
             aria-label={settingsTitle}
             aria-expanded={settingsOpen}
             aria-controls="lc-settings"
+            data-tooltip={settingsTitle}
           >
-            <IconLabel label={settingsLabel} svg={ICONS.settings} />
+            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.settings }} />
           </button>
           <button
-            className="lc-btn lc-btn-stack"
+            className="lc-btn"
             type="button"
             onClick={onExport}
-            title={__( 'Export', 'wp-livecode' )}
           >
             <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
           </button>
           <button
-            className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+            className={`lc-btn lc-btn-save${hasUnsavedChanges ? ' is-unsaved' : ''}`}
             type="button"
             onClick={onSave}
-            title={__( 'Save', 'wp-livecode' )}
           >
             <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
           </button>
