@@ -191,6 +191,7 @@ async function main() {
 
   const showPreviewBadgeAfterLayout = () => {
     if (isStackedLayout() || editorCollapsed) {
+      applyViewportLayout();
       showPreviewBadge();
       return;
     }
@@ -199,6 +200,7 @@ async function main() {
       if (done) return;
       done = true;
       ui.left.removeEventListener('transitionend', onTransitionEnd);
+      applyViewportLayout();
       showPreviewBadge();
     };
     const onTransitionEnd = (event: TransitionEvent) => {
