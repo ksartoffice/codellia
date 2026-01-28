@@ -7,7 +7,6 @@ export type ImportPayload = {
   tailwindEnabled: boolean;
   generatedCss?: string;
   js?: string;
-  jsEnabled?: boolean;
   externalScripts?: string[];
   externalStyles?: string[];
   shadowDomEnabled?: boolean;
@@ -28,7 +27,6 @@ export type ExportPayload = {
   tailwindEnabled: boolean;
   generatedCss: string;
   js: string;
-  jsEnabled: boolean;
   externalScripts: string[];
   externalStyles: string[];
   shadowDomEnabled: boolean;

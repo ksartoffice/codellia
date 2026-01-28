@@ -167,9 +167,6 @@
     if (externalStyles.length) {
       loadExternalStyles(externalStyles);
     }
-    if (jsEnabled && lastJsText) {
-      runJs(lastJsText);
-    }
   }
 
   function setDomSelectorEnabled(enabled) {

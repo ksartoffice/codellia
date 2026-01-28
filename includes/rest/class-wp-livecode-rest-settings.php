@@ -146,7 +146,6 @@ class Rest_Settings {
 			'formats'              => $formats,
 			'canPublish'           => current_user_can( 'publish_post', $post_id ),
 			'canTrash'             => current_user_can( 'delete_post', $post_id ),
-			'jsEnabled'            => '1' === get_post_meta( $post_id, '_lc_js_enabled', true ),
 			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_lc_shadow_dom', true ),
 			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_lc_shortcode_enabled', true ),
 			'singlePageEnabled'    => $single_page_enabled,
@@ -306,20 +305,6 @@ class Rest_Settings {
 			} else {
 				delete_post_thumbnail( $post_id );
 			}
-		}
-
-		if ( array_key_exists( 'jsEnabled', $updates ) ) {
-			if ( ! current_user_can( 'unfiltered_html' ) ) {
-				return new \WP_REST_Response(
-					array(
-						'ok'    => false,
-						'error' => __( 'Permission denied.', 'wp-livecode' ),
-					),
-					403
-				);
-			}
-			$js_enabled = rest_sanitize_boolean( $updates['jsEnabled'] );
-			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'shadowDomEnabled', $updates ) ) {

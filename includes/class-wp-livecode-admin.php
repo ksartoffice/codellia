@@ -359,7 +359,6 @@ class Admin {
 		$html       = $post ? (string) $post->post_content : '';
 		$css        = $post_id ? (string) get_post_meta( $post_id, '_lc_css', true ) : '';
 		$js         = $post_id ? (string) get_post_meta( $post_id, '_lc_js', true ) : '';
-		$js_enabled = $post_id ? get_post_meta( $post_id, '_lc_js_enabled', true ) === '1' : false;
 		$back_url   = $post_id ? get_edit_post_link( $post_id, 'raw' ) : admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 
 		$preview_token      = $post_id ? wp_create_nonce( 'lc_preview_' . $post_id ) : '';
@@ -380,7 +379,6 @@ class Admin {
 			'initialHtml'         => $html,
 			'initialCss'          => $css,
 			'initialJs'           => $js,
-			'jsEnabled'           => $js_enabled,
 			'canEditJs'           => current_user_can( 'unfiltered_html' ),
 			'previewUrl'          => $preview_url,
 			'iframePreviewUrl'    => $iframe_preview_url,
@@ -400,7 +398,10 @@ class Admin {
 
 		wp_add_inline_script(
 			'wp-livecode-admin',
-			'window.WP_LIVECODE = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
+			'window.WP_LIVECODE = ' . wp_json_encode(
+				$data,
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+			) . ';',
 			'before'
 		);
 	}

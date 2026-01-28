@@ -26,7 +26,6 @@ declare global {
       initialHtml: string;
       initialCss: string;
       initialJs: string;
-      jsEnabled: boolean;
       canEditJs: boolean;
       previewUrl: string;
       iframePreviewUrl?: string;
@@ -219,13 +218,11 @@ async function main() {
     cfg.initialHtml = payload.html;
     cfg.initialCss = payload.css;
     cfg.initialJs = payload.js ?? '';
-    cfg.jsEnabled = payload.jsEnabled ?? false;
     cfg.tailwindEnabled = payload.tailwindEnabled;
     tailwindEnabled = payload.tailwindEnabled;
     cfg.settingsData =
       importedState.settingsData ?? {
         ...cfg.settingsData,
-        jsEnabled: payload.jsEnabled ?? false,
         externalScripts: payload.externalScripts ?? [],
         externalStyles: payload.externalStyles ?? [],
         shadowDomEnabled: payload.shadowDomEnabled ?? false,
@@ -253,7 +250,8 @@ async function main() {
   let settingsOpen = false;
   let viewportMode: ViewportMode = 'desktop';
   let activeSettingsTab: 'settings' | 'elements' = 'settings';
-  let jsEnabled = Boolean(cfg.jsEnabled);
+  const canEditJs = Boolean(cfg.canEditJs);
+  let jsEnabled = true;
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
   let shortcodeEnabled = Boolean(cfg.settingsData?.shortcodeEnabled);
   let singlePageEnabled = cfg.settingsData?.singlePageEnabled ?? true;
@@ -268,7 +266,6 @@ async function main() {
   let editorsReady = false;
   let hasUnsavedChanges = false;
   let lastSaved = { html: '', css: '', js: '' };
-  const canEditJs = Boolean(cfg.canEditJs);
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
   let postTitle = cfg.settingsData?.title || '';
@@ -368,7 +365,6 @@ async function main() {
       tailwindEnabled,
       tailwindCss,
       js: jsModel.getValue(),
-      jsEnabled,
       externalScripts,
       externalStyles,
       shadowDomEnabled,
@@ -420,7 +416,6 @@ async function main() {
       tailwindEnabled,
       canEditJs,
       js: jsModel.getValue(),
-      jsEnabled,
     });
 
     if (result.ok) {
@@ -709,14 +704,14 @@ async function main() {
   };
 
   const updateJsUi = () => {
-    ui.jsTab.style.display = jsEnabled ? '' : 'none';
-    ui.jsTab.disabled = !jsEnabled;
-    ui.jsControls.style.display = jsEnabled && activeCssTab === 'js' ? '' : 'none';
-    ui.runButton.disabled = !jsEnabled;
+    ui.jsTab.style.display = canEditJs ? '' : 'none';
+    ui.jsTab.disabled = !canEditJs;
+    ui.jsControls.style.display = canEditJs && activeCssTab === 'js' ? '' : 'none';
+    ui.runButton.disabled = !jsEnabled || !canEditJs;
   };
 
   const setCssTab = (tab: 'css' | 'js') => {
-    const nextTab = tab === 'js' && !jsEnabled ? 'css' : tab;
+    const nextTab = tab === 'js' && !canEditJs ? 'css' : tab;
     activeCssTab = nextTab;
     ui.cssTab.classList.toggle('is-active', nextTab === 'css');
     ui.jsTab.classList.toggle('is-active', nextTab === 'js');
@@ -817,7 +812,7 @@ async function main() {
 
   const setJsEnabled = (enabled: boolean) => {
     jsEnabled = enabled;
-    if (!jsEnabled && activeCssTab === 'js') {
+    if ((!jsEnabled || !canEditJs) && activeCssTab === 'js') {
       setCssTab('css');
     } else {
       updateJsUi();
@@ -891,7 +886,6 @@ async function main() {
     postId,
     backUrl: cfg.backUrl,
     apiFetch: wp?.apiFetch,
-    onJsToggle: setJsEnabled,
     onShadowDomToggle: setShadowDomEnabled,
     onShortcodeToggle: (enabled) => {
       shortcodeEnabled = enabled;
@@ -923,7 +917,7 @@ async function main() {
   });
 
   ui.runButton.addEventListener('click', () => {
-    if (!jsEnabled) return;
+    if (!jsEnabled || !canEditJs) return;
     preview?.requestRunJs();
   });
 

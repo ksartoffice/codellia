@@ -91,7 +91,6 @@ type SaveParams = {
   tailwindEnabled: boolean;
   canEditJs: boolean;
   js: string;
-  jsEnabled: boolean;
 };
 
 export async function saveLivecode(
@@ -106,7 +105,6 @@ export async function saveLivecode(
     };
     if (params.canEditJs) {
       payload.js = params.js;
-      payload.jsEnabled = params.jsEnabled;
     }
     const res = await params.apiFetch({
       url: params.restUrl,
@@ -135,7 +133,6 @@ type ExportParams = {
   tailwindEnabled: boolean;
   tailwindCss: string;
   js: string;
-  jsEnabled: boolean;
   externalScripts: string[];
   externalStyles: string[];
   shadowDomEnabled: boolean;
@@ -175,7 +172,6 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
       tailwindEnabled: params.tailwindEnabled,
       generatedCss: params.tailwindEnabled ? (generatedCss || params.tailwindCss) : '',
       js: params.js,
-      jsEnabled: params.jsEnabled,
       externalScripts: [...params.externalScripts],
       externalStyles: [...params.externalStyles],
       shadowDomEnabled: params.shadowDomEnabled,

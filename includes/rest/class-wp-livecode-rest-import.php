@@ -114,20 +114,6 @@ class Rest_Import {
 			$js_input = $payload['js'];
 		}
 
-		$js_enabled = false;
-		if ( array_key_exists( 'jsEnabled', $payload ) ) {
-			if ( ! is_bool( $payload['jsEnabled'] ) ) {
-				return new \WP_REST_Response(
-					array(
-						'ok'    => false,
-						'error' => __( 'Invalid jsEnabled value.', 'wp-livecode' ),
-					),
-					400
-				);
-			}
-			$js_enabled = $payload['jsEnabled'];
-		}
-
 		$shadow_dom_enabled = false;
 		if ( array_key_exists( 'shadowDomEnabled', $payload ) ) {
 			if ( ! is_bool( $payload['shadowDomEnabled'] ) ) {
@@ -195,7 +181,7 @@ class Rest_Import {
 					400
 				);
 			}
-			$generated_css_input = $payload['generatedCss'];
+			$generated_css_input = self::sanitize_css_input( $payload['generatedCss'] );
 		}
 
 		$external_scripts = array();
@@ -257,7 +243,7 @@ class Rest_Import {
 		}
 
 		$html             = $payload['html'];
-		$css_input        = $payload['css'];
+		$css_input        = self::sanitize_css_input( $payload['css'] );
 		$tailwind_enabled = $payload['tailwindEnabled'];
 		$import_warnings  = array();
 		$imported_images  = array();
@@ -317,7 +303,7 @@ class Rest_Import {
 
 		update_post_meta( $post_id, '_lc_css', $css_input );
 		update_post_meta( $post_id, '_lc_js', $js_input );
-		update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
+		delete_post_meta( $post_id, '_lc_js_enabled' );
 		update_post_meta( $post_id, '_lc_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_lc_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
 		if ( null !== $single_page_enabled ) {
@@ -372,5 +358,18 @@ class Rest_Import {
 		}
 
 		return new \WP_REST_Response( $response, 200 );
+	}
+
+	/**
+	 * Sanitize CSS input to prevent style tag injection.
+	 *
+	 * @param string $css Raw CSS input.
+	 * @return string
+	 */
+	private static function sanitize_css_input( string $css ): string {
+		if ( '' === $css ) {
+			return '';
+		}
+		return str_ireplace( '</style', '&lt;/style', $css );
 	}
 }
