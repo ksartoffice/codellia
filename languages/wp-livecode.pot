@@ -525,7 +525,19 @@ msgid "Status: %s"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Draft"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Pending"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Scheduled"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Published"
 msgstr ""
 
 #: assets/dist/main.js:1
