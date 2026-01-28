@@ -1,4 +1,4 @@
-# Copyright (C) 2026 WP LiveCode
+﻿# Copyright (C) 2026 WP LiveCode
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
@@ -481,6 +481,10 @@ msgid "Elements"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Select an element in the preview to edit its content and attributes."
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Text"
 msgstr ""
 
@@ -517,6 +521,26 @@ msgid "Status"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Status: %s"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Draft"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Pending"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Scheduled"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Published"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Password"
 msgstr ""
 
@@ -529,19 +553,47 @@ msgid "Save"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Save draft"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Update"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Save for review"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Update as private"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Publish"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Move to review"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Make private"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Revert to draft"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Save options"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Select"
 msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Settings tabs"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Post"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Design"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -651,6 +703,18 @@ msgid "Hide"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Show code"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Hide code"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "(Draft)"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "View post"
 msgstr ""
 
@@ -659,7 +723,7 @@ msgid "Preview"
 msgstr ""
 
 #: assets/admin/editor-bridge.js
-msgid "Edit with WP LiveCode"
+msgid "Edit with LiveCode"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -695,7 +759,11 @@ msgid "Mobile"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "TailwindCSS enabled"
+msgid "Tailwind CSS"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Editing in Tailwind CSS mode"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -772,3 +840,8 @@ msgstr ""
 #: assets/dist/main.js:23
 msgid "You may have unsaved changes."
 msgstr ""
+
+
+
+
+

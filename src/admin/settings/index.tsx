@@ -6,14 +6,13 @@ import {
   render,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { X } from 'lucide';
 import { renderLucideIcon } from '../lucide-icons';
-import { DesignSettingsPanel } from './design-settings';
-import { ElementsSettingsPanel, type ElementsSettingsApi } from './elements-settings';
+import { SettingsPanel } from './settings-panel';
+import { ElementPanel, type ElementPanelApi } from './element-panel';
 
 type SettingsOption = {
   value: string;
@@ -75,7 +74,7 @@ type SettingsConfig = {
   onTabChange?: (tab: SettingsTab) => void;
   onSettingsUpdate?: (settings: SettingsData) => void;
   onClosePanel?: () => void;
-  elementsApi?: ElementsSettingsApi;
+  elementsApi?: ElementPanelApi;
 };
 
 type UpdateResponse = {
@@ -87,33 +86,7 @@ type UpdateResponse = {
 
 type UpdateSettings = (updates: Record<string, any>) => Promise<UpdateResponse>;
 
-type ModalProps = {
-  title: string;
-  onClose: () => void;
-  error?: string;
-  children: JSX.Element | JSX.Element[];
-};
-
-type ActiveModal =
-  | 'status'
-  | null;
-
-type SettingsTab = 'post' | 'design' | 'elements';
-
-type StatusPresetValue = 'draft' | 'pending' | 'private' | 'publish';
-
-type StatusPreset = {
-  value: StatusPresetValue;
-  status: string;
-  visibility: SettingsData['visibility'];
-};
-
-const STATUS_PRESETS: StatusPreset[] = [
-  { value: 'draft', status: 'draft', visibility: 'public' },
-  { value: 'pending', status: 'pending', visibility: 'public' },
-  { value: 'private', status: 'private', visibility: 'private' },
-  { value: 'publish', status: 'publish', visibility: 'public' },
-];
+type SettingsTab = 'settings' | 'elements';
 
 const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
@@ -137,174 +110,7 @@ function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-li
   return fallback;
 }
 
-function getOptionLabel(options: SettingsOption[], value: string) {
-  return options.find((option) => option.value === value)?.label || value || '-';
-}
 
-function resolveStatusPresetValue(
-  status: string,
-  visibility: SettingsData['visibility']
-): StatusPresetValue {
-  if (status === 'private' || visibility === 'private') return 'private';
-  if (status === 'pending') return 'pending';
-  if (status === 'draft' || status === 'auto-draft') return 'draft';
-  if (status === 'publish' || status === 'future') return 'publish';
-  return 'draft';
-}
-
-function getStatusLabel(settings: SettingsData) {
-  const presetValue = resolveStatusPresetValue(settings.status, settings.visibility);
-  const preset = STATUS_PRESETS.find((option) => option.value === presetValue);
-  if (preset) {
-    return getOptionLabel(settings.statusOptions, preset.value);
-  }
-  return getOptionLabel(settings.statusOptions, settings.status);
-}
-
-function SettingsSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="lc-settingsSection">
-      <div className="lc-settingsSectionTitle">{title}</div>
-      {children}
-    </div>
-  );
-}
-
-function SettingsItem({
-  label,
-  value,
-  onClick,
-}: {
-  label: string;
-  value: JSX.Element | string;
-  onClick?: () => void;
-}) {
-  const handleKeyDown = (event: { key: string; preventDefault: () => void }) => {
-    if (!onClick) return;
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onClick();
-    }
-  };
-
-  return (
-    <div
-      className={`lc-settingsItem${onClick ? ' is-clickable' : ''}`}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-    >
-      <div className="lc-settingsItemLabel">{label}</div>
-      <div className="lc-settingsItemValue">{value}</div>
-    </div>
-  );
-}
-
-function Modal({ title, onClose, error, children }: ModalProps) {
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onClose]);
-
-  return createPortal(
-    <div className="lc-modal">
-      <div className="lc-modalBackdrop" onClick={onClose} />
-      <div className="lc-modalDialog" role="dialog" aria-modal="true">
-        <div className="lc-modalHeader">
-          <div className="lc-modalTitle">{title}</div>
-          <button
-            className="lc-modalClose"
-            type="button"
-            onClick={onClose}
-            aria-label={__( 'Close', 'wp-livecode' )}
-          >
-            <span
-              aria-hidden="true"
-              dangerouslySetInnerHTML={{ __html: CLOSE_ICON }}
-            />
-          </button>
-        </div>
-        <div className="lc-modalBody">{children}</div>
-        <div className="lc-modalError">{error || ''}</div>
-      </div>
-    </div>,
-    document.body
-  );
-}
-
-function StatusModal({
-  settings,
-  onClose,
-  updateSettings,
-}: {
-  settings: SettingsData;
-  onClose: () => void;
-  updateSettings: UpdateSettings;
-}) {
-  const [presetValue, setPresetValue] = useState<StatusPresetValue>(
-    resolveStatusPresetValue(settings.status, settings.visibility)
-  );
-  const [error, setError] = useState('');
-
-  const onSubmit = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setError('');
-    try {
-      const preset = STATUS_PRESETS.find((option) => option.value === presetValue) || STATUS_PRESETS[0];
-      await updateSettings({ status: preset.status, visibility: preset.visibility });
-      onClose();
-    } catch (err: any) {
-      setError(err?.message || String(err));
-    }
-  };
-
-  return (
-    <Modal title={__( 'Status', 'wp-livecode' )} onClose={onClose} error={error}>
-      <form className="lc-modalForm" onSubmit={onSubmit}>
-        <div className="lc-formGroup">
-          <div className="lc-formLabel">{__( 'Status', 'wp-livecode' )}</div>
-          {STATUS_PRESETS.map((option) => (
-            <label className="lc-radioRow" key={option.value}>
-              <input
-                type="radio"
-                name="lc-status"
-                value={option.value}
-                checked={presetValue === option.value}
-                disabled={option.value === 'publish' && !settings.canPublish}
-                onChange={() => setPresetValue(option.value)}
-              />
-              <span className="lc-radioText">
-                {getOptionLabel(settings.statusOptions, option.value)}
-              </span>
-            </label>
-          ))}
-        </div>
-        <div className="lc-modalActions">
-          <button className="lc-btn lc-btn-secondary" type="button" onClick={onClose}>
-            {__( 'Cancel', 'wp-livecode' )}
-          </button>
-          <button className="lc-btn lc-btn-primary" type="submit">
-            {__( 'Save', 'wp-livecode' )}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
 
 function SettingsSidebar({
   data,
@@ -325,8 +131,7 @@ function SettingsSidebar({
   elementsApi,
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
-  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
-  const [activeTab, setActiveTab] = useState<SettingsTab>('post');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('settings');
   const resolveSinglePageEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
@@ -345,12 +150,6 @@ function SettingsSidebar({
   const [externalScriptsError, setExternalScriptsError] = useState('');
   const [externalStyles, setExternalStyles] = useState<string[]>(data.externalStyles || []);
   const [externalStylesError, setExternalStylesError] = useState('');
-  const [titleDraft, setTitleDraft] = useState(settings.title || '');
-  const [titleError, setTitleError] = useState('');
-
-  useEffect(() => {
-    setTitleDraft(settings.title || '');
-  }, [settings.title]);
 
   useEffect(() => {
     setJsEnabled(Boolean(settings.jsEnabled));
@@ -379,7 +178,6 @@ function SettingsSidebar({
   useEffect(() => {
     const handleOpenElementsTab = () => {
       setActiveTab('elements');
-      setActiveModal(null);
     };
     window.addEventListener('lc-open-elements-tab', handleOpenElementsTab);
     return () => {
@@ -415,7 +213,6 @@ function SettingsSidebar({
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
-    setActiveModal(null);
   };
 
   const updateSettings = useCallback(
@@ -580,20 +377,6 @@ function SettingsSidebar({
     }
   };
 
-  const handleTitleSave = async () => {
-    setTitleError('');
-    try {
-      await updateSettings({ title: titleDraft });
-    } catch (err: any) {
-      setTitleError(err?.message || String(err));
-    }
-  };
-
-  const statusText = useMemo(
-    () => getStatusLabel(settings),
-    [settings.status, settings.visibility, settings.statusOptions]
-  );
-
   const tabs = (
     <div className="lc-settingsTabsRow">
       <div
@@ -602,22 +385,13 @@ function SettingsSidebar({
         aria-label={__( 'Settings tabs', 'wp-livecode' )}
       >
         <button
-          className={`lc-settingsTab${activeTab === 'post' ? ' is-active' : ''}`}
+          className={`lc-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
           type="button"
           role="tab"
-          aria-selected={activeTab === 'post'}
-          onClick={() => handleTabChange('post')}
+          aria-selected={activeTab === 'settings'}
+          onClick={() => handleTabChange('settings')}
         >
-          {__( 'Post', 'wp-livecode' )}
-        </button>
-        <button
-          className={`lc-settingsTab${activeTab === 'design' ? ' is-active' : ''}`}
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'design'}
-          onClick={() => handleTabChange('design')}
-        >
-          {__( 'Design', 'wp-livecode' )}
+          {__( 'Settings', 'wp-livecode' )}
         </button>
         <button
           className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
@@ -649,49 +423,8 @@ function SettingsSidebar({
     <Fragment>
       {tabsNode}
 
-      {activeTab === 'post' ? (
-        <Fragment>
-          <div className="lc-settingsTitle">
-            <div className="lc-settingsTitleLabel">{__( 'Title', 'wp-livecode' )}</div>
-            <div className="lc-settingsTitleRow">
-              <input
-                type="text"
-                className="lc-formInput lc-settingsTitleInput"
-                value={titleDraft}
-                onChange={(event) => setTitleDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault();
-                    handleTitleSave();
-                  }
-                }}
-              />
-              <button
-                className="lc-btn lc-btn-primary lc-settingsTitleSave"
-                type="button"
-                onClick={handleTitleSave}
-                disabled={titleDraft === settings.title}
-              >
-                {__( 'Save', 'wp-livecode' )}
-              </button>
-            </div>
-            <div className="lc-settingsTitleError">{titleError}</div>
-          </div>
-
-          <SettingsSection title={__( 'Post', 'wp-livecode' )}>
-            <SettingsItem
-              label={__( 'Status', 'wp-livecode' )}
-              value={statusText}
-              onClick={() => setActiveModal('status')}
-            />
-          </SettingsSection>
-
-
-        </Fragment>
-      ) : null}
-
-      {activeTab === 'design' ? (
-        <DesignSettingsPanel
+      {activeTab === 'settings' ? (
+        <SettingsPanel
           postId={postId}
           jsEnabled={jsEnabled}
           onToggleJs={handleJsToggle}
@@ -716,11 +449,8 @@ function SettingsSidebar({
         />
       ) : null}
 
-      {activeTab === 'elements' ? <ElementsSettingsPanel api={elementsApi} /> : null}
+      {activeTab === 'elements' ? <ElementPanel api={elementsApi} /> : null}
 
-      {activeTab === 'post' && activeModal === 'status' ? (
-        <StatusModal settings={settings} onClose={() => setActiveModal(null)} updateSettings={updateSettings} />
-      ) : null}
     </Fragment>
   );
 }

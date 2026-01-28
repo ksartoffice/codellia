@@ -252,7 +252,7 @@ async function main() {
   let editorCollapsed = false;
   let settingsOpen = false;
   let viewportMode: ViewportMode = 'desktop';
-  let activeSettingsTab: 'post' | 'design' | 'elements' = 'post';
+  let activeSettingsTab: 'settings' | 'elements' = 'settings';
   let jsEnabled = Boolean(cfg.jsEnabled);
   let shadowDomEnabled = Boolean(cfg.settingsData?.shadowDomEnabled);
   let shortcodeEnabled = Boolean(cfg.settingsData?.shortcodeEnabled);
@@ -271,6 +271,7 @@ async function main() {
   const canEditJs = Boolean(cfg.canEditJs);
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
+  let postTitle = cfg.settingsData?.title || '';
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -404,9 +405,9 @@ async function main() {
     }
   }
 
-  async function handleSave() {
+  async function handleSave(): Promise<{ ok: boolean; error?: string }> {
     if (!htmlModel || !cssModel) {
-      return;
+      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
     }
     createSnackbar('info', __( 'Saving...', 'wp-livecode' ), NOTICE_IDS.save);
 
@@ -430,6 +431,7 @@ async function main() {
         NOTICE_IDS.save,
         NOTICE_SUCCESS_DURATION_MS
       );
+      return { ok: true };
     } else if (result.error) {
       /* translators: %s: error message. */
       createSnackbar(
@@ -438,6 +440,7 @@ async function main() {
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
+      return { ok: false, error: result.error };
     } else {
       createSnackbar(
         'error',
@@ -445,8 +448,29 @@ async function main() {
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
+      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
     }
   }
+
+  const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
+  const buildPreviewRefreshUrl = (url: string) => {
+    if (!url) {
+      return url;
+    }
+    try {
+      const refreshUrl = new URL(url, window.location.origin);
+      refreshUrl.searchParams.set('lc_refresh', Date.now().toString());
+      return refreshUrl.toString();
+    } catch {
+      const hasQuery = url.includes('?');
+      const hashIndex = url.indexOf('#');
+      const suffix = `${hasQuery ? '&' : '?'}lc_refresh=${Date.now()}`;
+      if (hashIndex === -1) {
+        return url + suffix;
+      }
+      return url.slice(0, hashIndex) + suffix + url.slice(hashIndex);
+    }
+  };
 
   toolbarApi = mountToolbar(
     ui.toolbar,
@@ -461,6 +485,7 @@ async function main() {
       hasUnsavedChanges: false,
       viewPostUrl,
       postStatus,
+      postTitle,
     },
     {
       onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
@@ -470,6 +495,77 @@ async function main() {
       onExport: handleExport,
       onToggleSettings: () => setSettingsOpen(!settingsOpen),
       onViewportChange: (mode) => setViewportMode(mode),
+      onUpdateTitle: async (nextTitle) => {
+        if (!cfg.settingsRestUrl || !wp?.apiFetch) {
+          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+        }
+        try {
+          const response = await wp.apiFetch({
+            url: cfg.settingsRestUrl,
+            method: 'POST',
+            data: {
+              post_id: postId,
+              updates: { title: nextTitle },
+            },
+          });
+          if (!response?.ok) {
+            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+          }
+          const nextSettings = response.settings as SettingsData | undefined;
+          const resolvedTitle =
+            nextSettings && typeof nextSettings.title === 'string'
+              ? nextSettings.title
+              : nextTitle;
+          postTitle = resolvedTitle;
+          toolbarApi?.update({ postTitle });
+          window.dispatchEvent(
+            new CustomEvent('lc-title-updated', { detail: { title: resolvedTitle } })
+          );
+          if (iframePreviewUrl) {
+            ui.iframe.src = buildPreviewRefreshUrl(iframePreviewUrl);
+          }
+          return { ok: true };
+        } catch (error: any) {
+          return {
+            ok: false,
+            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+          };
+        }
+      },
+      onUpdateStatus: async (nextStatus) => {
+        if (!cfg.settingsRestUrl || !wp?.apiFetch) {
+          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+        }
+        const updates =
+          nextStatus === 'private'
+            ? { status: 'private', visibility: 'private' }
+            : { status: nextStatus, visibility: 'public' };
+        try {
+          const response = await wp.apiFetch({
+            url: cfg.settingsRestUrl,
+            method: 'POST',
+            data: {
+              post_id: postId,
+              updates,
+            },
+          });
+          if (!response?.ok) {
+            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+          }
+          const nextSettings = response.settings as SettingsData | undefined;
+          postStatus =
+            nextSettings && typeof nextSettings.status === 'string'
+              ? nextSettings.status
+              : nextStatus;
+          toolbarApi?.update({ postStatus });
+          return { ok: true };
+        } catch (error: any) {
+          return {
+            ok: false,
+            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+          };
+        }
+      },
     }
   );
   syncNoticeOffset();
@@ -477,7 +573,6 @@ async function main() {
   createSnackbar('info', __( 'Loading Monaco...', 'wp-livecode' ), NOTICE_IDS.monaco);
 
   // iframe
-  const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
   ui.iframe.src = iframePreviewUrl;
   const targetOrigin = new URL(iframePreviewUrl).origin;
 
@@ -819,8 +914,9 @@ async function main() {
         viewPostUrl = nextSettings.viewUrl;
       }
       postStatus = nextSettings.status || postStatus;
+      postTitle = nextSettings.title || postTitle;
       singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
-      toolbarApi?.update({ viewPostUrl, postStatus });
+      toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
     },
     onClosePanel: () => setSettingsOpen(false),
     elementsApi,

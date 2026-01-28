@@ -68,7 +68,7 @@ body.admin_page_wp-livecode #wpbody-content {
   gap: 8px;
 }
 
-.lc-toolbarCluster-main {
+.lc-toolbarCluster-divider {
   padding-left: 10px;
   border-left: 1px solid #2b2f38;
 }
@@ -120,6 +120,77 @@ body.admin_page_wp-livecode #wpbody-content {
   line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
+}
+
+.lc-toolbar [data-tooltip] {
+  position: relative;
+}
+
+.lc-toolbar [data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%) translateY(-4px);
+  background: #0b0d12;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 5;
+}
+
+.lc-toolbar [data-tooltip]:hover::after,
+.lc-toolbar [data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.lc-toolbarTitle {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #2b2f38;
+  background: #141821;
+  color: #e6e8ea;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  flex: 0 1 auto;
+  cursor: pointer;
+}
+
+.lc-toolbarTitleText {
+  max-width: clamp(120px, 28vw, 240px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.lc-toolbarTitleSuffix {
+  flex: 0 0 auto;
+  color: #c4cbd6;
+  font-weight: 500;
+}
+
+.lc-toolbarTitle:hover {
+  border-color: #3a4252;
+  background: #1a1f27;
+}
+
+.lc-toolbarTitle:focus-visible {
+  outline: 2px solid #4c84ff;
+  outline-offset: 2px;
 }
 
 .lc-btnIcon {
@@ -213,6 +284,81 @@ body.admin_page_wp-livecode #wpbody-content {
   background: #3b7cff;
 }
 
+.lc-splitButton {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.lc-splitButton-main {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.lc-splitButton-toggle {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+  min-width: 32px;
+  padding: 6px;
+}
+
+.lc-splitMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 220px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #2b3340;
+  background: #1a1f27;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  z-index: 30;
+}
+
+.lc-splitMenuTitle {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8f96a2;
+  padding: 2px 6px 8px;
+}
+
+.lc-splitMenuList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-splitMenuItem {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #e6e8ea;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.lc-splitMenuItem:hover,
+.lc-splitMenuItem:focus-visible {
+  border-color: #343c4a;
+  background: #202734;
+}
+
+.lc-splitMenuItem:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.lc-splitMenuLabel {
+  text-align: left;
+}
+
 .lc-btn-muted {
   background: #2a303b;
   border-color: #39414f;
@@ -276,12 +422,11 @@ body.admin_page_wp-livecode #wpbody-content {
   border-radius: 999px;
   border: 1px solid #2a313d;
   background: #141a21;
-}
-
-.lc-tailwindBadge svg {
-  display: block;
-  width: 34px;
-  height: 20px;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 
 .lc-main {

@@ -3,10 +3,13 @@ import {
   Fragment,
   createRoot,
   render,
+  useEffect,
+  useState,
 } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
   ChevronLeft,
+  ChevronDown,
   Download,
   ExternalLink,
   Monitor,
@@ -18,6 +21,7 @@ import {
   Smartphone,
   Tablet,
   Undo2,
+  X,
 } from 'lucide';
 import { renderLucideIcon } from './lucide-icons';
 
@@ -34,16 +38,22 @@ type ToolbarState = {
   hasUnsavedChanges: boolean;
   viewPostUrl: string;
   postStatus: string;
+  postTitle: string;
 };
 
 type ToolbarHandlers = {
   onUndo: () => void;
   onRedo: () => void;
   onToggleEditor: () => void;
-  onSave: () => void;
+  onSave: () => Promise<{ ok: boolean; error?: string }>;
   onExport: () => void;
   onToggleSettings: () => void;
   onViewportChange: (mode: ViewportMode) => void;
+  onUpdateTitle: (title: string) => Promise<{ ok: boolean; error?: string }>;
+  onUpdateStatus: (status: 'draft' | 'pending' | 'private' | 'publish') => Promise<{
+    ok: boolean;
+    error?: string;
+  }>;
 };
 
 export type ToolbarApi = {
@@ -89,10 +99,13 @@ const ICONS = {
   settings: renderLucideIcon(Settings, {
     class: 'lucide lucide-settings-icon lucide-settings',
   }),
+  chevronDown: renderLucideIcon(ChevronDown, {
+    class: 'lucide lucide-chevron-down-icon lucide-chevron-down',
+  }),
+  close: renderLucideIcon(X, {
+    class: 'lucide lucide-x-icon lucide-x',
+  }),
 };
-
-const TAILWIND_ICON =
-  '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 54 33"><g clip-path="url(#prefix__clip0)"><path fill="#38bdf8" fill-rule="evenodd" d="M27 0c-7.2 0-11.7 3.6-13.5 10.8 2.7-3.6 5.85-4.95 9.45-4.05 2.054.513 3.522 2.004 5.147 3.653C30.744 13.09 33.808 16.2 40.5 16.2c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C36.756 3.11 33.692 0 27 0zM13.5 16.2C6.3 16.2 1.8 19.8 0 27c2.7-3.6 5.85-4.95 9.45-4.05 2.054.514 3.522 2.004 5.147 3.653C17.244 29.29 20.308 32.4 27 32.4c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.513-3.522-2.004-5.147-3.653C23.256 19.31 20.192 16.2 13.5 16.2z" clip-rule="evenodd"/></g><defs><clipPath id="prefix__clip0"><path fill="#fff" d="M0 0h54v32.4H0z"/></clipPath></defs></svg>';
 
 function IconLabel({ label, svg }: { label: string; svg: string }) {
   return (
@@ -113,6 +126,7 @@ function Toolbar({
   hasUnsavedChanges,
   viewPostUrl,
   postStatus,
+  postTitle,
   viewportMode,
   onUndo,
   onRedo,
@@ -121,12 +135,22 @@ function Toolbar({
   onExport,
   onToggleSettings,
   onViewportChange,
+  onUpdateTitle,
+  onUpdateStatus,
 }: ToolbarState & ToolbarHandlers) {
-  const toggleLabel = editorCollapsed ? __( 'Show', 'wp-livecode' ) : __( 'Hide', 'wp-livecode' );
+  const [titleModalOpen, setTitleModalOpen] = useState(false);
+  const [titleDraft, setTitleDraft] = useState('');
+  const [titleError, setTitleError] = useState('');
+  const [titleSaving, setTitleSaving] = useState(false);
+  const [saveMenuOpen, setSaveMenuOpen] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false);
+  const toggleLabel = editorCollapsed
+    ? __( 'Show code', 'wp-livecode' )
+    : __( 'Hide code', 'wp-livecode' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
+  const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
   const viewPostLabel = isPublished ? __( 'View post', 'wp-livecode' ) : __( 'Preview', 'wp-livecode' );
-  const settingsLabel = settingsOpen ? __( 'Close', 'wp-livecode' ) : __( 'Settings', 'wp-livecode' );
   const settingsTitle = settingsOpen
     ? __( 'Close settings', 'wp-livecode' )
     : __( 'Settings', 'wp-livecode' );
@@ -139,6 +163,118 @@ function Toolbar({
   const previewLink = buildPreviewUrl(viewPostUrl);
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
+  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'wp-livecode' );
+  const draftSuffix = isDraft ? __( '(Draft)', 'wp-livecode' ) : '';
+  const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
+  const titleTooltip = resolvedTitle;
+  const normalizedStatus = postStatus === 'auto-draft' ? 'draft' : postStatus;
+  const tailwindBadgeLabel = __( 'Tailwind CSS', 'wp-livecode' );
+  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'wp-livecode' );
+  const saveLabel =
+    normalizedStatus === 'draft'
+      ? __( 'Save draft', 'wp-livecode' )
+      : normalizedStatus === 'pending'
+        ? __( 'Save for review', 'wp-livecode' )
+        : normalizedStatus === 'private'
+          ? __( 'Update as private', 'wp-livecode' )
+          : __( 'Update', 'wp-livecode' );
+  const statusActions = [
+    { value: 'publish' as const, label: __( 'Publish', 'wp-livecode' ) },
+    { value: 'pending' as const, label: __( 'Move to review', 'wp-livecode' ) },
+    { value: 'private' as const, label: __( 'Make private', 'wp-livecode' ) },
+    { value: 'draft' as const, label: __( 'Revert to draft', 'wp-livecode' ) },
+  ];
+  useEffect(() => {
+    if (!titleModalOpen) {
+      setTitleDraft(resolvedTitle);
+      setTitleError('');
+    }
+  }, [resolvedTitle, titleModalOpen]);
+
+  const openTitleModal = () => {
+    setTitleDraft(resolvedTitle);
+    setTitleError('');
+    setTitleModalOpen(true);
+  };
+
+  const closeTitleModal = () => {
+    if (titleSaving) {
+      return;
+    }
+    setTitleModalOpen(false);
+  };
+
+  const handleTitleSave = async () => {
+    if (titleSaving) {
+      return;
+    }
+    setTitleSaving(true);
+    setTitleError('');
+    const result = await onUpdateTitle(titleDraft.trim());
+    if (result.ok) {
+      setTitleModalOpen(false);
+    } else {
+      setTitleError(result.error || __( 'Update failed.', 'wp-livecode' ));
+    }
+    setTitleSaving(false);
+  };
+
+  const handleTitleKeyDown = (event: { key: string; preventDefault: () => void }) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openTitleModal();
+    }
+  };
+
+  const handleTitleInputKeyDown = (event: { key: string; preventDefault: () => void }) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleTitleSave();
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeTitleModal();
+    }
+  };
+
+  useEffect(() => {
+    if (!saveMenuOpen) {
+      return;
+    }
+    const handleDocClick = () => setSaveMenuOpen(false);
+    document.addEventListener('click', handleDocClick);
+    return () => {
+      document.removeEventListener('click', handleDocClick);
+    };
+  }, [saveMenuOpen]);
+
+  const toggleSaveMenu = (event: { stopPropagation: () => void }) => {
+    event.stopPropagation();
+    setSaveMenuOpen((prev) => !prev);
+  };
+
+  const handleStatusSelect = async (
+    event: { stopPropagation: () => void },
+    nextStatus: 'draft' | 'pending' | 'private' | 'publish'
+  ) => {
+    event.stopPropagation();
+    if (statusSaving || nextStatus === normalizedStatus) {
+      return;
+    }
+    setStatusSaving(true);
+    if (hasUnsavedChanges) {
+      const saveResult = await onSave();
+      if (!saveResult.ok) {
+        setStatusSaving(false);
+        return;
+      }
+    }
+    const result = await onUpdateStatus(nextStatus);
+    setStatusSaving(false);
+    if (result.ok) {
+      setSaveMenuOpen(false);
+    }
+  };
   return (
     <Fragment>
       <div className="lc-toolbarGroup lc-toolbarLeft">
@@ -146,7 +282,7 @@ function Toolbar({
           className="lc-btn lc-btn-back"
           href={backUrl}
           aria-label={__( 'Back to WordPress', 'wp-livecode' )}
-          title={__( 'Back to WordPress', 'wp-livecode' )}
+          data-tooltip={__( 'Back to WordPress', 'wp-livecode' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
           <span
@@ -155,35 +291,48 @@ function Toolbar({
           />
         </a>
         <button
-          className={`lc-btn lc-btn-muted lc-btn-stack${canUndo ? ' is-active' : ''}`}
+          className={`lc-btn lc-btn-muted lc-btn-icon${canUndo ? ' is-active' : ''}`}
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          title={__( 'Undo', 'wp-livecode' )}
+          aria-label={__( 'Undo', 'wp-livecode' )}
+          data-tooltip={__( 'Undo', 'wp-livecode' )}
         >
-          <IconLabel label={__( 'Undo', 'wp-livecode' )} svg={ICONS.undo} />
+          <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.undo }} />
         </button>
         <button
-          className={`lc-btn lc-btn-muted lc-btn-stack${canRedo ? ' is-active' : ''}`}
+          className={`lc-btn lc-btn-muted lc-btn-icon${canRedo ? ' is-active' : ''}`}
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          title={__( 'Redo', 'wp-livecode' )}
+          aria-label={__( 'Redo', 'wp-livecode' )}
+          data-tooltip={__( 'Redo', 'wp-livecode' )}
         >
-          <IconLabel label={__( 'Redo', 'wp-livecode' )} svg={ICONS.redo} />
-        </button>
-        <button className="lc-btn lc-btn-stack" type="button" onClick={onToggleEditor}>
-          <IconLabel label={toggleLabel} svg={toggleIcon} />
+          <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.redo }} />
         </button>
       </div>
-      <div className="lc-toolbarGroup lc-toolbarRight">
+      <div className="lc-toolbarGroup lc-toolbarCenter">
+        <div
+          className="lc-toolbarTitle"
+          data-tooltip={titleTooltip}
+          aria-label={titleText}
+          role="button"
+          tabIndex={0}
+          onClick={openTitleModal}
+          onKeyDown={handleTitleKeyDown}
+        >
+          <span className="lc-toolbarTitleText">{resolvedTitle}</span>
+          {draftSuffix ? (
+            <span className="lc-toolbarTitleSuffix">{draftSuffix}</span>
+          ) : null}
+        </div>
         <div className="lc-toolbarCluster lc-toolbarCluster-viewports">
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportDesktop ? ' is-active' : ''}`}
             type="button"
-            title={viewportDesktopLabel}
             aria-label={viewportDesktopLabel}
             aria-pressed={isViewportDesktop}
+            data-tooltip={viewportDesktopLabel}
             onClick={() => onViewportChange('desktop')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.desktop }} />
@@ -191,9 +340,9 @@ function Toolbar({
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportTablet ? ' is-active' : ''}`}
             type="button"
-            title={viewportTabletLabel}
             aria-label={viewportTabletLabel}
             aria-pressed={isViewportTablet}
+            data-tooltip={viewportTabletLabel}
             onClick={() => onViewportChange('tablet')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.tablet }} />
@@ -201,63 +350,182 @@ function Toolbar({
           <button
             className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportMobile ? ' is-active' : ''}`}
             type="button"
-            title={viewportMobileLabel}
             aria-label={viewportMobileLabel}
             aria-pressed={isViewportMobile}
+            data-tooltip={viewportMobileLabel}
             onClick={() => onViewportChange('mobile')}
           >
             <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.mobile }} />
           </button>
         </div>
-        <div className="lc-toolbarCluster lc-toolbarCluster-main">
+        <div className="lc-toolbarCluster lc-toolbarCluster-divider">
+          <button
+            className="lc-btn lc-btn-icon"
+            type="button"
+            onClick={onToggleEditor}
+            aria-label={toggleLabel}
+            data-tooltip={toggleLabel}
+          >
+            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: toggleIcon }} />
+          </button>
+        </div>
+      </div>
+      {titleModalOpen ? (
+        <div className="lc-modal">
+          <div className="lc-modalBackdrop" onClick={closeTitleModal} />
+          <div className="lc-modalDialog" role="dialog" aria-modal="true">
+            <div className="lc-modalHeader">
+              <div className="lc-modalTitle">{__( 'Title', 'wp-livecode' )}</div>
+              <button
+                className="lc-modalClose"
+                type="button"
+                onClick={closeTitleModal}
+                aria-label={__( 'Close', 'wp-livecode' )}
+              >
+                <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS.close }} />
+              </button>
+            </div>
+            <div className="lc-modalBody">
+              <form
+                className="lc-modalForm"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleTitleSave();
+                }}
+              >
+                <div className="lc-formGroup">
+                  <label className="lc-formLabel" htmlFor="lc-title-modal-input">
+                    {__( 'Title', 'wp-livecode' )}
+                  </label>
+                  <input
+                    id="lc-title-modal-input"
+                    className="lc-formInput"
+                    type="text"
+                    value={titleDraft}
+                    onChange={(event) => setTitleDraft(event.target.value)}
+                    onKeyDown={handleTitleInputKeyDown}
+                    autoFocus
+                  />
+                </div>
+                {titleError ? <div className="lc-modalError">{titleError}</div> : null}
+                <div className="lc-modalActions">
+                  <button
+                    className="lc-btn lc-btn-secondary"
+                    type="button"
+                    onClick={closeTitleModal}
+                  >
+                    {__( 'Cancel', 'wp-livecode' )}
+                  </button>
+                  <button className="lc-btn lc-btn-primary" type="submit" disabled={titleSaving}>
+                    {titleSaving ? __( 'Saving...', 'wp-livecode' ) : __( 'Save', 'wp-livecode' )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <div className="lc-toolbarGroup lc-toolbarRight">
+        <div className="lc-toolbarCluster">
           {tailwindEnabled ? (
             <span
               className="lc-tailwindBadge"
-              title={__( 'TailwindCSS enabled', 'wp-livecode' )}
-              aria-label={__( 'TailwindCSS enabled', 'wp-livecode' )}
-              role="img"
-              dangerouslySetInnerHTML={{ __html: TAILWIND_ICON }}
-            />
+              title={tailwindTooltip}
+              aria-label={tailwindTooltip}
+              data-tooltip={tailwindTooltip}
+            >
+              {tailwindBadgeLabel}
+            </span>
           ) : null}
           {showViewPost ? (
             <a
-              className="lc-btn lc-btn-stack lc-btn-view"
+              className="lc-btn lc-btn-icon lc-btn-view"
               href={targetUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title={viewPostLabel}
               aria-label={viewPostLabel}
+              data-tooltip={viewPostLabel}
             >
-              <IconLabel label={viewPostLabel} svg={ICONS.viewPost} />
+              <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.viewPost }} />
             </a>
           ) : null}
           <button
-            className={`lc-btn lc-btn-save lc-btn-stack${hasUnsavedChanges ? ' is-unsaved' : ''}`}
-            type="button"
-            onClick={onSave}
-            title={__( 'Save', 'wp-livecode' )}
-          >
-            <IconLabel label={__( 'Save', 'wp-livecode' )} svg={ICONS.save} />
-          </button>
-          <button
-            className="lc-btn lc-btn-stack"
-            type="button"
-            onClick={onExport}
-            title={__( 'Export', 'wp-livecode' )}
-          >
-            <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
-          </button>
-          <button
-            className={`lc-btn lc-btn-settings lc-btn-stack${settingsOpen ? ' is-active' : ''}`}
+            className={`lc-btn lc-btn-settings lc-btn-icon${settingsOpen ? ' is-active' : ''}`}
             type="button"
             onClick={onToggleSettings}
-            title={settingsTitle}
             aria-label={settingsTitle}
             aria-expanded={settingsOpen}
             aria-controls="lc-settings"
+            data-tooltip={settingsTitle}
           >
-            <IconLabel label={settingsLabel} svg={ICONS.settings} />
+            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.settings }} />
           </button>
+          <button
+            className="lc-btn"
+            type="button"
+            onClick={onExport}
+          >
+            <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
+          </button>
+          <div className="lc-splitButton">
+            <button
+              className={`lc-btn lc-btn-save lc-splitButton-main${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+              type="button"
+              onClick={onSave}
+            >
+              <IconLabel label={saveLabel} svg={ICONS.save} />
+            </button>
+            <button
+              className={`lc-btn lc-btn-save lc-btn-icon lc-splitButton-toggle${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={saveMenuOpen}
+              aria-label={__( 'Save options', 'wp-livecode' )}
+              data-tooltip={__( 'Save options', 'wp-livecode' )}
+              onClick={toggleSaveMenu}
+            >
+              <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.chevronDown }} />
+            </button>
+            {saveMenuOpen ? (
+              <div
+                className="lc-splitMenu"
+                role="menu"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div className="lc-splitMenuTitle">
+                  {/* translators: %s: current status label. */}
+                  {sprintf(
+                    __( 'Status: %s', 'wp-livecode' ),
+                    normalizedStatus === 'draft'
+                      ? __( 'Draft', 'wp-livecode' )
+                      : normalizedStatus === 'pending'
+                        ? __( 'Pending', 'wp-livecode' )
+                        : normalizedStatus === 'private'
+                          ? __( 'Private', 'wp-livecode' )
+                          : normalizedStatus === 'future'
+                            ? __( 'Scheduled', 'wp-livecode' )
+                            : __( 'Published', 'wp-livecode' )
+                  )}
+                </div>
+                <div className="lc-splitMenuList">
+                  {statusActions
+                    .filter((option) => option.value !== normalizedStatus)
+                    .map((option) => (
+                      <button
+                        key={option.value}
+                        className="lc-splitMenuItem"
+                        type="button"
+                        role="menuitem"
+                        onClick={(event) => handleStatusSelect(event, option.value)}
+                        disabled={statusSaving}
+                      >
+                        <span className="lc-splitMenuLabel">{option.label}</span>
+                      </button>
+                    ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </Fragment>
