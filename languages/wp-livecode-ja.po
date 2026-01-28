@@ -326,16 +326,16 @@ msgid "Invalid setup mode."
 msgstr "セットアップモードが不正です。"
 
 #: assets/dist/main.js:1
-msgid "JavaScript settings"
-msgstr "JavaScript 設定"
+msgid "Output settings"
+msgstr "出力設定"
 
 #: assets/dist/main.js:1
 msgid "Enable JavaScript"
 msgstr "JavaScript を有効化"
 
 #: assets/dist/main.js:1
-msgid "Enable Shadow DOM"
-msgstr "Shadow DOM を有効化"
+msgid "Enable Shadow DOM (DSD)"
+msgstr "Shadow DOM (DSD) を有効化"
 
 #: assets/dist/main.js:1
 msgid "Enable shortcode"
@@ -343,15 +343,19 @@ msgstr "ショートコードを有効化"
 
 #: assets/dist/main.js:1
 msgid "Do not publish as single page"
-msgstr "シングルページとして公開しない"
+msgstr "単体ページとして公開しない"
 
 #: assets/dist/main.js:1
 msgid "Requires unfiltered_html capability."
 msgstr "unfiltered_html 権限が必要です。"
 
 #: assets/dist/main.js:1
-msgid "Preview settings"
-msgstr "プレビュー設定"
+msgid "Prevents interference with existing theme CSS."
+msgstr "既存のテーマCSSとの干渉を防ぎます。"
+
+#: assets/dist/main.js:1
+msgid "Rendering settings"
+msgstr "レンダリング設定"
 
 #: assets/dist/main.js:1
 msgid "Enable live edit highlight"
@@ -403,8 +407,12 @@ msgid "Add external style"
 msgstr "外部スタイルを追加"
 
 #: assets/dist/main.js:1
-msgid "Shortcode"
-msgstr "ショートコード"
+msgid "External resource settings"
+msgstr "外部リソース設定"
+
+#: assets/dist/main.js:1
+msgid "Display settings"
+msgstr "表示設定"
 
 #: assets/dist/main.js:1
 msgid "You can paste this into a shortcode block in Gutenberg or Elementor."
