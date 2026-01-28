@@ -1041,11 +1041,11 @@ async function main() {
   }
 
   function setViewportMode(mode: ViewportMode) {
-    if (viewportMode === mode) {
-      return;
-    }
+    const isSameMode = viewportMode === mode;
     viewportMode = mode;
-    toolbarApi?.update({ viewportMode });
+    if (!isSameMode) {
+      toolbarApi?.update({ viewportMode });
+    }
     applyViewportLayout(true);
     showPreviewBadgeAfterLayout();
   }
