@@ -247,7 +247,7 @@ class Frontend {
 			return '';
 		}
 
-		return str_ireplace( '</style', '<\\/style', $css );
+		return str_ireplace( '</style', '&lt;/style', $css );
 	}
 
 	/**

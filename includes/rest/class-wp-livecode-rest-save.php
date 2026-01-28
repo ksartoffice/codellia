@@ -131,7 +131,7 @@ class Rest_Save {
 		if ( '' === $css ) {
 			return '';
 		}
-		return str_ireplace( '</style', '<\\/style', $css );
+		return str_ireplace( '</style', '&lt;/style', $css );
 	}
 
 	/**

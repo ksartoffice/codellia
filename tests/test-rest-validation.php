@@ -175,6 +175,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 		$stored_css = (string) get_post_meta( $post_id, '_lc_css', true );
 		$this->assertStringNotContainsString( '</style', $stored_css, 'CSS should not contain closing style tags.' );
+		$this->assertStringContainsString( '&lt;/style', $stored_css, 'Closing style tags should be escaped.' );
 	}
 
 	public function test_frontend_escapes_style_breakout_in_css_output(): void {
@@ -201,8 +202,8 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 			unset( $wp_query );
 		}
 
-		$this->assertStringNotContainsString( '</style', $output, 'Closing style tags should be escaped in output.' );
-		$this->assertStringContainsString( '<\\/style', $output, 'Output should escape closing style tags.' );
+		$this->assertStringNotContainsString( '</style><script', $output, 'Inline scripts should not be injected via CSS.' );
+		$this->assertStringContainsString( '&lt;/style', $output, 'Output should escape closing style tags.' );
 	}
 
 	private function create_livecode_post( int $author_id ): int {

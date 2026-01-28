@@ -384,6 +384,6 @@ class Rest_Import {
 		if ( '' === $css ) {
 			return '';
 		}
-		return str_ireplace( '</style', '<\\/style', $css );
+		return str_ireplace( '</style', '&lt;/style', $css );
 	}
 }
