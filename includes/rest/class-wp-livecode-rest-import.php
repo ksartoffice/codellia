@@ -195,7 +195,7 @@ class Rest_Import {
 					400
 				);
 			}
-			$generated_css_input = $payload['generatedCss'];
+			$generated_css_input = self::sanitize_css_input( $payload['generatedCss'] );
 		}
 
 		$external_scripts = array();
@@ -257,7 +257,7 @@ class Rest_Import {
 		}
 
 		$html             = $payload['html'];
-		$css_input        = $payload['css'];
+		$css_input        = self::sanitize_css_input( $payload['css'] );
 		$tailwind_enabled = $payload['tailwindEnabled'];
 		$import_warnings  = array();
 		$imported_images  = array();
@@ -372,5 +372,18 @@ class Rest_Import {
 		}
 
 		return new \WP_REST_Response( $response, 200 );
+	}
+
+	/**
+	 * Sanitize CSS input to prevent style tag injection.
+	 *
+	 * @param string $css Raw CSS input.
+	 * @return string
+	 */
+	private static function sanitize_css_input( string $css ): string {
+		if ( '' === $css ) {
+			return '';
+		}
+		return str_ireplace( '</style', '<\\/style', $css );
 	}
 }

@@ -26,7 +26,7 @@ class Rest_Save {
 	public static function save( \WP_REST_Request $request ): \WP_REST_Response {
 		$post_id          = absint( $request->get_param( 'post_id' ) );
 		$html             = (string) $request->get_param( 'html' );
-		$css_input        = (string) $request->get_param( 'css' );
+		$css_input        = self::sanitize_css_input( (string) $request->get_param( 'css' ) );
 		$js_input         = (string) $request->get_param( 'js' );
 		$has_js           = $request->has_param( 'js' );
 		$has_js_enabled   = $request->has_param( 'jsEnabled' );
@@ -119,6 +119,19 @@ class Rest_Save {
 		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
 
 		return new \WP_REST_Response( array( 'ok' => true ), 200 );
+	}
+
+	/**
+	 * Sanitize CSS input to prevent style tag injection.
+	 *
+	 * @param string $css Raw CSS input.
+	 * @return string
+	 */
+	private static function sanitize_css_input( string $css ): string {
+		if ( '' === $css ) {
+			return '';
+		}
+		return str_ireplace( '</style', '<\\/style', $css );
 	}
 
 	/**

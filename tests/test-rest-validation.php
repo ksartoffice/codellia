@@ -5,6 +5,7 @@
  * @package WP_LiveCode
  */
 
+use WPLiveCode\Frontend;
 use WPLiveCode\Post_Type;
 
 class Test_Rest_Validation extends WP_UnitTestCase {
@@ -153,6 +154,55 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<script', $content, 'Script tags should be stripped.' );
 		$this->assertStringNotContainsString( 'onerror', $content, 'Event handler attributes should be stripped.' );
 		$this->assertStringNotContainsString( 'javascript:', $content, 'javascript: URLs should be stripped.' );
+	}
+
+	public function test_save_strips_style_breakout_from_css_for_author(): void {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$post_id   = $this->create_livecode_post( $author_id );
+
+		wp_set_current_user( $author_id );
+
+		$response = $this->dispatch_route(
+			'/wp-livecode/v1/save',
+			array(
+				'post_id' => $post_id,
+				'html'    => '<p>CSS test</p>',
+				'css'     => '</style><script>alert("test2");</script>body{color:red;}',
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Author saves should succeed without JS capability.' );
+
+		$stored_css = (string) get_post_meta( $post_id, '_lc_css', true );
+		$this->assertStringNotContainsString( '</style', $stored_css, 'CSS should not contain closing style tags.' );
+	}
+
+	public function test_frontend_escapes_style_breakout_in_css_output(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+		$post     = get_post( $post_id );
+
+		$this->assertInstanceOf( WP_Post::class, $post );
+
+		update_post_meta( $post_id, '_lc_shadow_dom', '1' );
+		update_post_meta( $post_id, '_lc_css', '</style><script>alert("test2");</script>body{color:red;}' );
+
+		global $wp_query;
+		$original_wp_query = $wp_query ?? null;
+		$wp_query          = new WP_Query();
+		$wp_query->queried_object_id = $post_id;
+		$wp_query->queried_object    = $post;
+
+		$output = Frontend::filter_content( (string) $post->post_content );
+
+		if ( null !== $original_wp_query ) {
+			$wp_query = $original_wp_query;
+		} else {
+			unset( $wp_query );
+		}
+
+		$this->assertStringNotContainsString( '</style', $output, 'Closing style tags should be escaped in output.' );
+		$this->assertStringContainsString( '<\\/style', $output, 'Output should escape closing style tags.' );
 	}
 
 	private function create_livecode_post( int $author_id ): int {

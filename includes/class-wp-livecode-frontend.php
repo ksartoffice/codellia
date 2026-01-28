@@ -233,7 +233,21 @@ class Frontend {
 			}
 		}
 
-		return $css;
+		return self::escape_style_tag( $css );
+	}
+
+	/**
+	 * Escape closing style tags to prevent tag injection.
+	 *
+	 * @param string $css CSS output.
+	 * @return string
+	 */
+	private static function escape_style_tag( string $css ): string {
+		if ( '' === $css ) {
+			return '';
+		}
+
+		return str_ireplace( '</style', '<\\/style', $css );
 	}
 
 	/**
