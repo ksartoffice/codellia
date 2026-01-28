@@ -230,18 +230,21 @@ export function SettingsPanel({
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">
-            {__( 'Enable Shadow DOM', 'wp-livecode' )}
+            {__( 'Enable Shadow DOM (DSD)', 'wp-livecode' )}
           </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={shadowDomEnabled}
-              aria-label={__( 'Enable Shadow DOM', 'wp-livecode' )}
+              aria-label={__( 'Enable Shadow DOM (DSD)', 'wp-livecode' )}
               onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
           </label>
+        </div>
+        <div className="lc-settingsHelp">
+          {__( 'Prevents interference with existing theme CSS.', 'wp-livecode' )}
         </div>
       </div>
 

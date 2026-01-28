@@ -376,7 +376,7 @@ msgid "Enable JavaScript"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Enable Shadow DOM"
+msgid "Enable Shadow DOM (DSD)"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -389,6 +389,10 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Requires unfiltered_html capability."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Prevents interference with existing theme CSS."
 msgstr ""
 
 #: assets/dist/main.js:1
