@@ -131,6 +131,30 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertSame( 400, $response->get_status(), 'External styles must be https URLs.' );
 	}
 
+	public function test_save_strips_xss_from_html_for_author(): void {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$post_id   = $this->create_livecode_post( $author_id );
+
+		wp_set_current_user( $author_id );
+
+		$response = $this->dispatch_route(
+			'/wp-livecode/v1/save',
+			array(
+				'post_id' => $post_id,
+				'html'    => '<p>Safe</p><script>alert(1)</script><img src="x" onerror="alert(1)"><a href="javascript:alert(1)">x</a>',
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Author saves should succeed without JS capability.' );
+
+		$post    = get_post( $post_id );
+		$content = $post ? (string) $post->post_content : '';
+
+		$this->assertStringNotContainsString( '<script', $content, 'Script tags should be stripped.' );
+		$this->assertStringNotContainsString( 'onerror', $content, 'Event handler attributes should be stripped.' );
+		$this->assertStringNotContainsString( 'javascript:', $content, 'javascript: URLs should be stripped.' );
+	}
+
 	private function create_livecode_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
