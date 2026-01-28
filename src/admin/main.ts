@@ -168,6 +168,36 @@ async function main() {
   ui.editorResizer.setAttribute('role', 'separator');
   ui.editorResizer.setAttribute('aria-orientation', 'horizontal');
 
+  const PREVIEW_BADGE_HIDE_MS = 2200;
+  let previewBadgeTimer: number | undefined;
+  let previewBadgeRaf = 0;
+
+  const updatePreviewBadge = () => {
+    const width = Math.round(ui.iframe.getBoundingClientRect().width);
+    if (width > 0) {
+      ui.previewBadge.textContent = `${width}px`;
+    }
+  };
+
+  const showPreviewBadge = () => {
+    updatePreviewBadge();
+    ui.previewBadge.classList.add('is-visible');
+    window.clearTimeout(previewBadgeTimer);
+    previewBadgeTimer = window.setTimeout(() => {
+      ui.previewBadge.classList.remove('is-visible');
+    }, PREVIEW_BADGE_HIDE_MS);
+  };
+
+  const schedulePreviewBadge = () => {
+    if (previewBadgeRaf) {
+      return;
+    }
+    previewBadgeRaf = window.requestAnimationFrame(() => {
+      previewBadgeRaf = 0;
+      showPreviewBadge();
+    });
+  };
+
   let toolbarApi: ToolbarApi | null = null;
   let tailwindEnabled = Boolean(cfg.tailwindEnabled);
   let importedState: ImportResult | null = null;
@@ -989,6 +1019,7 @@ async function main() {
     viewportMode = mode;
     toolbarApi?.update({ viewportMode });
     applyViewportLayout(true);
+    showPreviewBadge();
   }
 
   const setLeftWidth = (width: number) => {
@@ -1056,6 +1087,7 @@ async function main() {
     const maxLeftWidth = Math.max(minLeftWidth, available - minRightWidth);
     const nextWidth = Math.min(maxLeftWidth, Math.max(minLeftWidth, startWidth + event.clientX - startX));
     setLeftWidth(nextWidth);
+    schedulePreviewBadge();
   };
 
   const stopResizing = (event?: PointerEvent) => {
@@ -1080,6 +1112,7 @@ async function main() {
     startWidth = ui.left.getBoundingClientRect().width;
     ui.app.classList.add('is-resizing');
     ui.resizer.setPointerCapture(event.pointerId);
+    showPreviewBadge();
   });
 
   window.addEventListener('pointermove', onPointerMove);
