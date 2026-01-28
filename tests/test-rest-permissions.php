@@ -55,6 +55,32 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_rest_routes_allow_editor_for_others_post(): void {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$editor_id = self::factory()->user->create( array( 'role' => 'editor' ) );
+		$post_id   = $this->create_livecode_post( $author_id );
+
+		wp_set_current_user( $editor_id );
+
+		foreach ( $this->get_author_allowed_routes( $post_id ) as $route => $params ) {
+			$response = $this->dispatch_route( $route, $params );
+			$this->assertSame( 200, $response->get_status(), $route . ' should allow editors.' );
+		}
+	}
+
+	public function test_rest_routes_forbid_author_for_others_post(): void {
+		$author_id       = self::factory()->user->create( array( 'role' => 'author' ) );
+		$other_author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$post_id         = $this->create_livecode_post( $author_id );
+
+		wp_set_current_user( $other_author_id );
+
+		foreach ( $this->get_author_allowed_routes( $post_id ) as $route => $params ) {
+			$response = $this->dispatch_route( $route, $params );
+			$this->assertSame( 403, $response->get_status(), $route . ' should forbid other authors.' );
+		}
+	}
+
 	public function test_rest_import_requires_unfiltered_html(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
