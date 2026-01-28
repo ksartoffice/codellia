@@ -169,6 +169,7 @@ async function main() {
   ui.editorResizer.setAttribute('aria-orientation', 'horizontal');
 
   const PREVIEW_BADGE_HIDE_MS = 2200;
+  const PREVIEW_BADGE_TRANSITION_MS = 320;
   let previewBadgeTimer: number | undefined;
   let previewBadgeRaf = 0;
 
@@ -186,6 +187,27 @@ async function main() {
     previewBadgeTimer = window.setTimeout(() => {
       ui.previewBadge.classList.remove('is-visible');
     }, PREVIEW_BADGE_HIDE_MS);
+  };
+
+  const showPreviewBadgeAfterLayout = () => {
+    if (isStackedLayout() || editorCollapsed) {
+      showPreviewBadge();
+      return;
+    }
+    let done = false;
+    const finalize = () => {
+      if (done) return;
+      done = true;
+      ui.left.removeEventListener('transitionend', onTransitionEnd);
+      showPreviewBadge();
+    };
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.propertyName === 'width' || event.propertyName === 'flex-basis') {
+        finalize();
+      }
+    };
+    ui.left.addEventListener('transitionend', onTransitionEnd, { once: true });
+    window.setTimeout(finalize, PREVIEW_BADGE_TRANSITION_MS);
   };
 
   const schedulePreviewBadge = () => {
@@ -1025,7 +1047,7 @@ async function main() {
     viewportMode = mode;
     toolbarApi?.update({ viewportMode });
     applyViewportLayout(true);
-    showPreviewBadge();
+    showPreviewBadgeAfterLayout();
   }
 
   const setLeftWidth = (width: number) => {
