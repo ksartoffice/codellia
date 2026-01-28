@@ -976,6 +976,10 @@ async function main() {
     return Math.max(0, mainRect.width - settingsWidth - resizerWidth);
   };
 
+  const getPreviewAreaWidth = () => {
+    return Math.max(0, ui.right.getBoundingClientRect().width);
+  };
+
   const isStackedLayout = () => {
     return window.getComputedStyle(ui.main).flexDirection === 'column';
   };
@@ -1005,7 +1009,9 @@ async function main() {
     }
 
     const presetWidth = viewportPresetWidths[viewportMode];
-    ui.iframe.style.width = `${presetWidth}px`;
+    const previewAreaWidth = getPreviewAreaWidth();
+    const targetWidth = Math.min(presetWidth, previewAreaWidth || presetWidth);
+    ui.iframe.style.width = `${targetWidth}px`;
     ui.iframe.style.margin = '0 auto';
     if (forceFit) {
       ensurePreviewWidth(presetWidth);
@@ -1087,6 +1093,9 @@ async function main() {
     const maxLeftWidth = Math.max(minLeftWidth, available - minRightWidth);
     const nextWidth = Math.min(maxLeftWidth, Math.max(minLeftWidth, startWidth + event.clientX - startX));
     setLeftWidth(nextWidth);
+    if (viewportMode !== 'desktop') {
+      applyViewportLayout();
+    }
     schedulePreviewBadge();
   };
 
