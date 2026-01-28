@@ -6,3 +6,4 @@
 /.wordpress-tests-lib
 /languages/*.mo
 /languages/*.json
+.env
