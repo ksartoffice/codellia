@@ -3,8 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 
 type SettingsPanelProps = {
   postId: number;
-  jsEnabled: boolean;
-  onToggleJs: (enabled: boolean) => void;
+  canEditJs: boolean;
   shadowDomEnabled: boolean;
   onToggleShadowDom: (enabled: boolean) => void;
   shortcodeEnabled: boolean;
@@ -30,8 +29,7 @@ const MAX_EXTERNAL_STYLES = 5;
 
 export function SettingsPanel({
   postId,
-  jsEnabled,
-  onToggleJs,
+  canEditJs,
   shadowDomEnabled,
   onToggleShadowDom,
   shortcodeEnabled,
@@ -154,21 +152,6 @@ export function SettingsPanel({
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">
-            {__( 'Enable JavaScript', 'wp-livecode' )}
-          </div>
-          <label className="lc-toggle">
-            <input
-              type="checkbox"
-              checked={jsEnabled}
-              aria-label={__( 'Enable JavaScript', 'wp-livecode' )}
-              onChange={(event) => onToggleJs(event.target.checked)}
-              disabled={disabled}
-            />
-            <span className="lc-toggleTrack" aria-hidden="true" />
-          </label>
-        </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
             {__( 'Enable Shadow DOM', 'wp-livecode' )}
           </div>
           <label className="lc-toggle">
@@ -242,7 +225,7 @@ export function SettingsPanel({
         </div>
       </div>
 
-      {jsEnabled ? (
+      {canEditJs ? (
         <div className="lc-settingsSection">
           <div className="lc-settingsSectionTitle">
             {__( 'External scripts', 'wp-livecode' )}

@@ -29,8 +29,6 @@ class Rest_Save {
 		$css_input        = self::sanitize_css_input( (string) $request->get_param( 'css' ) );
 		$js_input         = (string) $request->get_param( 'js' );
 		$has_js           = $request->has_param( 'js' );
-		$has_js_enabled   = $request->has_param( 'jsEnabled' );
-		$js_enabled       = rest_sanitize_boolean( $request->get_param( 'jsEnabled' ) );
 		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwindEnabled' ) );
 
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
@@ -43,7 +41,7 @@ class Rest_Save {
 			);
 		}
 
-		if ( ( $has_js || $has_js_enabled ) && ! current_user_can( 'unfiltered_html' ) ) {
+		if ( $has_js && ! current_user_can( 'unfiltered_html' ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
@@ -107,9 +105,7 @@ class Rest_Save {
 		if ( $has_js ) {
 			update_post_meta( $post_id, '_lc_js', $js_input );
 		}
-		if ( $has_js_enabled ) {
-			update_post_meta( $post_id, '_lc_js_enabled', $js_enabled ? '1' : '0' );
-		}
+		delete_post_meta( $post_id, '_lc_js_enabled' );
 		if ( $tailwind_enabled ) {
 			update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
 		} else {

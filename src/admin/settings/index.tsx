@@ -47,7 +47,6 @@ export type SettingsData = {
   formats: SettingsOption[];
   canPublish: boolean;
   canTrash: boolean;
-  jsEnabled: boolean;
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   singlePageEnabled: boolean;
@@ -65,7 +64,6 @@ type SettingsConfig = {
   postId: number;
   backUrl?: string;
   apiFetch?: (args: any) => Promise<any>;
-  onJsToggle?: (enabled: boolean) => void;
   onShadowDomToggle?: (enabled: boolean) => void;
   onShortcodeToggle?: (enabled: boolean) => void;
   onLiveHighlightToggle?: (enabled: boolean) => void;
@@ -119,7 +117,6 @@ function SettingsSidebar({
   backUrl,
   apiFetch,
   header,
-  onJsToggle,
   onShadowDomToggle,
   onShortcodeToggle,
   onLiveHighlightToggle,
@@ -136,7 +133,6 @@ function SettingsSidebar({
     value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
-  const [jsEnabled, setJsEnabled] = useState(Boolean(data.jsEnabled));
   const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
   const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
   const [singlePageEnabled, setSinglePageEnabled] = useState(
@@ -150,10 +146,6 @@ function SettingsSidebar({
   const [externalScriptsError, setExternalScriptsError] = useState('');
   const [externalStyles, setExternalStyles] = useState<string[]>(data.externalStyles || []);
   const [externalStylesError, setExternalStylesError] = useState('');
-
-  useEffect(() => {
-    setJsEnabled(Boolean(settings.jsEnabled));
-  }, [settings.jsEnabled]);
 
   useEffect(() => {
     setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
@@ -194,10 +186,6 @@ function SettingsSidebar({
     setExternalStyles(settings.externalStyles || []);
     onExternalStylesChange?.(settings.externalStyles || []);
   }, [settings.externalStyles, onExternalStylesChange]);
-
-  useEffect(() => {
-    onJsToggle?.(jsEnabled);
-  }, [jsEnabled, onJsToggle]);
 
   useEffect(() => {
     onShadowDomToggle?.(shadowDomEnabled);
@@ -250,20 +238,6 @@ function SettingsSidebar({
 
   const isSameList = (left: string[], right: string[]) =>
     left.length === right.length && left.every((value, index) => value === right[index]);
-
-  const handleJsToggle = async (enabled: boolean) => {
-    if (!canEditJs) {
-      return;
-    }
-    setDesignError('');
-    setJsEnabled(enabled);
-    try {
-      await updateSettings({ jsEnabled: enabled });
-    } catch (err: any) {
-      setDesignError(err?.message || String(err));
-      setJsEnabled(Boolean(settings.jsEnabled));
-    }
-  };
 
   const handleShadowDomToggle = async (enabled: boolean) => {
     if (!canEditJs) {
@@ -426,8 +400,7 @@ function SettingsSidebar({
       {activeTab === 'settings' ? (
         <SettingsPanel
           postId={postId}
-          jsEnabled={jsEnabled}
-          onToggleJs={handleJsToggle}
+          canEditJs={canEditJs}
           shadowDomEnabled={shadowDomEnabled}
           onToggleShadowDom={handleShadowDomToggle}
           shortcodeEnabled={shortcodeEnabled}

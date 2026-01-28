@@ -117,36 +117,12 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to save JS.' );
 	}
 
-	public function test_rest_save_requires_unfiltered_html_for_js_enabled_toggle(): void {
-		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_livecode_post( $author_id );
-
-		$params = array(
-			'post_id'    => $post_id,
-			'html'       => '<p>Test</p>',
-			'jsEnabled'  => true,
-			'js'         => '',
-			'css'        => '',
-			'tailwindEnabled' => false,
-		);
-
-		wp_set_current_user( $author_id );
-		$response = $this->dispatch_route( '/wp-livecode/v1/save', $params );
-		$this->assertSame( 403, $response->get_status(), 'Enabling JS should require unfiltered_html.' );
-
-		wp_set_current_user( $admin_id );
-		$response = $this->dispatch_route( '/wp-livecode/v1/save', $params );
-		$this->assertSame( 200, $response->get_status(), 'Admins should be able to toggle JS.' );
-	}
-
 	public function test_rest_settings_requires_unfiltered_html_for_js_related_updates(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id   = $this->create_livecode_post( $author_id );
 
 		$updates = array(
-			'jsEnabled'         => true,
 			'shadowDomEnabled'  => true,
 			'shortcodeEnabled'  => true,
 			'externalScripts'   => array( 'https://example.com/app.js' ),

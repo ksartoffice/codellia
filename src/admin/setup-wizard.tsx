@@ -86,10 +86,6 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
     return { error: __( 'Invalid JavaScript value.', 'wp-livecode' ) };
   }
 
-  if (raw.jsEnabled !== undefined && typeof raw.jsEnabled !== 'boolean') {
-    return { error: __( 'Invalid jsEnabled value.', 'wp-livecode' ) };
-  }
-
   if (raw.shadowDomEnabled !== undefined && typeof raw.shadowDomEnabled !== 'boolean') {
     return { error: __( 'Invalid shadowDomEnabled value.', 'wp-livecode' ) };
   }
@@ -128,7 +124,6 @@ function validateImportPayload(raw: any): { data?: ImportPayload; error?: string
       tailwindEnabled: raw.tailwindEnabled,
       generatedCss: raw.generatedCss,
       js: raw.js ?? '',
-      jsEnabled: raw.jsEnabled ?? false,
       externalScripts: raw.externalScripts ?? [],
       externalStyles: raw.externalStyles ?? [],
       shadowDomEnabled: raw.shadowDomEnabled ?? false,

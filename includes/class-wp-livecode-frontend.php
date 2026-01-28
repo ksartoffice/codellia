@@ -283,16 +283,15 @@ class Frontend {
 			$style_html .= '<style id="lc-style">' . $css . '</style>';
 		}
 
-		$js_enabled       = '1' === get_post_meta( $post_id, '_lc_js_enabled', true );
 		$js               = (string) get_post_meta( $post_id, '_lc_js', true );
-		$external_scripts = $js_enabled ? External_Scripts::get_external_scripts( $post_id ) : array();
+		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 
 		$scripts_html = '';
 		foreach ( $external_scripts as $script_url ) {
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			$scripts_html .= '<script src="' . esc_url( $script_url ) . '"></script>';
 		}
-		if ( $js_enabled && '' !== $js ) {
+		if ( '' !== $js ) {
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			$scripts_html .= '<script id="lc-script">' . $js . '</script>';
 		}
@@ -398,10 +397,9 @@ class Frontend {
 	 * @return string
 	 */
 	private static function build_inline_scripts( int $post_id, int $instance = 0 ): string {
-		$js_enabled       = '1' === get_post_meta( $post_id, '_lc_js_enabled', true );
 		$js               = (string) get_post_meta( $post_id, '_lc_js', true );
-		$external_scripts = $js_enabled ? External_Scripts::get_external_scripts( $post_id ) : array();
-		if ( ! $js_enabled || ( '' === $js && empty( $external_scripts ) ) ) {
+		$external_scripts = External_Scripts::get_external_scripts( $post_id );
+		if ( '' === $js && empty( $external_scripts ) ) {
 			return '';
 		}
 
@@ -517,10 +515,9 @@ class Frontend {
 			return;
 		}
 
-		$js_enabled       = '1' === get_post_meta( $post_id, '_lc_js_enabled', true );
 		$js               = (string) get_post_meta( $post_id, '_lc_js', true );
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
-		if ( ! $js_enabled || ( '' === $js && empty( $external_scripts ) ) ) {
+		if ( '' === $js && empty( $external_scripts ) ) {
 			return;
 		}
 
