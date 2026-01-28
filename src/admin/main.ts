@@ -190,7 +190,7 @@ async function main() {
   };
 
   const showPreviewBadgeAfterLayout = () => {
-    if (isStackedLayout() || editorCollapsed) {
+    if (isStackedLayout()) {
       applyViewportLayout();
       showPreviewBadge();
       return;
@@ -1106,6 +1106,7 @@ async function main() {
       setLeftWidth(lastLeftWidth || minLeftWidth);
     }
     applyViewportLayout();
+    showPreviewBadgeAfterLayout();
   };
 
   const onPointerMove = (event: PointerEvent) => {
