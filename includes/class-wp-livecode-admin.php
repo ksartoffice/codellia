@@ -400,7 +400,10 @@ class Admin {
 
 		wp_add_inline_script(
 			'wp-livecode-admin',
-			'window.WP_LIVECODE = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
+			'window.WP_LIVECODE = ' . wp_json_encode(
+				$data,
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+			) . ';',
 			'before'
 		);
 	}
