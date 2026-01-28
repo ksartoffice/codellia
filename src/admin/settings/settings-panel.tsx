@@ -148,22 +148,7 @@ export function SettingsPanel({
     <Fragment>
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">
-          {__( 'JavaScript settings', 'wp-livecode' )}
-        </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
-            {__( 'Enable Shadow DOM', 'wp-livecode' )}
-          </div>
-          <label className="lc-toggle">
-            <input
-              type="checkbox"
-              checked={shadowDomEnabled}
-              aria-label={__( 'Enable Shadow DOM', 'wp-livecode' )}
-              onChange={(event) => onToggleShadowDom(event.target.checked)}
-              disabled={disabled}
-            />
-            <span className="lc-toggleTrack" aria-hidden="true" />
-          </label>
+          {__( 'Output settings', 'wp-livecode' )}
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">
@@ -181,21 +166,55 @@ export function SettingsPanel({
           </label>
         </div>
         {shortcodeEnabled ? (
-          <div className="lc-settingsItem lc-settingsToggle">
-            <div className="lc-settingsItemLabel">
-              {__( 'Do not publish as single page', 'wp-livecode' )}
-            </div>
-            <label className="lc-toggle">
+          <Fragment>
+            <div className="lc-settingsScriptRow">
               <input
-                type="checkbox"
-                checked={!singlePageEnabled}
-                aria-label={__( 'Do not publish as single page', 'wp-livecode' )}
-                onChange={(event) => onToggleSinglePage(!event.target.checked)}
-                disabled={disabled}
+                ref={shortcodeInputRef}
+                type="text"
+                className="lc-formInput lc-settingsScriptInput"
+                value={shortcodeText}
+                readOnly
+                aria-label={__( 'LiveCode shortcode', 'wp-livecode' )}
               />
-              <span className="lc-toggleTrack" aria-hidden="true" />
-            </label>
-          </div>
+              <button
+                className="lc-btn lc-btn-secondary"
+                type="button"
+                onClick={handleCopyShortcode}
+                aria-label={__( 'Copy shortcode', 'wp-livecode' )}
+              >
+                {copyState === 'copied'
+                  ? __( 'Copied', 'wp-livecode' )
+                  : __( 'Copy', 'wp-livecode' )}
+              </button>
+            </div>
+            {copyState === 'copied' ? (
+              <div className="lc-settingsHelp">{__( 'Copied.', 'wp-livecode' )}</div>
+            ) : null}
+            {copyState === 'error' ? (
+              <div className="lc-settingsError">{__( 'Copy failed.', 'wp-livecode' )}</div>
+            ) : null}
+            <div className="lc-settingsItem lc-settingsToggle">
+              <div className="lc-settingsItemLabel">
+                {__( 'Do not publish as single page', 'wp-livecode' )}
+              </div>
+              <label className="lc-toggle">
+                <input
+                  type="checkbox"
+                  checked={!singlePageEnabled}
+                  aria-label={__( 'Do not publish as single page', 'wp-livecode' )}
+                  onChange={(event) => onToggleSinglePage(!event.target.checked)}
+                  disabled={disabled}
+                />
+                <span className="lc-toggleTrack" aria-hidden="true" />
+              </label>
+            </div>
+            <div className="lc-settingsHelp">
+              {__(
+                'You can paste this into a shortcode block in Gutenberg or Elementor.',
+                'wp-livecode'
+              )}
+            </div>
+          </Fragment>
         ) : null}
         {disabled ? (
           <div className="lc-settingsHelp">
@@ -207,95 +226,98 @@ export function SettingsPanel({
 
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">
-          {__( 'Preview settings', 'wp-livecode' )}
+          {__( 'Rendering settings', 'wp-livecode' )}
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">
-            {__( 'Enable live edit highlight', 'wp-livecode' )}
+            {__( 'Enable Shadow DOM', 'wp-livecode' )}
           </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
-              checked={liveHighlightEnabled}
-              aria-label={__( 'Enable live edit highlight', 'wp-livecode' )}
-              onChange={(event) => onToggleLiveHighlight(event.target.checked)}
+              checked={shadowDomEnabled}
+              aria-label={__( 'Enable Shadow DOM', 'wp-livecode' )}
+              onChange={(event) => onToggleShadowDom(event.target.checked)}
+              disabled={disabled}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
           </label>
         </div>
       </div>
 
-      {canEditJs ? (
-        <div className="lc-settingsSection">
-          <div className="lc-settingsSectionTitle">
-            {__( 'External scripts', 'wp-livecode' )}
-          </div>
-        {hasScripts ? (
-          <div className="lc-settingsScriptList">
-            {externalScripts.map((scriptUrl, index) => (
-              <div className="lc-settingsScriptRow" key={`script-${index}`}>
-                <input
-                  type="url"
-                  className="lc-formInput lc-settingsScriptInput"
-                  placeholder={__( 'https://example.com/script.js', 'wp-livecode' )}
-                  value={scriptUrl}
-                  onChange={(event) => updateScriptAt(index, event.target.value, false)}
-                  onBlur={(event) => updateScriptAt(index, event.target.value, true)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault();
-                      updateScriptAt(index, (event.target as HTMLInputElement).value, true);
-                    }
-                  }}
-                  disabled={disabled}
-                />
-                <button
-                  className="lc-btn lc-btn-danger lc-settingsScriptButton"
-                  type="button"
-                  onClick={() => handleRemoveScript(index)}
-                  disabled={disabled}
-                  aria-label={__( 'Remove external script', 'wp-livecode' )}
-                >
-                  {__( 'Remove', 'wp-livecode' )}
-                </button>
-              </div>
-            ))}
-            <button
-              className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
-              type="button"
-              onClick={handleAddScript}
-              disabled={!canAddScript}
-              aria-label={__( 'Add external script', 'wp-livecode' )}
-            >
-              {`+ ${__( 'Add', 'wp-livecode' )}`}
-            </button>
-          </div>
-        ) : (
-          <button
-            className="lc-btn lc-btn-secondary"
-            type="button"
-            onClick={handleAddScript}
-            disabled={!canAddScript}
-          >
-            {__( 'Add external script', 'wp-livecode' )}
-          </button>
-        )}
-        <div className="lc-settingsHelp">
-          {/* translators: %d: maximum number of items. */}
-          {sprintf(
-            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'wp-livecode' ),
-            MAX_EXTERNAL_SCRIPTS
-          )}
-        </div>
-        {externalScriptsError ? (
-          <div className="lc-settingsError">{externalScriptsError}</div>
-        ) : null}
-        </div>
-      ) : null}
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">
-          {__( 'External styles', 'wp-livecode' )}
+          {__( 'External resource settings', 'wp-livecode' )}
         </div>
+        {canEditJs ? (
+          <Fragment>
+            <div className="lc-settingsItemLabel">{__( 'External scripts', 'wp-livecode' )}</div>
+            {hasScripts ? (
+              <div className="lc-settingsScriptList">
+                {externalScripts.map((scriptUrl, index) => (
+                  <div className="lc-settingsScriptRow" key={`script-${index}`}>
+                    <input
+                      type="url"
+                      className="lc-formInput lc-settingsScriptInput"
+                      placeholder={__( 'https://example.com/script.js', 'wp-livecode' )}
+                      value={scriptUrl}
+                      onChange={(event) => updateScriptAt(index, event.target.value, false)}
+                      onBlur={(event) => updateScriptAt(index, event.target.value, true)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          updateScriptAt(index, (event.target as HTMLInputElement).value, true);
+                        }
+                      }}
+                      disabled={disabled}
+                    />
+                    <button
+                      className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                      type="button"
+                      onClick={() => handleRemoveScript(index)}
+                      disabled={disabled}
+                      aria-label={__( 'Remove external script', 'wp-livecode' )}
+                    >
+                      {__( 'Remove', 'wp-livecode' )}
+                    </button>
+                  </div>
+                ))}
+                <button
+                  className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+                  type="button"
+                  onClick={handleAddScript}
+                  disabled={!canAddScript}
+                  aria-label={__( 'Add external script', 'wp-livecode' )}
+                >
+                  {`+ ${__( 'Add', 'wp-livecode' )}`}
+                </button>
+              </div>
+            ) : (
+              <button
+                className="lc-btn lc-btn-secondary"
+                type="button"
+                onClick={handleAddScript}
+                disabled={!canAddScript}
+              >
+                {__( 'Add external script', 'wp-livecode' )}
+              </button>
+            )}
+            <div className="lc-settingsHelp">
+              {/* translators: %d: maximum number of items. */}
+              {sprintf(
+                __(
+                  'Only URLs starting with https:// are allowed. You can add up to %d items.',
+                  'wp-livecode'
+                ),
+                MAX_EXTERNAL_SCRIPTS
+              )}
+            </div>
+            {externalScriptsError ? (
+              <div className="lc-settingsError">{externalScriptsError}</div>
+            ) : null}
+          </Fragment>
+        ) : null}
+        <div className="lc-settingsItemLabel">{__( 'External styles', 'wp-livecode' )}</div>
         {hasStyles ? (
           <div className="lc-settingsScriptList">
             {externalStyles.map((styleUrl, index) => (
@@ -357,45 +379,26 @@ export function SettingsPanel({
           <div className="lc-settingsError">{externalStylesError}</div>
         ) : null}
       </div>
-      {shortcodeEnabled ? (
-        <div className="lc-settingsSection">
-          <div className="lc-settingsSectionTitle">
-            {__( 'Shortcode', 'wp-livecode' )}
-          </div>
-          <div className="lc-settingsHelp">
-            {__(
-              'You can paste this into a shortcode block in Gutenberg or Elementor.',
-              'wp-livecode'
-            )}
-          </div>
-          <div className="lc-settingsScriptRow">
-            <input
-              ref={shortcodeInputRef}
-              type="text"
-              className="lc-formInput lc-settingsScriptInput"
-              value={shortcodeText}
-              readOnly
-              aria-label={__( 'LiveCode shortcode', 'wp-livecode' )}
-            />
-            <button
-              className="lc-btn lc-btn-secondary"
-              type="button"
-              onClick={handleCopyShortcode}
-              aria-label={__( 'Copy shortcode', 'wp-livecode' )}
-            >
-              {copyState === 'copied'
-                ? __( 'Copied', 'wp-livecode' )
-                : __( 'Copy', 'wp-livecode' )}
-            </button>
-          </div>
-          {copyState === 'copied' ? (
-            <div className="lc-settingsHelp">{__( 'Copied.', 'wp-livecode' )}</div>
-          ) : null}
-          {copyState === 'error' ? (
-            <div className="lc-settingsError">{__( 'Copy failed.', 'wp-livecode' )}</div>
-          ) : null}
+
+      <div className="lc-settingsSection">
+        <div className="lc-settingsSectionTitle">
+          {__( 'Display settings', 'wp-livecode' )}
         </div>
-      ) : null}
+        <div className="lc-settingsItem lc-settingsToggle">
+          <div className="lc-settingsItemLabel">
+            {__( 'Enable live edit highlight', 'wp-livecode' )}
+          </div>
+          <label className="lc-toggle">
+            <input
+              type="checkbox"
+              checked={liveHighlightEnabled}
+              aria-label={__( 'Enable live edit highlight', 'wp-livecode' )}
+              onChange={(event) => onToggleLiveHighlight(event.target.checked)}
+            />
+            <span className="lc-toggleTrack" aria-hidden="true" />
+          </label>
+        </div>
+      </div>
     </Fragment>
   );
 }
