@@ -19,6 +19,7 @@ type LayoutRefs = {
   right: HTMLDivElement;
   resizer: HTMLDivElement;
   iframe: HTMLIFrameElement;
+  previewBadge: HTMLDivElement;
   settings: HTMLElement;
   settingsHeader: HTMLDivElement;
   settingsBody: HTMLDivElement;
@@ -92,7 +93,11 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
   const iframe = document.createElement('iframe');
   iframe.className = 'lc-iframe';
   iframe.referrerPolicy = 'no-referrer-when-downgrade';
-  right.append(iframe);
+  const previewBadge = el('div', 'lc-previewBadge');
+  previewBadge.setAttribute('role', 'status');
+  previewBadge.setAttribute('aria-live', 'polite');
+  previewBadge.setAttribute('aria-atomic', 'true');
+  right.append(iframe, previewBadge);
 
   main.append(left, resizer, right, settings);
   app.append(toolbar, main);
@@ -117,6 +122,7 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
     right,
     resizer,
     iframe,
+    previewBadge,
     settings,
     settingsHeader,
     settingsBody,

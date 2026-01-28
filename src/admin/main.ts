@@ -168,6 +168,60 @@ async function main() {
   ui.editorResizer.setAttribute('role', 'separator');
   ui.editorResizer.setAttribute('aria-orientation', 'horizontal');
 
+  const PREVIEW_BADGE_HIDE_MS = 2200;
+  const PREVIEW_BADGE_TRANSITION_MS = 320;
+  let previewBadgeTimer: number | undefined;
+  let previewBadgeRaf = 0;
+
+  const updatePreviewBadge = () => {
+    const width = Math.round(ui.iframe.getBoundingClientRect().width);
+    if (width > 0) {
+      ui.previewBadge.textContent = `${width}px`;
+    }
+  };
+
+  const showPreviewBadge = () => {
+    updatePreviewBadge();
+    ui.previewBadge.classList.add('is-visible');
+    window.clearTimeout(previewBadgeTimer);
+    previewBadgeTimer = window.setTimeout(() => {
+      ui.previewBadge.classList.remove('is-visible');
+    }, PREVIEW_BADGE_HIDE_MS);
+  };
+
+  const showPreviewBadgeAfterLayout = () => {
+    if (isStackedLayout()) {
+      applyViewportLayout();
+      showPreviewBadge();
+      return;
+    }
+    let done = false;
+    const finalize = () => {
+      if (done) return;
+      done = true;
+      ui.left.removeEventListener('transitionend', onTransitionEnd);
+      applyViewportLayout();
+      showPreviewBadge();
+    };
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.propertyName === 'width' || event.propertyName === 'flex-basis') {
+        finalize();
+      }
+    };
+    ui.left.addEventListener('transitionend', onTransitionEnd, { once: true });
+    window.setTimeout(finalize, PREVIEW_BADGE_TRANSITION_MS);
+  };
+
+  const schedulePreviewBadge = () => {
+    if (previewBadgeRaf) {
+      return;
+    }
+    previewBadgeRaf = window.requestAnimationFrame(() => {
+      previewBadgeRaf = 0;
+      showPreviewBadge();
+    });
+  };
+
   let toolbarApi: ToolbarApi | null = null;
   let tailwindEnabled = Boolean(cfg.tailwindEnabled);
   let importedState: ImportResult | null = null;
@@ -946,6 +1000,10 @@ async function main() {
     return Math.max(0, mainRect.width - settingsWidth - resizerWidth);
   };
 
+  const getPreviewAreaWidth = () => {
+    return Math.max(0, ui.right.getBoundingClientRect().width);
+  };
+
   const isStackedLayout = () => {
     return window.getComputedStyle(ui.main).flexDirection === 'column';
   };
@@ -975,7 +1033,9 @@ async function main() {
     }
 
     const presetWidth = viewportPresetWidths[viewportMode];
-    ui.iframe.style.width = `${presetWidth}px`;
+    const previewAreaWidth = getPreviewAreaWidth();
+    const targetWidth = Math.min(presetWidth, previewAreaWidth || presetWidth);
+    ui.iframe.style.width = `${targetWidth}px`;
     ui.iframe.style.margin = '0 auto';
     if (forceFit) {
       ensurePreviewWidth(presetWidth);
@@ -983,12 +1043,13 @@ async function main() {
   }
 
   function setViewportMode(mode: ViewportMode) {
-    if (viewportMode === mode) {
-      return;
-    }
+    const isSameMode = viewportMode === mode;
     viewportMode = mode;
-    toolbarApi?.update({ viewportMode });
+    if (!isSameMode) {
+      toolbarApi?.update({ viewportMode });
+    }
     applyViewportLayout(true);
+    showPreviewBadgeAfterLayout();
   }
 
   const setLeftWidth = (width: number) => {
@@ -1045,6 +1106,7 @@ async function main() {
       setLeftWidth(lastLeftWidth || minLeftWidth);
     }
     applyViewportLayout();
+    showPreviewBadgeAfterLayout();
   };
 
   const onPointerMove = (event: PointerEvent) => {
@@ -1056,6 +1118,10 @@ async function main() {
     const maxLeftWidth = Math.max(minLeftWidth, available - minRightWidth);
     const nextWidth = Math.min(maxLeftWidth, Math.max(minLeftWidth, startWidth + event.clientX - startX));
     setLeftWidth(nextWidth);
+    if (viewportMode !== 'desktop') {
+      applyViewportLayout();
+    }
+    schedulePreviewBadge();
   };
 
   const stopResizing = (event?: PointerEvent) => {
@@ -1080,6 +1146,7 @@ async function main() {
     startWidth = ui.left.getBoundingClientRect().width;
     ui.app.classList.add('is-resizing');
     ui.resizer.setPointerCapture(event.pointerId);
+    showPreviewBadge();
   });
 
   window.addEventListener('pointermove', onPointerMove);
