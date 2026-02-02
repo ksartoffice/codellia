@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: WP LiveCode
+ * Plugin Name: CodeNagi
  * Plugin URI: https://wordpress.org/plugins/wp-livecode/
- * Description: Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview.
+ * Description: CodeNagi – Live HTML/CSS/JS Editor with Tailwind CSS.
  * Version: 1.0.0
  * Requires at least: 6.0
  * Tested up to: 6.9
  * Requires PHP: 8.2
- * Author: WP LiveCode
+ * Author: CodeNagi
  * License: GPL-2.0+
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wp-livecode

@@ -1,8 +1,8 @@
-﻿# Copyright (C) 2026 WP LiveCode
+﻿# Copyright (C) 2026 CodeNagi
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP LiveCode 1.0.0\n"
+"Project-Id-Version: CodeNagi 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-livecode\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: includes/class-wp-livecode-admin.php:58
 #: includes/class-wp-livecode-admin.php:59
 #: includes/class-wp-livecode-admin.php:139
-msgid "WP LiveCode"
+msgid "CodeNagi"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -30,7 +30,7 @@ msgstr ""
 
 #. Description of the plugin
 #: wp-livecode.php
-msgid "Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview."
+msgid "CodeNagi – Live HTML/CSS/JS Editor with Tailwind CSS."
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:39
@@ -41,7 +41,7 @@ msgstr ""
 
 #: includes/class-wp-livecode-admin.php:42
 #: includes/class-wp-livecode-admin.php:143
-msgid "This editor is only available for LiveCode posts."
+msgid "This editor is only available for CodeNagi posts."
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:45
@@ -70,15 +70,15 @@ msgid "Permalink"
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:110
-msgid "LiveCode slug"
+msgid "CodeNagi slug"
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:160
-msgid "Change the URL slug for LiveCode posts. Existing URLs will change after saving."
+msgid "Change the URL slug for CodeNagi posts. Existing URLs will change after saving."
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:169
-msgid "Allowed: lowercase letters, numbers, and hyphens. Default: wp-livecode."
+msgid "Allowed: lowercase letters, numbers, and hyphens. Default: codenagi."
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:91
@@ -90,15 +90,15 @@ msgid "Delete data on uninstall"
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:119
-msgid "Choose whether LiveCode posts should be deleted when the plugin is uninstalled."
+msgid "Choose whether CodeNagi posts should be deleted when the plugin is uninstalled."
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:129
-msgid "Delete all LiveCode posts on uninstall (imported media is kept)."
+msgid "Delete all CodeNagi posts on uninstall (imported media is kept)."
 msgstr ""
 
 #: includes/class-wp-livecode-admin.php:161
-msgid "WP LiveCode Settings"
+msgid "CodeNagi Settings"
 msgstr ""
 
 #: includes/class-wp-livecode-external-scripts.php:53
@@ -173,29 +173,29 @@ msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:53
 msgctxt "post type general name"
-msgid "LiveCode"
+msgid "CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:54
 msgctxt "post type singular name"
-msgid "LiveCode"
+msgid "CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:55
-msgctxt "livecode"
+msgctxt "codenagi"
 msgid "Add New"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:56
-msgid "Add New LiveCode"
+msgid "Add New CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:57
-msgid "Edit LiveCode"
+msgid "Edit CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:58
-msgid "New LiveCode"
+msgid "New CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:59
@@ -204,28 +204,28 @@ msgid "View on front end"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:61
-msgid "Search LiveCode"
+msgid "Search CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:62
-msgid "No LiveCode found"
+msgid "No CodeNagi found"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:63
-msgid "No LiveCode found in Trash"
+msgid "No CodeNagi found in Trash"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:64
 #: includes/class-wp-livecode-post-type.php:69
-msgid "LiveCode"
+msgid "CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:65
-msgid "LiveCode Archives"
+msgid "CodeNagi Archives"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:185
-msgid "Edit in LiveCode"
+msgid "Edit in CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:210
@@ -234,7 +234,7 @@ msgid "TailwindCSS"
 msgstr ""
 
 #: includes/class-wp-livecode-post-type.php:226
-msgid "Untitled LiveCode"
+msgid "Untitled CodeNagi"
 msgstr ""
 
 #: includes/class-wp-livecode-preview.php:86
@@ -461,7 +461,7 @@ msgid "You can paste this into a shortcode block in Gutenberg or Elementor."
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "LiveCode shortcode"
+msgid "CodeNagi shortcode"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -666,7 +666,7 @@ msgid "Import JSON"
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Restore from an exported LiveCode JSON file."
+msgid "Restore from an exported CodeNagi JSON file."
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -678,7 +678,7 @@ msgid "No file selected."
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "This choice is locked for this LiveCode page."
+msgid "This choice is locked for this CodeNagi page."
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -731,7 +731,7 @@ msgid "Preview"
 msgstr ""
 
 #: assets/admin/editor-bridge.js
-msgid "Edit with LiveCode"
+msgid "Edit with CodeNagi"
 msgstr ""
 
 #: assets/dist/main.js:1
@@ -848,6 +848,8 @@ msgstr ""
 #: assets/dist/main.js:23
 msgid "You may have unsaved changes."
 msgstr ""
+
+
 
 
 

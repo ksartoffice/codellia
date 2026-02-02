@@ -161,7 +161,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('[WP LiveCode] Export compile failed', error);
+        console.error('[CodeNagi] Export compile failed', error);
       }
     }
 
@@ -186,7 +186,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `livecode-${params.postId}.json`;
+    link.download = `codenagi-${params.postId}.json`;
     document.body.append(link);
     link.click();
     link.remove();

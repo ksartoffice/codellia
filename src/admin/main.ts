@@ -259,7 +259,7 @@ async function main() {
       }
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('[WP LiveCode] Setup failed', error);
+      console.error('[CodeNagi] Setup failed', error);
       ui.app.textContent = __( 'Setup failed.', 'wp-livecode' );
       return;
     } finally {
@@ -827,7 +827,7 @@ async function main() {
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('[WP LiveCode] Shortcode render failed', error);
+        console.error('[CodeNagi] Shortcode render failed', error);
       }
       return {};
     },

@@ -206,7 +206,7 @@ function SetupWizard({
         }
 
         if (response.importWarnings?.length) {
-          console.warn('[WP LiveCode] Import warnings', response.importWarnings);
+          console.warn('[CodeNagi] Import warnings', response.importWarnings);
         }
 
         const normalizedPayload = response.html
@@ -301,7 +301,7 @@ function SetupWizard({
                 {__( 'Import JSON', 'wp-livecode' )}
               </span>
               <span className="lc-setupOptionDesc">
-                {__( 'Restore from an exported LiveCode JSON file.', 'wp-livecode' )}
+                {__( 'Restore from an exported CodeNagi JSON file.', 'wp-livecode' )}
               </span>
             </span>
           </label>
@@ -323,7 +323,7 @@ function SetupWizard({
           </div>
         ) : null}
         <div className="lc-setupNote">
-          {__( 'This choice is locked for this LiveCode page.', 'wp-livecode' )}
+          {__( 'This choice is locked for this CodeNagi page.', 'wp-livecode' )}
         </div>
         <div className="lc-setupError">{error || ''}</div>
         <div className="lc-setupActions">

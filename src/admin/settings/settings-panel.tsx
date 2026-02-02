@@ -56,7 +56,7 @@ export function SettingsPanel({
   const hasScripts = externalScripts.length > 0;
   const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
   const hasStyles = externalStyles.length > 0;
-  const shortcodeText = `[livecode post_id="${postId}"]`;
+  const shortcodeText = `[codenagi post_id="${postId}"]`;
 
   useEffect(() => {
     return () => {
@@ -174,7 +174,7 @@ export function SettingsPanel({
                 className="lc-formInput lc-settingsScriptInput"
                 value={shortcodeText}
                 readOnly
-                aria-label={__( 'LiveCode shortcode', 'wp-livecode' )}
+                aria-label={__( 'CodeNagi shortcode', 'wp-livecode' )}
               />
               <button
                 className="lc-btn lc-btn-secondary"

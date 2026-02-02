@@ -49,23 +49,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	public static function register(): void {
 		$slug = self::get_slug();
 		$labels = array(
-			'name'               => _x( 'LiveCode', 'post type general name', 'wp-livecode' ),
-			'singular_name'      => _x( 'LiveCode', 'post type singular name', 'wp-livecode' ),
-			'add_new'            => _x( 'Add New', 'livecode', 'wp-livecode' ),
-			'add_new_item'       => __( 'Add New LiveCode', 'wp-livecode' ),
-			'edit_item'          => __( 'Edit LiveCode', 'wp-livecode' ),
-			'new_item'           => __( 'New LiveCode', 'wp-livecode' ),
+			'name'               => _x( 'CodeNagi', 'post type general name', 'wp-livecode' ),
+			'singular_name'      => _x( 'CodeNagi', 'post type singular name', 'wp-livecode' ),
+			'add_new'            => _x( 'Add New', 'codenagi', 'wp-livecode' ),
+			'add_new_item'       => __( 'Add New CodeNagi', 'wp-livecode' ),
+			'edit_item'          => __( 'Edit CodeNagi', 'wp-livecode' ),
+			'new_item'           => __( 'New CodeNagi', 'wp-livecode' ),
 			'view_item'          => __( 'View on front end', 'wp-livecode' ),
 			'view_items'         => __( 'View on front end', 'wp-livecode' ),
-			'search_items'       => __( 'Search LiveCode', 'wp-livecode' ),
-			'not_found'          => __( 'No LiveCode found', 'wp-livecode' ),
-			'not_found_in_trash' => __( 'No LiveCode found in Trash', 'wp-livecode' ),
-			'all_items'          => __( 'LiveCode', 'wp-livecode' ),
-			'archives'           => __( 'LiveCode Archives', 'wp-livecode' ),
+			'search_items'       => __( 'Search CodeNagi', 'wp-livecode' ),
+			'not_found'          => __( 'No CodeNagi found', 'wp-livecode' ),
+			'not_found_in_trash' => __( 'No CodeNagi found in Trash', 'wp-livecode' ),
+			'all_items'          => __( 'CodeNagi', 'wp-livecode' ),
+			'archives'           => __( 'CodeNagi Archives', 'wp-livecode' ),
 		);
 
 		$args = array(
-			'label'               => __( 'LiveCode', 'wp-livecode' ),
+			'label'               => __( 'CodeNagi', 'wp-livecode' ),
 			'labels'              => $labels,
 			'public'              => true,
 			'exclude_from_search' => false,
@@ -181,7 +181,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$actions['livecode_edit'] = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( self::get_editor_url( $post->ID ) ),
-			esc_html__( 'Edit in LiveCode', 'wp-livecode' )
+			esc_html__( 'Edit in CodeNagi', 'wp-livecode' )
 		);
 
 		return $actions;

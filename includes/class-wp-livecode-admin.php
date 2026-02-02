@@ -45,7 +45,7 @@ class Admin {
 			wp_die( esc_html__( 'post_id is required.', 'wp-livecode' ) );
 		}
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			wp_die( esc_html__( 'This editor is only available for LiveCode posts.', 'wp-livecode' ) );
+			wp_die( esc_html__( 'This editor is only available for CodeNagi posts.', 'wp-livecode' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
@@ -72,7 +72,7 @@ class Admin {
 			array(
 				'post_type'   => $post_type,
 				'post_status' => 'draft',
-				'post_title'  => __( 'Untitled LiveCode', 'wp-livecode' ),
+				'post_title'  => __( 'Untitled CodeNagi', 'wp-livecode' ),
 			),
 			true
 		);
@@ -92,8 +92,8 @@ class Admin {
 		// Hidden admin page (no menu entry). Accessed via redirects only.
 		add_submenu_page(
 			null,
-			__( 'WP LiveCode', 'wp-livecode' ),
-			__( 'WP LiveCode', 'wp-livecode' ),
+			__( 'CodeNagi', 'wp-livecode' ),
+			__( 'CodeNagi', 'wp-livecode' ),
 			'edit_posts',
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -143,7 +143,7 @@ class Admin {
 
 		add_settings_field(
 			self::OPTION_POST_SLUG,
-			__( 'LiveCode slug', 'wp-livecode' ),
+			__( 'CodeNagi slug', 'wp-livecode' ),
 			array( __CLASS__, 'render_post_slug_field' ),
 			self::SETTINGS_SLUG,
 			'wp_livecode_permalink'
@@ -228,7 +228,7 @@ class Admin {
 	 * Render permalink section description.
 	 */
 	public static function render_permalink_section(): void {
-		echo '<p>' . esc_html__( 'Change the URL slug for LiveCode posts. Existing URLs will change after saving.', 'wp-livecode' ) . '</p>';
+		echo '<p>' . esc_html__( 'Change the URL slug for CodeNagi posts. Existing URLs will change after saving.', 'wp-livecode' ) . '</p>';
 	}
 
 	/**
@@ -237,7 +237,7 @@ class Admin {
 	public static function render_post_slug_field(): void {
 		$value = get_option( self::OPTION_POST_SLUG, Post_Type::SLUG );
 		echo '<input type="text" class="regular-text" name="' . esc_attr( self::OPTION_POST_SLUG ) . '" value="' . esc_attr( $value ) . '" />';
-		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: wp-livecode.', 'wp-livecode' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: codenagi.', 'wp-livecode' ) . '</p>';
 	}
 
 	/**
@@ -245,7 +245,7 @@ class Admin {
 	 */
 	public static function render_cleanup_section(): void {
 
-		echo '<p>' . esc_html__( 'Choose whether LiveCode posts should be deleted when the plugin is uninstalled.', 'wp-livecode' ) . '</p>';
+		echo '<p>' . esc_html__( 'Choose whether CodeNagi posts should be deleted when the plugin is uninstalled.', 'wp-livecode' ) . '</p>';
 	}
 
 	/**
@@ -256,7 +256,7 @@ class Admin {
 		$value = get_option( self::OPTION_DELETE_ON_UNINSTALL, '0' );
 		echo '<label>';
 		echo '<input type="checkbox" name="' . esc_attr( self::OPTION_DELETE_ON_UNINSTALL ) . '" value="1" ' . checked( '1', $value, false ) . ' />';
-		echo ' ' . esc_html__( 'Delete all LiveCode posts on uninstall (imported media is kept).', 'wp-livecode' );
+		echo ' ' . esc_html__( 'Delete all CodeNagi posts on uninstall (imported media is kept).', 'wp-livecode' );
 		echo '</label>';
 	}
 
@@ -266,11 +266,11 @@ class Admin {
 	public static function render_page(): void {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
-			echo '<div class="wrap"><h1>' . esc_html__( 'WP LiveCode', 'wp-livecode' ) . '</h1><p>' . esc_html__( 'post_id is required.', 'wp-livecode' ) . '</p></div>';
+			echo '<div class="wrap"><h1>' . esc_html__( 'CodeNagi', 'wp-livecode' ) . '</h1><p>' . esc_html__( 'post_id is required.', 'wp-livecode' ) . '</p></div>';
 			return;
 		}
 		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
-			wp_die( esc_html__( 'This editor is only available for LiveCode posts.', 'wp-livecode' ) );
+			wp_die( esc_html__( 'This editor is only available for CodeNagi posts.', 'wp-livecode' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( esc_html__( 'Permission denied.', 'wp-livecode' ) );
@@ -289,7 +289,7 @@ class Admin {
 		}
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'WP LiveCode Settings', 'wp-livecode' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'CodeNagi Settings', 'wp-livecode' ) . '</h1>';
 		echo '<form action="options.php" method="post">';
 		settings_fields( self::SETTINGS_GROUP );
 		do_settings_sections( self::SETTINGS_SLUG );

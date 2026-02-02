@@ -317,7 +317,7 @@ function canonicalizeHtml(html: string): CanonicalResult {
 
     return { canonicalHTML: parse5.serialize(fragment), map, shortcodes: [] };
   } catch (error: any) {
-    console.error('[WP LiveCode] canonicalizeHtml failed', error);
+    console.error('[CodeNagi] canonicalizeHtml failed', error);
     return {
       canonicalHTML: html,
       map: {},
@@ -391,7 +391,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       return resolved;
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('[WP LiveCode] Shortcode render failed', error);
+      console.error('[CodeNagi] Shortcode render failed', error);
       return htmlWithPlaceholders;
     }
   };
@@ -425,7 +425,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     lcSourceMap = canonical.map;
 
     if (canonical.error && canonical.error !== lastCanonicalError) {
-      console.error('[WP LiveCode] Falling back to raw HTML for preview:', canonical.error);
+    console.error('[CodeNagi] Falling back to raw HTML for preview:', canonical.error);
       lastCanonicalError = canonical.error;
     } else if (!canonical.error) {
       lastCanonicalError = null;
@@ -653,7 +653,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   const highlightByLcId = (lcId: string) => {
     const rangeInfo = lcSourceMap[lcId];
     if (!rangeInfo) {
-      console.warn('[WP LiveCode] No source map for lc-id:', lcId);
+    console.warn('[CodeNagi] No source map for lc-id:', lcId);
       return;
     }
     deps.focusHtmlEditor();
