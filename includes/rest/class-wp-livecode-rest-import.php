@@ -245,16 +245,6 @@ class Rest_Import {
 		$html             = $payload['html'];
 		$css_input        = self::sanitize_css_input( $payload['css'] );
 		$tailwind_enabled = $payload['tailwindEnabled'];
-		$import_warnings  = array();
-		$imported_images  = array();
-
-		$html = Media_Import::localize_external_images(
-			$html,
-			$post_id,
-			$import_warnings,
-			$imported_images
-		);
-
 		$result = wp_update_post(
 			array(
 				'ID'           => $post_id,
@@ -348,14 +338,6 @@ class Rest_Import {
 			'tailwindEnabled' => $tailwind_enabled,
 			'settingsData'    => Rest_Settings::build_settings_payload( $post_id ),
 		);
-
-		if ( ! empty( $import_warnings ) ) {
-			$response['importWarnings'] = array_values( $import_warnings );
-		}
-
-		if ( ! empty( $imported_images ) ) {
-			$response['importedImages'] = array_values( $imported_images );
-		}
 
 		return new \WP_REST_Response( $response, 200 );
 	}

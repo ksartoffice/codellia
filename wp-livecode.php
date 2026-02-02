@@ -34,7 +34,6 @@ if ( file_exists( $autoload ) ) {
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-post-type.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-admin.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-editor-bridge.php';
-require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-media-import.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-external-scripts.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-external-styles.php';
 require_once WP_LIVECODE_PATH . 'includes/rest/class-wp-livecode-rest-save.php';

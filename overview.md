@@ -1,4 +1,4 @@
-WP LiveCode - WordPress HTML/CSS/JS ライブエディタ
+﻿WP LiveCode - WordPress HTML/CSS/JS ライブエディタ
 ===============================================
 
 概要
@@ -25,7 +25,7 @@ WP LiveCode - WordPress HTML/CSS/JS ライブエディタ
 ----------------------
 - 初回はセットアップウィザードで「Normal」/「Tailwind」/「Import JSON」を選択し、`_lc_tailwind_locked` で固定。
 - Import/Export JSON v1: HTML/CSS/JS、Tailwind、生成CSS、外部スクリプト/スタイル、Shadow DOM/Shortcode/Live Highlight。
-- Import時に外部画像をメディアライブラリへ取り込み、警告/取り込み結果を返却（`upload_files` 権限が必要）。
+- Import時はHTMLをそのまま反映（外部画像の取り込みは行わない）。
 
 Tailwind CSS
 ------------
@@ -56,7 +56,7 @@ REST API
 - `/wp-livecode/v1/save`: HTML/CSS/JS の保存、Tailwind コンパイル。
 - `/wp-livecode/v1/compile-tailwind`: プレビュー用コンパイル。
 - `/wp-livecode/v1/setup`: セットアップモード決定。
-- `/wp-livecode/v1/import`: JSON インポート（外部画像の取り込み）。
+- `/wp-livecode/v1/import`: JSON インポート。
 - `/wp-livecode/v1/settings`: 投稿/デザイン設定の更新。
 - `/wp-livecode/v1/render-shortcodes`: ショートコードのサーバレンダリング。
 
@@ -67,7 +67,6 @@ REST API
 - `_lc_shadow_dom`, `_lc_shortcode_enabled`
 - `_lc_external_scripts`, `_lc_external_styles`
 - `_lc_live_highlight`, `_lc_setup_required`
-- 添付メディアには `_lc_source_url` を保存（外部画像取り込み時）。
 
 postMessage プロトコル
 ----------------------
@@ -79,5 +78,6 @@ postMessage プロトコル
 -----------------
 - LiveCode 投稿かつ `edit_post` を満たす場合のみ編集可能。
 - JS/外部スクリプト/外部スタイル/Shadow DOM/ショートコードの更新は `unfiltered_html` が必要。
-- 画像取り込みは `upload_files` が必要。
 - プレビューは nonce 付き token と `event.origin` を検証。
+
+
