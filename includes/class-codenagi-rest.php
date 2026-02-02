@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * REST API route registration for CodeNagi.
  *

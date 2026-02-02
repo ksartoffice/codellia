@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Bridge the default editor screen to the CodeNagi editor.
  *

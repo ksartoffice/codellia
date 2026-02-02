@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * External script helpers for CodeNagi.
  *

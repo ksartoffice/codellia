@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * PHPUnit bootstrap for CodeNagi.
  *

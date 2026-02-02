@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Custom post type registration for CodeNagi.
  *

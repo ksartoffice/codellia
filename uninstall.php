@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Uninstall handler for CodeNagi.
  *

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * REST settings handlers for CodeNagi.
  *

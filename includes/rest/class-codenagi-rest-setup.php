@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * REST handler for setup wizard.
  *

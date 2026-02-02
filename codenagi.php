@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Plugin Name: CodeNagi
  * Plugin URI: https://wordpress.org/plugins/codenagi/

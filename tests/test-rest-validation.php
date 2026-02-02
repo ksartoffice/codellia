@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * REST validation tests for CodeNagi.
  *

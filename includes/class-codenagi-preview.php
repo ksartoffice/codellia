@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Front-end preview handling for CodeNagi.
  *

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Preview/nonce tests for CodeNagi.
  *

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * REST permission tests for CodeNagi.
  *
