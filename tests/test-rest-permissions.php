@@ -81,6 +81,18 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_rest_routes_forbid_non_livecode_post(): void {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$post_id   = $this->create_non_livecode_post( $author_id );
+
+		wp_set_current_user( $author_id );
+
+		foreach ( $this->get_rest_routes_with_params( $post_id ) as $route => $params ) {
+			$response = $this->dispatch_route( $route, $params );
+			$this->assertSame( 403, $response->get_status(), $route . ' should forbid non-livecode posts.' );
+		}
+	}
+
 	public function test_rest_import_requires_unfiltered_html(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
@@ -154,6 +166,16 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,
+				'post_status' => 'draft',
+				'post_author' => $author_id,
+			)
+		);
+	}
+
+	private function create_non_livecode_post( int $author_id ): int {
+		return (int) self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
 				'post_status' => 'draft',
 				'post_author' => $author_id,
 			)
