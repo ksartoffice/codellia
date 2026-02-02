@@ -26,9 +26,9 @@ define( 'WP_LIVECODE_VERSION', '1.0.0' );
 define( 'WP_LIVECODE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_LIVECODE_URL', plugin_dir_url( __FILE__ ) );
 
-$autoload = WP_LIVECODE_PATH . 'vendor/autoload.php';
-if ( file_exists( $autoload ) ) {
-	require_once $autoload;
+$wp_livecode_autoload = WP_LIVECODE_PATH . 'vendor/autoload.php';
+if ( file_exists( $wp_livecode_autoload ) ) {
+	require_once $wp_livecode_autoload;
 }
 
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-post-type.php';
