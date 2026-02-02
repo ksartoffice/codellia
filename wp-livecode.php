@@ -5,7 +5,7 @@
  * Description: Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview.
  * Version: 1.0.0
  * Requires at least: 6.0
- * Tested up to: 6.6
+ * Tested up to: 6.9
  * Requires PHP: 8.2
  * Author: WP LiveCode
  * License: GPL-2.0+
