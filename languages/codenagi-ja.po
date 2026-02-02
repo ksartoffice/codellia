@@ -1,7 +1,7 @@
-﻿msgid ""
+msgid ""
 msgstr ""
 "Project-Id-Version: CodeNagi 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-livecode\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/codenagi\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -12,316 +12,316 @@ msgstr ""
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: wp-livecode\n"
+"X-Domain: codenagi\n"
 
 #. Plugin Name of the plugin
 #. Author of the plugin
-#: wp-livecode.php
-#: includes/class-wp-livecode-admin.php:58
-#: includes/class-wp-livecode-admin.php:59
-#: includes/class-wp-livecode-admin.php:139
+#: codenagi.php
+#: includes/class-codenagi-admin.php:58
+#: includes/class-codenagi-admin.php:59
+#: includes/class-codenagi-admin.php:139
 msgid "CodeNagi"
 msgstr "CodeNagi"
 
 #. Plugin URI of the plugin
-#: wp-livecode.php
-msgid "https://wordpress.org/plugins/wp-livecode/"
-msgstr "https://wordpress.org/plugins/wp-livecode/"
+#: codenagi.php
+msgid "https://wordpress.org/plugins/codenagi/"
+msgstr "https://wordpress.org/plugins/codenagi/"
 
 #. Description of the plugin
-#: wp-livecode.php
+#: codenagi.php
 msgid "CodeNagi – Live HTML/CSS/JS Editor with Tailwind CSS."
 msgstr "CodeNagi – Tailwind CSS 対応の HTML/CSS/JS ライブエディター。"
 
-#: includes/class-wp-livecode-admin.php:39
-#: includes/class-wp-livecode-admin.php:139
-#: includes/class-wp-livecode-preview.php:78
+#: includes/class-codenagi-admin.php:39
+#: includes/class-codenagi-admin.php:139
+#: includes/class-codenagi-preview.php:78
 msgid "post_id is required."
 msgstr "post_id は必須です。"
 
-#: includes/class-wp-livecode-admin.php:42
-#: includes/class-wp-livecode-admin.php:143
+#: includes/class-codenagi-admin.php:42
+#: includes/class-codenagi-admin.php:143
 msgid "This editor is only available for CodeNagi posts."
 msgstr "このエディターは CodeNagi 投稿でのみ利用できます。"
 
-#: includes/class-wp-livecode-admin.php:45
-#: includes/class-wp-livecode-admin.php:146
-#: includes/class-wp-livecode-preview.php:82
-#: includes/rest/class-wp-livecode-rest-import.php:47
-#: includes/rest/class-wp-livecode-rest-save.php:50
-#: includes/rest/class-wp-livecode-rest-settings.php:230
-#: includes/rest/class-wp-livecode-rest-settings.php:294
-#: includes/rest/class-wp-livecode-rest-settings.php:365
-#: includes/rest/class-wp-livecode-rest-settings.php:379
-#: includes/rest/class-wp-livecode-rest-settings.php:393
-#: includes/rest/class-wp-livecode-rest-settings.php:412
-#: includes/rest/class-wp-livecode-rest-settings.php:461
+#: includes/class-codenagi-admin.php:45
+#: includes/class-codenagi-admin.php:146
+#: includes/class-codenagi-preview.php:82
+#: includes/rest/class-codenagi-rest-import.php:47
+#: includes/rest/class-codenagi-rest-save.php:50
+#: includes/rest/class-codenagi-rest-settings.php:230
+#: includes/rest/class-codenagi-rest-settings.php:294
+#: includes/rest/class-codenagi-rest-settings.php:365
+#: includes/rest/class-codenagi-rest-settings.php:379
+#: includes/rest/class-codenagi-rest-settings.php:393
+#: includes/rest/class-codenagi-rest-settings.php:412
+#: includes/rest/class-codenagi-rest-settings.php:461
 msgid "Permission denied."
 msgstr "権限がありません。"
 
-#: includes/class-wp-livecode-external-scripts.php:53
-#: includes/rest/class-wp-livecode-rest-import.php:194
-#: includes/rest/class-wp-livecode-rest-import.php:210
+#: includes/class-codenagi-external-scripts.php:53
+#: includes/rest/class-codenagi-rest-import.php:194
+#: includes/rest/class-codenagi-rest-import.php:210
 #: assets/dist/main.js:1
 msgid "Invalid externalScripts value."
 msgstr "externalScripts の値が不正です。"
 
-#: includes/class-wp-livecode-external-scripts.php:62
-#: includes/rest/class-wp-livecode-rest-settings.php:439
+#: includes/class-codenagi-external-scripts.php:62
+#: includes/rest/class-codenagi-rest-settings.php:439
 msgid "External scripts must be valid https:// URLs."
 msgstr "外部スクリプトは有効な https:// URL である必要があります。"
 
-#: includes/class-wp-livecode-external-scripts.php:70
+#: includes/class-codenagi-external-scripts.php:70
 msgid "External scripts exceed the maximum allowed."
 msgstr "外部スクリプトが上限を超えています。"
 
-#: includes/class-wp-livecode-external-styles.php:53
-#: includes/rest/class-wp-livecode-rest-import.php:223
-#: includes/rest/class-wp-livecode-rest-import.php:239
+#: includes/class-codenagi-external-styles.php:53
+#: includes/rest/class-codenagi-rest-import.php:223
+#: includes/rest/class-codenagi-rest-import.php:239
 #: assets/dist/main.js:1
 msgid "Invalid externalStyles value."
 msgstr "externalStyles の値が不正です。"
 
-#: includes/class-wp-livecode-external-styles.php:62
-#: includes/rest/class-wp-livecode-rest-settings.php:488
+#: includes/class-codenagi-external-styles.php:62
+#: includes/rest/class-codenagi-rest-settings.php:488
 msgid "External styles must be valid https:// URLs."
 msgstr "外部スタイルは有効な https:// URL である必要があります。"
 
-#: includes/class-wp-livecode-external-styles.php:70
+#: includes/class-codenagi-external-styles.php:70
 msgid "External styles exceed the maximum allowed."
 msgstr "外部スタイルが上限を超えています。"
 
-#: includes/class-wp-livecode-media-import.php:43
+#: includes/class-codenagi-media-import.php:43
 msgid "HTML parser unavailable; external images were not imported."
 msgstr "HTML パーサーが利用できないため、外部画像をインポートできませんでした。"
 
-#: includes/class-wp-livecode-media-import.php:109
+#: includes/class-codenagi-media-import.php:109
 msgid "Skipped invalid image URL."
 msgstr "不正な画像 URL をスキップしました。"
 
 #. translators: %s: image URL.
-#: includes/class-wp-livecode-media-import.php:121
+#: includes/class-codenagi-media-import.php:121
 #, php-format
 msgid "Skipping image import (missing upload_files): %s"
 msgstr "画像のインポートをスキップしました（upload_files 権限がありません）: %s"
 
 #. translators: 1: image URL, 2: error message.
-#: includes/class-wp-livecode-media-import.php:139
+#: includes/class-codenagi-media-import.php:139
 #, php-format
 msgid "Failed to download image: %1$s (%2$s)"
 msgstr "画像のダウンロードに失敗しました: %1$s (%2$s)"
 
 #. translators: 1: image URL, 2: error message.
-#: includes/class-wp-livecode-media-import.php:160
+#: includes/class-codenagi-media-import.php:160
 #, php-format
 msgid "Failed to sideload image: %1$s (%2$s)"
 msgstr "画像のサイドロードに失敗しました: %1$s (%2$s)"
 
 #. translators: %s: image URL.
-#: includes/class-wp-livecode-media-import.php:435
+#: includes/class-codenagi-media-import.php:435
 #, php-format
 msgid "Unable to detect image type: %s"
 msgstr "画像タイプを判別できません: %s"
 
 #. translators: 1: mime type, 2: image URL.
-#: includes/class-wp-livecode-media-import.php:445
+#: includes/class-codenagi-media-import.php:445
 #, php-format
 msgid "Unsupported image type (%1$s): %2$s"
 msgstr "サポートされていない画像タイプ (%1$s): %2$s"
 
-#: includes/class-wp-livecode-post-type.php:53
+#: includes/class-codenagi-post-type.php:53
 msgctxt "post type general name"
 msgid "CodeNagi"
 msgstr "CodeNagi"
 
-#: includes/class-wp-livecode-post-type.php:54
+#: includes/class-codenagi-post-type.php:54
 msgctxt "post type singular name"
 msgid "CodeNagi"
 msgstr "CodeNagi"
 
-#: includes/class-wp-livecode-post-type.php:55
+#: includes/class-codenagi-post-type.php:55
 msgctxt "codenagi"
 msgid "Add New"
 msgstr "新規追加"
 
-#: includes/class-wp-livecode-post-type.php:56
+#: includes/class-codenagi-post-type.php:56
 msgid "Add New CodeNagi"
 msgstr "CodeNagi を新規追加"
 
-#: includes/class-wp-livecode-post-type.php:57
+#: includes/class-codenagi-post-type.php:57
 msgid "Edit CodeNagi"
 msgstr "CodeNagi を編集"
 
-#: includes/class-wp-livecode-post-type.php:58
+#: includes/class-codenagi-post-type.php:58
 msgid "New CodeNagi"
 msgstr "新規 CodeNagi"
 
-#: includes/class-wp-livecode-post-type.php:59
-#: includes/class-wp-livecode-post-type.php:60
+#: includes/class-codenagi-post-type.php:59
+#: includes/class-codenagi-post-type.php:60
 msgid "View on front end"
 msgstr "フロントを表示"
 
-#: includes/class-wp-livecode-post-type.php:61
+#: includes/class-codenagi-post-type.php:61
 msgid "Search CodeNagi"
 msgstr "CodeNagi を検索"
 
-#: includes/class-wp-livecode-post-type.php:62
+#: includes/class-codenagi-post-type.php:62
 msgid "No CodeNagi found"
 msgstr "CodeNagi が見つかりません"
 
-#: includes/class-wp-livecode-post-type.php:63
+#: includes/class-codenagi-post-type.php:63
 msgid "No CodeNagi found in Trash"
 msgstr "ゴミ箱に CodeNagi はありません"
 
-#: includes/class-wp-livecode-post-type.php:64
-#: includes/class-wp-livecode-post-type.php:69
+#: includes/class-codenagi-post-type.php:64
+#: includes/class-codenagi-post-type.php:69
 msgid "CodeNagi"
 msgstr "CodeNagi"
 
-#: includes/class-wp-livecode-post-type.php:65
+#: includes/class-codenagi-post-type.php:65
 msgid "CodeNagi Archives"
 msgstr "CodeNagi アーカイブ"
 
-#: includes/class-wp-livecode-post-type.php:185
+#: includes/class-codenagi-post-type.php:185
 msgid "Edit in CodeNagi"
 msgstr "CodeNagiで編集"
 
-#: includes/class-wp-livecode-post-type.php:210
+#: includes/class-codenagi-post-type.php:210
 #: assets/dist/main.js:1
 msgid "TailwindCSS"
 msgstr "TailwindCSS"
 
-#: includes/class-wp-livecode-post-type.php:226
+#: includes/class-codenagi-post-type.php:226
 msgid "Untitled CodeNagi"
 msgstr "無題の CodeNagi"
 
-#: includes/class-wp-livecode-preview.php:86
+#: includes/class-codenagi-preview.php:86
 msgid "Invalid preview token."
 msgstr "プレビュートークンが無効です。"
 
-#: includes/class-wp-livecode-preview.php:90
-#: includes/rest/class-wp-livecode-rest-import.php:37
-#: includes/rest/class-wp-livecode-rest-save.php:40
-#: includes/rest/class-wp-livecode-rest-save.php:139
-#: includes/rest/class-wp-livecode-rest-setup.php:32
+#: includes/class-codenagi-preview.php:90
+#: includes/rest/class-codenagi-rest-import.php:37
+#: includes/rest/class-codenagi-rest-save.php:40
+#: includes/rest/class-codenagi-rest-save.php:139
+#: includes/rest/class-codenagi-rest-setup.php:32
 msgid "Invalid post type."
 msgstr "投稿タイプが無効です。"
 
-#: includes/class-wp-livecode-preview.php:94
-#: includes/rest/class-wp-livecode-rest-preview.php:43
-#: includes/rest/class-wp-livecode-rest-settings.php:215
+#: includes/class-codenagi-preview.php:94
+#: includes/rest/class-codenagi-rest-preview.php:43
+#: includes/rest/class-codenagi-rest-settings.php:215
 msgid "Post not found."
 msgstr "投稿が見つかりません。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:57
+#: includes/rest/class-codenagi-rest-import.php:57
 msgid "Invalid import payload."
 msgstr "インポートのペイロードが無効です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:68
+#: includes/rest/class-codenagi-rest-import.php:68
 #: assets/dist/main.js:1
 msgid "Unsupported import version."
 msgstr "サポートされていないインポートバージョンです。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:78
+#: includes/rest/class-codenagi-rest-import.php:78
 #: assets/dist/main.js:1
 msgid "Invalid HTML value."
 msgstr "HTML の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:88
+#: includes/rest/class-codenagi-rest-import.php:88
 #: assets/dist/main.js:1
 msgid "Invalid CSS value."
 msgstr "CSS の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:98
+#: includes/rest/class-codenagi-rest-import.php:98
 #: assets/dist/main.js:1
 msgid "Invalid tailwind flag."
 msgstr "Tailwind フラグが不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:110
+#: includes/rest/class-codenagi-rest-import.php:110
 #: assets/dist/main.js:1
 msgid "Invalid JavaScript value."
 msgstr "JavaScript の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:124
+#: includes/rest/class-codenagi-rest-import.php:124
 #: assets/dist/main.js:1
 msgid "Invalid jsEnabled value."
 msgstr "jsEnabled の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:138
+#: includes/rest/class-codenagi-rest-import.php:138
 #: assets/dist/main.js:1
 msgid "Invalid shadowDomEnabled value."
 msgstr "shadowDomEnabled の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:152
+#: includes/rest/class-codenagi-rest-import.php:152
 #: assets/dist/main.js:1
 msgid "Invalid shortcodeEnabled value."
 msgstr "shortcodeEnabled の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:166
+#: includes/rest/class-codenagi-rest-import.php:166
 #: assets/dist/main.js:1
 msgid "Invalid singlePageEnabled value."
 msgstr "singlePageEnabled の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:166
+#: includes/rest/class-codenagi-rest-import.php:166
 #: assets/dist/main.js:1
 msgid "Invalid liveHighlightEnabled value."
 msgstr "liveHighlightEnabled の値が不正です。"
 
-#: includes/rest/class-wp-livecode-rest-import.php:180
+#: includes/rest/class-codenagi-rest-import.php:180
 #: assets/dist/main.js:1
 msgid "Invalid generatedCss value."
 msgstr "generatedCss の値が不正です。"
 
 #. translators: %s: error message.
-#: includes/rest/class-wp-livecode-rest-import.php:295
-#: includes/rest/class-wp-livecode-rest-save.php:97
-#: includes/rest/class-wp-livecode-rest-save.php:158
+#: includes/rest/class-codenagi-rest-import.php:295
+#: includes/rest/class-codenagi-rest-save.php:97
+#: includes/rest/class-codenagi-rest-save.php:158
 #, php-format
 msgid "Tailwind compile failed: %s"
 msgstr "Tailwind のコンパイルに失敗しました: %s"
 
-#: includes/rest/class-wp-livecode-rest-preview.php:32
+#: includes/rest/class-codenagi-rest-preview.php:32
 msgid "Invalid parameters."
 msgstr "パラメータが不正です。"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:43
+#: includes/rest/class-codenagi-rest-settings.php:43
 msgid "Draft"
 msgstr "下書き"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:47
+#: includes/rest/class-codenagi-rest-settings.php:47
 msgid "Pending"
 msgstr "レビュー待ち"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:51
+#: includes/rest/class-codenagi-rest-settings.php:51
 #: assets/dist/main.js:1
 msgid "Private"
 msgstr "非公開"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:55
+#: includes/rest/class-codenagi-rest-settings.php:55
 msgid "Scheduled"
 msgstr "予約済み"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:59
+#: includes/rest/class-codenagi-rest-settings.php:59
 msgid "Published"
 msgstr "公開済み"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:82
+#: includes/rest/class-codenagi-rest-settings.php:82
 msgid "Default"
 msgstr "デフォルト"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:204
+#: includes/rest/class-codenagi-rest-settings.php:204
 msgid "Invalid payload."
 msgstr "ペイロードが不正です。"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:421
+#: includes/rest/class-codenagi-rest-settings.php:421
 msgid "Invalid external scripts payload."
 msgstr "外部スクリプトのペイロードが不正です。"
 
-#: includes/rest/class-wp-livecode-rest-settings.php:470
+#: includes/rest/class-codenagi-rest-settings.php:470
 msgid "Invalid external styles payload."
 msgstr "外部スタイルのペイロードが不正です。"
 
-#: includes/rest/class-wp-livecode-rest-setup.php:42
+#: includes/rest/class-codenagi-rest-setup.php:42
 msgid "Invalid setup mode."
 msgstr "セットアップモードが不正です。"
 
@@ -692,8 +692,8 @@ msgstr "プレビュー"
 msgid "Edit with CodeNagi"
 msgstr "CodeNagiで編集"
 
-#: includes/class-wp-livecode-admin.php:67
-#: includes/class-wp-livecode-admin.php:68
+#: includes/class-codenagi-admin.php:67
+#: includes/class-codenagi-admin.php:68
 #: assets/dist/main.js:1
 msgid "Settings"
 msgstr "設定"
@@ -813,39 +813,39 @@ msgstr "Monaco を読み込み中..."
 msgid "You may have unsaved changes."
 msgstr "未保存の変更があります。"
 
-#: includes/class-wp-livecode-admin.php:103
+#: includes/class-codenagi-admin.php:103
 msgid "Permalink"
 msgstr "パーマリンク"
 
-#: includes/class-wp-livecode-admin.php:110
+#: includes/class-codenagi-admin.php:110
 msgid "CodeNagi slug"
 msgstr "CodeNagi スラッグ"
 
-#: includes/class-wp-livecode-admin.php:160
+#: includes/class-codenagi-admin.php:160
 msgid "Change the URL slug for CodeNagi posts. Existing URLs will change after saving."
 msgstr "CodeNagi 投稿の URL スラッグを変更します。保存後は既存の URL が変更されます。"
 
-#: includes/class-wp-livecode-admin.php:169
+#: includes/class-codenagi-admin.php:169
 msgid "Allowed: lowercase letters, numbers, and hyphens. Default: codenagi."
 msgstr "使用可能: 英小文字、数字、ハイフン。初期値: codenagi。"
 
-#: includes/class-wp-livecode-admin.php:91
+#: includes/class-codenagi-admin.php:91
 msgid "Cleanup"
 msgstr "クリーンアップ"
 
-#: includes/class-wp-livecode-admin.php:98
+#: includes/class-codenagi-admin.php:98
 msgid "Delete data on uninstall"
 msgstr "アンインストール時にデータを削除"
 
-#: includes/class-wp-livecode-admin.php:119
+#: includes/class-codenagi-admin.php:119
 msgid "Choose whether CodeNagi posts should be deleted when the plugin is uninstalled."
 msgstr "プラグインをアンインストールする際に CodeNagi 投稿を削除するかどうかを選択します。"
 
-#: includes/class-wp-livecode-admin.php:129
+#: includes/class-codenagi-admin.php:129
 msgid "Delete all CodeNagi posts on uninstall (imported media is kept)."
 msgstr "アンインストール時に CodeNagi 投稿をすべて削除します（取り込んだメディアは保持します）。"
 
-#: includes/class-wp-livecode-admin.php:161
+#: includes/class-codenagi-admin.php:161
 msgid "CodeNagi Settings"
 msgstr "CodeNagi 設定"
 
