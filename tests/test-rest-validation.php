@@ -73,6 +73,150 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertSame( 400, $response->get_status(), 'External scripts must be https URLs.' );
 	}
 
+	public function test_import_rejects_invalid_js_type(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload        = $this->get_import_payload_base();
+		$payload['js']  = array( 'alert(1)' );
+		$response       = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'JavaScript must be string when provided.' );
+	}
+
+	public function test_import_rejects_invalid_generated_css_type(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload               = $this->get_import_payload_base();
+		$payload['generatedCss'] = array( 'body { color: red; }' );
+		$response              = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'generatedCss must be string when provided.' );
+	}
+
+	public function test_import_rejects_invalid_shadow_dom_enabled_type(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload                    = $this->get_import_payload_base();
+		$payload['shadowDomEnabled'] = 'yes';
+		$response                   = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'shadowDomEnabled must be boolean.' );
+	}
+
+	public function test_import_rejects_invalid_shortcode_enabled_type(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload                    = $this->get_import_payload_base();
+		$payload['shortcodeEnabled'] = 1;
+		$response                   = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'shortcodeEnabled must be boolean.' );
+	}
+
+	public function test_import_rejects_invalid_single_page_enabled_type(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload                     = $this->get_import_payload_base();
+		$payload['singlePageEnabled'] = 'true';
+		$response                    = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'singlePageEnabled must be boolean.' );
+	}
+
+	public function test_import_rejects_invalid_live_highlight_enabled_type(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload                       = $this->get_import_payload_base();
+		$payload['liveHighlightEnabled'] = 'false';
+		$response                      = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'liveHighlightEnabled must be boolean.' );
+	}
+
+	public function test_import_rejects_invalid_external_styles_type(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload                   = $this->get_import_payload_base();
+		$payload['externalStyles'] = 'https://example.com/style.css';
+		$response                  = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'externalStyles must be an array.' );
+	}
+
+	public function test_import_rejects_invalid_external_styles_url(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$payload                   = $this->get_import_payload_base();
+		$payload['externalStyles'] = array( 'http://example.com/style.css' );
+		$response                  = $this->dispatch_route(
+			'/wp-livecode/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => $payload,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'External styles must be https URLs.' );
+	}
+
 	public function test_settings_rejects_non_array_updates(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_livecode_post( $admin_id );
@@ -114,6 +258,24 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertSame( 400, $response->get_status(), 'External scripts should respect the max limit.' );
 	}
 
+	public function test_settings_rejects_external_scripts_invalid_url(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$response = $this->dispatch_route(
+			'/wp-livecode/v1/settings',
+			array(
+				'post_id' => $post_id,
+				'updates' => array(
+					'externalScripts' => array( 'http://example.com/app.js' ),
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'External scripts must be https URLs.' );
+	}
+
 	public function test_settings_rejects_external_styles_invalid_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_livecode_post( $admin_id );
@@ -130,6 +292,31 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 400, $response->get_status(), 'External styles must be https URLs.' );
+	}
+
+	public function test_settings_rejects_external_styles_over_limit(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_livecode_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$response = $this->dispatch_route(
+			'/wp-livecode/v1/settings',
+			array(
+				'post_id' => $post_id,
+				'updates' => array(
+					'externalStyles' => array(
+						'https://example.com/1.css',
+						'https://example.com/2.css',
+						'https://example.com/3.css',
+						'https://example.com/4.css',
+						'https://example.com/5.css',
+						'https://example.com/6.css',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'External styles should respect the max limit.' );
 	}
 
 	public function test_save_strips_xss_from_html_for_author(): void {

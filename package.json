@@ -14,7 +14,10 @@
     "assets/dist/**",
     "assets/monaco/**",
     "includes/**",
+    "languages/**",
     "vendor/**",
+    "composer.json",
+    "composer.lock",
     "readme.txt",
     "wp-livecode.php",
     "LICENSE"

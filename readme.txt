@@ -1,12 +1,14 @@
 === WP LiveCode ===
 Contributors: yourname
-Tags: live preview, html, css, javascript, code editor, monaco, tailwind, shortcode
+Tags: live preview, code editor, monaco, tailwind, shortcode
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 6.9
 Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+A live HTML/CSS/JS editor with Monaco and a real-time preview.
 
 == Description ==
 WP LiveCode provides a dedicated editor for building HTML, CSS, and JavaScript snippets with a live preview. It adds a "LiveCode" custom post type and redirects the standard editor to a Monaco-based UI.

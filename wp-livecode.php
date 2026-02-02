@@ -5,7 +5,7 @@
  * Description: Live HTML/CSS/JS editor with a custom LiveCode post type, Monaco Editor, and live preview.
  * Version: 1.0.0
  * Requires at least: 6.0
- * Tested up to: 6.6
+ * Tested up to: 6.9
  * Requires PHP: 8.2
  * Author: WP LiveCode
  * License: GPL-2.0+
@@ -26,15 +26,14 @@ define( 'WP_LIVECODE_VERSION', '1.0.0' );
 define( 'WP_LIVECODE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_LIVECODE_URL', plugin_dir_url( __FILE__ ) );
 
-$autoload = WP_LIVECODE_PATH . 'vendor/autoload.php';
-if ( file_exists( $autoload ) ) {
-	require_once $autoload;
+$wp_livecode_autoload = WP_LIVECODE_PATH . 'vendor/autoload.php';
+if ( file_exists( $wp_livecode_autoload ) ) {
+	require_once $wp_livecode_autoload;
 }
 
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-post-type.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-admin.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-editor-bridge.php';
-require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-media-import.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-external-scripts.php';
 require_once WP_LIVECODE_PATH . 'includes/class-wp-livecode-external-styles.php';
 require_once WP_LIVECODE_PATH . 'includes/rest/class-wp-livecode-rest-save.php';
@@ -66,18 +65,6 @@ add_action(
 		\WPLiveCode\Frontend::init();
 	}
 );
-
-/**
- * Load plugin textdomain.
- */
-function wp_livecode_load_textdomain() {
-	load_plugin_textdomain(
-		'wp-livecode',
-		false,
-		basename( __DIR__ ) . '/languages'
-	);
-}
-add_action( 'plugins_loaded', 'wp_livecode_load_textdomain' );
 
 /**
  * Plugin activation hook.

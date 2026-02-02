@@ -189,26 +189,15 @@ class Rest_Settings {
 
 		$status     = isset( $updates['status'] ) ? sanitize_key( (string) $updates['status'] ) : null;
 		$visibility = isset( $updates['visibility'] ) ? sanitize_key( (string) $updates['visibility'] ) : null;
-		$password   = isset( $updates['password'] ) ? (string) $updates['password'] : null;
+		$valid_statuses = array( 'draft', 'pending', 'private', 'publish' );
+		$valid_visibility = array( 'public', 'private' );
 
-		if ( 'trash' === $status ) {
-			if ( ! current_user_can( 'delete_post', $post_id ) ) {
-				return new \WP_REST_Response(
-					array(
-						'ok'    => false,
-						'error' => __( 'Permission denied.', 'wp-livecode' ),
-					),
-					403
-				);
-			}
-			wp_trash_post( $post_id );
-			return new \WP_REST_Response(
-				array(
-					'ok'          => true,
-					'redirectUrl' => admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE ),
-				),
-				200
-			);
+		if ( null !== $status && ! in_array( $status, $valid_statuses, true ) ) {
+			$status = null;
+		}
+
+		if ( null !== $visibility && ! in_array( $visibility, $valid_visibility, true ) ) {
+			$visibility = null;
 		}
 
 		$post_update = array( 'ID' => $post_id );
@@ -217,37 +206,11 @@ class Rest_Settings {
 			$post_update['post_title'] = sanitize_text_field( (string) $updates['title'] );
 		}
 
-		if ( isset( $updates['slug'] ) ) {
-			$post_update['post_name'] = sanitize_title( (string) $updates['slug'] );
-		}
-
-		if ( isset( $updates['author'] ) ) {
-			$post_update['post_author'] = absint( $updates['author'] );
-		}
-
-		if ( isset( $updates['date'] ) ) {
-			$date_value = sanitize_text_field( (string) $updates['date'] );
-			if ( '' !== $date_value ) {
-				$post_update['post_date']     = $date_value;
-				$post_update['post_date_gmt'] = get_gmt_from_date( $date_value );
-			}
-		}
-
-		if ( isset( $updates['commentStatus'] ) ) {
-			$post_update['comment_status'] = 'open' === $updates['commentStatus'] ? 'open' : 'closed';
-		}
-
-		if ( isset( $updates['pingStatus'] ) ) {
-			$post_update['ping_status'] = 'open' === $updates['pingStatus'] ? 'open' : 'closed';
-		}
-
 		if ( 'private' === $visibility ) {
 			$post_update['post_status']   = 'private';
 			$post_update['post_password'] = '';
 		} else {
-			if ( 'password' === $visibility ) {
-				$post_update['post_password'] = $password ?? $post->post_password;
-			} elseif ( 'public' === $visibility ) {
+			if ( 'public' === $visibility ) {
 				$post_update['post_password'] = '';
 			}
 			if ( $status ) {
@@ -277,33 +240,6 @@ class Rest_Settings {
 					),
 					400
 				);
-			}
-		}
-
-		if ( isset( $updates['template'] ) ) {
-			$template = sanitize_text_field( (string) $updates['template'] );
-			if ( 'default' === $template ) {
-				delete_post_meta( $post_id, '_wp_page_template' );
-			} else {
-				update_post_meta( $post_id, '_wp_page_template', $template );
-			}
-		}
-
-		if ( isset( $updates['format'] ) ) {
-			$format = sanitize_key( (string) $updates['format'] );
-			if ( 'standard' === $format ) {
-				set_post_format( $post_id, false );
-			} else {
-				set_post_format( $post_id, $format );
-			}
-		}
-
-		if ( isset( $updates['featuredImageId'] ) ) {
-			$featured_id = absint( $updates['featuredImageId'] );
-			if ( 0 < $featured_id ) {
-				set_post_thumbnail( $post_id, $featured_id );
-			} else {
-				delete_post_thumbnail( $post_id );
 			}
 		}
 
