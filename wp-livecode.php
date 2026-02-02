@@ -67,18 +67,6 @@ add_action(
 );
 
 /**
- * Load plugin textdomain.
- */
-function wp_livecode_load_textdomain() {
-	load_plugin_textdomain(
-		'wp-livecode',
-		false,
-		basename( __DIR__ ) . '/languages'
-	);
-}
-add_action( 'plugins_loaded', 'wp_livecode_load_textdomain' );
-
-/**
  * Plugin activation hook.
  */
 function wp_livecode_activate() {
