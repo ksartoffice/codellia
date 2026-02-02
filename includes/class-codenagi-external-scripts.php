@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 /**
- * External script helpers for WP LiveCode.
+ * External script helpers for CodeNagi.
  *
- * @package WP_LiveCode
+ * @package CodeNagi
  */
 
-namespace WPLiveCode;
+namespace CodeNagi;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,14 +16,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class External_Scripts {
 	/**
-	 * Fetch external scripts list for a LiveCode post.
+	 * Fetch external scripts list for a CodeNagi post.
 	 *
-	 * @param int      $post_id LiveCode post ID.
+	 * @param int      $post_id CodeNagi post ID.
 	 * @param int|null $max     Optional max items.
 	 * @return array
 	 */
 	public static function get_external_scripts( int $post_id, ?int $max = null ): array {
-		$raw  = get_post_meta( $post_id, '_lc_external_scripts', true );
+		$raw  = get_post_meta( $post_id, '_codenagi_external_scripts', true );
 		$list = array();
 
 		if ( is_array( $raw ) ) {
@@ -50,7 +50,7 @@ class External_Scripts {
 		$sanitized = array();
 		foreach ( array_values( $raw ) as $script_url ) {
 			if ( ! is_string( $script_url ) ) {
-				$error = __( 'Invalid externalScripts value.', 'wp-livecode' );
+				$error = __( 'Invalid externalScripts value.', 'codenagi' );
 				return null;
 			}
 			$script_url = trim( $script_url );
@@ -59,7 +59,7 @@ class External_Scripts {
 			}
 			$clean_url = self::sanitize_url( $script_url );
 			if ( ! $clean_url ) {
-				$error = __( 'External scripts must be valid https:// URLs.', 'wp-livecode' );
+				$error = __( 'External scripts must be valid https:// URLs.', 'codenagi' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -67,7 +67,7 @@ class External_Scripts {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = __( 'External scripts exceed the maximum allowed.', 'wp-livecode' );
+			$error = __( 'External scripts exceed the maximum allowed.', 'codenagi' );
 			return null;
 		}
 
@@ -131,3 +131,6 @@ class External_Scripts {
 		return esc_url_raw( $validated );
 	}
 }
+
+
+

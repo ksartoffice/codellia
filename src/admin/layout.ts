@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+﻿import { __ } from '@wordpress/i18n';
 
 type LayoutRefs = {
   app: HTMLDivElement;
@@ -52,7 +52,7 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
 
   const htmlPane = el('div', 'lc-editorPane lc-editorPane-html is-active');
   const htmlHeader = el('div', 'lc-editorHeader');
-  htmlHeader.textContent = __( 'HTML', 'wp-livecode' );
+  htmlHeader.textContent = __( 'HTML', 'codenagi' );
   const htmlWrap = el('div', 'lc-editorWrap');
   const htmlEditorDiv = el('div', 'lc-editor lc-editor-html');
   htmlWrap.append(htmlEditorDiv);
@@ -64,18 +64,18 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
   const cssTab = document.createElement('button');
   cssTab.type = 'button';
   cssTab.className = 'lc-editorTab is-active';
-  cssTab.textContent = __( 'CSS', 'wp-livecode' );
+  cssTab.textContent = __( 'CSS', 'codenagi' );
   const jsTab = document.createElement('button');
   jsTab.type = 'button';
   jsTab.className = 'lc-editorTab';
-  jsTab.textContent = __( 'JavaScript', 'wp-livecode' );
+  jsTab.textContent = __( 'JavaScript', 'codenagi' );
   cssTabs.append(cssTab, jsTab);
 
   const jsControls = el('div', 'lc-editorActions');
   const runButton = document.createElement('button');
   runButton.type = 'button';
   runButton.className = 'lc-editorAction';
-  runButton.textContent = __( 'Run', 'wp-livecode' );
+  runButton.textContent = __( 'Run', 'codenagi' );
   jsControls.append(runButton);
 
   cssHeader.append(cssTabs, jsControls);
@@ -130,3 +130,4 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
 }
 
 export type { LayoutRefs };
+

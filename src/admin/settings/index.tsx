@@ -1,4 +1,4 @@
-import {
+﻿import {
   createElement,
   Fragment,
   createPortal,
@@ -90,7 +90,7 @@ const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
 });
 
-function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-livecode' )) {
+function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'codenagi' )) {
   if (typeof error === 'string' && error.trim()) return error;
   if (error instanceof Error) {
     if (error.message && error.message !== '[object Object]') return error.message;
@@ -215,7 +215,7 @@ function SettingsSidebar({
       });
 
       if (!response?.ok) {
-        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'wp-livecode' )));
+        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'codenagi' )));
       }
 
       if (response?.settings) {
@@ -322,7 +322,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalScripts: normalizedNext });
     } catch (err: any) {
-      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'wp-livecode' )));
+      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'codenagi' )));
       setExternalScripts(settings.externalScripts || []);
     }
   };
@@ -346,7 +346,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalStyles: normalizedNext });
     } catch (err: any) {
-      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'wp-livecode' )));
+      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'codenagi' )));
       setExternalStyles(settings.externalStyles || []);
     }
   };
@@ -356,7 +356,7 @@ function SettingsSidebar({
       <div
         className="lc-settingsTabs"
         role="tablist"
-        aria-label={__( 'Settings tabs', 'wp-livecode' )}
+        aria-label={__( 'Settings tabs', 'codenagi' )}
       >
         <button
           className={`lc-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
@@ -365,7 +365,7 @@ function SettingsSidebar({
           aria-selected={activeTab === 'settings'}
           onClick={() => handleTabChange('settings')}
         >
-          {__( 'Settings', 'wp-livecode' )}
+          {__( 'Settings', 'codenagi' )}
         </button>
         <button
           className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
@@ -374,13 +374,13 @@ function SettingsSidebar({
           aria-selected={activeTab === 'elements'}
           onClick={() => handleTabChange('elements')}
         >
-          {__( 'Elements', 'wp-livecode' )}
+          {__( 'Elements', 'codenagi' )}
         </button>
       </div>
       <button
         className="lc-settingsClose"
         type="button"
-        aria-label={__( 'Close settings panel', 'wp-livecode' )}
+        aria-label={__( 'Close settings panel', 'codenagi' )}
         onClick={() => onClosePanel?.()}
       >
         <span
@@ -432,7 +432,7 @@ export function initSettings(config: SettingsConfig) {
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = __( 'Settings unavailable.', 'wp-livecode' );
+    container.textContent = __( 'Settings unavailable.', 'codenagi' );
     return;
   }
 
@@ -444,3 +444,4 @@ export function initSettings(config: SettingsConfig) {
     render(node, container);
   }
 }
+

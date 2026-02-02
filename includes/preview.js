@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const styleId = 'lc-style';
   const scriptId = 'lc-script';
   const shadowHostId = 'lc-shadow-host';
@@ -6,13 +6,13 @@
   const shadowScriptsId = 'lc-shadow-scripts';
   const externalScriptAttr = 'data-lc-external-script';
   const externalStyleAttr = 'data-lc-external-style';
-  const LC_ATTR_NAME = 'data-lc-id';
-  const config = window.WP_LIVECODE_PREVIEW || {};
+  const CODENAGI_ATTR_NAME = 'data-codenagi-id';
+  const config = window.CODENAGI_PREVIEW || {};
   const postId = config.post_id || null;
   const markerStart =
-    config.markers && config.markers.start ? String(config.markers.start) : 'wp-livecode:start';
+    config.markers && config.markers.start ? String(config.markers.start) : 'codenagi:start';
   const markerEnd =
-    config.markers && config.markers.end ? String(config.markers.end) : 'wp-livecode:end';
+    config.markers && config.markers.end ? String(config.markers.end) : 'codenagi:end';
   const allowedOrigin = getAllowedOrigin();
   let isReady = false;
   let hoverTarget = null;
@@ -254,7 +254,7 @@
     button.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      reply('LC_OPEN_ELEMENTS_TAB');
+      reply('CODENAGI_OPEN_ELEMENTS_TAB');
     });
     document.body.appendChild(button);
     selectActionButton = button;
@@ -343,7 +343,7 @@
     if (typeof event.composedPath === 'function') {
       const path = event.composedPath();
       for (const node of path) {
-        if (node instanceof Element && node.hasAttribute(LC_ATTR_NAME)) {
+        if (node instanceof Element && node.hasAttribute(CODENAGI_ATTR_NAME)) {
           return node;
         }
       }
@@ -351,7 +351,7 @@
     if (!event.target || !(event.target instanceof Element)) {
       return null;
     }
-    return event.target.closest('[' + LC_ATTR_NAME + ']');
+    return event.target.closest('[' + CODENAGI_ATTR_NAME + ']');
   }
 
   function handlePointerMove(event) {
@@ -371,9 +371,9 @@
     event.preventDefault();
     event.stopPropagation();
     drawSelection(target);
-    const lcId = target.getAttribute(LC_ATTR_NAME);
+    const lcId = target.getAttribute(CODENAGI_ATTR_NAME);
     if (lcId) {
-      reply('LC_SELECT', { lcId: lcId });
+      reply('CODENAGI_SELECT', { lcId: lcId });
     }
   }
 
@@ -709,12 +709,12 @@
   window.addEventListener('message', (event) => {
     if (allowedOrigin && event.origin !== allowedOrigin) return;
     const data = event.data || {};
-    if (data.type === 'LC_INIT') {
+    if (data.type === 'CODENAGI_INIT') {
       isReady = true;
-      reply('LC_READY', { post_id: postId });
+      reply('CODENAGI_READY', { post_id: postId });
       return;
     }
-    if (data.type === 'LC_RENDER') {
+    if (data.type === 'CODENAGI_RENDER') {
       if (!isReady) return;
       setShadowDomEnabled(Boolean(data.shadowDomEnabled));
       if ('liveHighlightEnabled' in data) {
@@ -722,38 +722,39 @@
       }
       render(data.canonicalHTML, data.cssText);
     }
-    if (data.type === 'LC_SET_CSS') {
+    if (data.type === 'CODENAGI_SET_CSS') {
       if (!isReady) return;
       setCssText(data.cssText);
     }
-    if (data.type === 'LC_SET_HIGHLIGHT') {
+    if (data.type === 'CODENAGI_SET_HIGHLIGHT') {
       if (!isReady) return;
       setDomSelectorEnabled(Boolean(data.liveHighlightEnabled));
     }
-    if (data.type === 'LC_SET_ELEMENTS_TAB_OPEN') {
+    if (data.type === 'CODENAGI_SET_ELEMENTS_TAB_OPEN') {
       if (!isReady) return;
       setElementsTabOpen(Boolean(data.open));
     }
-    if (data.type === 'LC_RUN_JS') {
+    if (data.type === 'CODENAGI_RUN_JS') {
       if (!isReady) return;
       jsEnabled = true;
       runJs(data.jsText || '');
     }
-    if (data.type === 'LC_DISABLE_JS') {
+    if (data.type === 'CODENAGI_DISABLE_JS') {
       if (!isReady) return;
       jsEnabled = false;
       removeScriptElement();
     }
-    if (data.type === 'LC_EXTERNAL_SCRIPTS') {
+    if (data.type === 'CODENAGI_EXTERNAL_SCRIPTS') {
       if (!isReady) return;
       setExternalScripts(data.urls || []);
     }
-    if (data.type === 'LC_EXTERNAL_STYLES') {
+    if (data.type === 'CODENAGI_EXTERNAL_STYLES') {
       if (!isReady) return;
       setExternalStyles(data.urls || []);
     }
   });
 
   attachDomSelector();
-  reply('LC_READY', { post_id: postId });
+  reply('CODENAGI_READY', { post_id: postId });
 })();
+

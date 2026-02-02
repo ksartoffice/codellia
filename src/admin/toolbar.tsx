@@ -1,4 +1,4 @@
-import {
+﻿import {
   createElement,
   Fragment,
   createRoot,
@@ -145,44 +145,44 @@ function Toolbar({
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
   const toggleLabel = editorCollapsed
-    ? __( 'Show code', 'wp-livecode' )
-    : __( 'Hide code', 'wp-livecode' );
+    ? __( 'Show code', 'codenagi' )
+    : __( 'Hide code', 'codenagi' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
-  const viewPostLabel = isPublished ? __( 'View post', 'wp-livecode' ) : __( 'Preview', 'wp-livecode' );
+  const viewPostLabel = isPublished ? __( 'View post', 'codenagi' ) : __( 'Preview', 'codenagi' );
   const settingsTitle = settingsOpen
-    ? __( 'Close settings', 'wp-livecode' )
-    : __( 'Settings', 'wp-livecode' );
-  const viewportDesktopLabel = __( 'Desktop', 'wp-livecode' );
-  const viewportTabletLabel = __( 'Tablet', 'wp-livecode' );
-  const viewportMobileLabel = __( 'Mobile', 'wp-livecode' );
+    ? __( 'Close settings', 'codenagi' )
+    : __( 'Settings', 'codenagi' );
+  const viewportDesktopLabel = __( 'Desktop', 'codenagi' );
+  const viewportTabletLabel = __( 'Tablet', 'codenagi' );
+  const viewportMobileLabel = __( 'Mobile', 'codenagi' );
   const isViewportDesktop = viewportMode === 'desktop';
   const isViewportTablet = viewportMode === 'tablet';
   const isViewportMobile = viewportMode === 'mobile';
   const previewLink = buildPreviewUrl(viewPostUrl);
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
-  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'wp-livecode' );
-  const draftSuffix = isDraft ? __( '(Draft)', 'wp-livecode' ) : '';
+  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'codenagi' );
+  const draftSuffix = isDraft ? __( '(Draft)', 'codenagi' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
   const normalizedStatus = postStatus === 'auto-draft' ? 'draft' : postStatus;
-  const tailwindBadgeLabel = __( 'Tailwind CSS', 'wp-livecode' );
-  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'wp-livecode' );
+  const tailwindBadgeLabel = __( 'Tailwind CSS', 'codenagi' );
+  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'codenagi' );
   const saveLabel =
     normalizedStatus === 'draft'
-      ? __( 'Save draft', 'wp-livecode' )
+      ? __( 'Save draft', 'codenagi' )
       : normalizedStatus === 'pending'
-        ? __( 'Save for review', 'wp-livecode' )
+        ? __( 'Save for review', 'codenagi' )
         : normalizedStatus === 'private'
-          ? __( 'Update as private', 'wp-livecode' )
-          : __( 'Update', 'wp-livecode' );
+          ? __( 'Update as private', 'codenagi' )
+          : __( 'Update', 'codenagi' );
   const statusActions = [
-    { value: 'publish' as const, label: __( 'Publish', 'wp-livecode' ) },
-    { value: 'pending' as const, label: __( 'Move to review', 'wp-livecode' ) },
-    { value: 'private' as const, label: __( 'Make private', 'wp-livecode' ) },
-    { value: 'draft' as const, label: __( 'Revert to draft', 'wp-livecode' ) },
+    { value: 'publish' as const, label: __( 'Publish', 'codenagi' ) },
+    { value: 'pending' as const, label: __( 'Move to review', 'codenagi' ) },
+    { value: 'private' as const, label: __( 'Make private', 'codenagi' ) },
+    { value: 'draft' as const, label: __( 'Revert to draft', 'codenagi' ) },
   ];
   useEffect(() => {
     if (!titleModalOpen) {
@@ -214,7 +214,7 @@ function Toolbar({
     if (result.ok) {
       setTitleModalOpen(false);
     } else {
-      setTitleError(result.error || __( 'Update failed.', 'wp-livecode' ));
+      setTitleError(result.error || __( 'Update failed.', 'codenagi' ));
     }
     setTitleSaving(false);
   };
@@ -281,8 +281,8 @@ function Toolbar({
         <a
           className="lc-btn lc-btn-back"
           href={backUrl}
-          aria-label={__( 'Back to WordPress', 'wp-livecode' )}
-          data-tooltip={__( 'Back to WordPress', 'wp-livecode' )}
+          aria-label={__( 'Back to WordPress', 'codenagi' )}
+          data-tooltip={__( 'Back to WordPress', 'codenagi' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
           <span
@@ -295,8 +295,8 @@ function Toolbar({
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          aria-label={__( 'Undo', 'wp-livecode' )}
-          data-tooltip={__( 'Undo', 'wp-livecode' )}
+          aria-label={__( 'Undo', 'codenagi' )}
+          data-tooltip={__( 'Undo', 'codenagi' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.undo }} />
         </button>
@@ -305,8 +305,8 @@ function Toolbar({
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          aria-label={__( 'Redo', 'wp-livecode' )}
-          data-tooltip={__( 'Redo', 'wp-livecode' )}
+          aria-label={__( 'Redo', 'codenagi' )}
+          data-tooltip={__( 'Redo', 'codenagi' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.redo }} />
         </button>
@@ -375,12 +375,12 @@ function Toolbar({
           <div className="lc-modalBackdrop" onClick={closeTitleModal} />
           <div className="lc-modalDialog" role="dialog" aria-modal="true">
             <div className="lc-modalHeader">
-              <div className="lc-modalTitle">{__( 'Title', 'wp-livecode' )}</div>
+              <div className="lc-modalTitle">{__( 'Title', 'codenagi' )}</div>
               <button
                 className="lc-modalClose"
                 type="button"
                 onClick={closeTitleModal}
-                aria-label={__( 'Close', 'wp-livecode' )}
+                aria-label={__( 'Close', 'codenagi' )}
               >
                 <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS.close }} />
               </button>
@@ -395,7 +395,7 @@ function Toolbar({
               >
                 <div className="lc-formGroup">
                   <label className="lc-formLabel" htmlFor="lc-title-modal-input">
-                    {__( 'Title', 'wp-livecode' )}
+                    {__( 'Title', 'codenagi' )}
                   </label>
                   <input
                     id="lc-title-modal-input"
@@ -414,10 +414,10 @@ function Toolbar({
                     type="button"
                     onClick={closeTitleModal}
                   >
-                    {__( 'Cancel', 'wp-livecode' )}
+                    {__( 'Cancel', 'codenagi' )}
                   </button>
                   <button className="lc-btn lc-btn-primary" type="submit" disabled={titleSaving}>
-                    {titleSaving ? __( 'Saving...', 'wp-livecode' ) : __( 'Save', 'wp-livecode' )}
+                    {titleSaving ? __( 'Saving...', 'codenagi' ) : __( 'Save', 'codenagi' )}
                   </button>
                 </div>
               </form>
@@ -465,7 +465,7 @@ function Toolbar({
             type="button"
             onClick={onExport}
           >
-            <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
+            <IconLabel label={__( 'Export', 'codenagi' )} svg={ICONS.export} />
           </button>
           <div className="lc-splitButton">
             <button
@@ -480,8 +480,8 @@ function Toolbar({
               type="button"
               aria-haspopup="menu"
               aria-expanded={saveMenuOpen}
-              aria-label={__( 'Save options', 'wp-livecode' )}
-              data-tooltip={__( 'Save options', 'wp-livecode' )}
+              aria-label={__( 'Save options', 'codenagi' )}
+              data-tooltip={__( 'Save options', 'codenagi' )}
               onClick={toggleSaveMenu}
             >
               <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.chevronDown }} />
@@ -495,16 +495,16 @@ function Toolbar({
                 <div className="lc-splitMenuTitle">
                   {/* translators: %s: current status label. */}
                   {sprintf(
-                    __( 'Status: %s', 'wp-livecode' ),
+                    __( 'Status: %s', 'codenagi' ),
                     normalizedStatus === 'draft'
-                      ? __( 'Draft', 'wp-livecode' )
+                      ? __( 'Draft', 'codenagi' )
                       : normalizedStatus === 'pending'
-                        ? __( 'Pending', 'wp-livecode' )
+                        ? __( 'Pending', 'codenagi' )
                         : normalizedStatus === 'private'
-                          ? __( 'Private', 'wp-livecode' )
+                          ? __( 'Private', 'codenagi' )
                           : normalizedStatus === 'future'
-                            ? __( 'Scheduled', 'wp-livecode' )
-                            : __( 'Published', 'wp-livecode' )
+                            ? __( 'Scheduled', 'codenagi' )
+                            : __( 'Published', 'codenagi' )
                   )}
                 </div>
                 <div className="lc-splitMenuList">
@@ -577,3 +577,4 @@ export function mountToolbar(
     },
   };
 }
+

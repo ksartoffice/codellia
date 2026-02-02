@@ -1,22 +1,22 @@
-<?php
+﻿<?php
 /**
- * Custom post type registration for LiveCode.
+ * Custom post type registration for CodeNagi.
  *
- * @package WP_LiveCode
+ * @package CodeNagi
  */
 
-namespace WPLiveCode;
+namespace CodeNagi;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Registers and manages the LiveCode custom post type.
+ * Registers and manages the CodeNagi custom post type.
  */
-	class Post_Type {
-	const POST_TYPE = 'wp_livecode';
-	const SLUG      = 'wp-livecode';
+class Post_Type {
+	const POST_TYPE = 'codenagi';
+	const SLUG      = 'codenagi';
 
 	/**
 	 * Register hooks for the post type.
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_filter( 'display_post_states', array( __CLASS__, 'add_tailwind_state' ), 10, 2 );
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'filter_edit_post_link' ), 10, 3 );
-		add_filter( 'post_row_actions', array( __CLASS__, 'add_livecode_row_action' ), 10, 2 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'add_codenagi_row_action' ), 10, 2 );
 	}
 
 	/**
@@ -49,23 +49,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	public static function register(): void {
 		$slug = self::get_slug();
 		$labels = array(
-			'name'               => _x( 'CodeNagi', 'post type general name', 'wp-livecode' ),
-			'singular_name'      => _x( 'CodeNagi', 'post type singular name', 'wp-livecode' ),
-			'add_new'            => _x( 'Add New', 'codenagi', 'wp-livecode' ),
-			'add_new_item'       => __( 'Add New CodeNagi', 'wp-livecode' ),
-			'edit_item'          => __( 'Edit CodeNagi', 'wp-livecode' ),
-			'new_item'           => __( 'New CodeNagi', 'wp-livecode' ),
-			'view_item'          => __( 'View on front end', 'wp-livecode' ),
-			'view_items'         => __( 'View on front end', 'wp-livecode' ),
-			'search_items'       => __( 'Search CodeNagi', 'wp-livecode' ),
-			'not_found'          => __( 'No CodeNagi found', 'wp-livecode' ),
-			'not_found_in_trash' => __( 'No CodeNagi found in Trash', 'wp-livecode' ),
-			'all_items'          => __( 'CodeNagi', 'wp-livecode' ),
-			'archives'           => __( 'CodeNagi Archives', 'wp-livecode' ),
+			'name'               => _x( 'CodeNagi', 'post type general name', 'codenagi' ),
+			'singular_name'      => _x( 'CodeNagi', 'post type singular name', 'codenagi' ),
+			'add_new'            => _x( 'Add New', 'codenagi', 'codenagi' ),
+			'add_new_item'       => __( 'Add New CodeNagi', 'codenagi' ),
+			'edit_item'          => __( 'Edit CodeNagi', 'codenagi' ),
+			'new_item'           => __( 'New CodeNagi', 'codenagi' ),
+			'view_item'          => __( 'View on front end', 'codenagi' ),
+			'view_items'         => __( 'View on front end', 'codenagi' ),
+			'search_items'       => __( 'Search CodeNagi', 'codenagi' ),
+			'not_found'          => __( 'No CodeNagi found', 'codenagi' ),
+			'not_found_in_trash' => __( 'No CodeNagi found in Trash', 'codenagi' ),
+			'all_items'          => __( 'CodeNagi', 'codenagi' ),
+			'archives'           => __( 'CodeNagi Archives', 'codenagi' ),
 		);
 
 		$args = array(
-			'label'               => __( 'CodeNagi', 'wp-livecode' ),
+			'label'               => __( 'CodeNagi', 'codenagi' ),
 			'labels'              => $labels,
 			'public'              => true,
 			'exclude_from_search' => false,
@@ -89,7 +89,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	/**
-	 * Resolve the current slug for the LiveCode post type.
+	 * Resolve the current slug for the CodeNagi post type.
 	 *
 	 * @return string
 	 */
@@ -101,24 +101,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	/**
-	 * Check whether a post is a LiveCode post.
+	 * Check whether a post is a CodeNagi post.
 	 *
 	 * @param int|\WP_Post $post Post ID or object.
 	 * @return bool
 	 */
-	public static function is_livecode_post( $post ): bool {
+	public static function is_codenagi_post( $post ): bool {
 		$post = get_post( $post );
 		return $post && self::POST_TYPE === $post->post_type;
 	}
 
 	/**
-	 * Check whether single page view is enabled for a LiveCode post.
+	 * Check whether single page view is enabled for a CodeNagi post.
 	 *
-	 * @param int $post_id LiveCode post ID.
+	 * @param int $post_id CodeNagi post ID.
 	 * @return bool
 	 */
 	public static function is_single_page_enabled( int $post_id ): bool {
-		$value = get_post_meta( $post_id, '_lc_single_page_enabled', true );
+		$value = get_post_meta( $post_id, '_codenagi_single_page_enabled', true );
 		if ( '' === $value ) {
 			return true;
 		}
@@ -127,9 +127,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	/**
-	 * Build the editor URL for a LiveCode post.
+	 * Build the editor URL for a CodeNagi post.
 	 *
-	 * @param int $post_id LiveCode post ID.
+	 * @param int $post_id CodeNagi post ID.
 	 * @return string
 	 */
 	public static function get_editor_url( int $post_id ): string {
@@ -154,22 +154,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 			return $states;
 		}
 
-		$is_tailwind = '1' === get_post_meta( $post->ID, '_lc_tailwind', true );
+		$is_tailwind = '1' === get_post_meta( $post->ID, '_codenagi_tailwind', true );
 		if ( $is_tailwind ) {
-			$states['livecode_tailwind'] = __( 'TailwindCSS', 'wp-livecode' );
+			$states['codenagi_tailwind'] = __( 'TailwindCSS', 'codenagi' );
 		}
 
 		return $states;
 	}
 
 	/**
-	 * Add a LiveCode editor link to post row actions.
+	 * Add a CodeNagi editor link to post row actions.
 	 *
 	 * @param array    $actions Row actions.
 	 * @param \WP_Post $post Post object.
 	 * @return array
 	 */
-	public static function add_livecode_row_action( array $actions, \WP_Post $post ): array {
+	public static function add_codenagi_row_action( array $actions, \WP_Post $post ): array {
 		if ( self::POST_TYPE !== $post->post_type ) {
 			return $actions;
 		}
@@ -178,17 +178,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 			return $actions;
 		}
 
-		$actions['livecode_edit'] = sprintf(
+		$actions['codenagi_edit'] = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( self::get_editor_url( $post->ID ) ),
-			esc_html__( 'Edit in CodeNagi', 'wp-livecode' )
+			esc_html__( 'Edit in CodeNagi', 'codenagi' )
 		);
 
 		return $actions;
 	}
 
 	/**
-	 * Override the edit link to point to the LiveCode editor on the front end.
+	 * Override the edit link to point to the CodeNagi editor on the front end.
 	 *
 	 * @param string $link Default edit link.
 	 * @param int    $post_id Post ID.
@@ -200,7 +200,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			return $link;
 		}
 
-		if ( ! self::is_livecode_post( $post_id ) ) {
+		if ( ! self::is_codenagi_post( $post_id ) ) {
 			return $link;
 		}
 
@@ -208,3 +208,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 }
+
+

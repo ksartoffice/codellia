@@ -1,4 +1,4 @@
-import * as parse5 from 'parse5';
+﻿import * as parse5 from 'parse5';
 import type { DefaultTreeAdapterTypes } from 'parse5';
 import type { MonacoType } from './monaco';
 import {
@@ -68,7 +68,7 @@ type PreviewControllerDeps = {
   onOpenElementsTab?: () => void;
 };
 
-const LC_ATTR_NAME = 'data-lc-id';
+const CODENAGI_ATTR_NAME = 'data-codenagi-id';
 const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
 const SHORTCODE_REGEX =
   /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
@@ -101,16 +101,16 @@ function escapeHtml(value: string): string {
 }
 
 function upsertLcAttr(el: DefaultTreeAdapterTypes.Element, lcId: string) {
-  const existing = el.attrs.find((attr) => attr.name === LC_ATTR_NAME);
+  const existing = el.attrs.find((attr) => attr.name === CODENAGI_ATTR_NAME);
   if (existing) {
     existing.value = lcId;
   } else {
-    el.attrs.push({ name: LC_ATTR_NAME, value: lcId });
+    el.attrs.push({ name: CODENAGI_ATTR_NAME, value: lcId });
   }
 }
 
 function getExistingLcId(el: DefaultTreeAdapterTypes.Element): string | null {
-  const attr = el.attrs.find((item) => item.name === LC_ATTR_NAME);
+  const attr = el.attrs.find((item) => item.name === CODENAGI_ATTR_NAME);
   return attr ? attr.value : null;
 }
 
@@ -305,7 +305,7 @@ function applyShortcodeResults(
   return output;
 }
 
-// canonical HTML を生成しつつ data-lc-id とソース位置のマッピングを保持
+// canonical HTML 繧堤函謌舌＠縺､縺､ data-codenagi-id 縺ｨ繧ｽ繝ｼ繧ｹ菴咲ｽｮ縺ｮ繝槭ャ繝斐Φ繧ｰ繧剃ｿ晄戟
 function canonicalizeHtml(html: string): CanonicalResult {
   try {
     const fragment = parse5.parseFragment(html, { sourceCodeLocationInfo: true });
@@ -413,7 +413,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   const sendInit = () => {
     deps.iframe.contentWindow?.postMessage(
       {
-        type: 'LC_INIT',
+        type: 'CODENAGI_INIT',
         post_id: deps.postId,
       },
       deps.targetOrigin
@@ -432,7 +432,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
 
     const payload = {
-      type: 'LC_RENDER',
+      type: 'CODENAGI_RENDER',
       cssText: deps.getPreviewCss(),
       shadowDomEnabled: deps.getShadowDomEnabled(),
       liveHighlightEnabled: deps.getLiveHighlightEnabled(),
@@ -465,7 +465,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
     deps.iframe.contentWindow?.postMessage(
       {
-        type: 'LC_SET_CSS',
+        type: 'CODENAGI_SET_CSS',
         cssText: cssText,
       },
       deps.targetOrigin
@@ -484,7 +484,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
     deps.iframe.contentWindow?.postMessage(
       {
-        type: 'LC_RUN_JS',
+        type: 'CODENAGI_RUN_JS',
         jsText: deps.jsModel.getValue(),
       },
       deps.targetOrigin
@@ -496,7 +496,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       pendingJsAction = 'disable';
       return;
     }
-    deps.iframe.contentWindow?.postMessage({ type: 'LC_DISABLE_JS' }, deps.targetOrigin);
+    deps.iframe.contentWindow?.postMessage({ type: 'CODENAGI_DISABLE_JS' }, deps.targetOrigin);
   };
 
   const sendExternalScripts = (scripts: string[]) => {
@@ -505,7 +505,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
     deps.iframe.contentWindow?.postMessage(
       {
-        type: 'LC_EXTERNAL_SCRIPTS',
+        type: 'CODENAGI_EXTERNAL_SCRIPTS',
         urls: scripts,
       },
       deps.targetOrigin
@@ -518,7 +518,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
     deps.iframe.contentWindow?.postMessage(
       {
-        type: 'LC_EXTERNAL_STYLES',
+        type: 'CODENAGI_EXTERNAL_STYLES',
         urls: styles,
       },
       deps.targetOrigin
@@ -531,7 +531,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
     deps.iframe.contentWindow?.postMessage(
       {
-        type: 'LC_SET_HIGHLIGHT',
+        type: 'CODENAGI_SET_HIGHLIGHT',
         liveHighlightEnabled: enabled,
       },
       deps.targetOrigin
@@ -546,7 +546,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
     deps.iframe.contentWindow?.postMessage(
       {
-        type: 'LC_SET_ELEMENTS_TAB_OPEN',
+        type: 'CODENAGI_SET_ELEMENTS_TAB_OPEN',
         open,
       },
       deps.targetOrigin
@@ -597,7 +597,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       return;
     }
     const root = getCanonicalDomRoot();
-    const target = root?.querySelector(`[${LC_ATTR_NAME}="${lcId}"]`);
+    const target = root?.querySelector(`[${CODENAGI_ATTR_NAME}="${lcId}"]`);
     if (!target) {
       cssSelectionDecorations = deps.cssModel.deltaDecorations(cssSelectionDecorations, []);
       return;
@@ -694,7 +694,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     if (event.origin !== deps.targetOrigin) return;
     const data = event.data;
 
-    if (data?.type === 'LC_READY') {
+    if (data?.type === 'CODENAGI_READY') {
       previewReady = true;
       if (pendingRender) {
         pendingRender = false;
@@ -713,12 +713,12 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       }
     }
 
-    if (data?.type === 'LC_SELECT' && typeof data.lcId === 'string') {
+    if (data?.type === 'CODENAGI_SELECT' && typeof data.lcId === 'string') {
       deps.onSelect?.(data.lcId);
       highlightByLcId(data.lcId);
     }
 
-    if (data?.type === 'LC_OPEN_ELEMENTS_TAB') {
+    if (data?.type === 'CODENAGI_OPEN_ELEMENTS_TAB') {
       deps.onOpenElementsTab?.();
     }
   };
@@ -741,3 +741,4 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     handleMessage,
   };
 }
+

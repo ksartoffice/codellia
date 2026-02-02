@@ -21,7 +21,7 @@ declare const wp: any;
 
 declare global {
   interface Window {
-    WP_LIVECODE: {
+    CODENAGI: {
       post_id: number;
       initialHtml: string;
       initialCss: string;
@@ -155,10 +155,10 @@ const mountNotices = () => {
 };
 
 async function main() {
-  const cfg = window.WP_LIVECODE;
+  const cfg = window.CODENAGI;
   const initialViewUrl = cfg.settingsData?.viewUrl || '';
   const postId = cfg.post_id;
-  const mount = document.getElementById('wp-livecode-app');
+  const mount = document.getElementById('codenagi-app');
   if (!mount) return;
   mountNotices();
 
@@ -234,7 +234,7 @@ async function main() {
 
   if (cfg.setupRequired) {
     if (!cfg.setupRestUrl || !wp?.apiFetch) {
-      ui.app.textContent = __( 'Setup wizard unavailable.', 'wp-livecode' );
+      ui.app.textContent = __( 'Setup wizard unavailable.', 'codenagi' );
       return;
     }
 
@@ -260,7 +260,7 @@ async function main() {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[CodeNagi] Setup failed', error);
-      ui.app.textContent = __( 'Setup failed.', 'wp-livecode' );
+      ui.app.textContent = __( 'Setup failed.', 'codenagi' );
       return;
     } finally {
       setupHost.remove();
@@ -401,14 +401,14 @@ async function main() {
     if (!htmlModel || !cssModel || !jsModel) {
       createSnackbar(
         'error',
-        __( 'Export unavailable.', 'wp-livecode' ),
+        __( 'Export unavailable.', 'codenagi' ),
         NOTICE_IDS.export,
         NOTICE_ERROR_DURATION_MS
       );
       return;
     }
 
-    createSnackbar('info', __( 'Exporting...', 'wp-livecode' ), NOTICE_IDS.export);
+    createSnackbar('info', __( 'Exporting...', 'codenagi' ), NOTICE_IDS.export);
 
     const result = await exportLivecode({
       apiFetch: wp.apiFetch,
@@ -430,7 +430,7 @@ async function main() {
     if (result.ok) {
       createSnackbar(
         'success',
-        __( 'Exported.', 'wp-livecode' ),
+        __( 'Exported.', 'codenagi' ),
         NOTICE_IDS.export,
         NOTICE_SUCCESS_DURATION_MS
       );
@@ -441,14 +441,14 @@ async function main() {
       /* translators: %s: error message. */
       createSnackbar(
         'error',
-        sprintf(__( 'Export error: %s', 'wp-livecode' ), result.error),
+        sprintf(__( 'Export error: %s', 'codenagi' ), result.error),
         NOTICE_IDS.export,
         NOTICE_ERROR_DURATION_MS
       );
     } else {
       createSnackbar(
         'error',
-        __( 'Export failed.', 'wp-livecode' ),
+        __( 'Export failed.', 'codenagi' ),
         NOTICE_IDS.export,
         NOTICE_ERROR_DURATION_MS
       );
@@ -457,9 +457,9 @@ async function main() {
 
   async function handleSave(): Promise<{ ok: boolean; error?: string }> {
     if (!htmlModel || !cssModel) {
-      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
+      return { ok: false, error: __( 'Save failed.', 'codenagi' ) };
     }
-    createSnackbar('info', __( 'Saving...', 'wp-livecode' ), NOTICE_IDS.save);
+    createSnackbar('info', __( 'Saving...', 'codenagi' ), NOTICE_IDS.save);
 
     const result = await saveLivecode({
       apiFetch: wp.apiFetch,
@@ -476,7 +476,7 @@ async function main() {
       markSavedState();
       createSnackbar(
         'success',
-        __( 'Saved.', 'wp-livecode' ),
+        __( 'Saved.', 'codenagi' ),
         NOTICE_IDS.save,
         NOTICE_SUCCESS_DURATION_MS
       );
@@ -485,7 +485,7 @@ async function main() {
       /* translators: %s: error message. */
       createSnackbar(
         'error',
-        sprintf(__( 'Save error: %s', 'wp-livecode' ), result.error),
+        sprintf(__( 'Save error: %s', 'codenagi' ), result.error),
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
@@ -493,11 +493,11 @@ async function main() {
     } else {
       createSnackbar(
         'error',
-        __( 'Save failed.', 'wp-livecode' ),
+        __( 'Save failed.', 'codenagi' ),
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
-      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
+      return { ok: false, error: __( 'Save failed.', 'codenagi' ) };
     }
   }
 
@@ -508,12 +508,12 @@ async function main() {
     }
     try {
       const refreshUrl = new URL(url, window.location.origin);
-      refreshUrl.searchParams.set('lc_refresh', Date.now().toString());
+      refreshUrl.searchParams.set('codenagi_refresh', Date.now().toString());
       return refreshUrl.toString();
     } catch {
       const hasQuery = url.includes('?');
       const hashIndex = url.indexOf('#');
-      const suffix = `${hasQuery ? '&' : '?'}lc_refresh=${Date.now()}`;
+      const suffix = `${hasQuery ? '&' : '?'}codenagi_refresh=${Date.now()}`;
       if (hashIndex === -1) {
         return url + suffix;
       }
@@ -546,7 +546,7 @@ async function main() {
       onViewportChange: (mode) => setViewportMode(mode),
       onUpdateTitle: async (nextTitle) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
-          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+          return { ok: false, error: __( 'Settings unavailable.', 'codenagi' ) };
         }
         try {
           const response = await wp.apiFetch({
@@ -558,7 +558,7 @@ async function main() {
             },
           });
           if (!response?.ok) {
-            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+            return { ok: false, error: response?.error || __( 'Update failed.', 'codenagi' ) };
           }
           const nextSettings = response.settings as SettingsData | undefined;
           const resolvedTitle =
@@ -577,13 +577,13 @@ async function main() {
         } catch (error: any) {
           return {
             ok: false,
-            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+            error: error?.message || __( 'Update failed.', 'codenagi' ),
           };
         }
       },
       onUpdateStatus: async (nextStatus) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
-          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+          return { ok: false, error: __( 'Settings unavailable.', 'codenagi' ) };
         }
         const updates =
           nextStatus === 'private'
@@ -599,7 +599,7 @@ async function main() {
             },
           });
           if (!response?.ok) {
-            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+            return { ok: false, error: response?.error || __( 'Update failed.', 'codenagi' ) };
           }
           const nextSettings = response.settings as SettingsData | undefined;
           postStatus =
@@ -611,7 +611,7 @@ async function main() {
         } catch (error: any) {
           return {
             ok: false,
-            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+            error: error?.message || __( 'Update failed.', 'codenagi' ),
           };
         }
       },
@@ -619,7 +619,7 @@ async function main() {
   );
   syncNoticeOffset();
   window.setTimeout(syncNoticeOffset, 0);
-  createSnackbar('info', __( 'Loading Monaco...', 'wp-livecode' ), NOTICE_IDS.monaco);
+  createSnackbar('info', __( 'Loading Monaco...', 'codenagi' ), NOTICE_IDS.monaco);
 
   // iframe
   ui.iframe.src = iframePreviewUrl;
@@ -649,7 +649,7 @@ async function main() {
       return;
     }
     event.preventDefault();
-    event.returnValue = __( 'You may have unsaved changes.', 'wp-livecode' );
+    event.returnValue = __( 'You may have unsaved changes.', 'codenagi' );
   };
 
   window.addEventListener('beforeunload', handleBeforeUnload);
@@ -685,7 +685,7 @@ async function main() {
     const normalized: { name: string; value: string }[] = [];
     for (let i = attrs.length - 1; i >= 0; i -= 1) {
       const name = attrs[i].name.trim();
-      if (!name || name === 'data-lc-id' || !isValidAttributeName(name) || seen.has(name)) {
+      if (!name || name === 'data-codenagi-id' || !isValidAttributeName(name) || seen.has(name)) {
         continue;
       }
       seen.add(name);
@@ -1250,4 +1250,5 @@ main().catch((e) => {
   // eslint-disable-next-line no-console
   console.error(e);
 });
+
 

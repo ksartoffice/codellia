@@ -1,4 +1,4 @@
-import type { ExportPayload } from './types';
+﻿import type { ExportPayload } from './types';
 import { __, sprintf } from '@wordpress/i18n';
 
 type ApiFetch = (args: any) => Promise<any>;
@@ -57,14 +57,14 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         deps.onCssCompiled(res.css);
         deps.onStatusClear();
       } else {
-        deps.onStatus(__( 'Tailwind compile failed.', 'wp-livecode' ));
+        deps.onStatus(__( 'Tailwind compile failed.', 'codenagi' ));
       }
     } catch (e: any) {
       if (currentToken !== tailwindCompileToken) {
         return;
       }
       /* translators: %s: error message. */
-      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'wp-livecode' ), e?.message ?? e));
+      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'codenagi' ), e?.message ?? e));
     } finally {
       if (currentToken === tailwindCompileToken) {
         tailwindCompileInFlight = false;
@@ -199,3 +199,4 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
     return { ok: false, error: e?.message ?? e };
   }
 }
+

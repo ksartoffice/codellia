@@ -1,4 +1,4 @@
-(function (wp) {
+﻿(function (wp) {
   var wpRef = wp || {};
   var __ = wpRef.i18n && wpRef.i18n.__ ? wpRef.i18n.__ : function (text) {
     return text;
@@ -13,7 +13,7 @@
         }
       };
 
-  var data = window.WP_LIVECODE_EDITOR || {};
+  var data = window.CODENAGI_EDITOR || {};
   var actionUrl = data.actionUrl || '';
 
   var getPostIdFromBlock = function () {
@@ -35,7 +35,7 @@
     return Number(input.value) || 0;
   };
 
-  var redirectToLiveCode = function (postId) {
+  var redirectToCodeNagi = function (postId) {
     if (!actionUrl || !postId) {
       return;
     }
@@ -53,7 +53,7 @@
     }
 
     button.classList.add('is-busy');
-    button.textContent = __( 'Saving...', 'wp-livecode' );
+    button.textContent = __( 'Saving...', 'codenagi' );
 
     dispatch.savePost();
     var unsubscribe = wpRef.data.subscribe(function () {
@@ -64,7 +64,7 @@
       var id = getPostId();
       if (!isSaving && id) {
         unsubscribe();
-        redirectToLiveCode(id);
+        redirectToCodeNagi(id);
       }
     });
   };
@@ -74,23 +74,23 @@
     if (!toolbar) {
       return;
     }
-    if (document.querySelector('.wp-livecode-editor-toolbar')) {
+    if (document.querySelector('.codenagi-editor-toolbar')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'wp-livecode-editor-toolbar';
+    container.className = 'codenagi-editor-toolbar';
 
     var button = document.createElement('a');
-    button.className = 'components-button is-primary wp-livecode-editor-toolbar__button';
+    button.className = 'components-button is-primary codenagi-editor-toolbar__button';
     button.href = '#';
-    button.textContent = __( 'Edit with CodeNagi', 'wp-livecode' );
+    button.textContent = __( 'Edit with CodeNagi', 'codenagi' );
 
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromBlock() || Number(data.postId) || 0;
       if (postId) {
-        redirectToLiveCode(postId);
+        redirectToCodeNagi(postId);
         return;
       }
 
@@ -123,16 +123,16 @@
   };
 
   var setupClassicEditor = function () {
-    if (document.querySelector('.wp-livecode-editor-bridge')) {
+    if (document.querySelector('.codenagi-editor-bridge')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'wp-livecode-editor-bridge';
+    container.className = 'codenagi-editor-bridge';
 
     var button = document.createElement('a');
-    button.className = 'button button-primary wp-livecode-editor-bridge__button';
-    button.textContent = __( 'Edit with CodeNagi', 'wp-livecode' );
+    button.className = 'button button-primary codenagi-editor-bridge__button';
+    button.textContent = __( 'Edit with CodeNagi', 'codenagi' );
     button.href = '#';
 
     container.appendChild(button);
@@ -150,12 +150,12 @@
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromClassic() || Number(data.postId) || 0;
-      redirectToLiveCode(postId);
+      redirectToCodeNagi(postId);
     });
   };
 
   domReady(function () {
-    if (!document.body.classList.contains('post-type-wp_livecode')) {
+    if (!document.body.classList.contains('post-type-codenagi')) {
       return;
     }
 
@@ -166,3 +166,5 @@
     }
   });
 })(window.wp);
+
+

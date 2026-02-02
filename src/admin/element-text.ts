@@ -1,4 +1,4 @@
-import * as parse5 from 'parse5';
+﻿import * as parse5 from 'parse5';
 import type { DefaultTreeAdapterTypes } from 'parse5';
 
 type InnerRange = {
@@ -25,7 +25,7 @@ export type ElementAttributesInfo = {
 };
 
 const ALLOWED_INLINE_TAGS = new Set(['br', 'span']);
-const LC_ATTR_NAME = 'data-lc-id';
+const CODENAGI_ATTR_NAME = 'data-codenagi-id';
 const VOID_TAGS = new Set([
   'area',
   'base',
@@ -84,7 +84,7 @@ function isEditableChild(node: DefaultTreeAdapterTypes.Node) {
 }
 
 function getExistingLcId(el: DefaultTreeAdapterTypes.Element): string | null {
-  const attr = el.attrs.find((item) => item.name === LC_ATTR_NAME);
+  const attr = el.attrs.find((item) => item.name === CODENAGI_ATTR_NAME);
   return attr ? attr.value : null;
 }
 
@@ -229,7 +229,7 @@ export function getEditableElementAttributes(html: string, lcId: string): Elemen
           const startTagText = html.slice(startOffset, endOffset);
           const selfClosing = /\/\s*>$/.test(startTagText);
           const attributes = child.attrs
-            .filter((attr) => attr.name !== LC_ATTR_NAME)
+            .filter((attr) => attr.name !== CODENAGI_ATTR_NAME)
             .map((attr) => ({
               name: attr.name,
               value: attr.value ?? '',
@@ -261,3 +261,4 @@ export function getEditableElementAttributes(html: string, lcId: string): Elemen
   walk(fragment);
   return result;
 }
+

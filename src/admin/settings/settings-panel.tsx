@@ -1,4 +1,4 @@
-import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress/element';
+﻿import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 type SettingsPanelProps = {
@@ -148,17 +148,17 @@ export function SettingsPanel({
     <Fragment>
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">
-          {__( 'Output settings', 'wp-livecode' )}
+          {__( 'Output settings', 'codenagi' )}
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">
-            {__( 'Enable shortcode', 'wp-livecode' )}
+            {__( 'Enable shortcode', 'codenagi' )}
           </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={shortcodeEnabled}
-              aria-label={__( 'Enable shortcode', 'wp-livecode' )}
+              aria-label={__( 'Enable shortcode', 'codenagi' )}
               onChange={(event) => onToggleShortcode(event.target.checked)}
               disabled={disabled}
             />
@@ -174,34 +174,34 @@ export function SettingsPanel({
                 className="lc-formInput lc-settingsScriptInput"
                 value={shortcodeText}
                 readOnly
-                aria-label={__( 'CodeNagi shortcode', 'wp-livecode' )}
+                aria-label={__( 'CodeNagi shortcode', 'codenagi' )}
               />
               <button
                 className="lc-btn lc-btn-secondary"
                 type="button"
                 onClick={handleCopyShortcode}
-                aria-label={__( 'Copy shortcode', 'wp-livecode' )}
+                aria-label={__( 'Copy shortcode', 'codenagi' )}
               >
                 {copyState === 'copied'
-                  ? __( 'Copied', 'wp-livecode' )
-                  : __( 'Copy', 'wp-livecode' )}
+                  ? __( 'Copied', 'codenagi' )
+                  : __( 'Copy', 'codenagi' )}
               </button>
             </div>
             {copyState === 'copied' ? (
-              <div className="lc-settingsHelp">{__( 'Copied.', 'wp-livecode' )}</div>
+              <div className="lc-settingsHelp">{__( 'Copied.', 'codenagi' )}</div>
             ) : null}
             {copyState === 'error' ? (
-              <div className="lc-settingsError">{__( 'Copy failed.', 'wp-livecode' )}</div>
+              <div className="lc-settingsError">{__( 'Copy failed.', 'codenagi' )}</div>
             ) : null}
             <div className="lc-settingsItem lc-settingsToggle">
               <div className="lc-settingsItemLabel">
-                {__( 'Do not publish as single page', 'wp-livecode' )}
+                {__( 'Do not publish as single page', 'codenagi' )}
               </div>
               <label className="lc-toggle">
                 <input
                   type="checkbox"
                   checked={!singlePageEnabled}
-                  aria-label={__( 'Do not publish as single page', 'wp-livecode' )}
+                  aria-label={__( 'Do not publish as single page', 'codenagi' )}
                   onChange={(event) => onToggleSinglePage(!event.target.checked)}
                   disabled={disabled}
                 />
@@ -211,14 +211,14 @@ export function SettingsPanel({
             <div className="lc-settingsHelp">
               {__(
                 'You can paste this into a shortcode block in Gutenberg or Elementor.',
-                'wp-livecode'
+                'codenagi'
               )}
             </div>
           </Fragment>
         ) : null}
         {disabled ? (
           <div className="lc-settingsHelp">
-            {__( 'Requires unfiltered_html capability.', 'wp-livecode' )}
+            {__( 'Requires unfiltered_html capability.', 'codenagi' )}
           </div>
         ) : null}
         {error ? <div className="lc-settingsError">{error}</div> : null}
@@ -226,17 +226,17 @@ export function SettingsPanel({
 
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">
-          {__( 'Rendering settings', 'wp-livecode' )}
+          {__( 'Rendering settings', 'codenagi' )}
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">
-            {__( 'Enable Shadow DOM (DSD)', 'wp-livecode' )}
+            {__( 'Enable Shadow DOM (DSD)', 'codenagi' )}
           </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={shadowDomEnabled}
-              aria-label={__( 'Enable Shadow DOM (DSD)', 'wp-livecode' )}
+              aria-label={__( 'Enable Shadow DOM (DSD)', 'codenagi' )}
               onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
             />
@@ -244,17 +244,17 @@ export function SettingsPanel({
           </label>
         </div>
         <div className="lc-settingsHelp">
-          {__( 'Prevents interference with existing theme CSS.', 'wp-livecode' )}
+          {__( 'Prevents interference with existing theme CSS.', 'codenagi' )}
         </div>
       </div>
 
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">
-          {__( 'External resource settings', 'wp-livecode' )}
+          {__( 'External resource settings', 'codenagi' )}
         </div>
         {canEditJs ? (
           <Fragment>
-            <div className="lc-settingsItemLabel">{__( 'External scripts', 'wp-livecode' )}</div>
+            <div className="lc-settingsItemLabel">{__( 'External scripts', 'codenagi' )}</div>
             {hasScripts ? (
               <div className="lc-settingsScriptList">
                 {externalScripts.map((scriptUrl, index) => (
@@ -262,7 +262,7 @@ export function SettingsPanel({
                     <input
                       type="url"
                       className="lc-formInput lc-settingsScriptInput"
-                      placeholder={__( 'https://example.com/script.js', 'wp-livecode' )}
+                      placeholder={__( 'https://example.com/script.js', 'codenagi' )}
                       value={scriptUrl}
                       onChange={(event) => updateScriptAt(index, event.target.value, false)}
                       onBlur={(event) => updateScriptAt(index, event.target.value, true)}
@@ -279,9 +279,9 @@ export function SettingsPanel({
                       type="button"
                       onClick={() => handleRemoveScript(index)}
                       disabled={disabled}
-                      aria-label={__( 'Remove external script', 'wp-livecode' )}
+                      aria-label={__( 'Remove external script', 'codenagi' )}
                     >
-                      {__( 'Remove', 'wp-livecode' )}
+                      {__( 'Remove', 'codenagi' )}
                     </button>
                   </div>
                 ))}
@@ -290,9 +290,9 @@ export function SettingsPanel({
                   type="button"
                   onClick={handleAddScript}
                   disabled={!canAddScript}
-                  aria-label={__( 'Add external script', 'wp-livecode' )}
+                  aria-label={__( 'Add external script', 'codenagi' )}
                 >
-                  {`+ ${__( 'Add', 'wp-livecode' )}`}
+                  {`+ ${__( 'Add', 'codenagi' )}`}
                 </button>
               </div>
             ) : (
@@ -302,7 +302,7 @@ export function SettingsPanel({
                 onClick={handleAddScript}
                 disabled={!canAddScript}
               >
-                {__( 'Add external script', 'wp-livecode' )}
+                {__( 'Add external script', 'codenagi' )}
               </button>
             )}
             <div className="lc-settingsHelp">
@@ -310,7 +310,7 @@ export function SettingsPanel({
               {sprintf(
                 __(
                   'Only URLs starting with https:// are allowed. You can add up to %d items.',
-                  'wp-livecode'
+                  'codenagi'
                 ),
                 MAX_EXTERNAL_SCRIPTS
               )}
@@ -320,7 +320,7 @@ export function SettingsPanel({
             ) : null}
           </Fragment>
         ) : null}
-        <div className="lc-settingsItemLabel">{__( 'External styles', 'wp-livecode' )}</div>
+        <div className="lc-settingsItemLabel">{__( 'External styles', 'codenagi' )}</div>
         {hasStyles ? (
           <div className="lc-settingsScriptList">
             {externalStyles.map((styleUrl, index) => (
@@ -328,7 +328,7 @@ export function SettingsPanel({
                 <input
                   type="url"
                   className="lc-formInput lc-settingsScriptInput"
-                  placeholder={__( 'https://example.com/style.css', 'wp-livecode' )}
+                  placeholder={__( 'https://example.com/style.css', 'codenagi' )}
                   value={styleUrl}
                   onChange={(event) => updateStyleAt(index, event.target.value, false)}
                   onBlur={(event) => updateStyleAt(index, event.target.value, true)}
@@ -345,9 +345,9 @@ export function SettingsPanel({
                   type="button"
                   onClick={() => handleRemoveStyle(index)}
                   disabled={disabled}
-                  aria-label={__( 'Remove external style', 'wp-livecode' )}
+                  aria-label={__( 'Remove external style', 'codenagi' )}
                 >
-                  {__( 'Remove', 'wp-livecode' )}
+                  {__( 'Remove', 'codenagi' )}
                 </button>
               </div>
             ))}
@@ -356,9 +356,9 @@ export function SettingsPanel({
               type="button"
               onClick={handleAddStyle}
               disabled={!canAddStyle}
-              aria-label={__( 'Add external style', 'wp-livecode' )}
+              aria-label={__( 'Add external style', 'codenagi' )}
             >
-              {`+ ${__( 'Add', 'wp-livecode' )}`}
+              {`+ ${__( 'Add', 'codenagi' )}`}
             </button>
           </div>
         ) : (
@@ -368,13 +368,13 @@ export function SettingsPanel({
             onClick={handleAddStyle}
             disabled={!canAddStyle}
           >
-            {__( 'Add external style', 'wp-livecode' )}
+            {__( 'Add external style', 'codenagi' )}
           </button>
         )}
         <div className="lc-settingsHelp">
           {/* translators: %d: maximum number of items. */}
           {sprintf(
-            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'wp-livecode' ),
+            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'codenagi' ),
             MAX_EXTERNAL_STYLES
           )}
         </div>
@@ -385,17 +385,17 @@ export function SettingsPanel({
 
       <div className="lc-settingsSection">
         <div className="lc-settingsSectionTitle">
-          {__( 'Display settings', 'wp-livecode' )}
+          {__( 'Display settings', 'codenagi' )}
         </div>
         <div className="lc-settingsItem lc-settingsToggle">
           <div className="lc-settingsItemLabel">
-            {__( 'Enable live edit highlight', 'wp-livecode' )}
+            {__( 'Enable live edit highlight', 'codenagi' )}
           </div>
           <label className="lc-toggle">
             <input
               type="checkbox"
               checked={liveHighlightEnabled}
-              aria-label={__( 'Enable live edit highlight', 'wp-livecode' )}
+              aria-label={__( 'Enable live edit highlight', 'codenagi' )}
               onChange={(event) => onToggleLiveHighlight(event.target.checked)}
             />
             <span className="lc-toggleTrack" aria-hidden="true" />
@@ -405,3 +405,4 @@ export function SettingsPanel({
     </Fragment>
   );
 }
+

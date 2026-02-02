@@ -1,14 +1,14 @@
-<?php
+﻿<?php
 /**
- * Preview/nonce tests for WP LiveCode.
+ * Preview/nonce tests for CodeNagi.
  *
- * @package WP_LiveCode
+ * @package CodeNagi
  */
 
-use WPLiveCode\Post_Type;
-use WPLiveCode\Preview;
+use CodeNagi\Post_Type;
+use CodeNagi\Preview;
 
-class WP_LiveCode_WP_Die_Exception extends Exception {
+class CodeNagi_Die_Exception extends Exception {
 }
 
 class Test_Preview extends WP_UnitTestCase {
@@ -31,12 +31,12 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'post_id is required.', 'wp-livecode' ), $message );
+		$this->assertStringContainsString( __( 'post_id is required.', 'codenagi' ), $message );
 	}
 
 	public function test_preview_denies_invalid_token(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$this->set_preview_query_vars( $post_id, 'invalid' );
@@ -47,14 +47,14 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'Invalid preview token.', 'wp-livecode' ), $message );
+		$this->assertStringContainsString( __( 'Invalid preview token.', 'codenagi' ), $message );
 	}
 
 	public function test_preview_denies_user_without_edit_permission(): void {
 		$author_id     = self::factory()->user->create( array( 'role' => 'author' ) );
 		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		$post_id       = $this->create_livecode_post( $author_id );
-		$token         = wp_create_nonce( 'lc_preview_' . $post_id );
+		$post_id       = $this->create_codenagi_post( $author_id );
+		$token         = wp_create_nonce( 'codenagi_preview_' . $post_id );
 
 		wp_set_current_user( $subscriber_id );
 		$this->set_preview_query_vars( $post_id, $token );
@@ -65,10 +65,10 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'Permission denied.', 'wp-livecode' ), $message );
+		$this->assertStringContainsString( __( 'Permission denied.', 'codenagi' ), $message );
 	}
 
-	public function test_preview_denies_non_livecode_post(): void {
+	public function test_preview_denies_non_codenagi_post(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = self::factory()->post->create(
 			array(
@@ -79,7 +79,7 @@ class Test_Preview extends WP_UnitTestCase {
 		);
 
 		wp_set_current_user( $admin_id );
-		$token = wp_create_nonce( 'lc_preview_' . $post_id );
+		$token = wp_create_nonce( 'codenagi_preview_' . $post_id );
 		$this->set_preview_query_vars( (int) $post_id, $token );
 
 		$message = $this->capture_wp_die(
@@ -88,15 +88,15 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'Invalid post type.', 'wp-livecode' ), $message );
+		$this->assertStringContainsString( __( 'Invalid post type.', 'codenagi' ), $message );
 	}
 
 	public function test_preview_allows_valid_request(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
-		$token = wp_create_nonce( 'lc_preview_' . $post_id );
+		$token = wp_create_nonce( 'codenagi_preview_' . $post_id );
 		$this->set_preview_query_vars( $post_id, $token );
 
 		Preview::maybe_handle_preview();
@@ -104,7 +104,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$this->assertTrue( defined( 'DONOTCACHEPAGE' ) );
 	}
 
-	private function create_livecode_post( int $author_id ): int {
+	private function create_codenagi_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,
@@ -120,7 +120,7 @@ class Test_Preview extends WP_UnitTestCase {
 			$wp_query = new WP_Query();
 		}
 
-		$wp_query->set( 'lc_preview', '1' );
+		$wp_query->set( 'codenagi_preview', '1' );
 		$wp_query->set( 'post_id', $post_id ? (string) $post_id : '' );
 		$wp_query->set( 'token', $token ?? '' );
 	}
@@ -135,7 +135,7 @@ class Test_Preview extends WP_UnitTestCase {
 		} else {
 			$this->wp_die_message = (string) $message;
 		}
-		throw new WP_LiveCode_WP_Die_Exception();
+		throw new CodeNagi_Die_Exception();
 	}
 
 	private function capture_wp_die( callable $callback ): string {
@@ -145,7 +145,7 @@ class Test_Preview extends WP_UnitTestCase {
 		try {
 			$callback();
 			$this->fail( 'Expected wp_die to be called.' );
-		} catch ( WP_LiveCode_WP_Die_Exception $e ) {
+		} catch ( CodeNagi_Die_Exception $e ) {
 			// Expected.
 		} finally {
 			remove_filter( 'wp_die_handler', array( $this, 'provide_wp_die_handler' ) );
@@ -154,3 +154,5 @@ class Test_Preview extends WP_UnitTestCase {
 		return $this->wp_die_message;
 	}
 }
+
+

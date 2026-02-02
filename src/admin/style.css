@@ -1,38 +1,38 @@
-/* filepath: src/admin/style.css */
-body.admin_page_wp-livecode #wpadminbar,
-body.admin_page_wp-livecode #adminmenumain,
-body.admin_page_wp-livecode #adminmenuwrap,
-body.admin_page_wp-livecode #wpfooter,
-body.admin_page_wp-livecode #screen-meta,
-body.admin_page_wp-livecode #screen-meta-links {
+﻿/* filepath: src/admin/style.css */
+body.admin_page_codenagi #wpadminbar,
+body.admin_page_codenagi #adminmenumain,
+body.admin_page_codenagi #adminmenuwrap,
+body.admin_page_codenagi #wpfooter,
+body.admin_page_codenagi #screen-meta,
+body.admin_page_codenagi #screen-meta-links {
   display: none;
 }
 
-body.admin_page_wp-livecode #wpcontent,
-body.admin_page_wp-livecode #wpbody-content {
+body.admin_page_codenagi #wpcontent,
+body.admin_page_codenagi #wpbody-content {
   margin: 0;
   padding: 0;
 }
 
-body.admin_page_wp-livecode #wpcontent {
+body.admin_page_codenagi #wpcontent {
   margin-left: 0;
 }
 
 html.wp-toolbar,
-body.admin_page_wp-livecode {
+body.admin_page_codenagi {
   padding-top: 0;
   margin-top: 0;
   background: #111318;
 }
 
-body.admin_page_wp-livecode #wpwrap,
-body.admin_page_wp-livecode #wpcontent,
-body.admin_page_wp-livecode #wpbody,
-body.admin_page_wp-livecode #wpbody-content {
+body.admin_page_codenagi #wpwrap,
+body.admin_page_codenagi #wpcontent,
+body.admin_page_codenagi #wpbody,
+body.admin_page_codenagi #wpbody-content {
   height: 100%;
 }
 
-#wp-livecode-app {
+#codenagi-app {
   height: 100vh;
 }
 
@@ -558,7 +558,7 @@ body.admin_page_wp-livecode #wpbody-content {
 
 .lc-editorHeader.has-unsaved::after,
 .lc-editorTab.has-unsaved::after {
-  content: '●';
+  content: '\25CF';
   margin-left: 6px;
   margin-bottom: 2px;
   color: #fff;
@@ -1369,3 +1369,4 @@ body.admin_page_wp-livecode #wpbody-content {
     box-shadow: -12px 0 24px rgba(0, 0, 0, 0.35);
   }
 }
+

@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 /**
  * REST handlers for preview rendering.
  *
- * @package WP_LiveCode
+ * @package CodeNagi
  */
 
-namespace WPLiveCode;
+namespace CodeNagi;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,11 +25,11 @@ class Rest_Preview {
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		$items   = $request->get_param( 'shortcodes' );
 
-		if ( ! $post_id || ! Post_Type::is_livecode_post( $post_id ) || ! $items || ! is_array( $items ) ) {
+		if ( ! $post_id || ! Post_Type::is_codenagi_post( $post_id ) || ! $items || ! is_array( $items ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid parameters.', 'wp-livecode' ),
+					'error' => __( 'Invalid parameters.', 'codenagi' ),
 				),
 				400
 			);
@@ -40,7 +40,7 @@ class Rest_Preview {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Post not found.', 'wp-livecode' ),
+					'error' => __( 'Post not found.', 'codenagi' ),
 				),
 				404
 			);
@@ -90,3 +90,5 @@ class Rest_Preview {
 		);
 	}
 }
+
+

@@ -1,4 +1,4 @@
-import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
+﻿import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export type ElementPanelAttribute = {
@@ -122,9 +122,9 @@ export function ElementPanel({ api }: ElementPanelProps) {
   if (!isVisible) {
     return (
       <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">{__( 'Elements', 'wp-livecode' )}</div>
+        <div className="lc-settingsSectionTitle">{__( 'Elements', 'codenagi' )}</div>
         <div className="lc-settingsHelp">
-          {__( 'Select an element in the preview to edit its content and attributes.', 'wp-livecode' )}
+          {__( 'Select an element in the preview to edit its content and attributes.', 'codenagi' )}
         </div>
       </div>
     );
@@ -132,11 +132,11 @@ export function ElementPanel({ api }: ElementPanelProps) {
 
   return (
     <div className="lc-settingsSection">
-      <div className="lc-settingsSectionTitle">{__( 'Elements', 'wp-livecode' )}</div>
+      <div className="lc-settingsSectionTitle">{__( 'Elements', 'codenagi' )}</div>
       {hasText ? (
         <div className="lc-formGroup">
           <label className="lc-formLabel" htmlFor={fieldId}>
-            {__( 'Text', 'wp-livecode' )}
+            {__( 'Text', 'codenagi' )}
           </label>
           <textarea
             id={fieldId}
@@ -148,21 +148,21 @@ export function ElementPanel({ api }: ElementPanelProps) {
         </div>
       ) : null}
       <div className="lc-formGroup">
-        <div className="lc-formLabel">{__( 'Attributes', 'wp-livecode' )}</div>
+        <div className="lc-formLabel">{__( 'Attributes', 'codenagi' )}</div>
         <div className="lc-settingsScriptList">
           {attributes.map((attr, index) => (
             <div className="lc-settingsScriptRow" key={`attr-${index}`}>
               <input
                 type="text"
                 className="lc-formInput lc-settingsAttrNameInput"
-                placeholder={__( 'Attribute name', 'wp-livecode' )}
+                placeholder={__( 'Attribute name', 'codenagi' )}
                 value={attr.name}
                 onChange={(event) => handleAttributeNameChange(index, event.target.value)}
               />
               <input
                 type="text"
                 className="lc-formInput lc-settingsScriptInput"
-                placeholder={__( 'Value', 'wp-livecode' )}
+                placeholder={__( 'Value', 'codenagi' )}
                 value={attr.value}
                 onChange={(event) => handleAttributeValueChange(index, event.target.value)}
               />
@@ -170,9 +170,9 @@ export function ElementPanel({ api }: ElementPanelProps) {
                 className="lc-btn lc-btn-danger lc-settingsScriptButton"
                 type="button"
                 onClick={() => handleRemoveAttribute(index)}
-                aria-label={__( 'Remove attribute', 'wp-livecode' )}
+                aria-label={__( 'Remove attribute', 'codenagi' )}
               >
-                {__( 'Remove', 'wp-livecode' )}
+                {__( 'Remove', 'codenagi' )}
               </button>
             </div>
           ))}
@@ -181,10 +181,11 @@ export function ElementPanel({ api }: ElementPanelProps) {
             type="button"
             onClick={handleAddAttribute}
           >
-            {__( 'Add attribute', 'wp-livecode' )}
+            {__( 'Add attribute', 'codenagi' )}
           </button>
         </div>
       </div>
     </div>
   );
 }
+

@@ -1,12 +1,12 @@
-<?php
+﻿<?php
 /**
- * REST validation tests for WP LiveCode.
+ * REST validation tests for CodeNagi.
  *
- * @package WP_LiveCode
+ * @package CodeNagi
  */
 
-use WPLiveCode\Frontend;
-use WPLiveCode\Post_Type;
+use CodeNagi\Frontend;
+use CodeNagi\Post_Type;
 
 class Test_Rest_Validation extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -21,13 +21,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_version(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload               = $this->get_import_payload_base();
 		$payload['version']    = 2;
 		$response              = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -39,13 +39,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_tailwind_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['tailwindEnabled'] = 'yes';
 		$response                   = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -57,13 +57,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_external_scripts_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['externalScripts'] = array( 'http://example.com/script.js' );
 		$response                   = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -75,13 +75,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_js_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload        = $this->get_import_payload_base();
 		$payload['js']  = array( 'alert(1)' );
 		$response       = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -93,13 +93,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_generated_css_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload               = $this->get_import_payload_base();
 		$payload['generatedCss'] = array( 'body { color: red; }' );
 		$response              = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -111,13 +111,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_shadow_dom_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['shadowDomEnabled'] = 'yes';
 		$response                   = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -129,13 +129,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_shortcode_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['shortcodeEnabled'] = 1;
 		$response                   = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -147,13 +147,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_single_page_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                     = $this->get_import_payload_base();
 		$payload['singlePageEnabled'] = 'true';
 		$response                    = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -165,13 +165,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_live_highlight_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                       = $this->get_import_payload_base();
 		$payload['liveHighlightEnabled'] = 'false';
 		$response                      = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -183,13 +183,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_external_styles_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                   = $this->get_import_payload_base();
 		$payload['externalStyles'] = 'https://example.com/style.css';
 		$response                  = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -201,13 +201,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_external_styles_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                   = $this->get_import_payload_base();
 		$payload['externalStyles'] = array( 'http://example.com/style.css' );
 		$response                  = $this->dispatch_route(
-			'/wp-livecode/v1/import',
+			'/codenagi/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -219,11 +219,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_non_array_updates(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/wp-livecode/v1/settings',
+			'/codenagi/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => 'nope',
@@ -235,11 +235,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_scripts_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/wp-livecode/v1/settings',
+			'/codenagi/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -260,11 +260,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_scripts_invalid_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/wp-livecode/v1/settings',
+			'/codenagi/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -278,11 +278,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_styles_invalid_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/wp-livecode/v1/settings',
+			'/codenagi/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -296,11 +296,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_styles_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/wp-livecode/v1/settings',
+			'/codenagi/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -321,12 +321,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_save_strips_xss_from_html_for_author(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_livecode_post( $author_id );
+		$post_id   = $this->create_codenagi_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
 		$response = $this->dispatch_route(
-			'/wp-livecode/v1/save',
+			'/codenagi/v1/save',
 			array(
 				'post_id' => $post_id,
 				'html'    => '<p>Safe</p><script>alert(1)</script><img src="x" onerror="alert(1)"><a href="javascript:alert(1)">x</a>',
@@ -345,12 +345,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_save_strips_style_breakout_from_css_for_author(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_livecode_post( $author_id );
+		$post_id   = $this->create_codenagi_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
 		$response = $this->dispatch_route(
-			'/wp-livecode/v1/save',
+			'/codenagi/v1/save',
 			array(
 				'post_id' => $post_id,
 				'html'    => '<p>CSS test</p>',
@@ -360,20 +360,20 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 		$this->assertSame( 200, $response->get_status(), 'Author saves should succeed without JS capability.' );
 
-		$stored_css = (string) get_post_meta( $post_id, '_lc_css', true );
+		$stored_css = (string) get_post_meta( $post_id, '_codenagi_css', true );
 		$this->assertStringNotContainsString( '</style', $stored_css, 'CSS should not contain closing style tags.' );
 		$this->assertStringContainsString( '&lt;/style', $stored_css, 'Closing style tags should be escaped.' );
 	}
 
 	public function test_frontend_escapes_style_breakout_in_css_output(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_livecode_post( $admin_id );
+		$post_id  = $this->create_codenagi_post( $admin_id );
 		$post     = get_post( $post_id );
 
 		$this->assertInstanceOf( WP_Post::class, $post );
 
-		update_post_meta( $post_id, '_lc_shadow_dom', '1' );
-		update_post_meta( $post_id, '_lc_css', '</style><script>alert("test2");</script>body{color:red;}' );
+		update_post_meta( $post_id, '_codenagi_shadow_dom', '1' );
+		update_post_meta( $post_id, '_codenagi_css', '</style><script>alert("test2");</script>body{color:red;}' );
 
 		global $wp_query;
 		$original_wp_query = $wp_query ?? null;
@@ -393,7 +393,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertStringContainsString( '&lt;/style', $output, 'Output should escape closing style tags.' );
 	}
 
-	private function create_livecode_post( int $author_id ): int {
+	private function create_codenagi_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,
@@ -424,3 +424,6 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		);
 	}
 }
+
+
+

@@ -1,14 +1,16 @@
-<?php
+﻿<?php
 /**
- * Tests for the LiveCode post type.
+ * Tests for the CodeNagi post type.
  *
- * @package WP_LiveCode
+ * @package CodeNagi
  */
 
-use WPLiveCode\Post_Type;
+use CodeNagi\Post_Type;
 
 class Test_Post_Type extends WP_UnitTestCase {
 	public function test_post_type_is_registered() {
 		$this->assertTrue( post_type_exists( Post_Type::POST_TYPE ) );
 	}
 }
+
+
