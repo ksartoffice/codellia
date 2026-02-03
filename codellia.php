@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Codellia
+ * Plugin Name: Codellia Editor
  * Plugin URI: https://wordpress.org/plugins/codellia/
- * Description: Codellia – Live HTML/CSS/JS Editor with Tailwind CSS.
+ * Description: Live HTML/CSS/JS editor with real-time preview and Tailwind CSS support for WordPress.
  * Version: 1.0.0
  * Requires at least: 6.0
  * Tested up to: 6.9
