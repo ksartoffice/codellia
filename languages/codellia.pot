@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Codellia 1.0.0\n"
+"Project-Id-Version: Codellia Editor 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/codellia\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,10 @@ msgstr ""
 "X-Domain: codellia\n"
 
 #. Plugin Name of the plugin
+#: codellia.php
+msgid "Codellia Editor"
+msgstr ""
+
 #. Author of the plugin
 #: codellia.php
 #: includes/class-codellia-admin.php:58
@@ -30,7 +34,7 @@ msgstr ""
 
 #. Description of the plugin
 #: codellia.php
-msgid "Codellia – Live HTML/CSS/JS Editor with Tailwind CSS."
+msgid "Live HTML/CSS/JS editor with real-time preview and Tailwind CSS support for WordPress."
 msgstr ""
 
 #: includes/class-codellia-admin.php:39
@@ -98,7 +102,7 @@ msgid "Delete all Codellia posts on uninstall (imported media is kept)."
 msgstr ""
 
 #: includes/class-codellia-admin.php:161
-msgid "Codellia Settings"
+msgid "Codellia Editor Settings"
 msgstr ""
 
 #: includes/class-codellia-external-scripts.php:53

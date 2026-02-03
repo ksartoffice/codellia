@@ -289,7 +289,7 @@ class Admin {
 		}
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'Codellia Settings', 'codellia' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Codellia Editor Settings', 'codellia' ) . '</h1>';
 		echo '<form action="options.php" method="post">';
 		settings_fields( self::SETTINGS_GROUP );
 		do_settings_sections( self::SETTINGS_SLUG );

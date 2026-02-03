@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Codellia 1.0.0\n"
+"Project-Id-Version: Codellia Editor 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/codellia\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Japanese\n"
@@ -15,6 +15,10 @@ msgstr ""
 "X-Domain: codellia\n"
 
 #. Plugin Name of the plugin
+#: codellia.php
+msgid "Codellia Editor"
+msgstr "Codellia Editor"
+
 #. Author of the plugin
 #: codellia.php
 #: includes/class-codellia-admin.php:58
@@ -30,8 +34,8 @@ msgstr "https://wordpress.org/plugins/codellia/"
 
 #. Description of the plugin
 #: codellia.php
-msgid "Codellia – Live HTML/CSS/JS Editor with Tailwind CSS."
-msgstr "Codellia – Tailwind CSS 対応の HTML/CSS/JS ライブエディター。"
+msgid "Live HTML/CSS/JS editor with real-time preview and Tailwind CSS support for WordPress."
+msgstr "リアルタイムプレビューと Tailwind CSS 対応を備えた WordPress 用の HTML/CSS/JS エディター。"
 
 #: includes/class-codellia-admin.php:39
 #: includes/class-codellia-admin.php:139
@@ -846,8 +850,8 @@ msgid "Delete all Codellia posts on uninstall (imported media is kept)."
 msgstr "アンインストール時に Codellia 投稿をすべて削除します（取り込んだメディアは保持します）。"
 
 #: includes/class-codellia-admin.php:161
-msgid "Codellia Settings"
-msgstr "Codellia 設定"
+msgid "Codellia Editor Settings"
+msgstr "Codellia Editor 設定"
 
 
 
