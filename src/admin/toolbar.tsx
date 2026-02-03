@@ -289,7 +289,6 @@ function Toolbar({
             className="cd-btn cd-btn-back"
             href={backUrl}
             aria-label={backLabel}
-            data-tooltip={backLabel}
           >
             <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
             <span
