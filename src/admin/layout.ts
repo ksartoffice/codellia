@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+﻿import { __ } from '@wordpress/i18n';
 
 type LayoutRefs = {
   app: HTMLDivElement;
@@ -32,68 +32,68 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string) {
 }
 
 export function buildLayout(root: HTMLElement): LayoutRefs {
-  const app = el('div', 'lc-app');
+  const app = el('div', 'cd-app');
 
   // Toolbar (React mount point)
-  const toolbar = el('div', 'lc-toolbar');
+  const toolbar = el('div', 'cd-toolbar');
 
   // Main split
-  const main = el('div', 'lc-main');
-  const left = el('div', 'lc-left');
-  const resizer = el('div', 'lc-resizer');
-  const right = el('div', 'lc-right');
-  const settings = el('aside', 'lc-settings');
-  settings.id = 'lc-settings';
-  const settingsInner = el('div', 'lc-settingsInner');
-  const settingsHeader = el('div', 'lc-settingsHeader');
-  const settingsBody = el('div', 'lc-settingsBody');
+  const main = el('div', 'cd-main');
+  const left = el('div', 'cd-left');
+  const resizer = el('div', 'cd-resizer');
+  const right = el('div', 'cd-right');
+  const settings = el('aside', 'cd-settings');
+  settings.id = 'cd-settings';
+  const settingsInner = el('div', 'cd-settingsInner');
+  const settingsHeader = el('div', 'cd-settingsHeader');
+  const settingsBody = el('div', 'cd-settingsBody');
   settingsInner.append(settingsHeader, settingsBody);
   settings.append(settingsInner);
 
-  const htmlPane = el('div', 'lc-editorPane lc-editorPane-html is-active');
-  const htmlHeader = el('div', 'lc-editorHeader');
-  htmlHeader.textContent = __( 'HTML', 'wp-livecode' );
-  const htmlWrap = el('div', 'lc-editorWrap');
-  const htmlEditorDiv = el('div', 'lc-editor lc-editor-html');
+  const htmlPane = el('div', 'cd-editorPane cd-editorPane-html is-active');
+  const htmlHeader = el('div', 'cd-editorHeader');
+  htmlHeader.textContent = __( 'HTML', 'codellia' );
+  const htmlWrap = el('div', 'cd-editorWrap');
+  const htmlEditorDiv = el('div', 'cd-editor cd-editor-html');
   htmlWrap.append(htmlEditorDiv);
   htmlPane.append(htmlHeader, htmlWrap);
 
-  const cssPane = el('div', 'lc-editorPane lc-editorPane-css');
-  const cssHeader = el('div', 'lc-editorHeader lc-editorHeader-tabs');
-  const cssTabs = el('div', 'lc-editorTabs');
+  const cssPane = el('div', 'cd-editorPane cd-editorPane-css');
+  const cssHeader = el('div', 'cd-editorHeader cd-editorHeader-tabs');
+  const cssTabs = el('div', 'cd-editorTabs');
   const cssTab = document.createElement('button');
   cssTab.type = 'button';
-  cssTab.className = 'lc-editorTab is-active';
-  cssTab.textContent = __( 'CSS', 'wp-livecode' );
+  cssTab.className = 'cd-editorTab is-active';
+  cssTab.textContent = __( 'CSS', 'codellia' );
   const jsTab = document.createElement('button');
   jsTab.type = 'button';
-  jsTab.className = 'lc-editorTab';
-  jsTab.textContent = __( 'JavaScript', 'wp-livecode' );
+  jsTab.className = 'cd-editorTab';
+  jsTab.textContent = __( 'JavaScript', 'codellia' );
   cssTabs.append(cssTab, jsTab);
 
-  const jsControls = el('div', 'lc-editorActions');
+  const jsControls = el('div', 'cd-editorActions');
   const runButton = document.createElement('button');
   runButton.type = 'button';
-  runButton.className = 'lc-editorAction';
-  runButton.textContent = __( 'Run', 'wp-livecode' );
+  runButton.className = 'cd-editorAction';
+  runButton.textContent = __( 'Run', 'codellia' );
   jsControls.append(runButton);
 
   cssHeader.append(cssTabs, jsControls);
-  const cssWrap = el('div', 'lc-editorWrap lc-editorWrap-tabs');
-  const cssEditorDiv = el('div', 'lc-editor lc-editor-css is-active');
-  const jsEditorDiv = el('div', 'lc-editor lc-editor-js');
+  const cssWrap = el('div', 'cd-editorWrap cd-editorWrap-tabs');
+  const cssEditorDiv = el('div', 'cd-editor cd-editor-css is-active');
+  const jsEditorDiv = el('div', 'cd-editor cd-editor-js');
   cssWrap.append(cssEditorDiv, jsEditorDiv);
   cssPane.append(cssHeader, cssWrap);
 
-  const editorResizer = el('div', 'lc-editorResizer');
+  const editorResizer = el('div', 'cd-editorResizer');
 
   left.append(htmlPane, editorResizer, cssPane);
 
   // Preview
   const iframe = document.createElement('iframe');
-  iframe.className = 'lc-iframe';
+  iframe.className = 'cd-iframe';
   iframe.referrerPolicy = 'no-referrer-when-downgrade';
-  const previewBadge = el('div', 'lc-previewBadge');
+  const previewBadge = el('div', 'cd-previewBadge');
   previewBadge.setAttribute('role', 'status');
   previewBadge.setAttribute('aria-live', 'polite');
   previewBadge.setAttribute('aria-atomic', 'true');
@@ -130,3 +130,4 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
 }
 
 export type { LayoutRefs };
+

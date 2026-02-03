@@ -1,29 +1,29 @@
 <?php
 /**
- * External style helpers for WP LiveCode.
+ * External script helpers for Codellia.
  *
- * @package WP_LiveCode
+ * @package Codellia
  */
 
-namespace WPLiveCode;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Validates and sanitizes external stylesheet URLs.
+ * Validates and sanitizes external script URLs.
  */
-class External_Styles {
+class External_Scripts {
 	/**
-	 * Fetch external styles list for a LiveCode post.
+	 * Fetch external scripts list for a Codellia post.
 	 *
-	 * @param int      $post_id LiveCode post ID.
+	 * @param int      $post_id Codellia post ID.
 	 * @param int|null $max     Optional max items.
 	 * @return array
 	 */
-	public static function get_external_styles( int $post_id, ?int $max = null ): array {
-		$raw  = get_post_meta( $post_id, '_lc_external_styles', true );
+	public static function get_external_scripts( int $post_id, ?int $max = null ): array {
+		$raw  = get_post_meta( $post_id, '_codellia_external_scripts', true );
 		$list = array();
 
 		if ( is_array( $raw ) ) {
@@ -39,7 +39,7 @@ class External_Styles {
 	}
 
 	/**
-	 * Validate a list of external stylesheet URLs.
+	 * Validate a list of external script URLs.
 	 *
 	 * @param array       $raw   Raw list of URLs.
 	 * @param int|null    $max   Optional max items.
@@ -48,18 +48,18 @@ class External_Styles {
 	 */
 	public static function validate_list( array $raw, ?int $max = null, ?string &$error = null ): ?array {
 		$sanitized = array();
-		foreach ( array_values( $raw ) as $style_url ) {
-			if ( ! is_string( $style_url ) ) {
-				$error = __( 'Invalid externalStyles value.', 'wp-livecode' );
+		foreach ( array_values( $raw ) as $script_url ) {
+			if ( ! is_string( $script_url ) ) {
+				$error = __( 'Invalid externalScripts value.', 'codellia' );
 				return null;
 			}
-			$style_url = trim( $style_url );
-			if ( '' === $style_url ) {
+			$script_url = trim( $script_url );
+			if ( '' === $script_url ) {
 				continue;
 			}
-			$clean_url = self::sanitize_url( $style_url );
+			$clean_url = self::sanitize_url( $script_url );
 			if ( ! $clean_url ) {
-				$error = __( 'External styles must be valid https:// URLs.', 'wp-livecode' );
+				$error = __( 'External scripts must be valid https:// URLs.', 'codellia' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -67,7 +67,7 @@ class External_Styles {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = __( 'External styles exceed the maximum allowed.', 'wp-livecode' );
+			$error = __( 'External scripts exceed the maximum allowed.', 'codellia' );
 			return null;
 		}
 
@@ -75,7 +75,7 @@ class External_Styles {
 	}
 
 	/**
-	 * Sanitize a list of external stylesheet URLs.
+	 * Sanitize a list of external script URLs.
 	 *
 	 * @param array    $raw Raw list of URLs.
 	 * @param int|null $max Optional max items.
@@ -83,15 +83,15 @@ class External_Styles {
 	 */
 	public static function sanitize_list( array $raw, ?int $max = null ): array {
 		$sanitized = array();
-		foreach ( array_values( $raw ) as $style_url ) {
-			if ( ! is_string( $style_url ) ) {
+		foreach ( array_values( $raw ) as $script_url ) {
+			if ( ! is_string( $script_url ) ) {
 				continue;
 			}
-			$style_url = trim( $style_url );
-			if ( '' === $style_url ) {
+			$script_url = trim( $script_url );
+			if ( '' === $script_url ) {
 				continue;
 			}
-			$clean_url = self::sanitize_url( $style_url );
+			$clean_url = self::sanitize_url( $script_url );
 			if ( $clean_url ) {
 				$sanitized[] = $clean_url;
 			}
@@ -131,3 +131,6 @@ class External_Styles {
 		return esc_url_raw( $validated );
 	}
 }
+
+
+

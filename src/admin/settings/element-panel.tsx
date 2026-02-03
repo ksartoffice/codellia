@@ -1,4 +1,4 @@
-import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
+﻿import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export type ElementPanelAttribute = {
@@ -25,7 +25,7 @@ export function ElementPanel({ api }: ElementPanelProps) {
   const [attributes, setAttributes] = useState<ElementPanelAttribute[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const [hasText, setHasText] = useState(false);
-  const fieldId = 'lc-elements-text';
+  const fieldId = 'cd-elements-text';
 
   const refreshElement = useCallback(() => {
     if (!selectedId) {
@@ -121,70 +121,71 @@ export function ElementPanel({ api }: ElementPanelProps) {
 
   if (!isVisible) {
     return (
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">{__( 'Elements', 'wp-livecode' )}</div>
-        <div className="lc-settingsHelp">
-          {__( 'Select an element in the preview to edit its content and attributes.', 'wp-livecode' )}
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">{__( 'Elements', 'codellia' )}</div>
+        <div className="cd-settingsHelp">
+          {__( 'Select an element in the preview to edit its content and attributes.', 'codellia' )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="lc-settingsSection">
-      <div className="lc-settingsSectionTitle">{__( 'Elements', 'wp-livecode' )}</div>
+    <div className="cd-settingsSection">
+      <div className="cd-settingsSectionTitle">{__( 'Elements', 'codellia' )}</div>
       {hasText ? (
-        <div className="lc-formGroup">
-          <label className="lc-formLabel" htmlFor={fieldId}>
-            {__( 'Text', 'wp-livecode' )}
+        <div className="cd-formGroup">
+          <label className="cd-formLabel" htmlFor={fieldId}>
+            {__( 'Text', 'codellia' )}
           </label>
           <textarea
             id={fieldId}
-            className="lc-formInput"
+            className="cd-formInput"
             rows={4}
             value={value}
             onChange={handleChange}
           />
         </div>
       ) : null}
-      <div className="lc-formGroup">
-        <div className="lc-formLabel">{__( 'Attributes', 'wp-livecode' )}</div>
-        <div className="lc-settingsScriptList">
+      <div className="cd-formGroup">
+        <div className="cd-formLabel">{__( 'Attributes', 'codellia' )}</div>
+        <div className="cd-settingsScriptList">
           {attributes.map((attr, index) => (
-            <div className="lc-settingsScriptRow" key={`attr-${index}`}>
+            <div className="cd-settingsScriptRow" key={`attr-${index}`}>
               <input
                 type="text"
-                className="lc-formInput lc-settingsAttrNameInput"
-                placeholder={__( 'Attribute name', 'wp-livecode' )}
+                className="cd-formInput cd-settingsAttrNameInput"
+                placeholder={__( 'Attribute name', 'codellia' )}
                 value={attr.name}
                 onChange={(event) => handleAttributeNameChange(index, event.target.value)}
               />
               <input
                 type="text"
-                className="lc-formInput lc-settingsScriptInput"
-                placeholder={__( 'Value', 'wp-livecode' )}
+                className="cd-formInput cd-settingsScriptInput"
+                placeholder={__( 'Value', 'codellia' )}
                 value={attr.value}
                 onChange={(event) => handleAttributeValueChange(index, event.target.value)}
               />
               <button
-                className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                className="cd-btn cd-btn-danger cd-settingsScriptButton"
                 type="button"
                 onClick={() => handleRemoveAttribute(index)}
-                aria-label={__( 'Remove attribute', 'wp-livecode' )}
+                aria-label={__( 'Remove attribute', 'codellia' )}
               >
-                {__( 'Remove', 'wp-livecode' )}
+                {__( 'Remove', 'codellia' )}
               </button>
             </div>
           ))}
           <button
-            className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+            className="cd-btn cd-btn-secondary cd-settingsScriptAdd"
             type="button"
             onClick={handleAddAttribute}
           >
-            {__( 'Add attribute', 'wp-livecode' )}
+            {__( 'Add attribute', 'codellia' )}
           </button>
         </div>
       </div>
     </div>
   );
 }
+

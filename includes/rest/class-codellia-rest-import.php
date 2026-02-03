@@ -1,11 +1,11 @@
 <?php
 /**
- * REST handler for importing LiveCode data.
+ * REST handler for importing Codellia data.
  *
- * @package WP_LiveCode
+ * @package Codellia
  */
 
-namespace WPLiveCode;
+namespace Codellia;
 
 use TailwindPHP\tw;
 
@@ -14,14 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * REST callbacks for LiveCode import.
+ * REST callbacks for Codellia import.
  */
 class Rest_Import {
 	private const MAX_EXTERNAL_SCRIPTS = 5;
 	private const MAX_EXTERNAL_STYLES  = 5;
 
 	/**
-	 * Import a LiveCode JSON payload into a post.
+	 * Import a Codellia JSON payload into a post.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -30,11 +30,11 @@ class Rest_Import {
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		$payload = $request->get_param( 'payload' );
 
-		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid post type.', 'wp-livecode' ),
+					'error' => __( 'Invalid post type.', 'codellia' ),
 				),
 				400
 			);
@@ -44,7 +44,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Permission denied.', 'wp-livecode' ),
+					'error' => __( 'Permission denied.', 'codellia' ),
 				),
 				403
 			);
@@ -54,7 +54,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid import payload.', 'wp-livecode' ),
+					'error' => __( 'Invalid import payload.', 'codellia' ),
 				),
 				400
 			);
@@ -65,7 +65,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Unsupported import version.', 'wp-livecode' ),
+					'error' => __( 'Unsupported import version.', 'codellia' ),
 				),
 				400
 			);
@@ -75,7 +75,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid HTML value.', 'wp-livecode' ),
+					'error' => __( 'Invalid HTML value.', 'codellia' ),
 				),
 				400
 			);
@@ -85,7 +85,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid CSS value.', 'wp-livecode' ),
+					'error' => __( 'Invalid CSS value.', 'codellia' ),
 				),
 				400
 			);
@@ -95,7 +95,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid tailwindEnabled value.', 'wp-livecode' ),
+					'error' => __( 'Invalid tailwindEnabled value.', 'codellia' ),
 				),
 				400
 			);
@@ -106,7 +106,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid JavaScript value.', 'wp-livecode' ),
+						'error' => __( 'Invalid JavaScript value.', 'codellia' ),
 					),
 					400
 				);
@@ -120,7 +120,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid shadowDomEnabled value.', 'wp-livecode' ),
+						'error' => __( 'Invalid shadowDomEnabled value.', 'codellia' ),
 					),
 					400
 				);
@@ -134,7 +134,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid shortcodeEnabled value.', 'wp-livecode' ),
+						'error' => __( 'Invalid shortcodeEnabled value.', 'codellia' ),
 					),
 					400
 				);
@@ -148,7 +148,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid singlePageEnabled value.', 'wp-livecode' ),
+						'error' => __( 'Invalid singlePageEnabled value.', 'codellia' ),
 					),
 					400
 				);
@@ -162,7 +162,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid liveHighlightEnabled value.', 'wp-livecode' ),
+						'error' => __( 'Invalid liveHighlightEnabled value.', 'codellia' ),
 					),
 					400
 				);
@@ -176,7 +176,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid generatedCss value.', 'wp-livecode' ),
+						'error' => __( 'Invalid generatedCss value.', 'codellia' ),
 					),
 					400
 				);
@@ -190,7 +190,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid externalScripts value.', 'wp-livecode' ),
+						'error' => __( 'Invalid externalScripts value.', 'codellia' ),
 					),
 					400
 				);
@@ -206,7 +206,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : __( 'Invalid externalScripts value.', 'wp-livecode' ),
+						'error' => null !== $error ? $error : __( 'Invalid externalScripts value.', 'codellia' ),
 					),
 					400
 				);
@@ -219,7 +219,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid externalStyles value.', 'wp-livecode' ),
+						'error' => __( 'Invalid externalStyles value.', 'codellia' ),
 					),
 					400
 				);
@@ -235,7 +235,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : __( 'Invalid externalStyles value.', 'wp-livecode' ),
+						'error' => null !== $error ? $error : __( 'Invalid externalStyles value.', 'codellia' ),
 					),
 					400
 				);
@@ -281,7 +281,7 @@ class Rest_Import {
 							'ok'    => false,
 							'error' => sprintf(
 								/* translators: %s: error message. */
-								__( 'Tailwind compile failed: %s', 'wp-livecode' ),
+								__( 'Tailwind compile failed: %s', 'codellia' ),
 								$e->getMessage()
 							),
 						),
@@ -291,43 +291,43 @@ class Rest_Import {
 			}
 		}
 
-		update_post_meta( $post_id, '_lc_css', $css_input );
-		update_post_meta( $post_id, '_lc_js', $js_input );
-		delete_post_meta( $post_id, '_lc_js_enabled' );
-		update_post_meta( $post_id, '_lc_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
-		update_post_meta( $post_id, '_lc_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_codellia_css', $css_input );
+		update_post_meta( $post_id, '_codellia_js', $js_input );
+		delete_post_meta( $post_id, '_codellia_js_enabled' );
+		update_post_meta( $post_id, '_codellia_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_codellia_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
 		if ( null !== $single_page_enabled ) {
-			update_post_meta( $post_id, '_lc_single_page_enabled', $single_page_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_codellia_single_page_enabled', $single_page_enabled ? '1' : '0' );
 		}
 		if ( null !== $live_highlight_enabled ) {
-			update_post_meta( $post_id, '_lc_live_highlight', $live_highlight_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_codellia_live_highlight', $live_highlight_enabled ? '1' : '0' );
 		}
-		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
-		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
-		delete_post_meta( $post_id, '_lc_setup_required' );
+		update_post_meta( $post_id, '_codellia_tailwind', $tailwind_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_codellia_tailwind_locked', '1' );
+		delete_post_meta( $post_id, '_codellia_setup_required' );
 
 		if ( $tailwind_enabled ) {
-			update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
+			update_post_meta( $post_id, '_codellia_generated_css', $compiled_css );
 		} else {
-			delete_post_meta( $post_id, '_lc_generated_css' );
+			delete_post_meta( $post_id, '_codellia_generated_css' );
 		}
 
 		if ( empty( $external_scripts ) ) {
-			delete_post_meta( $post_id, '_lc_external_scripts' );
+			delete_post_meta( $post_id, '_codellia_external_scripts' );
 		} else {
 			update_post_meta(
 				$post_id,
-				'_lc_external_scripts',
+				'_codellia_external_scripts',
 				wp_json_encode( $external_scripts, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 			);
 		}
 
 		if ( empty( $external_styles ) ) {
-			delete_post_meta( $post_id, '_lc_external_styles' );
+			delete_post_meta( $post_id, '_codellia_external_styles' );
 		} else {
 			update_post_meta(
 				$post_id,
-				'_lc_external_styles',
+				'_codellia_external_styles',
 				wp_json_encode( $external_styles, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 			);
 		}
@@ -355,3 +355,5 @@ class Rest_Import {
 		return str_ireplace( '</style', '&lt;/style', $css );
 	}
 }
+
+

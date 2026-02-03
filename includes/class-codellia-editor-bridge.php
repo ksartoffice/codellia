@@ -1,22 +1,22 @@
 <?php
 /**
- * Bridge the default editor screen to the LiveCode editor.
+ * Bridge the default editor screen to the Codellia editor.
  *
- * @package WP_LiveCode
+ * @package Codellia
  */
 
-namespace WPLiveCode;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Handles the default editor experience for LiveCode posts.
+ * Handles the default editor experience for Codellia posts.
  */
 class Editor_Bridge {
-	const SCRIPT_HANDLE = 'wp-livecode-editor-bridge';
-	const STYLE_HANDLE  = 'wp-livecode-editor-bridge';
+	const SCRIPT_HANDLE = 'codellia-editor-bridge';
+	const STYLE_HANDLE  = 'codellia-editor-bridge';
 
 	/**
 	 * Register hooks for the editor bridge.
@@ -32,7 +32,7 @@ class Editor_Bridge {
 	 */
 	public static function enqueue_block_assets(): void {
 		$screen = get_current_screen();
-		if ( ! self::is_livecode_screen( $screen ) ) {
+		if ( ! self::is_codellia_screen( $screen ) ) {
 			return;
 		}
 
@@ -50,7 +50,7 @@ class Editor_Bridge {
 		}
 
 		$screen = get_current_screen();
-		if ( ! self::is_livecode_screen( $screen ) ) {
+		if ( ! self::is_codellia_screen( $screen ) ) {
 			return;
 		}
 
@@ -67,17 +67,17 @@ class Editor_Bridge {
 	private static function enqueue_assets(): void {
 		wp_register_script(
 			self::SCRIPT_HANDLE,
-			WP_LIVECODE_URL . 'assets/admin/editor-bridge.js',
+			CODELLIA_URL . 'assets/admin/editor-bridge.js',
 			array( 'wp-i18n', 'wp-dom-ready', 'wp-data' ),
-			WP_LIVECODE_VERSION,
+			CODELLIA_VERSION,
 			true
 		);
 
 		wp_register_style(
 			self::STYLE_HANDLE,
-			WP_LIVECODE_URL . 'assets/admin/editor-bridge.css',
+			CODELLIA_URL . 'assets/admin/editor-bridge.css',
 			array(),
-			WP_LIVECODE_VERSION
+			CODELLIA_VERSION
 		);
 
 		wp_enqueue_script( self::SCRIPT_HANDLE );
@@ -86,24 +86,24 @@ class Editor_Bridge {
 		$data = array(
 			'postId'    => self::resolve_post_id(),
 			'postType'  => Post_Type::POST_TYPE,
-			'actionUrl' => admin_url( 'admin.php?action=wp_livecode' ),
+			'actionUrl' => admin_url( 'admin.php?action=codellia' ),
 		);
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.WP_LIVECODE_EDITOR = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
+			'window.CODELLIA_EDITOR = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
 			'before'
 		);
 
 		wp_set_script_translations(
 			self::SCRIPT_HANDLE,
-			'wp-livecode',
-			WP_LIVECODE_PATH . 'languages'
+			'codellia',
+			CODELLIA_PATH . 'languages'
 		);
 	}
 
 	/**
-	 * Mark new LiveCode posts as requiring setup.
+	 * Mark new Codellia posts as requiring setup.
 	 *
 	 * @param int     $post_id Post ID.
 	 * @param \WP_Post $post Post object.
@@ -122,11 +122,11 @@ class Editor_Bridge {
 			return;
 		}
 
-		if ( get_post_meta( $post_id, '_lc_setup_required', true ) === '1' ) {
+		if ( get_post_meta( $post_id, '_codellia_setup_required', true ) === '1' ) {
 			return;
 		}
 
-		update_post_meta( $post_id, '_lc_setup_required', '1' );
+		update_post_meta( $post_id, '_codellia_setup_required', '1' );
 	}
 
 	/**
@@ -148,12 +148,14 @@ class Editor_Bridge {
 	}
 
 	/**
-	 * Check if the screen is for the LiveCode CPT.
+	 * Check if the screen is for the Codellia CPT.
 	 *
 	 * @param \WP_Screen|null $screen Current screen.
 	 * @return bool
 	 */
-	private static function is_livecode_screen( $screen ): bool {
+	private static function is_codellia_screen( $screen ): bool {
 		return $screen && Post_Type::POST_TYPE === $screen->post_type;
 	}
 }
+
+

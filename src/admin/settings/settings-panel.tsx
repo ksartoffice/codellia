@@ -1,4 +1,4 @@
-import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress/element';
+﻿import { createElement, Fragment, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 type SettingsPanelProps = {
@@ -56,7 +56,7 @@ export function SettingsPanel({
   const hasScripts = externalScripts.length > 0;
   const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
   const hasStyles = externalStyles.length > 0;
-  const shortcodeText = `[livecode post_id="${postId}"]`;
+  const shortcodeText = `[codellia post_id="${postId}"]`;
 
   useEffect(() => {
     return () => {
@@ -146,123 +146,123 @@ export function SettingsPanel({
 
   return (
     <Fragment>
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
-          {__( 'Output settings', 'wp-livecode' )}
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
+          {__( 'Output settings', 'codellia' )}
         </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
-            {__( 'Enable shortcode', 'wp-livecode' )}
+        <div className="cd-settingsItem cd-settingsToggle">
+          <div className="cd-settingsItemLabel">
+            {__( 'Enable shortcode', 'codellia' )}
           </div>
-          <label className="lc-toggle">
+          <label className="cd-toggle">
             <input
               type="checkbox"
               checked={shortcodeEnabled}
-              aria-label={__( 'Enable shortcode', 'wp-livecode' )}
+              aria-label={__( 'Enable shortcode', 'codellia' )}
               onChange={(event) => onToggleShortcode(event.target.checked)}
               disabled={disabled}
             />
-            <span className="lc-toggleTrack" aria-hidden="true" />
+            <span className="cd-toggleTrack" aria-hidden="true" />
           </label>
         </div>
         {shortcodeEnabled ? (
           <Fragment>
-            <div className="lc-settingsScriptRow">
+            <div className="cd-settingsScriptRow">
               <input
                 ref={shortcodeInputRef}
                 type="text"
-                className="lc-formInput lc-settingsScriptInput"
+                className="cd-formInput cd-settingsScriptInput"
                 value={shortcodeText}
                 readOnly
-                aria-label={__( 'LiveCode shortcode', 'wp-livecode' )}
+                aria-label={__( 'Codellia shortcode', 'codellia' )}
               />
               <button
-                className="lc-btn lc-btn-secondary"
+                className="cd-btn cd-btn-secondary"
                 type="button"
                 onClick={handleCopyShortcode}
-                aria-label={__( 'Copy shortcode', 'wp-livecode' )}
+                aria-label={__( 'Copy shortcode', 'codellia' )}
               >
                 {copyState === 'copied'
-                  ? __( 'Copied', 'wp-livecode' )
-                  : __( 'Copy', 'wp-livecode' )}
+                  ? __( 'Copied', 'codellia' )
+                  : __( 'Copy', 'codellia' )}
               </button>
             </div>
             {copyState === 'copied' ? (
-              <div className="lc-settingsHelp">{__( 'Copied.', 'wp-livecode' )}</div>
+              <div className="cd-settingsHelp">{__( 'Copied.', 'codellia' )}</div>
             ) : null}
             {copyState === 'error' ? (
-              <div className="lc-settingsError">{__( 'Copy failed.', 'wp-livecode' )}</div>
+              <div className="cd-settingsError">{__( 'Copy failed.', 'codellia' )}</div>
             ) : null}
-            <div className="lc-settingsItem lc-settingsToggle">
-              <div className="lc-settingsItemLabel">
-                {__( 'Do not publish as single page', 'wp-livecode' )}
+            <div className="cd-settingsItem cd-settingsToggle">
+              <div className="cd-settingsItemLabel">
+                {__( 'Do not publish as single page', 'codellia' )}
               </div>
-              <label className="lc-toggle">
+              <label className="cd-toggle">
                 <input
                   type="checkbox"
                   checked={!singlePageEnabled}
-                  aria-label={__( 'Do not publish as single page', 'wp-livecode' )}
+                  aria-label={__( 'Do not publish as single page', 'codellia' )}
                   onChange={(event) => onToggleSinglePage(!event.target.checked)}
                   disabled={disabled}
                 />
-                <span className="lc-toggleTrack" aria-hidden="true" />
+                <span className="cd-toggleTrack" aria-hidden="true" />
               </label>
             </div>
-            <div className="lc-settingsHelp">
+            <div className="cd-settingsHelp">
               {__(
                 'You can paste this into a shortcode block in Gutenberg or Elementor.',
-                'wp-livecode'
+                'codellia'
               )}
             </div>
           </Fragment>
         ) : null}
         {disabled ? (
-          <div className="lc-settingsHelp">
-            {__( 'Requires unfiltered_html capability.', 'wp-livecode' )}
+          <div className="cd-settingsHelp">
+            {__( 'Requires unfiltered_html capability.', 'codellia' )}
           </div>
         ) : null}
-        {error ? <div className="lc-settingsError">{error}</div> : null}
+        {error ? <div className="cd-settingsError">{error}</div> : null}
       </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
-          {__( 'Rendering settings', 'wp-livecode' )}
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
+          {__( 'Rendering settings', 'codellia' )}
         </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
-            {__( 'Enable Shadow DOM (DSD)', 'wp-livecode' )}
+        <div className="cd-settingsItem cd-settingsToggle">
+          <div className="cd-settingsItemLabel">
+            {__( 'Enable Shadow DOM (DSD)', 'codellia' )}
           </div>
-          <label className="lc-toggle">
+          <label className="cd-toggle">
             <input
               type="checkbox"
               checked={shadowDomEnabled}
-              aria-label={__( 'Enable Shadow DOM (DSD)', 'wp-livecode' )}
+              aria-label={__( 'Enable Shadow DOM (DSD)', 'codellia' )}
               onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
             />
-            <span className="lc-toggleTrack" aria-hidden="true" />
+            <span className="cd-toggleTrack" aria-hidden="true" />
           </label>
         </div>
-        <div className="lc-settingsHelp">
-          {__( 'Prevents interference with existing theme CSS.', 'wp-livecode' )}
+        <div className="cd-settingsHelp">
+          {__( 'Prevents interference with existing theme CSS.', 'codellia' )}
         </div>
       </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
-          {__( 'External resource settings', 'wp-livecode' )}
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
+          {__( 'External resource settings', 'codellia' )}
         </div>
         {canEditJs ? (
           <Fragment>
-            <div className="lc-settingsItemLabel">{__( 'External scripts', 'wp-livecode' )}</div>
+            <div className="cd-settingsItemLabel">{__( 'External scripts', 'codellia' )}</div>
             {hasScripts ? (
-              <div className="lc-settingsScriptList">
+              <div className="cd-settingsScriptList">
                 {externalScripts.map((scriptUrl, index) => (
-                  <div className="lc-settingsScriptRow" key={`script-${index}`}>
+                  <div className="cd-settingsScriptRow" key={`script-${index}`}>
                     <input
                       type="url"
-                      className="lc-formInput lc-settingsScriptInput"
-                      placeholder={__( 'https://example.com/script.js', 'wp-livecode' )}
+                      className="cd-formInput cd-settingsScriptInput"
+                      placeholder={__( 'https://example.com/script.js', 'codellia' )}
                       value={scriptUrl}
                       onChange={(event) => updateScriptAt(index, event.target.value, false)}
                       onBlur={(event) => updateScriptAt(index, event.target.value, true)}
@@ -275,60 +275,60 @@ export function SettingsPanel({
                       disabled={disabled}
                     />
                     <button
-                      className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                      className="cd-btn cd-btn-danger cd-settingsScriptButton"
                       type="button"
                       onClick={() => handleRemoveScript(index)}
                       disabled={disabled}
-                      aria-label={__( 'Remove external script', 'wp-livecode' )}
+                      aria-label={__( 'Remove external script', 'codellia' )}
                     >
-                      {__( 'Remove', 'wp-livecode' )}
+                      {__( 'Remove', 'codellia' )}
                     </button>
                   </div>
                 ))}
                 <button
-                  className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+                  className="cd-btn cd-btn-secondary cd-settingsScriptAdd"
                   type="button"
                   onClick={handleAddScript}
                   disabled={!canAddScript}
-                  aria-label={__( 'Add external script', 'wp-livecode' )}
+                  aria-label={__( 'Add external script', 'codellia' )}
                 >
-                  {`+ ${__( 'Add', 'wp-livecode' )}`}
+                  {`+ ${__( 'Add', 'codellia' )}`}
                 </button>
               </div>
             ) : (
               <button
-                className="lc-btn lc-btn-secondary"
+                className="cd-btn cd-btn-secondary"
                 type="button"
                 onClick={handleAddScript}
                 disabled={!canAddScript}
               >
-                {__( 'Add external script', 'wp-livecode' )}
+                {__( 'Add external script', 'codellia' )}
               </button>
             )}
-            <div className="lc-settingsHelp">
+            <div className="cd-settingsHelp">
               {/* translators: %d: maximum number of items. */}
               {sprintf(
                 __(
                   'Only URLs starting with https:// are allowed. You can add up to %d items.',
-                  'wp-livecode'
+                  'codellia'
                 ),
                 MAX_EXTERNAL_SCRIPTS
               )}
             </div>
             {externalScriptsError ? (
-              <div className="lc-settingsError">{externalScriptsError}</div>
+              <div className="cd-settingsError">{externalScriptsError}</div>
             ) : null}
           </Fragment>
         ) : null}
-        <div className="lc-settingsItemLabel">{__( 'External styles', 'wp-livecode' )}</div>
+        <div className="cd-settingsItemLabel">{__( 'External styles', 'codellia' )}</div>
         {hasStyles ? (
-          <div className="lc-settingsScriptList">
+          <div className="cd-settingsScriptList">
             {externalStyles.map((styleUrl, index) => (
-              <div className="lc-settingsScriptRow" key={`style-${index}`}>
+              <div className="cd-settingsScriptRow" key={`style-${index}`}>
                 <input
                   type="url"
-                  className="lc-formInput lc-settingsScriptInput"
-                  placeholder={__( 'https://example.com/style.css', 'wp-livecode' )}
+                  className="cd-formInput cd-settingsScriptInput"
+                  placeholder={__( 'https://example.com/style.css', 'codellia' )}
                   value={styleUrl}
                   onChange={(event) => updateStyleAt(index, event.target.value, false)}
                   onBlur={(event) => updateStyleAt(index, event.target.value, true)}
@@ -341,67 +341,68 @@ export function SettingsPanel({
                   disabled={disabled}
                 />
                 <button
-                  className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                  className="cd-btn cd-btn-danger cd-settingsScriptButton"
                   type="button"
                   onClick={() => handleRemoveStyle(index)}
                   disabled={disabled}
-                  aria-label={__( 'Remove external style', 'wp-livecode' )}
+                  aria-label={__( 'Remove external style', 'codellia' )}
                 >
-                  {__( 'Remove', 'wp-livecode' )}
+                  {__( 'Remove', 'codellia' )}
                 </button>
               </div>
             ))}
             <button
-              className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+              className="cd-btn cd-btn-secondary cd-settingsScriptAdd"
               type="button"
               onClick={handleAddStyle}
               disabled={!canAddStyle}
-              aria-label={__( 'Add external style', 'wp-livecode' )}
+              aria-label={__( 'Add external style', 'codellia' )}
             >
-              {`+ ${__( 'Add', 'wp-livecode' )}`}
+              {`+ ${__( 'Add', 'codellia' )}`}
             </button>
           </div>
         ) : (
           <button
-            className="lc-btn lc-btn-secondary"
+            className="cd-btn cd-btn-secondary"
             type="button"
             onClick={handleAddStyle}
             disabled={!canAddStyle}
           >
-            {__( 'Add external style', 'wp-livecode' )}
+            {__( 'Add external style', 'codellia' )}
           </button>
         )}
-        <div className="lc-settingsHelp">
+        <div className="cd-settingsHelp">
           {/* translators: %d: maximum number of items. */}
           {sprintf(
-            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'wp-livecode' ),
+            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'codellia' ),
             MAX_EXTERNAL_STYLES
           )}
         </div>
         {externalStylesError ? (
-          <div className="lc-settingsError">{externalStylesError}</div>
+          <div className="cd-settingsError">{externalStylesError}</div>
         ) : null}
       </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
-          {__( 'Display settings', 'wp-livecode' )}
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
+          {__( 'Display settings', 'codellia' )}
         </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
-            {__( 'Enable live edit highlight', 'wp-livecode' )}
+        <div className="cd-settingsItem cd-settingsToggle">
+          <div className="cd-settingsItemLabel">
+            {__( 'Enable live edit highlight', 'codellia' )}
           </div>
-          <label className="lc-toggle">
+          <label className="cd-toggle">
             <input
               type="checkbox"
               checked={liveHighlightEnabled}
-              aria-label={__( 'Enable live edit highlight', 'wp-livecode' )}
+              aria-label={__( 'Enable live edit highlight', 'codellia' )}
               onChange={(event) => onToggleLiveHighlight(event.target.checked)}
             />
-            <span className="lc-toggleTrack" aria-hidden="true" />
+            <span className="cd-toggleTrack" aria-hidden="true" />
           </label>
         </div>
       </div>
     </Fragment>
   );
 }
+

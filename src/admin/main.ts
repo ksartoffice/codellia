@@ -9,8 +9,8 @@ import { createPreviewController, type PreviewController } from './preview';
 import { getEditableElementAttributes, getEditableElementText } from './element-text';
 import {
   createTailwindCompiler,
-  exportLivecode,
-  saveLivecode,
+  exportCodellia,
+  saveCodellia,
   type TailwindCompiler,
 } from './persistence';
 import type { ImportResult } from './types';
@@ -21,7 +21,7 @@ declare const wp: any;
 
 declare global {
   interface Window {
-    WP_LIVECODE: {
+    CODELLIA: {
       post_id: number;
       initialHtml: string;
       initialCss: string;
@@ -57,27 +57,27 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 
 const NOTICE_STORE = 'core/notices';
 const NOTICE_IDS = {
-  monaco: 'lc-monaco',
-  save: 'lc-save',
-  export: 'lc-export',
-  tailwind: 'lc-tailwind',
+  monaco: 'cd-monaco',
+  save: 'cd-save',
+  export: 'cd-export',
+  tailwind: 'cd-tailwind',
 };
 const NOTICE_SUCCESS_DURATION_MS = 3000;
 const NOTICE_ERROR_DURATION_MS = 5000;
 const NOTICE_OFFSET_GAP_PX = 8;
 
 const syncNoticeOffset = () => {
-  const toolbar = document.querySelector('.lc-toolbar') as HTMLElement | null;
+  const toolbar = document.querySelector('.cd-toolbar') as HTMLElement | null;
   if (!toolbar) {
     return;
   }
   const base = toolbar.getBoundingClientRect().bottom + NOTICE_OFFSET_GAP_PX;
-  const list = document.querySelector('.lc-noticeHost .components-snackbar-list') as HTMLElement | null;
+  const list = document.querySelector('.cd-noticeHost .components-snackbar-list') as HTMLElement | null;
   const noticeContainer = list?.querySelector('.components-snackbar-list__notices') as HTMLElement | null;
   const firstNotice = noticeContainer?.firstElementChild as HTMLElement | null;
   const noticeHeight = firstNotice?.getBoundingClientRect().height ?? 0;
   const offset = Math.max(0, Math.round(base + noticeHeight));
-  document.documentElement.style.setProperty('--lc-notice-offset-top', `${offset}px`);
+  document.documentElement.style.setProperty('--cd-notice-offset-top', `${offset}px`);
 };
 
 const createSnackbar = (
@@ -122,11 +122,11 @@ const mountNotices = () => {
   if (!wp?.components?.SnackbarList || !wp?.data?.useSelect) {
     return;
   }
-  if (document.querySelector('.lc-noticeHost')) {
+  if (document.querySelector('.cd-noticeHost')) {
     return;
   }
   const host = document.createElement('div');
-  host.className = 'lc-noticeHost';
+  host.className = 'cd-noticeHost';
   document.body.append(host);
 
   const SnackbarList = wp.components.SnackbarList;
@@ -155,10 +155,10 @@ const mountNotices = () => {
 };
 
 async function main() {
-  const cfg = window.WP_LIVECODE;
+  const cfg = window.CODELLIA;
   const initialViewUrl = cfg.settingsData?.viewUrl || '';
   const postId = cfg.post_id;
-  const mount = document.getElementById('wp-livecode-app');
+  const mount = document.getElementById('codellia-app');
   if (!mount) return;
   mountNotices();
 
@@ -234,12 +234,12 @@ async function main() {
 
   if (cfg.setupRequired) {
     if (!cfg.setupRestUrl || !wp?.apiFetch) {
-      ui.app.textContent = __( 'Setup wizard unavailable.', 'wp-livecode' );
+      ui.app.textContent = __( 'Setup wizard unavailable.', 'codellia' );
       return;
     }
 
     const setupHost = document.createElement('div');
-    setupHost.className = 'lc-setupHost';
+    setupHost.className = 'cd-setupHost';
     document.body.append(setupHost);
 
     try {
@@ -259,8 +259,8 @@ async function main() {
       }
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('[WP LiveCode] Setup failed', error);
-      ui.app.textContent = __( 'Setup failed.', 'wp-livecode' );
+      console.error('[Codellia] Setup failed', error);
+      ui.app.textContent = __( 'Setup failed.', 'codellia' );
       return;
     } finally {
       setupHost.remove();
@@ -401,16 +401,16 @@ async function main() {
     if (!htmlModel || !cssModel || !jsModel) {
       createSnackbar(
         'error',
-        __( 'Export unavailable.', 'wp-livecode' ),
+        __( 'Export unavailable.', 'codellia' ),
         NOTICE_IDS.export,
         NOTICE_ERROR_DURATION_MS
       );
       return;
     }
 
-    createSnackbar('info', __( 'Exporting...', 'wp-livecode' ), NOTICE_IDS.export);
+    createSnackbar('info', __( 'Exporting...', 'codellia' ), NOTICE_IDS.export);
 
-    const result = await exportLivecode({
+    const result = await exportCodellia({
       apiFetch: wp.apiFetch,
       restCompileUrl: cfg.restCompileUrl,
       postId,
@@ -430,7 +430,7 @@ async function main() {
     if (result.ok) {
       createSnackbar(
         'success',
-        __( 'Exported.', 'wp-livecode' ),
+        __( 'Exported.', 'codellia' ),
         NOTICE_IDS.export,
         NOTICE_SUCCESS_DURATION_MS
       );
@@ -441,14 +441,14 @@ async function main() {
       /* translators: %s: error message. */
       createSnackbar(
         'error',
-        sprintf(__( 'Export error: %s', 'wp-livecode' ), result.error),
+        sprintf(__( 'Export error: %s', 'codellia' ), result.error),
         NOTICE_IDS.export,
         NOTICE_ERROR_DURATION_MS
       );
     } else {
       createSnackbar(
         'error',
-        __( 'Export failed.', 'wp-livecode' ),
+        __( 'Export failed.', 'codellia' ),
         NOTICE_IDS.export,
         NOTICE_ERROR_DURATION_MS
       );
@@ -457,11 +457,11 @@ async function main() {
 
   async function handleSave(): Promise<{ ok: boolean; error?: string }> {
     if (!htmlModel || !cssModel) {
-      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
+      return { ok: false, error: __( 'Save failed.', 'codellia' ) };
     }
-    createSnackbar('info', __( 'Saving...', 'wp-livecode' ), NOTICE_IDS.save);
+    createSnackbar('info', __( 'Saving...', 'codellia' ), NOTICE_IDS.save);
 
-    const result = await saveLivecode({
+    const result = await saveCodellia({
       apiFetch: wp.apiFetch,
       restUrl: cfg.restUrl,
       postId,
@@ -476,7 +476,7 @@ async function main() {
       markSavedState();
       createSnackbar(
         'success',
-        __( 'Saved.', 'wp-livecode' ),
+        __( 'Saved.', 'codellia' ),
         NOTICE_IDS.save,
         NOTICE_SUCCESS_DURATION_MS
       );
@@ -485,7 +485,7 @@ async function main() {
       /* translators: %s: error message. */
       createSnackbar(
         'error',
-        sprintf(__( 'Save error: %s', 'wp-livecode' ), result.error),
+        sprintf(__( 'Save error: %s', 'codellia' ), result.error),
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
@@ -493,11 +493,11 @@ async function main() {
     } else {
       createSnackbar(
         'error',
-        __( 'Save failed.', 'wp-livecode' ),
+        __( 'Save failed.', 'codellia' ),
         NOTICE_IDS.save,
         NOTICE_ERROR_DURATION_MS
       );
-      return { ok: false, error: __( 'Save failed.', 'wp-livecode' ) };
+      return { ok: false, error: __( 'Save failed.', 'codellia' ) };
     }
   }
 
@@ -508,12 +508,12 @@ async function main() {
     }
     try {
       const refreshUrl = new URL(url, window.location.origin);
-      refreshUrl.searchParams.set('lc_refresh', Date.now().toString());
+      refreshUrl.searchParams.set('codellia_refresh', Date.now().toString());
       return refreshUrl.toString();
     } catch {
       const hasQuery = url.includes('?');
       const hashIndex = url.indexOf('#');
-      const suffix = `${hasQuery ? '&' : '?'}lc_refresh=${Date.now()}`;
+      const suffix = `${hasQuery ? '&' : '?'}codellia_refresh=${Date.now()}`;
       if (hashIndex === -1) {
         return url + suffix;
       }
@@ -546,7 +546,7 @@ async function main() {
       onViewportChange: (mode) => setViewportMode(mode),
       onUpdateTitle: async (nextTitle) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
-          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+          return { ok: false, error: __( 'Settings unavailable.', 'codellia' ) };
         }
         try {
           const response = await wp.apiFetch({
@@ -558,7 +558,7 @@ async function main() {
             },
           });
           if (!response?.ok) {
-            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+            return { ok: false, error: response?.error || __( 'Update failed.', 'codellia' ) };
           }
           const nextSettings = response.settings as SettingsData | undefined;
           const resolvedTitle =
@@ -568,7 +568,7 @@ async function main() {
           postTitle = resolvedTitle;
           toolbarApi?.update({ postTitle });
           window.dispatchEvent(
-            new CustomEvent('lc-title-updated', { detail: { title: resolvedTitle } })
+            new CustomEvent('cd-title-updated', { detail: { title: resolvedTitle } })
           );
           if (iframePreviewUrl) {
             ui.iframe.src = buildPreviewRefreshUrl(iframePreviewUrl);
@@ -577,13 +577,13 @@ async function main() {
         } catch (error: any) {
           return {
             ok: false,
-            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+            error: error?.message || __( 'Update failed.', 'codellia' ),
           };
         }
       },
       onUpdateStatus: async (nextStatus) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
-          return { ok: false, error: __( 'Settings unavailable.', 'wp-livecode' ) };
+          return { ok: false, error: __( 'Settings unavailable.', 'codellia' ) };
         }
         const updates =
           nextStatus === 'private'
@@ -599,7 +599,7 @@ async function main() {
             },
           });
           if (!response?.ok) {
-            return { ok: false, error: response?.error || __( 'Update failed.', 'wp-livecode' ) };
+            return { ok: false, error: response?.error || __( 'Update failed.', 'codellia' ) };
           }
           const nextSettings = response.settings as SettingsData | undefined;
           postStatus =
@@ -611,7 +611,7 @@ async function main() {
         } catch (error: any) {
           return {
             ok: false,
-            error: error?.message || __( 'Update failed.', 'wp-livecode' ),
+            error: error?.message || __( 'Update failed.', 'codellia' ),
           };
         }
       },
@@ -619,7 +619,7 @@ async function main() {
   );
   syncNoticeOffset();
   window.setTimeout(syncNoticeOffset, 0);
-  createSnackbar('info', __( 'Loading Monaco...', 'wp-livecode' ), NOTICE_IDS.monaco);
+  createSnackbar('info', __( 'Loading Monaco...', 'codellia' ), NOTICE_IDS.monaco);
 
   // iframe
   ui.iframe.src = iframePreviewUrl;
@@ -649,7 +649,7 @@ async function main() {
       return;
     }
     event.preventDefault();
-    event.returnValue = __( 'You may have unsaved changes.', 'wp-livecode' );
+    event.returnValue = __( 'You may have unsaved changes.', 'codellia' );
   };
 
   window.addEventListener('beforeunload', handleBeforeUnload);
@@ -685,7 +685,7 @@ async function main() {
     const normalized: { name: string; value: string }[] = [];
     for (let i = attrs.length - 1; i >= 0; i -= 1) {
       const name = attrs[i].name.trim();
-      if (!name || name === 'data-lc-id' || !isValidAttributeName(name) || seen.has(name)) {
+      if (!name || name === 'data-codellia-id' || !isValidAttributeName(name) || seen.has(name)) {
         continue;
       }
       seen.add(name);
@@ -827,7 +827,7 @@ async function main() {
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('[WP LiveCode] Shortcode render failed', error);
+        console.error('[Codellia] Shortcode render failed', error);
       }
       return {};
     },
@@ -840,7 +840,7 @@ async function main() {
         setSettingsOpen(true);
       }
       if (activeSettingsTab !== 'elements') {
-        window.dispatchEvent(new CustomEvent('lc-open-elements-tab'));
+        window.dispatchEvent(new CustomEvent('cd-open-elements-tab'));
       }
     },
   });
@@ -1250,4 +1250,5 @@ main().catch((e) => {
   // eslint-disable-next-line no-console
   console.error(e);
 });
+
 

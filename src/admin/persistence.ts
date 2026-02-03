@@ -1,4 +1,4 @@
-import type { ExportPayload } from './types';
+﻿import type { ExportPayload } from './types';
 import { __, sprintf } from '@wordpress/i18n';
 
 type ApiFetch = (args: any) => Promise<any>;
@@ -57,14 +57,14 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         deps.onCssCompiled(res.css);
         deps.onStatusClear();
       } else {
-        deps.onStatus(__( 'Tailwind compile failed.', 'wp-livecode' ));
+        deps.onStatus(__( 'Tailwind compile failed.', 'codellia' ));
       }
     } catch (e: any) {
       if (currentToken !== tailwindCompileToken) {
         return;
       }
       /* translators: %s: error message. */
-      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'wp-livecode' ), e?.message ?? e));
+      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'codellia' ), e?.message ?? e));
     } finally {
       if (currentToken === tailwindCompileToken) {
         tailwindCompileInFlight = false;
@@ -93,7 +93,7 @@ type SaveParams = {
   js: string;
 };
 
-export async function saveLivecode(
+export async function saveCodellia(
   params: SaveParams
 ): Promise<{ ok: boolean; error?: string }> {
   try {
@@ -141,7 +141,9 @@ type ExportParams = {
   liveHighlightEnabled: boolean;
 };
 
-export async function exportLivecode(params: ExportParams): Promise<{ ok: boolean; error?: string }> {
+export async function exportCodellia(
+  params: ExportParams
+): Promise<{ ok: boolean; error?: string }> {
   try {
     let generatedCss = '';
     if (params.tailwindEnabled) {
@@ -161,7 +163,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('[WP LiveCode] Export compile failed', error);
+        console.error('[Codellia] Export compile failed', error);
       }
     }
 
@@ -186,7 +188,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `livecode-${params.postId}.json`;
+    link.download = `codellia-${params.postId}.json`;
     document.body.append(link);
     link.click();
     link.remove();
@@ -199,3 +201,4 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
     return { ok: false, error: e?.message ?? e };
   }
 }
+

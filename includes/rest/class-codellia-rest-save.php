@@ -1,11 +1,11 @@
 <?php
 /**
- * REST handlers for saving LiveCode content.
+ * REST handlers for saving Codellia content.
  *
- * @package WP_LiveCode
+ * @package Codellia
  */
 
-namespace WPLiveCode;
+namespace Codellia;
 
 use TailwindPHP\tw;
 
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Rest_Save {
 	/**
-	 * Save LiveCode post content and metadata.
+	 * Save Codellia post content and metadata.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -31,11 +31,11 @@ class Rest_Save {
 		$has_js           = $request->has_param( 'js' );
 		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwindEnabled' ) );
 
-		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid post type.', 'wp-livecode' ),
+					'error' => __( 'Invalid post type.', 'codellia' ),
 				),
 				400
 			);
@@ -45,14 +45,14 @@ class Rest_Save {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Permission denied.', 'wp-livecode' ),
+					'error' => __( 'Permission denied.', 'codellia' ),
 				),
 				403
 			);
 		}
 
-		$tailwind_meta   = get_post_meta( $post_id, '_lc_tailwind', true );
-		$tailwind_locked = '1' === get_post_meta( $post_id, '_lc_tailwind_locked', true );
+		$tailwind_meta   = get_post_meta( $post_id, '_codellia_tailwind', true );
+		$tailwind_locked = '1' === get_post_meta( $post_id, '_codellia_tailwind_locked', true );
 		$has_tailwind    = '' !== $tailwind_meta;
 
 		if ( $tailwind_locked || $has_tailwind ) {
@@ -92,7 +92,7 @@ class Rest_Save {
 						'ok'    => false,
 						'error' => sprintf(
 							/* translators: %s: error message. */
-							__( 'Tailwind compile failed: %s', 'wp-livecode' ),
+							__( 'Tailwind compile failed: %s', 'codellia' ),
 							$e->getMessage()
 						),
 					),
@@ -101,18 +101,18 @@ class Rest_Save {
 			}
 		}
 
-		update_post_meta( $post_id, '_lc_css', $css_input );
+		update_post_meta( $post_id, '_codellia_css', $css_input );
 		if ( $has_js ) {
-			update_post_meta( $post_id, '_lc_js', $js_input );
+			update_post_meta( $post_id, '_codellia_js', $js_input );
 		}
-		delete_post_meta( $post_id, '_lc_js_enabled' );
+		delete_post_meta( $post_id, '_codellia_js_enabled' );
 		if ( $tailwind_enabled ) {
-			update_post_meta( $post_id, '_lc_generated_css', $compiled_css );
+			update_post_meta( $post_id, '_codellia_generated_css', $compiled_css );
 		} else {
-			delete_post_meta( $post_id, '_lc_generated_css' );
+			delete_post_meta( $post_id, '_codellia_generated_css' );
 		}
-		update_post_meta( $post_id, '_lc_tailwind', $tailwind_enabled ? '1' : '0' );
-		update_post_meta( $post_id, '_lc_tailwind_locked', '1' );
+		update_post_meta( $post_id, '_codellia_tailwind', $tailwind_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_codellia_tailwind_locked', '1' );
 
 		return new \WP_REST_Response( array( 'ok' => true ), 200 );
 	}
@@ -141,11 +141,11 @@ class Rest_Save {
 		$html      = (string) $request->get_param( 'html' );
 		$css_input = (string) $request->get_param( 'css' );
 
-		if ( ! Post_Type::is_livecode_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid post type.', 'wp-livecode' ),
+					'error' => __( 'Invalid post type.', 'codellia' ),
 				),
 				400
 			);
@@ -164,7 +164,7 @@ class Rest_Save {
 					'ok'    => false,
 					'error' => sprintf(
 						/* translators: %s: error message. */
-						__( 'Tailwind compile failed: %s', 'wp-livecode' ),
+						__( 'Tailwind compile failed: %s', 'codellia' ),
 						$e->getMessage()
 					),
 				),
@@ -181,3 +181,5 @@ class Rest_Save {
 		);
 	}
 }
+
+

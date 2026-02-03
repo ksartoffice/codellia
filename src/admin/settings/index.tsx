@@ -1,4 +1,4 @@
-import {
+﻿import {
   createElement,
   Fragment,
   createPortal,
@@ -90,7 +90,7 @@ const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
 });
 
-function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'wp-livecode' )) {
+function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'codellia' )) {
   if (typeof error === 'string' && error.trim()) return error;
   if (error instanceof Error) {
     if (error.message && error.message !== '[object Object]') return error.message;
@@ -171,9 +171,9 @@ function SettingsSidebar({
     const handleOpenElementsTab = () => {
       setActiveTab('elements');
     };
-    window.addEventListener('lc-open-elements-tab', handleOpenElementsTab);
+    window.addEventListener('cd-open-elements-tab', handleOpenElementsTab);
     return () => {
-      window.removeEventListener('lc-open-elements-tab', handleOpenElementsTab);
+      window.removeEventListener('cd-open-elements-tab', handleOpenElementsTab);
     };
   }, []);
 
@@ -215,7 +215,7 @@ function SettingsSidebar({
       });
 
       if (!response?.ok) {
-        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'wp-livecode' )));
+        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'codellia' )));
       }
 
       if (response?.settings) {
@@ -322,7 +322,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalScripts: normalizedNext });
     } catch (err: any) {
-      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'wp-livecode' )));
+      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'codellia' )));
       setExternalScripts(settings.externalScripts || []);
     }
   };
@@ -346,41 +346,41 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalStyles: normalizedNext });
     } catch (err: any) {
-      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'wp-livecode' )));
+      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'codellia' )));
       setExternalStyles(settings.externalStyles || []);
     }
   };
 
   const tabs = (
-    <div className="lc-settingsTabsRow">
+    <div className="cd-settingsTabsRow">
       <div
-        className="lc-settingsTabs"
+        className="cd-settingsTabs"
         role="tablist"
-        aria-label={__( 'Settings tabs', 'wp-livecode' )}
+        aria-label={__( 'Settings tabs', 'codellia' )}
       >
         <button
-          className={`lc-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
+          className={`cd-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
           type="button"
           role="tab"
           aria-selected={activeTab === 'settings'}
           onClick={() => handleTabChange('settings')}
         >
-          {__( 'Settings', 'wp-livecode' )}
+          {__( 'Settings', 'codellia' )}
         </button>
         <button
-          className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
+          className={`cd-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
           type="button"
           role="tab"
           aria-selected={activeTab === 'elements'}
           onClick={() => handleTabChange('elements')}
         >
-          {__( 'Elements', 'wp-livecode' )}
+          {__( 'Elements', 'codellia' )}
         </button>
       </div>
       <button
-        className="lc-settingsClose"
+        className="cd-settingsClose"
         type="button"
-        aria-label={__( 'Close settings panel', 'wp-livecode' )}
+        aria-label={__( 'Close settings panel', 'codellia' )}
         onClick={() => onClosePanel?.()}
       >
         <span
@@ -432,7 +432,7 @@ export function initSettings(config: SettingsConfig) {
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = __( 'Settings unavailable.', 'wp-livecode' );
+    container.textContent = __( 'Settings unavailable.', 'codellia' );
     return;
   }
 
@@ -444,3 +444,4 @@ export function initSettings(config: SettingsConfig) {
     render(node, container);
   }
 }
+

@@ -1,4 +1,4 @@
-import {
+﻿import {
   createElement,
   Fragment,
   createRoot,
@@ -59,61 +59,61 @@ type ImportResponse = {
 
 function validateImportPayload(raw: any): { data?: ImportPayload; error?: string } {
   if (!raw || typeof raw !== 'object') {
-    return { error: __( 'Import file is not a valid JSON object.', 'wp-livecode' ) };
+    return { error: __( 'Import file is not a valid JSON object.', 'codellia' ) };
   }
 
   if (raw.version !== 1) {
-    return { error: __( 'Unsupported import version.', 'wp-livecode' ) };
+    return { error: __( 'Unsupported import version.', 'codellia' ) };
   }
 
   if (typeof raw.html !== 'string') {
-    return { error: __( 'Invalid HTML value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid HTML value.', 'codellia' ) };
   }
 
   if (typeof raw.css !== 'string') {
-    return { error: __( 'Invalid CSS value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid CSS value.', 'codellia' ) };
   }
 
   if (typeof raw.tailwindEnabled !== 'boolean') {
-    return { error: __( 'Invalid tailwindEnabled value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid tailwindEnabled value.', 'codellia' ) };
   }
 
   if (raw.generatedCss !== undefined && typeof raw.generatedCss !== 'string') {
-    return { error: __( 'Invalid generatedCss value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid generatedCss value.', 'codellia' ) };
   }
 
   if (raw.js !== undefined && typeof raw.js !== 'string') {
-    return { error: __( 'Invalid JavaScript value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid JavaScript value.', 'codellia' ) };
   }
 
   if (raw.shadowDomEnabled !== undefined && typeof raw.shadowDomEnabled !== 'boolean') {
-    return { error: __( 'Invalid shadowDomEnabled value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid shadowDomEnabled value.', 'codellia' ) };
   }
 
   if (raw.shortcodeEnabled !== undefined && typeof raw.shortcodeEnabled !== 'boolean') {
-    return { error: __( 'Invalid shortcodeEnabled value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid shortcodeEnabled value.', 'codellia' ) };
   }
 
   if (raw.singlePageEnabled !== undefined && typeof raw.singlePageEnabled !== 'boolean') {
-    return { error: __( 'Invalid singlePageEnabled value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid singlePageEnabled value.', 'codellia' ) };
   }
 
   if (raw.liveHighlightEnabled !== undefined && typeof raw.liveHighlightEnabled !== 'boolean') {
-    return { error: __( 'Invalid liveHighlightEnabled value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid liveHighlightEnabled value.', 'codellia' ) };
   }
 
   if (
     raw.externalScripts !== undefined &&
     (!Array.isArray(raw.externalScripts) || raw.externalScripts.some((item: any) => typeof item !== 'string'))
   ) {
-    return { error: __( 'Invalid externalScripts value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid externalScripts value.', 'codellia' ) };
   }
 
   if (
     raw.externalStyles !== undefined &&
     (!Array.isArray(raw.externalStyles) || raw.externalStyles.some((item: any) => typeof item !== 'string'))
   ) {
-    return { error: __( 'Invalid externalStyles value.', 'wp-livecode' ) };
+    return { error: __( 'Invalid externalStyles value.', 'codellia' ) };
   }
 
   return {
@@ -174,7 +174,7 @@ function SetupWizard({
       }
       setImportPayload(result.data || null);
     } catch (err: any) {
-      setError(__( 'Invalid JSON file.', 'wp-livecode' ));
+      setError(__( 'Invalid JSON file.', 'codellia' ));
       setImportPayload(null);
     }
   };
@@ -186,10 +186,10 @@ function SetupWizard({
     try {
       if (mode === 'import') {
         if (!importRestUrl) {
-          throw new Error(__( 'Import unavailable.', 'wp-livecode' ));
+          throw new Error(__( 'Import unavailable.', 'codellia' ));
         }
         if (!importPayload) {
-          throw new Error(__( 'Select a JSON file to import.', 'wp-livecode' ));
+          throw new Error(__( 'Select a JSON file to import.', 'codellia' ));
         }
 
         const response: ImportResponse = await apiFetch({
@@ -202,11 +202,11 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __( 'Import failed.', 'wp-livecode' ));
+          throw new Error(response?.error || __( 'Import failed.', 'codellia' ));
         }
 
         if (response.importWarnings?.length) {
-          console.warn('[WP LiveCode] Import warnings', response.importWarnings);
+          console.warn('[Codellia] Import warnings', response.importWarnings);
         }
 
         const normalizedPayload = response.html
@@ -231,7 +231,7 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __( 'Setup failed.', 'wp-livecode' ));
+          throw new Error(response?.error || __( 'Setup failed.', 'codellia' ));
         }
 
         onComplete({ tailwindEnabled: Boolean(response.tailwindEnabled) });
@@ -244,101 +244,101 @@ function SetupWizard({
   };
 
   return (
-    <div className="lc-setupOverlay">
-      <div className="lc-setupCard" role="dialog" aria-modal="true">
-        <div className="lc-setupTitle">{__( 'Choose editor mode', 'wp-livecode' )}</div>
-        <div className="lc-setupIntro">
+    <div className="cd-setupOverlay">
+      <div className="cd-setupCard" role="dialog" aria-modal="true">
+        <div className="cd-setupTitle">{__( 'Choose editor mode', 'codellia' )}</div>
+        <div className="cd-setupIntro">
           {__(
             'Select TailwindCSS or Normal mode. This choice cannot be changed later.',
-            'wp-livecode'
+            'codellia'
           )}
         </div>
-        <div className="lc-setupOptions">
-          <label className={`lc-setupOption${mode === 'normal' ? ' is-active' : ''}`}>
+        <div className="cd-setupOptions">
+          <label className={`cd-setupOption${mode === 'normal' ? ' is-active' : ''}`}>
             <input
               type="radio"
-              name="lc-setup-mode"
+              name="cd-setup-mode"
               value="normal"
               checked={mode === 'normal'}
               onChange={() => setMode('normal')}
             />
-            <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">
-                {__( 'Normal (HTML/CSS)', 'wp-livecode' )}
+            <span className="cd-setupOptionBody">
+              <span className="cd-setupOptionTitle">
+                {__( 'Normal (HTML/CSS)', 'codellia' )}
               </span>
-              <span className="lc-setupOptionDesc">
-                {__( 'Edit HTML and CSS directly with Monaco.', 'wp-livecode' )}
+              <span className="cd-setupOptionDesc">
+                {__( 'Edit HTML and CSS directly with Monaco.', 'codellia' )}
               </span>
             </span>
           </label>
-          <label className={`lc-setupOption${mode === 'tailwind' ? ' is-active' : ''}`}>
+          <label className={`cd-setupOption${mode === 'tailwind' ? ' is-active' : ''}`}>
             <input
               type="radio"
-              name="lc-setup-mode"
+              name="cd-setup-mode"
               value="tailwind"
               checked={mode === 'tailwind'}
               onChange={() => setMode('tailwind')}
             />
-            <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">
-                {__( 'TailwindCSS', 'wp-livecode' )}
+            <span className="cd-setupOptionBody">
+              <span className="cd-setupOptionTitle">
+                {__( 'TailwindCSS', 'codellia' )}
               </span>
-              <span className="lc-setupOptionDesc">
-                {__( 'Use utility classes. CSS is compiled automatically.', 'wp-livecode' )}
+              <span className="cd-setupOptionDesc">
+                {__( 'Use utility classes. CSS is compiled automatically.', 'codellia' )}
               </span>
             </span>
           </label>
-          <label className={`lc-setupOption${mode === 'import' ? ' is-active' : ''}`}>
+          <label className={`cd-setupOption${mode === 'import' ? ' is-active' : ''}`}>
             <input
               type="radio"
-              name="lc-setup-mode"
+              name="cd-setup-mode"
               value="import"
               checked={mode === 'import'}
               onChange={() => setMode('import')}
             />
-            <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">
-                {__( 'Import JSON', 'wp-livecode' )}
+            <span className="cd-setupOptionBody">
+              <span className="cd-setupOptionTitle">
+                {__( 'Import JSON', 'codellia' )}
               </span>
-              <span className="lc-setupOptionDesc">
-                {__( 'Restore from an exported LiveCode JSON file.', 'wp-livecode' )}
+              <span className="cd-setupOptionDesc">
+                {__( 'Restore from an exported Codellia JSON file.', 'codellia' )}
               </span>
             </span>
           </label>
         </div>
         {mode === 'import' ? (
-          <div className="lc-setupImport">
-            <label className="lc-btn lc-btn-secondary lc-setupFileLabel">
-              {__( 'Choose JSON file', 'wp-livecode' )}
+          <div className="cd-setupImport">
+            <label className="cd-btn cd-btn-secondary cd-setupFileLabel">
+              {__( 'Choose JSON file', 'codellia' )}
               <input
-                className="lc-setupFileInput"
+                className="cd-setupFileInput"
                 type="file"
                 accept="application/json,.json"
                 onChange={handleFileChange}
               />
             </label>
-            <div className="lc-setupFileName">
-              {importFileName || __( 'No file selected.', 'wp-livecode' )}
+            <div className="cd-setupFileName">
+              {importFileName || __( 'No file selected.', 'codellia' )}
             </div>
           </div>
         ) : null}
-        <div className="lc-setupNote">
-          {__( 'This choice is locked for this LiveCode page.', 'wp-livecode' )}
+        <div className="cd-setupNote">
+          {__( 'This choice is locked for this Codellia page.', 'codellia' )}
         </div>
-        <div className="lc-setupError">{error || ''}</div>
-        <div className="lc-setupActions">
+        <div className="cd-setupError">{error || ''}</div>
+        <div className="cd-setupActions">
           {backUrl ? (
-            <a className="lc-btn lc-btn-secondary" href={backUrl}>
-              {__( 'Back', 'wp-livecode' )}
+            <a className="cd-btn cd-btn-secondary" href={backUrl}>
+              {__( 'Back', 'codellia' )}
             </a>
           ) : null}
           <button
-            className="lc-btn lc-btn-primary"
+            className="cd-btn cd-btn-primary"
             type="button"
             onClick={handleSubmit}
             disabled={saving}
           >
-            {saving ? __( 'Saving...', 'wp-livecode' ) : __( 'Continue', 'wp-livecode' )}
+            {saving ? __( 'Saving...', 'codellia' ) : __( 'Continue', 'codellia' )}
           </button>
         </div>
       </div>
@@ -350,8 +350,8 @@ export function runSetupWizard(config: SetupWizardConfig): Promise<SetupWizardRe
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = __( 'Setup unavailable.', 'wp-livecode' );
-    return Promise.reject(new Error(__( 'wp.apiFetch is unavailable.', 'wp-livecode' )));
+    container.textContent = __( 'Setup unavailable.', 'codellia' );
+    return Promise.reject(new Error(__( 'wp.apiFetch is unavailable.', 'codellia' )));
   }
 
   return new Promise((resolve) => {
@@ -384,3 +384,4 @@ export function runSetupWizard(config: SetupWizardConfig): Promise<SetupWizardRe
     }
   });
 }
+

@@ -1,18 +1,18 @@
-(function () {
-  const styleId = 'lc-style';
-  const scriptId = 'lc-script';
-  const shadowHostId = 'lc-shadow-host';
-  const shadowContentId = 'lc-shadow-content';
-  const shadowScriptsId = 'lc-shadow-scripts';
-  const externalScriptAttr = 'data-lc-external-script';
-  const externalStyleAttr = 'data-lc-external-style';
-  const LC_ATTR_NAME = 'data-lc-id';
-  const config = window.WP_LIVECODE_PREVIEW || {};
+﻿(function () {
+  const styleId = 'cd-style';
+  const scriptId = 'cd-script';
+  const shadowHostId = 'cd-shadow-host';
+  const shadowContentId = 'cd-shadow-content';
+  const shadowScriptsId = 'cd-shadow-scripts';
+  const externalScriptAttr = 'data-cd-external-script';
+  const externalStyleAttr = 'data-cd-external-style';
+  const CODELLIA_ATTR_NAME = 'data-codellia-id';
+  const config = window.CODELLIA_PREVIEW || {};
   const postId = config.post_id || null;
   const markerStart =
-    config.markers && config.markers.start ? String(config.markers.start) : 'wp-livecode:start';
+    config.markers && config.markers.start ? String(config.markers.start) : 'codellia:start';
   const markerEnd =
-    config.markers && config.markers.end ? String(config.markers.end) : 'wp-livecode:end';
+    config.markers && config.markers.end ? String(config.markers.end) : 'codellia:end';
   const allowedOrigin = getAllowedOrigin();
   let isReady = false;
   let hoverTarget = null;
@@ -182,7 +182,7 @@
   function ensureHighlightBox() {
     if (highlightBox) return highlightBox;
     highlightBox = document.createElement('div');
-    highlightBox.id = 'lc-highlight-box';
+    highlightBox.id = 'cd-highlight-box';
     Object.assign(highlightBox.style, {
       position: 'fixed',
       border: '2px solid #3b82f6',
@@ -204,7 +204,7 @@
   function ensureSelectBox() {
     if (selectBox) return selectBox;
     selectBox = document.createElement('div');
-    selectBox.id = 'lc-select-box';
+    selectBox.id = 'cd-select-box';
     Object.assign(selectBox.style, {
       position: 'fixed',
       border: '2px solid #a855f7',
@@ -226,7 +226,7 @@
   function ensureSelectActionButton() {
     if (selectActionButton) return selectActionButton;
     const button = document.createElement('button');
-    button.id = 'lc-select-action';
+    button.id = 'cd-select-action';
     button.type = 'button';
     button.setAttribute('aria-label', 'Open element settings');
     Object.assign(button.style, {
@@ -254,7 +254,7 @@
     button.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      reply('LC_OPEN_ELEMENTS_TAB');
+      reply('CODELLIA_OPEN_ELEMENTS_TAB');
     });
     document.body.appendChild(button);
     selectActionButton = button;
@@ -343,7 +343,7 @@
     if (typeof event.composedPath === 'function') {
       const path = event.composedPath();
       for (const node of path) {
-        if (node instanceof Element && node.hasAttribute(LC_ATTR_NAME)) {
+        if (node instanceof Element && node.hasAttribute(CODELLIA_ATTR_NAME)) {
           return node;
         }
       }
@@ -351,7 +351,7 @@
     if (!event.target || !(event.target instanceof Element)) {
       return null;
     }
-    return event.target.closest('[' + LC_ATTR_NAME + ']');
+    return event.target.closest('[' + CODELLIA_ATTR_NAME + ']');
   }
 
   function handlePointerMove(event) {
@@ -371,9 +371,9 @@
     event.preventDefault();
     event.stopPropagation();
     drawSelection(target);
-    const lcId = target.getAttribute(LC_ATTR_NAME);
+    const lcId = target.getAttribute(CODELLIA_ATTR_NAME);
     if (lcId) {
-      reply('LC_SELECT', { lcId: lcId });
+      reply('CODELLIA_SELECT', { lcId: lcId });
     }
   }
 
@@ -709,12 +709,12 @@
   window.addEventListener('message', (event) => {
     if (allowedOrigin && event.origin !== allowedOrigin) return;
     const data = event.data || {};
-    if (data.type === 'LC_INIT') {
+    if (data.type === 'CODELLIA_INIT') {
       isReady = true;
-      reply('LC_READY', { post_id: postId });
+      reply('CODELLIA_READY', { post_id: postId });
       return;
     }
-    if (data.type === 'LC_RENDER') {
+    if (data.type === 'CODELLIA_RENDER') {
       if (!isReady) return;
       setShadowDomEnabled(Boolean(data.shadowDomEnabled));
       if ('liveHighlightEnabled' in data) {
@@ -722,38 +722,39 @@
       }
       render(data.canonicalHTML, data.cssText);
     }
-    if (data.type === 'LC_SET_CSS') {
+    if (data.type === 'CODELLIA_SET_CSS') {
       if (!isReady) return;
       setCssText(data.cssText);
     }
-    if (data.type === 'LC_SET_HIGHLIGHT') {
+    if (data.type === 'CODELLIA_SET_HIGHLIGHT') {
       if (!isReady) return;
       setDomSelectorEnabled(Boolean(data.liveHighlightEnabled));
     }
-    if (data.type === 'LC_SET_ELEMENTS_TAB_OPEN') {
+    if (data.type === 'CODELLIA_SET_ELEMENTS_TAB_OPEN') {
       if (!isReady) return;
       setElementsTabOpen(Boolean(data.open));
     }
-    if (data.type === 'LC_RUN_JS') {
+    if (data.type === 'CODELLIA_RUN_JS') {
       if (!isReady) return;
       jsEnabled = true;
       runJs(data.jsText || '');
     }
-    if (data.type === 'LC_DISABLE_JS') {
+    if (data.type === 'CODELLIA_DISABLE_JS') {
       if (!isReady) return;
       jsEnabled = false;
       removeScriptElement();
     }
-    if (data.type === 'LC_EXTERNAL_SCRIPTS') {
+    if (data.type === 'CODELLIA_EXTERNAL_SCRIPTS') {
       if (!isReady) return;
       setExternalScripts(data.urls || []);
     }
-    if (data.type === 'LC_EXTERNAL_STYLES') {
+    if (data.type === 'CODELLIA_EXTERNAL_STYLES') {
       if (!isReady) return;
       setExternalStyles(data.urls || []);
     }
   });
 
   attachDomSelector();
-  reply('LC_READY', { post_id: postId });
+  reply('CODELLIA_READY', { post_id: postId });
 })();
+

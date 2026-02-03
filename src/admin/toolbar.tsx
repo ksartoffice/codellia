@@ -1,4 +1,4 @@
-import {
+﻿import {
   createElement,
   Fragment,
   createRoot,
@@ -110,8 +110,8 @@ const ICONS = {
 function IconLabel({ label, svg }: { label: string; svg: string }) {
   return (
     <Fragment>
-      <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: svg }} />
-      <span className="lc-btnLabel">{label}</span>
+      <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: svg }} />
+      <span className="cd-btnLabel">{label}</span>
     </Fragment>
   );
 }
@@ -145,44 +145,44 @@ function Toolbar({
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
   const toggleLabel = editorCollapsed
-    ? __( 'Show code', 'wp-livecode' )
-    : __( 'Hide code', 'wp-livecode' );
+    ? __( 'Show code', 'codellia' )
+    : __( 'Hide code', 'codellia' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
-  const viewPostLabel = isPublished ? __( 'View post', 'wp-livecode' ) : __( 'Preview', 'wp-livecode' );
+  const viewPostLabel = isPublished ? __( 'View post', 'codellia' ) : __( 'Preview', 'codellia' );
   const settingsTitle = settingsOpen
-    ? __( 'Close settings', 'wp-livecode' )
-    : __( 'Settings', 'wp-livecode' );
-  const viewportDesktopLabel = __( 'Desktop', 'wp-livecode' );
-  const viewportTabletLabel = __( 'Tablet', 'wp-livecode' );
-  const viewportMobileLabel = __( 'Mobile', 'wp-livecode' );
+    ? __( 'Close settings', 'codellia' )
+    : __( 'Settings', 'codellia' );
+  const viewportDesktopLabel = __( 'Desktop', 'codellia' );
+  const viewportTabletLabel = __( 'Tablet', 'codellia' );
+  const viewportMobileLabel = __( 'Mobile', 'codellia' );
   const isViewportDesktop = viewportMode === 'desktop';
   const isViewportTablet = viewportMode === 'tablet';
   const isViewportMobile = viewportMode === 'mobile';
   const previewLink = buildPreviewUrl(viewPostUrl);
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
-  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'wp-livecode' );
-  const draftSuffix = isDraft ? __( '(Draft)', 'wp-livecode' ) : '';
+  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'codellia' );
+  const draftSuffix = isDraft ? __( '(Draft)', 'codellia' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
   const normalizedStatus = postStatus === 'auto-draft' ? 'draft' : postStatus;
-  const tailwindBadgeLabel = __( 'Tailwind CSS', 'wp-livecode' );
-  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'wp-livecode' );
+  const tailwindBadgeLabel = __( 'Tailwind CSS', 'codellia' );
+  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'codellia' );
   const saveLabel =
     normalizedStatus === 'draft'
-      ? __( 'Save draft', 'wp-livecode' )
+      ? __( 'Save draft', 'codellia' )
       : normalizedStatus === 'pending'
-        ? __( 'Save for review', 'wp-livecode' )
+        ? __( 'Save for review', 'codellia' )
         : normalizedStatus === 'private'
-          ? __( 'Update as private', 'wp-livecode' )
-          : __( 'Update', 'wp-livecode' );
+          ? __( 'Update as private', 'codellia' )
+          : __( 'Update', 'codellia' );
   const statusActions = [
-    { value: 'publish' as const, label: __( 'Publish', 'wp-livecode' ) },
-    { value: 'pending' as const, label: __( 'Move to review', 'wp-livecode' ) },
-    { value: 'private' as const, label: __( 'Make private', 'wp-livecode' ) },
-    { value: 'draft' as const, label: __( 'Revert to draft', 'wp-livecode' ) },
+    { value: 'publish' as const, label: __( 'Publish', 'codellia' ) },
+    { value: 'pending' as const, label: __( 'Move to review', 'codellia' ) },
+    { value: 'private' as const, label: __( 'Make private', 'codellia' ) },
+    { value: 'draft' as const, label: __( 'Revert to draft', 'codellia' ) },
   ];
   useEffect(() => {
     if (!titleModalOpen) {
@@ -214,7 +214,7 @@ function Toolbar({
     if (result.ok) {
       setTitleModalOpen(false);
     } else {
-      setTitleError(result.error || __( 'Update failed.', 'wp-livecode' ));
+      setTitleError(result.error || __( 'Update failed.', 'codellia' ));
     }
     setTitleSaving(false);
   };
@@ -277,43 +277,43 @@ function Toolbar({
   };
   return (
     <Fragment>
-      <div className="lc-toolbarGroup lc-toolbarLeft">
+      <div className="cd-toolbarGroup cd-toolbarLeft">
         <a
-          className="lc-btn lc-btn-back"
+          className="cd-btn cd-btn-back"
           href={backUrl}
-          aria-label={__( 'Back to WordPress', 'wp-livecode' )}
-          data-tooltip={__( 'Back to WordPress', 'wp-livecode' )}
+          aria-label={__( 'Back to WordPress', 'codellia' )}
+          data-tooltip={__( 'Back to WordPress', 'codellia' )}
         >
-          <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
+          <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
           <span
-            className="lc-btnIcon lc-btnIcon-wordpress"
+            className="cd-btnIcon cd-btnIcon-wordpress"
             dangerouslySetInnerHTML={{ __html: ICONS.wordpress }}
           />
         </a>
         <button
-          className={`lc-btn lc-btn-muted lc-btn-icon${canUndo ? ' is-active' : ''}`}
+          className={`cd-btn cd-btn-muted cd-btn-icon${canUndo ? ' is-active' : ''}`}
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          aria-label={__( 'Undo', 'wp-livecode' )}
-          data-tooltip={__( 'Undo', 'wp-livecode' )}
+          aria-label={__( 'Undo', 'codellia' )}
+          data-tooltip={__( 'Undo', 'codellia' )}
         >
-          <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.undo }} />
+          <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.undo }} />
         </button>
         <button
-          className={`lc-btn lc-btn-muted lc-btn-icon${canRedo ? ' is-active' : ''}`}
+          className={`cd-btn cd-btn-muted cd-btn-icon${canRedo ? ' is-active' : ''}`}
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          aria-label={__( 'Redo', 'wp-livecode' )}
-          data-tooltip={__( 'Redo', 'wp-livecode' )}
+          aria-label={__( 'Redo', 'codellia' )}
+          data-tooltip={__( 'Redo', 'codellia' )}
         >
-          <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.redo }} />
+          <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.redo }} />
         </button>
       </div>
-      <div className="lc-toolbarGroup lc-toolbarCenter">
+      <div className="cd-toolbarGroup cd-toolbarCenter">
         <div
-          className="lc-toolbarTitle"
+          className="cd-toolbarTitle"
           data-tooltip={titleTooltip}
           aria-label={titleText}
           role="button"
@@ -321,85 +321,85 @@ function Toolbar({
           onClick={openTitleModal}
           onKeyDown={handleTitleKeyDown}
         >
-          <span className="lc-toolbarTitleText">{resolvedTitle}</span>
+          <span className="cd-toolbarTitleText">{resolvedTitle}</span>
           {draftSuffix ? (
-            <span className="lc-toolbarTitleSuffix">{draftSuffix}</span>
+            <span className="cd-toolbarTitleSuffix">{draftSuffix}</span>
           ) : null}
         </div>
-        <div className="lc-toolbarCluster lc-toolbarCluster-viewports">
+        <div className="cd-toolbarCluster cd-toolbarCluster-viewports">
           <button
-            className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportDesktop ? ' is-active' : ''}`}
+            className={`cd-btn cd-btn-icon cd-btn-viewport${isViewportDesktop ? ' is-active' : ''}`}
             type="button"
             aria-label={viewportDesktopLabel}
             aria-pressed={isViewportDesktop}
             data-tooltip={viewportDesktopLabel}
             onClick={() => onViewportChange('desktop')}
           >
-            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.desktop }} />
+            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.desktop }} />
           </button>
           <button
-            className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportTablet ? ' is-active' : ''}`}
+            className={`cd-btn cd-btn-icon cd-btn-viewport${isViewportTablet ? ' is-active' : ''}`}
             type="button"
             aria-label={viewportTabletLabel}
             aria-pressed={isViewportTablet}
             data-tooltip={viewportTabletLabel}
             onClick={() => onViewportChange('tablet')}
           >
-            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.tablet }} />
+            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.tablet }} />
           </button>
           <button
-            className={`lc-btn lc-btn-icon lc-btn-viewport${isViewportMobile ? ' is-active' : ''}`}
+            className={`cd-btn cd-btn-icon cd-btn-viewport${isViewportMobile ? ' is-active' : ''}`}
             type="button"
             aria-label={viewportMobileLabel}
             aria-pressed={isViewportMobile}
             data-tooltip={viewportMobileLabel}
             onClick={() => onViewportChange('mobile')}
           >
-            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.mobile }} />
+            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.mobile }} />
           </button>
         </div>
-        <div className="lc-toolbarCluster lc-toolbarCluster-divider">
+        <div className="cd-toolbarCluster cd-toolbarCluster-divider">
           <button
-            className="lc-btn lc-btn-icon"
+            className="cd-btn cd-btn-icon"
             type="button"
             onClick={onToggleEditor}
             aria-label={toggleLabel}
             data-tooltip={toggleLabel}
           >
-            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: toggleIcon }} />
+            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: toggleIcon }} />
           </button>
         </div>
       </div>
       {titleModalOpen ? (
-        <div className="lc-modal">
-          <div className="lc-modalBackdrop" onClick={closeTitleModal} />
-          <div className="lc-modalDialog" role="dialog" aria-modal="true">
-            <div className="lc-modalHeader">
-              <div className="lc-modalTitle">{__( 'Title', 'wp-livecode' )}</div>
+        <div className="cd-modal">
+          <div className="cd-modalBackdrop" onClick={closeTitleModal} />
+          <div className="cd-modalDialog" role="dialog" aria-modal="true">
+            <div className="cd-modalHeader">
+              <div className="cd-modalTitle">{__( 'Title', 'codellia' )}</div>
               <button
-                className="lc-modalClose"
+                className="cd-modalClose"
                 type="button"
                 onClick={closeTitleModal}
-                aria-label={__( 'Close', 'wp-livecode' )}
+                aria-label={__( 'Close', 'codellia' )}
               >
                 <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS.close }} />
               </button>
             </div>
-            <div className="lc-modalBody">
+            <div className="cd-modalBody">
               <form
-                className="lc-modalForm"
+                className="cd-modalForm"
                 onSubmit={(event) => {
                   event.preventDefault();
                   handleTitleSave();
                 }}
               >
-                <div className="lc-formGroup">
-                  <label className="lc-formLabel" htmlFor="lc-title-modal-input">
-                    {__( 'Title', 'wp-livecode' )}
+                <div className="cd-formGroup">
+                  <label className="cd-formLabel" htmlFor="cd-title-modal-input">
+                    {__( 'Title', 'codellia' )}
                   </label>
                   <input
-                    id="lc-title-modal-input"
-                    className="lc-formInput"
+                    id="cd-title-modal-input"
+                    className="cd-formInput"
                     type="text"
                     value={titleDraft}
                     onChange={(event) => setTitleDraft(event.target.value)}
@@ -407,17 +407,17 @@ function Toolbar({
                     autoFocus
                   />
                 </div>
-                {titleError ? <div className="lc-modalError">{titleError}</div> : null}
-                <div className="lc-modalActions">
+                {titleError ? <div className="cd-modalError">{titleError}</div> : null}
+                <div className="cd-modalActions">
                   <button
-                    className="lc-btn lc-btn-secondary"
+                    className="cd-btn cd-btn-secondary"
                     type="button"
                     onClick={closeTitleModal}
                   >
-                    {__( 'Cancel', 'wp-livecode' )}
+                    {__( 'Cancel', 'codellia' )}
                   </button>
-                  <button className="lc-btn lc-btn-primary" type="submit" disabled={titleSaving}>
-                    {titleSaving ? __( 'Saving...', 'wp-livecode' ) : __( 'Save', 'wp-livecode' )}
+                  <button className="cd-btn cd-btn-primary" type="submit" disabled={titleSaving}>
+                    {titleSaving ? __( 'Saving...', 'codellia' ) : __( 'Save', 'codellia' )}
                   </button>
                 </div>
               </form>
@@ -425,11 +425,11 @@ function Toolbar({
           </div>
         </div>
       ) : null}
-      <div className="lc-toolbarGroup lc-toolbarRight">
-        <div className="lc-toolbarCluster">
+      <div className="cd-toolbarGroup cd-toolbarRight">
+        <div className="cd-toolbarCluster">
           {tailwindEnabled ? (
             <span
-              className="lc-tailwindBadge"
+              className="cd-tailwindBadge"
               title={tailwindTooltip}
               aria-label={tailwindTooltip}
               data-tooltip={tailwindTooltip}
@@ -439,87 +439,87 @@ function Toolbar({
           ) : null}
           {showViewPost ? (
             <a
-              className="lc-btn lc-btn-icon lc-btn-view"
+              className="cd-btn cd-btn-icon cd-btn-view"
               href={targetUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={viewPostLabel}
               data-tooltip={viewPostLabel}
             >
-              <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.viewPost }} />
+              <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.viewPost }} />
             </a>
           ) : null}
           <button
-            className={`lc-btn lc-btn-settings lc-btn-icon${settingsOpen ? ' is-active' : ''}`}
+            className={`cd-btn cd-btn-settings cd-btn-icon${settingsOpen ? ' is-active' : ''}`}
             type="button"
             onClick={onToggleSettings}
             aria-label={settingsTitle}
             aria-expanded={settingsOpen}
-            aria-controls="lc-settings"
+            aria-controls="cd-settings"
             data-tooltip={settingsTitle}
           >
-            <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.settings }} />
+            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.settings }} />
           </button>
           <button
-            className="lc-btn"
+            className="cd-btn"
             type="button"
             onClick={onExport}
           >
-            <IconLabel label={__( 'Export', 'wp-livecode' )} svg={ICONS.export} />
+            <IconLabel label={__( 'Export', 'codellia' )} svg={ICONS.export} />
           </button>
-          <div className="lc-splitButton">
+          <div className="cd-splitButton">
             <button
-              className={`lc-btn lc-btn-save lc-splitButton-main${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+              className={`cd-btn cd-btn-save cd-splitButton-main${hasUnsavedChanges ? ' is-unsaved' : ''}`}
               type="button"
               onClick={onSave}
             >
               <IconLabel label={saveLabel} svg={ICONS.save} />
             </button>
             <button
-              className={`lc-btn lc-btn-save lc-btn-icon lc-splitButton-toggle${hasUnsavedChanges ? ' is-unsaved' : ''}`}
+              className={`cd-btn cd-btn-save cd-btn-icon cd-splitButton-toggle${hasUnsavedChanges ? ' is-unsaved' : ''}`}
               type="button"
               aria-haspopup="menu"
               aria-expanded={saveMenuOpen}
-              aria-label={__( 'Save options', 'wp-livecode' )}
-              data-tooltip={__( 'Save options', 'wp-livecode' )}
+              aria-label={__( 'Save options', 'codellia' )}
+              data-tooltip={__( 'Save options', 'codellia' )}
               onClick={toggleSaveMenu}
             >
-              <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.chevronDown }} />
+              <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.chevronDown }} />
             </button>
             {saveMenuOpen ? (
               <div
-                className="lc-splitMenu"
+                className="cd-splitMenu"
                 role="menu"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="lc-splitMenuTitle">
+                <div className="cd-splitMenuTitle">
                   {/* translators: %s: current status label. */}
                   {sprintf(
-                    __( 'Status: %s', 'wp-livecode' ),
+                    __( 'Status: %s', 'codellia' ),
                     normalizedStatus === 'draft'
-                      ? __( 'Draft', 'wp-livecode' )
+                      ? __( 'Draft', 'codellia' )
                       : normalizedStatus === 'pending'
-                        ? __( 'Pending', 'wp-livecode' )
+                        ? __( 'Pending', 'codellia' )
                         : normalizedStatus === 'private'
-                          ? __( 'Private', 'wp-livecode' )
+                          ? __( 'Private', 'codellia' )
                           : normalizedStatus === 'future'
-                            ? __( 'Scheduled', 'wp-livecode' )
-                            : __( 'Published', 'wp-livecode' )
+                            ? __( 'Scheduled', 'codellia' )
+                            : __( 'Published', 'codellia' )
                   )}
                 </div>
-                <div className="lc-splitMenuList">
+                <div className="cd-splitMenuList">
                   {statusActions
                     .filter((option) => option.value !== normalizedStatus)
                     .map((option) => (
                       <button
                         key={option.value}
-                        className="lc-splitMenuItem"
+                        className="cd-splitMenuItem"
                         type="button"
                         role="menuitem"
                         onClick={(event) => handleStatusSelect(event, option.value)}
                         disabled={statusSaving}
                       >
-                        <span className="lc-splitMenuLabel">{option.label}</span>
+                        <span className="cd-splitMenuLabel">{option.label}</span>
                       </button>
                     ))}
                 </div>
@@ -577,3 +577,4 @@ export function mountToolbar(
     },
   };
 }
+
