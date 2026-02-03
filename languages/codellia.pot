@@ -191,7 +191,7 @@ msgid "Add New"
 msgstr ""
 
 #: includes/class-codellia-post-type.php:56
-msgid "Add New Codellia"
+msgid "Add New Codellia Page"
 msgstr ""
 
 #: includes/class-codellia-post-type.php:57
@@ -238,7 +238,7 @@ msgid "TailwindCSS"
 msgstr ""
 
 #: includes/class-codellia-post-type.php:226
-msgid "Untitled Codellia"
+msgid "Untitled Codellia Page"
 msgstr ""
 
 #: includes/class-codellia-preview.php:86

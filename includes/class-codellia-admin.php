@@ -72,7 +72,7 @@ class Admin {
 			array(
 				'post_type'   => $post_type,
 				'post_status' => 'draft',
-				'post_title'  => __( 'Untitled Codellia', 'codellia' ),
+				'post_title'  => __( 'Untitled Codellia Page', 'codellia' ),
 			),
 			true
 		);

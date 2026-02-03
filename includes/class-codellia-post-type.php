@@ -52,7 +52,7 @@ class Post_Type {
 			'name'               => _x( 'Codellia', 'post type general name', 'codellia' ),
 			'singular_name'      => _x( 'Codellia', 'post type singular name', 'codellia' ),
 			'add_new'            => _x( 'Add New', 'codellia', 'codellia' ),
-			'add_new_item'       => __( 'Add New Codellia', 'codellia' ),
+			'add_new_item'       => __( 'Add New Codellia Page', 'codellia' ),
 			'edit_item'          => __( 'Edit Codellia', 'codellia' ),
 			'new_item'           => __( 'New Codellia', 'codellia' ),
 			'view_item'          => __( 'View on front end', 'codellia' ),
