@@ -29,6 +29,7 @@ export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
 
 type ToolbarState = {
   backUrl: string;
+  listUrl: string;
   canUndo: boolean;
   canRedo: boolean;
   editorCollapsed: boolean;
@@ -118,6 +119,7 @@ function IconLabel({ label, svg }: { label: string; svg: string }) {
 
 function Toolbar({
   backUrl,
+  listUrl,
   canUndo,
   canRedo,
   editorCollapsed,
@@ -163,6 +165,9 @@ function Toolbar({
   const previewLink = buildPreviewUrl(viewPostUrl);
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
+  const showListLink = Boolean(listUrl);
+  const backLabel = __( 'Back to WordPress', 'codellia' );
+  const showBackMenu = Boolean(backUrl) || showListLink;
   const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'codellia' );
   const draftSuffix = isDraft ? __( '(Draft)', 'codellia' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
@@ -170,6 +175,7 @@ function Toolbar({
   const normalizedStatus = postStatus === 'auto-draft' ? 'draft' : postStatus;
   const tailwindBadgeLabel = __( 'Tailwind CSS', 'codellia' );
   const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'codellia' );
+  const listLabel = __( 'Codellia pages', 'codellia' );
   const saveLabel =
     normalizedStatus === 'draft'
       ? __( 'Save draft', 'codellia' )
@@ -278,18 +284,32 @@ function Toolbar({
   return (
     <Fragment>
       <div className="cd-toolbarGroup cd-toolbarLeft">
-        <a
-          className="cd-btn cd-btn-back"
-          href={backUrl}
-          aria-label={__( 'Back to WordPress', 'codellia' )}
-          data-tooltip={__( 'Back to WordPress', 'codellia' )}
-        >
-          <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
-          <span
-            className="cd-btnIcon cd-btnIcon-wordpress"
-            dangerouslySetInnerHTML={{ __html: ICONS.wordpress }}
-          />
-        </a>
+        <div className="cd-backMenu">
+          <a
+            className="cd-btn cd-btn-back"
+            href={backUrl}
+            aria-label={backLabel}
+            data-tooltip={backLabel}
+          >
+            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
+            <span
+              className="cd-btnIcon cd-btnIcon-wordpress"
+              dangerouslySetInnerHTML={{ __html: ICONS.wordpress }}
+            />
+          </a>
+          {showBackMenu ? (
+            <div className="cd-backMenuDropdown">
+              <a className="cd-backMenuItem" href={backUrl}>
+                {backLabel}
+              </a>
+              {showListLink ? (
+                <a className="cd-backMenuItem" href={listUrl}>
+                  {listLabel}
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
         <button
           className={`cd-btn cd-btn-muted cd-btn-icon${canUndo ? ' is-active' : ''}`}
           type="button"

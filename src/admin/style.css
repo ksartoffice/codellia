@@ -272,6 +272,71 @@ body.admin_page_codellia #wpbody-content {
   font-size: 12px;
 }
 
+.cd-backMenu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cd-backMenu::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 10px;
+}
+
+.cd-backMenuDropdown {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  min-width: 200px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid #2b3340;
+  background: #1a1f27;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 30;
+}
+
+.cd-backMenu:hover .cd-backMenuDropdown,
+.cd-backMenu:focus-within .cd-backMenuDropdown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.cd-backMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #e6e8ea;
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cd-backMenuItem:hover,
+.cd-backMenuItem:focus-visible {
+  border-color: #343c4a;
+  background: #202734;
+  color: #f1f3f5;
+}
+
+.cd-backMenuItem:active {
+  background: #1b1f27;
+  color: #f1f3f5;
+}
+
 .cd-btn-primary:hover {
   background: #3b7cff;
 }

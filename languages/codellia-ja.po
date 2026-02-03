@@ -715,6 +715,10 @@ msgid "Back to WordPress"
 msgstr "WordPress に戻る"
 
 #: assets/dist/main.js:1
+msgid "Codellia pages"
+msgstr "Codelliaページ一覧"
+
+#: assets/dist/main.js:1
 msgid "Undo"
 msgstr "元に戻す"
 

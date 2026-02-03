@@ -751,6 +751,10 @@ msgid "Back to WordPress"
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Codellia pages"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Undo"
 msgstr ""
 

@@ -38,6 +38,7 @@ declare global {
       settingsRestUrl: string;
       settingsData: SettingsData;
       backUrl?: string;
+      listUrl?: string;
       tailwindEnabled?: boolean;
       setupRequired?: boolean;
       restNonce: string;
@@ -555,6 +556,7 @@ async function main() {
     ui.toolbar,
     {
       backUrl: cfg.backUrl || '/wp-admin/',
+      listUrl: cfg.listUrl || '',
       canUndo: false,
       canRedo: false,
       editorCollapsed,
