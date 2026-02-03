@@ -250,7 +250,7 @@ async function main() {
         restUrl: cfg.setupRestUrl,
         importRestUrl: cfg.importRestUrl,
         apiFetch: wp?.apiFetch,
-        backUrl: cfg.backUrl,
+        backUrl: cfg.listUrl || cfg.backUrl,
         initialTailwindEnabled: tailwindEnabled,
       });
       tailwindEnabled = result.tailwindEnabled;
