@@ -1,11 +1,11 @@
 ﻿(function () {
-  const styleId = 'lc-style';
-  const scriptId = 'lc-script';
-  const shadowHostId = 'lc-shadow-host';
-  const shadowContentId = 'lc-shadow-content';
-  const shadowScriptsId = 'lc-shadow-scripts';
-  const externalScriptAttr = 'data-lc-external-script';
-  const externalStyleAttr = 'data-lc-external-style';
+  const styleId = 'cd-style';
+  const scriptId = 'cd-script';
+  const shadowHostId = 'cd-shadow-host';
+  const shadowContentId = 'cd-shadow-content';
+  const shadowScriptsId = 'cd-shadow-scripts';
+  const externalScriptAttr = 'data-cd-external-script';
+  const externalStyleAttr = 'data-cd-external-style';
   const CODELLIA_ATTR_NAME = 'data-codellia-id';
   const config = window.CODELLIA_PREVIEW || {};
   const postId = config.post_id || null;
@@ -182,7 +182,7 @@
   function ensureHighlightBox() {
     if (highlightBox) return highlightBox;
     highlightBox = document.createElement('div');
-    highlightBox.id = 'lc-highlight-box';
+    highlightBox.id = 'cd-highlight-box';
     Object.assign(highlightBox.style, {
       position: 'fixed',
       border: '2px solid #3b82f6',
@@ -204,7 +204,7 @@
   function ensureSelectBox() {
     if (selectBox) return selectBox;
     selectBox = document.createElement('div');
-    selectBox.id = 'lc-select-box';
+    selectBox.id = 'cd-select-box';
     Object.assign(selectBox.style, {
       position: 'fixed',
       border: '2px solid #a855f7',
@@ -226,7 +226,7 @@
   function ensureSelectActionButton() {
     if (selectActionButton) return selectActionButton;
     const button = document.createElement('button');
-    button.id = 'lc-select-action';
+    button.id = 'cd-select-action';
     button.type = 'button';
     button.setAttribute('aria-label', 'Open element settings');
     Object.assign(button.style, {

@@ -36,7 +36,7 @@ body.admin_page_codellia #wpbody-content {
   height: 100vh;
 }
 
-.lc-app {
+.cd-app {
   height: 100%;
   min-height: 100vh;
   display: flex;
@@ -46,7 +46,7 @@ body.admin_page_codellia #wpbody-content {
   overflow: hidden;
 }
 
-.lc-toolbar {
+.cd-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 8px;
@@ -56,58 +56,58 @@ body.admin_page_codellia #wpbody-content {
   background: #1a1d24;
 }
 
-.lc-toolbarGroup {
+.cd-toolbarGroup {
   display: flex;
   /* align-items: center; */
   gap: 8px;
 }
 
-.lc-toolbarCluster {
+.cd-toolbarCluster {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.lc-toolbarCluster-divider {
+.cd-toolbarCluster-divider {
   padding-left: 10px;
   border-left: 1px solid #2b2f38;
 }
 
-.lc-toolbarLeft {
+.cd-toolbarLeft {
   justify-self: start;
 }
 
-.lc-toolbarCenter {
+.cd-toolbarCenter {
   justify-self: center;
 }
 
-.lc-toolbarRight {
+.cd-toolbarRight {
   justify-self: end;
 }
 
-.lc-noticeHost {
+.cd-noticeHost {
   position: fixed;
   right: 16px;
   left: auto;
-  top: var(--lc-notice-offset-top, 64px);
+  top: var(--cd-notice-offset-top, 64px);
   z-index: 100000;
 }
 
-.lc-noticeHost .components-snackbar-list {
+.cd-noticeHost .components-snackbar-list {
   position: fixed;
   right: 16px !important;
-  top: var(--lc-notice-offset-top, 64px);
+  top: var(--cd-notice-offset-top, 64px);
   left: auto !important;
   bottom: auto;
   margin: 0;
   width: auto;
 }
 
-.lc-noticeHost .components-snackbar-list__notices {
+.cd-noticeHost .components-snackbar-list__notices {
   align-items: flex-end;
 }
 
-.lc-btn {
+.cd-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -122,11 +122,11 @@ body.admin_page_codellia #wpbody-content {
   text-decoration: none;
 }
 
-.lc-toolbar [data-tooltip] {
+.cd-toolbar [data-tooltip] {
   position: relative;
 }
 
-.lc-toolbar [data-tooltip]::after {
+.cd-toolbar [data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
   left: 50%;
@@ -146,13 +146,13 @@ body.admin_page_codellia #wpbody-content {
   z-index: 5;
 }
 
-.lc-toolbar [data-tooltip]:hover::after,
-.lc-toolbar [data-tooltip]:focus-visible::after {
+.cd-toolbar [data-tooltip]:hover::after,
+.cd-toolbar [data-tooltip]:focus-visible::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-.lc-toolbarTitle {
+.cd-toolbarTitle {
   padding: 4px 8px;
   border-radius: 6px;
   border: 1px solid #2b2f38;
@@ -169,7 +169,7 @@ body.admin_page_codellia #wpbody-content {
   cursor: pointer;
 }
 
-.lc-toolbarTitleText {
+.cd-toolbarTitleText {
   max-width: clamp(120px, 28vw, 240px);
   white-space: nowrap;
   overflow: hidden;
@@ -177,23 +177,23 @@ body.admin_page_codellia #wpbody-content {
   min-width: 0;
 }
 
-.lc-toolbarTitleSuffix {
+.cd-toolbarTitleSuffix {
   flex: 0 0 auto;
   color: #c4cbd6;
   font-weight: 500;
 }
 
-.lc-toolbarTitle:hover {
+.cd-toolbarTitle:hover {
   border-color: #3a4252;
   background: #1a1f27;
 }
 
-.lc-toolbarTitle:focus-visible {
+.cd-toolbarTitle:focus-visible {
   outline: 2px solid #4c84ff;
   outline-offset: 2px;
 }
 
-.lc-btnIcon {
+.cd-btnIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -201,27 +201,27 @@ body.admin_page_codellia #wpbody-content {
   height: 20px;
 }
 
-.lc-btnIcon svg {
+.cd-btnIcon svg {
   width: 18px;
   height: 18px;
 }
 
-.lc-btnIcon-wordpress {
+.cd-btnIcon-wordpress {
   width: 24px;
   height: 24px;
 }
 
-.lc-btnIcon-wordpress svg {
+.cd-btnIcon-wordpress svg {
   width: 24px;
   height: 24px;
 }
 
-.lc-btnLabel {
+.cd-btnLabel {
   font-size: 11px;
   line-height: 1.1;
 }
 
-.lc-btn-stack {
+.cd-btn-stack {
   flex-direction: column;
   gap: 4px;
   padding: 6px 8px;
@@ -229,73 +229,73 @@ body.admin_page_codellia #wpbody-content {
   text-align: center;
 }
 
-.lc-btn-icon {
+.cd-btn-icon {
   padding: 6px;
   min-width: 32px;
   justify-content: center;
 }
 
-.lc-btn-viewport.is-active {
+.cd-btn-viewport.is-active {
   background: #202734;
   border-color: #3a4252;
   color: #f1f3f5;
 }
 
-.lc-btn-stack .lc-btnLabel {
+.cd-btn-stack .cd-btnLabel {
   font-size: 10px;
   letter-spacing: 0.02em;
 }
 
-.lc-btn:hover {
+.cd-btn:hover {
   background: #2d3440;
   color: #f1f3f5;
 }
 
-.lc-btn:active {
+.cd-btn:active {
   background: #1b1f27;
 }
 
-.lc-btn:focus {
+.cd-btn:focus {
   outline: 2px solid #4c84ff;
   outline-offset: 1px;
 }
 
-.lc-btn-primary {
+.cd-btn-primary {
   background: #2f6feb;
   border-color: #2f6feb;
   color: #fff;
 }
 
-.lc-btn-back .lc-btnLabel {
+.cd-btn-back .cd-btnLabel {
   font-size: 12px;
 }
 
-.lc-btn-primary:hover {
+.cd-btn-primary:hover {
   background: #3b7cff;
 }
 
-.lc-btn-save.is-unsaved {
+.cd-btn-save.is-unsaved {
   background: #2f6feb;
   border-color: #2f6feb;
   color: #fff;
 }
 
-.lc-btn-save.is-unsaved:hover {
+.cd-btn-save.is-unsaved:hover {
   background: #3b7cff;
 }
 
-.lc-splitButton {
+.cd-splitButton {
   position: relative;
   display: inline-flex;
   align-items: stretch;
 }
 
-.lc-splitButton-main {
+.cd-splitButton-main {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.lc-splitButton-toggle {
+.cd-splitButton-toggle {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   margin-left: -1px;
@@ -303,7 +303,7 @@ body.admin_page_codellia #wpbody-content {
   padding: 6px;
 }
 
-.lc-splitMenu {
+.cd-splitMenu {
   position: absolute;
   right: 0;
   top: calc(100% + 6px);
@@ -316,7 +316,7 @@ body.admin_page_codellia #wpbody-content {
   z-index: 30;
 }
 
-.lc-splitMenuTitle {
+.cd-splitMenuTitle {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -324,13 +324,13 @@ body.admin_page_codellia #wpbody-content {
   padding: 2px 6px 8px;
 }
 
-.lc-splitMenuList {
+.cd-splitMenuList {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.lc-splitMenuItem {
+.cd-splitMenuItem {
   display: grid;
   grid-template-columns: 1fr;
   align-items: center;
@@ -344,65 +344,65 @@ body.admin_page_codellia #wpbody-content {
   cursor: pointer;
 }
 
-.lc-splitMenuItem:hover,
-.lc-splitMenuItem:focus-visible {
+.cd-splitMenuItem:hover,
+.cd-splitMenuItem:focus-visible {
   border-color: #343c4a;
   background: #202734;
 }
 
-.lc-splitMenuItem:disabled {
+.cd-splitMenuItem:disabled {
   opacity: 0.6;
   cursor: default;
 }
 
-.lc-splitMenuLabel {
+.cd-splitMenuLabel {
   text-align: left;
 }
 
-.lc-btn-muted {
+.cd-btn-muted {
   background: #2a303b;
   border-color: #39414f;
   color: #8f96a2;
 }
 
-.lc-btn-muted.is-active {
+.cd-btn-muted.is-active {
   background: #242a34;
   border-color: #313743;
   color: #e6e8ea;
 }
 
-.lc-btn-muted:hover {
+.cd-btn-muted:hover {
   color: #c4cbd6;
 }
 
-.lc-btn-muted.is-active:hover {
+.cd-btn-muted.is-active:hover {
   color: #f1f3f5;
 }
 
-.lc-btn-muted:disabled {
+.cd-btn-muted:disabled {
   cursor: default;
 }
 
-.lc-btn-muted:disabled:hover {
+.cd-btn-muted:disabled:hover {
   background: #2a303b;
 }
 
-.lc-btn-settings {
+.cd-btn-settings {
   position: relative;
 }
 
-.lc-btn-settings.is-active {
+.cd-btn-settings.is-active {
   background: #2f6feb;
   border-color: #2f6feb;
   color: #fff;
   box-shadow: 0 0 0 1px rgba(47, 111, 235, 0.35), 0 8px 18px rgba(47, 111, 235, 0.25);
 }
 
-.lc-btn-settings.is-active:hover {
+.cd-btn-settings.is-active:hover {
   background: #3b7cff;
 }
 
-/* .lc-btn-settings.is-active::after {
+/* .cd-btn-settings.is-active::after {
   content: '';
   position: absolute;
   top: 6px;
@@ -414,7 +414,7 @@ body.admin_page_codellia #wpbody-content {
   box-shadow: 0 0 0 2px rgba(47, 111, 235, 0.55);
 } */
 
-.lc-tailwindBadge {
+.cd-tailwindBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -429,7 +429,7 @@ body.admin_page_codellia #wpbody-content {
   line-height: 1;
 }
 
-.lc-main {
+.cd-main {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -437,13 +437,13 @@ body.admin_page_codellia #wpbody-content {
   gap: 0;
 }
 
-.lc-left,
-.lc-right {
+.cd-left,
+.cd-right {
   min-height: 0;
   flex: 1;
 }
 
-.lc-left {
+.cd-left {
   flex: 0 0 50%;
   display: flex;
   flex-direction: column;
@@ -452,14 +452,14 @@ body.admin_page_codellia #wpbody-content {
   transition: width 0.25s ease, flex-basis 0.25s ease, transform 0.25s ease, opacity 0.2s ease;
 }
 
-.lc-app.is-editor-collapsed .lc-left {
+.cd-app.is-editor-collapsed .cd-left {
   transform: translateX(-20px);
   opacity: 0;
   pointer-events: none;
   min-width: 0;
 }
 
-.lc-resizer {
+.cd-resizer {
   width: 6px;
   cursor: col-resize;
   background: #111318;
@@ -467,7 +467,7 @@ body.admin_page_codellia #wpbody-content {
   transition: width 0.25s ease, opacity 0.2s ease;
 }
 
-.lc-resizer::before {
+.cd-resizer::before {
   content: '';
   position: absolute;
   top: 0;
@@ -478,11 +478,11 @@ body.admin_page_codellia #wpbody-content {
   transition: background 0.2s ease;
 }
 
-.lc-resizer:hover::before {
+.cd-resizer:hover::before {
   background: #4c84ff;
 }
 
-.lc-editorResizer {
+.cd-editorResizer {
   height: 6px;
   flex: 0 0 6px;
   cursor: row-resize;
@@ -491,7 +491,7 @@ body.admin_page_codellia #wpbody-content {
   touch-action: none;
 }
 
-.lc-editorResizer::before {
+.cd-editorResizer::before {
   content: '';
   position: absolute;
   left: 0;
@@ -502,49 +502,49 @@ body.admin_page_codellia #wpbody-content {
   transition: background-color 0.2s ease;
 }
 
-.lc-editorResizer:hover::before {
+.cd-editorResizer:hover::before {
   background: #4c84ff;
 }
 
-.lc-app.is-editor-collapsed .lc-resizer {
+.cd-app.is-editor-collapsed .cd-resizer {
   width: 0;
   opacity: 0;
   pointer-events: none;
 }
 
-.lc-app.is-editor-collapsed .lc-right {
+.cd-app.is-editor-collapsed .cd-right {
   flex: 1 1 auto;
   width: auto;
 }
 
-.lc-app.is-resizing,
-.lc-app.is-resizing * {
+.cd-app.is-resizing,
+.cd-app.is-resizing * {
   -webkit-user-select: none;
   user-select: none;
 }
 
-.lc-app.is-resizing .lc-left,
-.lc-app.is-resizing .lc-resizer,
-.lc-app.is-resizing .lc-editorResizer {
+.cd-app.is-resizing .cd-left,
+.cd-app.is-resizing .cd-resizer,
+.cd-app.is-resizing .cd-editorResizer {
   transition: none;
 }
 
-.lc-editorPane {
+.cd-editorPane {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-.lc-editorPane + .lc-editorPane {
+.cd-editorPane + .cd-editorPane {
   border-top: 1px solid #2b2f38;
 }
 
-.lc-editorPane.is-active .lc-editorHeader {
+.cd-editorPane.is-active .cd-editorHeader {
   color: #fff;
 }
 
-.lc-editorHeader {
+.cd-editorHeader {
   display: flex;
   align-items: center;
   padding: 6px 10px;
@@ -556,8 +556,8 @@ body.admin_page_codellia #wpbody-content {
   color: #a7adb8;
 }
 
-.lc-editorHeader.has-unsaved::after,
-.lc-editorTab.has-unsaved::after {
+.cd-editorHeader.has-unsaved::after,
+.cd-editorTab.has-unsaved::after {
   content: '\25CF';
   margin-left: 6px;
   margin-bottom: 2px;
@@ -566,17 +566,17 @@ body.admin_page_codellia #wpbody-content {
   line-height: 1;
 }
 
-.lc-editorHeader-tabs {
+.cd-editorHeader-tabs {
   justify-content: space-between;
   gap: 8px;
 }
 
-.lc-editorTabs {
+.cd-editorTabs {
   display: flex;
   gap: 8px;
 }
 
-.lc-editorTab {
+.cd-editorTab {
   border: 0;
   padding: 4px 6px;
   background: transparent;
@@ -588,27 +588,27 @@ body.admin_page_codellia #wpbody-content {
   border-bottom: 1px solid transparent;
 }
 
-.lc-editorTab:hover {
+.cd-editorTab:hover {
   color: #e6e8ea;
 }
 
-.lc-editorTab.is-active {
+.cd-editorTab.is-active {
   color: #fff;
   border-bottom-color: #2f6feb;
 }
 
-.lc-editorTab:disabled {
+.cd-editorTab:disabled {
   cursor: default;
   opacity: 0.5;
 }
 
-.lc-editorActions {
+.cd-editorActions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.lc-editorAction {
+.cd-editorAction {
   border: 1px solid #39414f;
   background: #2a303b;
   color: #e6e8ea;
@@ -618,43 +618,43 @@ body.admin_page_codellia #wpbody-content {
   cursor: pointer;
 }
 
-.lc-editorAction:hover {
+.cd-editorAction:hover {
   background: #333b47;
 }
 
-.lc-editorAction:active {
+.cd-editorAction:active {
   background: #1b1f27;
 }
 
-.lc-editorAction:disabled {
+.cd-editorAction:disabled {
   opacity: 0.5;
   cursor: default;
 }
 
-.lc-editorWrap {
+.cd-editorWrap {
   flex: 1;
   min-height: 0;
 }
 
-.lc-editorWrap-tabs .lc-editor {
+.cd-editorWrap-tabs .cd-editor {
   display: none;
 }
 
-.lc-editorWrap-tabs .lc-editor.is-active {
+.cd-editorWrap-tabs .cd-editor.is-active {
   display: block;
 }
 
-.lc-editor {
+.cd-editor {
   width: 100%;
   height: 100%;
 }
 
-.lc-right {
+.cd-right {
   background: #111318;
   position: relative;
 }
 
-.lc-iframe {
+.cd-iframe {
   display: block;
   width: 100%;
   max-width: 100%;
@@ -663,7 +663,7 @@ body.admin_page_codellia #wpbody-content {
   background: #fff;
 }
 
-.lc-previewBadge {
+.cd-previewBadge {
   position: absolute;
   top: 10px;
   left: 50%;
@@ -682,12 +682,12 @@ body.admin_page_codellia #wpbody-content {
   z-index: 2;
 }
 
-.lc-previewBadge.is-visible {
+.cd-previewBadge.is-visible {
   opacity: 1;
   transform: translate(-50%, 0);
 }
 
-.lc-settings {
+.cd-settings {
   width: 0;
   max-width: 0;
   flex: 0 0 auto;
@@ -700,7 +700,7 @@ body.admin_page_codellia #wpbody-content {
   pointer-events: none;
 }
 
-.lc-app.is-settings-open .lc-settings {
+.cd-app.is-settings-open .cd-settings {
   width: 320px;
   max-width: 320px;
   opacity: 1;
@@ -708,14 +708,14 @@ body.admin_page_codellia #wpbody-content {
   pointer-events: auto;
 }
 
-.lc-settingsInner {
+.cd-settingsInner {
   width: 320px;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.lc-settingsHeader {
+.cd-settingsHeader {
   display: flex;
   align-items: flex-end;
   min-height: 44px;
@@ -723,7 +723,7 @@ body.admin_page_codellia #wpbody-content {
   border-bottom: 1px solid #2b2f38;
 }
 
-.lc-settingsBody {
+.cd-settingsBody {
   flex: 1;
   min-height: 0;
   overflow: auto;
@@ -733,7 +733,7 @@ body.admin_page_codellia #wpbody-content {
   gap: 12px;
 }
 
-.lc-settingsTabsRow {
+.cd-settingsTabsRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -741,12 +741,12 @@ body.admin_page_codellia #wpbody-content {
   width: 100%;
 }
 
-.lc-settingsTabs {
+.cd-settingsTabs {
   display: flex;
   gap: 16px;
 }
 
-.lc-settingsClose {
+.cd-settingsClose {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -758,22 +758,22 @@ body.admin_page_codellia #wpbody-content {
   cursor: pointer;
 }
 
-.lc-settingsClose:hover {
+.cd-settingsClose:hover {
   color: #e6e8ea;
   background: #202734;
 }
 
-.lc-settingsClose:focus-visible {
+.cd-settingsClose:focus-visible {
   outline: 2px solid #4c84ff;
   outline-offset: 2px;
 }
 
-.lc-settingsClose svg {
+.cd-settingsClose svg {
   width: 18px;
   height: 18px;
 }
 
-.lc-settingsTab {
+.cd-settingsTab {
   border: 0;
   padding: 12px 4px 8px;
   background: transparent;
@@ -784,23 +784,23 @@ body.admin_page_codellia #wpbody-content {
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.lc-settingsTab:hover {
+.cd-settingsTab:hover {
   color: #e6e8ea;
 }
 
-.lc-settingsTab.is-active {
+.cd-settingsTab.is-active {
   color: #e6e8ea;
   border-bottom-color: #2f6feb;
   font-weight: 600;
 }
 
-.lc-settingsTab:focus-visible {
+.cd-settingsTab:focus-visible {
   outline: 2px solid #4c84ff;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-.lc-settingsSection {
+.cd-settingsSection {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -808,7 +808,7 @@ body.admin_page_codellia #wpbody-content {
   border-bottom: 1px solid #242a34;
 }
 
-.lc-settingsTitle {
+.cd-settingsTitle {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -816,47 +816,47 @@ body.admin_page_codellia #wpbody-content {
   border-bottom: 1px solid #242a34;
 }
 
-.lc-settingsTitleLabel {
+.cd-settingsTitleLabel {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: #8f96a2;
 }
 
-.lc-settingsTitleRow {
+.cd-settingsTitleRow {
   display: flex;
   gap: 8px;
   align-items: center;
 }
 
-.lc-settingsTitleInput {
+.cd-settingsTitleInput {
   flex: 1;
   min-width: 0;
 }
 
-.lc-settingsTitleSave {
+.cd-settingsTitleSave {
   min-width: 72px;
 }
 
-.lc-settingsTitleError {
+.cd-settingsTitleError {
   min-height: 16px;
   font-size: 11px;
   color: #ff9a9a;
 }
 
-.lc-settingsSection:last-child {
+.cd-settingsSection:last-child {
   border-bottom: 0;
   padding-bottom: 0;
 }
 
-.lc-settingsSectionTitle {
+.cd-settingsSectionTitle {
   font-size: 11px;
   /* text-transform: uppercase; */
   letter-spacing: 0.14em;
   color: #8f96a2;
 }
 
-.lc-settingsItem {
+.cd-settingsItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -867,78 +867,78 @@ body.admin_page_codellia #wpbody-content {
   border: 1px solid #242a34;
 }
 
-.lc-settingsItem.is-clickable {
+.cd-settingsItem.is-clickable {
   cursor: pointer;
 }
 
-.lc-settingsItem.is-clickable:hover {
+.cd-settingsItem.is-clickable:hover {
   border-color: #3a4252;
   background: #202734;
 }
 
-.lc-settingsItemLabel {
+.cd-settingsItemLabel {
   font-size: 12px;
   color: #c9cdd6;
 }
 
-.lc-settingsItemValue {
+.cd-settingsItemValue {
   font-size: 12px;
   color: #8f96a2;
   text-align: right;
 }
 
-.lc-settingsItemValue img {
+.cd-settingsItemValue img {
   max-width: 72px;
   max-height: 54px;
   border-radius: 6px;
   border: 1px solid #2a313d;
 }
 
-.lc-settingsHelp {
+.cd-settingsHelp {
   font-size: 11px;
   color: #6c7480;
 }
 
-.lc-settingsError {
+.cd-settingsError {
   font-size: 11px;
   color: #ff9a9a;
 }
 
-.lc-settingsScriptList {
+.cd-settingsScriptList {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.lc-settingsScriptRow {
+.cd-settingsScriptRow {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.lc-settingsAttrNameInput {
+.cd-settingsAttrNameInput {
   flex: 0 0 90px;
   min-width: 0;
 }
 
-.lc-settingsScriptInput {
+.cd-settingsScriptInput {
   flex: 1;
   min-width: 0;
 }
 
-.lc-settingsScriptButton {
+.cd-settingsScriptButton {
   flex: 0 0 auto;
 }
 
-.lc-settingsScriptAdd {
+.cd-settingsScriptAdd {
   align-self: flex-start;
 }
 
-.lc-settingsToggle {
+.cd-settingsToggle {
   align-items: center;
 }
 
-.lc-toggle {
+.cd-toggle {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -947,14 +947,14 @@ body.admin_page_codellia #wpbody-content {
   cursor: pointer;
 }
 
-.lc-toggle input {
+.cd-toggle input {
   position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.lc-toggleTrack {
+.cd-toggleTrack {
   position: relative;
   width: 100%;
   height: 100%;
@@ -964,7 +964,7 @@ body.admin_page_codellia #wpbody-content {
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.lc-toggleTrack::before {
+.cd-toggleTrack::before {
   content: '';
   position: absolute;
   top: 2px;
@@ -976,28 +976,28 @@ body.admin_page_codellia #wpbody-content {
   transition: transform 0.2s ease;
 }
 
-.lc-toggle input:checked + .lc-toggleTrack {
+.cd-toggle input:checked + .cd-toggleTrack {
   background: #2f6feb;
   border-color: #2f6feb;
 }
 
-.lc-toggle input:checked + .lc-toggleTrack::before {
+.cd-toggle input:checked + .cd-toggleTrack::before {
   transform: translateX(18px);
 }
 
-.lc-toggle input:focus-visible + .lc-toggleTrack {
+.cd-toggle input:focus-visible + .cd-toggleTrack {
   outline: 2px solid #4c84ff;
   outline-offset: 2px;
 }
 
-.lc-chipList {
+.cd-chipList {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-end;
 }
 
-.lc-chip {
+.cd-chip {
   background: #2a303b;
   border: 1px solid #353d4a;
   padding: 2px 6px;
@@ -1006,19 +1006,19 @@ body.admin_page_codellia #wpbody-content {
   color: #d1d6df;
 }
 
-.lc-chipEmpty {
+.cd-chipEmpty {
   font-size: 11px;
   color: #6c7480;
 }
 
-.lc-featureThumb {
+.cd-featureThumb {
   max-width: 72px;
   max-height: 54px;
   border-radius: 6px;
   border: 1px solid #2a313d;
 }
 
-.lc-settingsTrash {
+.cd-settingsTrash {
   justify-content: center;
   margin-top: 4px;
   border: 1px solid #a53838;
@@ -1026,11 +1026,11 @@ body.admin_page_codellia #wpbody-content {
   color: #ffb4b4;
 }
 
-.lc-settingsTrash:hover {
+.cd-settingsTrash:hover {
   background: rgba(165, 56, 56, 0.2);
 }
 
-.lc-setupOverlay {
+.cd-setupOverlay {
   position: fixed;
   inset: 0;
   z-index: 10050;
@@ -1044,7 +1044,7 @@ body.admin_page_codellia #wpbody-content {
     rgba(6, 8, 12, 0.82);
 }
 
-.lc-setupCard {
+.cd-setupCard {
   width: min(640px, 94vw);
   display: flex;
   flex-direction: column;
@@ -1056,23 +1056,23 @@ body.admin_page_codellia #wpbody-content {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
-.lc-setupTitle {
+.cd-setupTitle {
   font-size: 18px;
   font-weight: 600;
   color: #f1f3f5;
 }
 
-.lc-setupIntro {
+.cd-setupIntro {
   font-size: 13px;
   color: #9aa1ab;
 }
 
-.lc-setupOptions {
+.cd-setupOptions {
   display: grid;
   gap: 12px;
 }
 
-.lc-setupOption {
+.cd-setupOption {
   display: flex;
   gap: 12px;
   padding: 12px 14px;
@@ -1083,80 +1083,80 @@ body.admin_page_codellia #wpbody-content {
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.lc-setupOption:hover {
+.cd-setupOption:hover {
   border-color: #3b4a63;
   background: #202734;
 }
 
-.lc-setupOption.is-active {
+.cd-setupOption.is-active {
   border-color: #4c84ff;
   background: #1f2a3d;
 }
 
-.lc-setupOption input {
+.cd-setupOption input {
   margin-top: 3px;
   accent-color: #4c84ff;
 }
 
-.lc-setupOptionBody {
+.cd-setupOptionBody {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.lc-setupOptionTitle {
+.cd-setupOptionTitle {
   font-size: 14px;
   font-weight: 600;
   color: #e6e8ea;
 }
 
-.lc-setupOptionDesc {
+.cd-setupOptionDesc {
   font-size: 12px;
   color: #9aa1ab;
 }
 
-.lc-setupImport {
+.cd-setupImport {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.lc-setupFileLabel {
+.cd-setupFileLabel {
   position: relative;
   overflow: hidden;
 }
 
-.lc-setupFileInput {
+.cd-setupFileInput {
   position: absolute;
   inset: 0;
   opacity: 0;
   cursor: pointer;
 }
 
-.lc-setupFileName {
+.cd-setupFileName {
   font-size: 12px;
   color: #9aa1ab;
 }
 
-.lc-setupNote {
+.cd-setupNote {
   font-size: 12px;
   color: #c6cbd5;
 }
 
-.lc-setupError {
+.cd-setupError {
   min-height: 16px;
   font-size: 12px;
   color: #ff9a9a;
 }
 
-.lc-setupActions {
+.cd-setupActions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
 
-.lc-modal {
+.cd-modal {
   position: fixed;
   inset: 0;
   display: flex;
@@ -1165,13 +1165,13 @@ body.admin_page_codellia #wpbody-content {
   z-index: 9999;
 }
 
-.lc-modalBackdrop {
+.cd-modalBackdrop {
   position: absolute;
   inset: 0;
   background: rgba(5, 8, 12, 0.72);
 }
 
-.lc-modalDialog {
+.cd-modalDialog {
   position: relative;
   z-index: 1;
   width: min(520px, 92vw);
@@ -1184,7 +1184,7 @@ body.admin_page_codellia #wpbody-content {
   max-height: 80vh;
 }
 
-.lc-modalHeader {
+.cd-modalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1192,13 +1192,13 @@ body.admin_page_codellia #wpbody-content {
   border-bottom: 1px solid #2b3340;
 }
 
-.lc-modalTitle {
+.cd-modalTitle {
   font-size: 14px;
   font-weight: 600;
   color: #e6e8ea;
 }
 
-.lc-modalClose {
+.cd-modalClose {
   background: transparent;
   border: 0;
   color: #9aa1ab;
@@ -1206,44 +1206,44 @@ body.admin_page_codellia #wpbody-content {
   cursor: pointer;
 }
 
-.lc-modalBody {
+.cd-modalBody {
   padding: 16px;
   overflow: auto;
 }
 
-.lc-modalFooter,
-.lc-modalActions {
+.cd-modalFooter,
+.cd-modalActions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 16px 16px;
 }
 
-.lc-modalError {
+.cd-modalError {
   color: #ff9a9a;
   padding: 0 16px;
   font-size: 12px;
 }
 
-.lc-modalForm {
+.cd-modalForm {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.lc-formGroup {
+.cd-formGroup {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.lc-formLabel {
+.cd-formLabel {
   font-size: 12px;
   color: #c6cbd5;
 }
 
-.lc-formInput,
-.lc-formSelect {
+.cd-formInput,
+.cd-formSelect {
   background: #11141a;
   border: 1px solid #2b3340;
   color: #e6e8ea;
@@ -1252,19 +1252,19 @@ body.admin_page_codellia #wpbody-content {
   font-size: 13px;
 }
 
-.lc-formInput:focus,
-.lc-formSelect:focus {
+.cd-formInput:focus,
+.cd-formSelect:focus {
   outline: 2px solid #4c84ff;
   outline-offset: 1px;
 }
 
-.lc-formHint {
+.cd-formHint {
   font-size: 11px;
   color: #6c7480;
 }
 
-.lc-radioRow,
-.lc-checkboxRow {
+.cd-radioRow,
+.cd-checkboxRow {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1272,24 +1272,24 @@ body.admin_page_codellia #wpbody-content {
   color: #d6dae2;
 }
 
-.lc-radioRow input,
-.lc-checkboxRow input {
+.cd-radioRow input,
+.cd-checkboxRow input {
   accent-color: #4c84ff;
 }
 
-.lc-formRow {
+.cd-formRow {
   display: none;
 }
 
-.lc-formRow.is-visible {
+.cd-formRow.is-visible {
   display: flex;
 }
 
-.lc-formRow .lc-formInput {
+.cd-formRow .cd-formInput {
   width: 100%;
 }
 
-.lc-featurePreview {
+.cd-featurePreview {
   border: 1px dashed #2b3340;
   border-radius: 8px;
   padding: 12px;
@@ -1300,25 +1300,25 @@ body.admin_page_codellia #wpbody-content {
   font-size: 12px;
 }
 
-.lc-featurePreview img {
+.cd-featurePreview img {
   max-width: 100%;
   border-radius: 8px;
 }
 
-.lc-btn-secondary {
+.cd-btn-secondary {
   background: transparent;
   border: 1px solid #3a404c;
 }
 
-.lc-btn-danger {
+.cd-btn-danger {
   background: transparent;
   border: 1px solid #a53838;
   color: #ffb4b4;
 }
 
 /* Prevent WP core button styles from leaking into Monaco UI */
-.wp-core-ui .lc-app .monaco-editor .button,
-.wp-core-ui .lc-app .monaco-editor .button-secondary {
+.wp-core-ui .cd-app .monaco-editor .button,
+.wp-core-ui .cd-app .monaco-editor .button-secondary {
   background: transparent;
   border: 0;
   color: inherit;
@@ -1328,39 +1328,39 @@ body.admin_page_codellia #wpbody-content {
 }
 
 /* Monaco highlight (DOM selector -> editor) */
-.monaco-editor .lc-highlight-inline {
+.monaco-editor .cd-highlight-inline {
   background: rgba(37, 99, 235, 0.28);
   border-bottom: 1px solid rgba(29, 78, 216, 0.95);
 }
 
-.monaco-editor .lc-highlight-line {
+.monaco-editor .cd-highlight-line {
   background: rgba(37, 99, 235, 0.12);
 }
 
 @media (max-width: 1100px) {
-  .lc-app {
+  .cd-app {
     position: relative;
   }
 
-  .lc-main {
+  .cd-main {
     flex-direction: column;
   }
 
-  .lc-left {
+  .cd-left {
     min-width: 0;
     border-right: 0;
     border-bottom: 1px solid #2b2f38;
   }
 
-  .lc-resizer {
+  .cd-resizer {
     display: none;
   }
 
-  .lc-right {
+  .cd-right {
     min-height: 40vh;
   }
 
-  .lc-settings {
+  .cd-settings {
     position: absolute;
     top: 52px;
     right: 0;

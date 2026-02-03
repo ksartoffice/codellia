@@ -280,7 +280,7 @@ class Frontend {
 		$css        = self::get_css_for_post( $post_id );
 		$style_html = self::build_external_styles_html( $post_id );
 		if ( '' !== $css ) {
-			$style_html .= '<style id="lc-style">' . $css . '</style>';
+			$style_html .= '<style id="cd-style">' . $css . '</style>';
 		}
 
 		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
@@ -293,10 +293,10 @@ class Frontend {
 		}
 		if ( '' !== $js ) {
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			$scripts_html .= '<script id="lc-script">' . $js . '</script>';
+			$scripts_html .= '<script id="cd-script">' . $js . '</script>';
 		}
 
-		return '<div id="lc-shadow-host"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+		return '<div id="cd-shadow-host"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
 	}
 
 	/**
@@ -340,7 +340,7 @@ class Frontend {
 		if ( self::is_shadow_dom_enabled( $post_id ) ) {
 			++self::$shortcode_instance;
 			$instance     = self::$shortcode_instance;
-			$host_id      = 'lc-shadow-host-' . $post_id . '-' . $instance;
+			$host_id      = 'cd-shadow-host-' . $post_id . '-' . $instance;
 			$style_html   = self::build_inline_style( $post_id, $instance );
 			$scripts_html = self::build_inline_scripts( $post_id, $instance );
 			return '<div id="' . esc_attr( $host_id ) . '"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
@@ -364,7 +364,7 @@ class Frontend {
 			return '';
 		}
 		$suffix       = 0 < $instance ? '-' . $post_id . '-' . $instance : '-' . $post_id;
-		$inline_style = '' !== $css ? '<style id="lc-style' . esc_attr( $suffix ) . '">' . $css . '</style>' : '';
+		$inline_style = '' !== $css ? '<style id="cd-style' . esc_attr( $suffix ) . '">' . $css . '</style>' : '';
 		return $external_styles . $inline_style;
 	}
 
@@ -411,7 +411,7 @@ class Frontend {
 		if ( '' !== $js ) {
 			$suffix = 0 < $instance ? '-' . $post_id . '-' . $instance : '-' . $post_id;
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			$scripts_html .= '<script id="lc-script' . esc_attr( $suffix ) . '">' . $js . '</script>';
+			$scripts_html .= '<script id="cd-script' . esc_attr( $suffix ) . '">' . $js . '</script>';
 		}
 
 		return $scripts_html;

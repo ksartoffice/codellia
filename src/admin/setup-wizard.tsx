@@ -244,96 +244,96 @@ function SetupWizard({
   };
 
   return (
-    <div className="lc-setupOverlay">
-      <div className="lc-setupCard" role="dialog" aria-modal="true">
-        <div className="lc-setupTitle">{__( 'Choose editor mode', 'codellia' )}</div>
-        <div className="lc-setupIntro">
+    <div className="cd-setupOverlay">
+      <div className="cd-setupCard" role="dialog" aria-modal="true">
+        <div className="cd-setupTitle">{__( 'Choose editor mode', 'codellia' )}</div>
+        <div className="cd-setupIntro">
           {__(
             'Select TailwindCSS or Normal mode. This choice cannot be changed later.',
             'codellia'
           )}
         </div>
-        <div className="lc-setupOptions">
-          <label className={`lc-setupOption${mode === 'normal' ? ' is-active' : ''}`}>
+        <div className="cd-setupOptions">
+          <label className={`cd-setupOption${mode === 'normal' ? ' is-active' : ''}`}>
             <input
               type="radio"
-              name="lc-setup-mode"
+              name="cd-setup-mode"
               value="normal"
               checked={mode === 'normal'}
               onChange={() => setMode('normal')}
             />
-            <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">
+            <span className="cd-setupOptionBody">
+              <span className="cd-setupOptionTitle">
                 {__( 'Normal (HTML/CSS)', 'codellia' )}
               </span>
-              <span className="lc-setupOptionDesc">
+              <span className="cd-setupOptionDesc">
                 {__( 'Edit HTML and CSS directly with Monaco.', 'codellia' )}
               </span>
             </span>
           </label>
-          <label className={`lc-setupOption${mode === 'tailwind' ? ' is-active' : ''}`}>
+          <label className={`cd-setupOption${mode === 'tailwind' ? ' is-active' : ''}`}>
             <input
               type="radio"
-              name="lc-setup-mode"
+              name="cd-setup-mode"
               value="tailwind"
               checked={mode === 'tailwind'}
               onChange={() => setMode('tailwind')}
             />
-            <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">
+            <span className="cd-setupOptionBody">
+              <span className="cd-setupOptionTitle">
                 {__( 'TailwindCSS', 'codellia' )}
               </span>
-              <span className="lc-setupOptionDesc">
+              <span className="cd-setupOptionDesc">
                 {__( 'Use utility classes. CSS is compiled automatically.', 'codellia' )}
               </span>
             </span>
           </label>
-          <label className={`lc-setupOption${mode === 'import' ? ' is-active' : ''}`}>
+          <label className={`cd-setupOption${mode === 'import' ? ' is-active' : ''}`}>
             <input
               type="radio"
-              name="lc-setup-mode"
+              name="cd-setup-mode"
               value="import"
               checked={mode === 'import'}
               onChange={() => setMode('import')}
             />
-            <span className="lc-setupOptionBody">
-              <span className="lc-setupOptionTitle">
+            <span className="cd-setupOptionBody">
+              <span className="cd-setupOptionTitle">
                 {__( 'Import JSON', 'codellia' )}
               </span>
-              <span className="lc-setupOptionDesc">
+              <span className="cd-setupOptionDesc">
                 {__( 'Restore from an exported Codellia JSON file.', 'codellia' )}
               </span>
             </span>
           </label>
         </div>
         {mode === 'import' ? (
-          <div className="lc-setupImport">
-            <label className="lc-btn lc-btn-secondary lc-setupFileLabel">
+          <div className="cd-setupImport">
+            <label className="cd-btn cd-btn-secondary cd-setupFileLabel">
               {__( 'Choose JSON file', 'codellia' )}
               <input
-                className="lc-setupFileInput"
+                className="cd-setupFileInput"
                 type="file"
                 accept="application/json,.json"
                 onChange={handleFileChange}
               />
             </label>
-            <div className="lc-setupFileName">
+            <div className="cd-setupFileName">
               {importFileName || __( 'No file selected.', 'codellia' )}
             </div>
           </div>
         ) : null}
-        <div className="lc-setupNote">
+        <div className="cd-setupNote">
           {__( 'This choice is locked for this Codellia page.', 'codellia' )}
         </div>
-        <div className="lc-setupError">{error || ''}</div>
-        <div className="lc-setupActions">
+        <div className="cd-setupError">{error || ''}</div>
+        <div className="cd-setupActions">
           {backUrl ? (
-            <a className="lc-btn lc-btn-secondary" href={backUrl}>
+            <a className="cd-btn cd-btn-secondary" href={backUrl}>
               {__( 'Back', 'codellia' )}
             </a>
           ) : null}
           <button
-            className="lc-btn lc-btn-primary"
+            className="cd-btn cd-btn-primary"
             type="button"
             onClick={handleSubmit}
             disabled={saving}

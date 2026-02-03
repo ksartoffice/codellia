@@ -146,15 +146,15 @@ export function SettingsPanel({
 
   return (
     <Fragment>
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
           {__( 'Output settings', 'codellia' )}
         </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
+        <div className="cd-settingsItem cd-settingsToggle">
+          <div className="cd-settingsItemLabel">
             {__( 'Enable shortcode', 'codellia' )}
           </div>
-          <label className="lc-toggle">
+          <label className="cd-toggle">
             <input
               type="checkbox"
               checked={shortcodeEnabled}
@@ -162,22 +162,22 @@ export function SettingsPanel({
               onChange={(event) => onToggleShortcode(event.target.checked)}
               disabled={disabled}
             />
-            <span className="lc-toggleTrack" aria-hidden="true" />
+            <span className="cd-toggleTrack" aria-hidden="true" />
           </label>
         </div>
         {shortcodeEnabled ? (
           <Fragment>
-            <div className="lc-settingsScriptRow">
+            <div className="cd-settingsScriptRow">
               <input
                 ref={shortcodeInputRef}
                 type="text"
-                className="lc-formInput lc-settingsScriptInput"
+                className="cd-formInput cd-settingsScriptInput"
                 value={shortcodeText}
                 readOnly
                 aria-label={__( 'Codellia shortcode', 'codellia' )}
               />
               <button
-                className="lc-btn lc-btn-secondary"
+                className="cd-btn cd-btn-secondary"
                 type="button"
                 onClick={handleCopyShortcode}
                 aria-label={__( 'Copy shortcode', 'codellia' )}
@@ -188,16 +188,16 @@ export function SettingsPanel({
               </button>
             </div>
             {copyState === 'copied' ? (
-              <div className="lc-settingsHelp">{__( 'Copied.', 'codellia' )}</div>
+              <div className="cd-settingsHelp">{__( 'Copied.', 'codellia' )}</div>
             ) : null}
             {copyState === 'error' ? (
-              <div className="lc-settingsError">{__( 'Copy failed.', 'codellia' )}</div>
+              <div className="cd-settingsError">{__( 'Copy failed.', 'codellia' )}</div>
             ) : null}
-            <div className="lc-settingsItem lc-settingsToggle">
-              <div className="lc-settingsItemLabel">
+            <div className="cd-settingsItem cd-settingsToggle">
+              <div className="cd-settingsItemLabel">
                 {__( 'Do not publish as single page', 'codellia' )}
               </div>
-              <label className="lc-toggle">
+              <label className="cd-toggle">
                 <input
                   type="checkbox"
                   checked={!singlePageEnabled}
@@ -205,10 +205,10 @@ export function SettingsPanel({
                   onChange={(event) => onToggleSinglePage(!event.target.checked)}
                   disabled={disabled}
                 />
-                <span className="lc-toggleTrack" aria-hidden="true" />
+                <span className="cd-toggleTrack" aria-hidden="true" />
               </label>
             </div>
-            <div className="lc-settingsHelp">
+            <div className="cd-settingsHelp">
               {__(
                 'You can paste this into a shortcode block in Gutenberg or Elementor.',
                 'codellia'
@@ -217,22 +217,22 @@ export function SettingsPanel({
           </Fragment>
         ) : null}
         {disabled ? (
-          <div className="lc-settingsHelp">
+          <div className="cd-settingsHelp">
             {__( 'Requires unfiltered_html capability.', 'codellia' )}
           </div>
         ) : null}
-        {error ? <div className="lc-settingsError">{error}</div> : null}
+        {error ? <div className="cd-settingsError">{error}</div> : null}
       </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
           {__( 'Rendering settings', 'codellia' )}
         </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
+        <div className="cd-settingsItem cd-settingsToggle">
+          <div className="cd-settingsItemLabel">
             {__( 'Enable Shadow DOM (DSD)', 'codellia' )}
           </div>
-          <label className="lc-toggle">
+          <label className="cd-toggle">
             <input
               type="checkbox"
               checked={shadowDomEnabled}
@@ -240,28 +240,28 @@ export function SettingsPanel({
               onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
             />
-            <span className="lc-toggleTrack" aria-hidden="true" />
+            <span className="cd-toggleTrack" aria-hidden="true" />
           </label>
         </div>
-        <div className="lc-settingsHelp">
+        <div className="cd-settingsHelp">
           {__( 'Prevents interference with existing theme CSS.', 'codellia' )}
         </div>
       </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
           {__( 'External resource settings', 'codellia' )}
         </div>
         {canEditJs ? (
           <Fragment>
-            <div className="lc-settingsItemLabel">{__( 'External scripts', 'codellia' )}</div>
+            <div className="cd-settingsItemLabel">{__( 'External scripts', 'codellia' )}</div>
             {hasScripts ? (
-              <div className="lc-settingsScriptList">
+              <div className="cd-settingsScriptList">
                 {externalScripts.map((scriptUrl, index) => (
-                  <div className="lc-settingsScriptRow" key={`script-${index}`}>
+                  <div className="cd-settingsScriptRow" key={`script-${index}`}>
                     <input
                       type="url"
-                      className="lc-formInput lc-settingsScriptInput"
+                      className="cd-formInput cd-settingsScriptInput"
                       placeholder={__( 'https://example.com/script.js', 'codellia' )}
                       value={scriptUrl}
                       onChange={(event) => updateScriptAt(index, event.target.value, false)}
@@ -275,7 +275,7 @@ export function SettingsPanel({
                       disabled={disabled}
                     />
                     <button
-                      className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                      className="cd-btn cd-btn-danger cd-settingsScriptButton"
                       type="button"
                       onClick={() => handleRemoveScript(index)}
                       disabled={disabled}
@@ -286,7 +286,7 @@ export function SettingsPanel({
                   </div>
                 ))}
                 <button
-                  className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+                  className="cd-btn cd-btn-secondary cd-settingsScriptAdd"
                   type="button"
                   onClick={handleAddScript}
                   disabled={!canAddScript}
@@ -297,7 +297,7 @@ export function SettingsPanel({
               </div>
             ) : (
               <button
-                className="lc-btn lc-btn-secondary"
+                className="cd-btn cd-btn-secondary"
                 type="button"
                 onClick={handleAddScript}
                 disabled={!canAddScript}
@@ -305,7 +305,7 @@ export function SettingsPanel({
                 {__( 'Add external script', 'codellia' )}
               </button>
             )}
-            <div className="lc-settingsHelp">
+            <div className="cd-settingsHelp">
               {/* translators: %d: maximum number of items. */}
               {sprintf(
                 __(
@@ -316,18 +316,18 @@ export function SettingsPanel({
               )}
             </div>
             {externalScriptsError ? (
-              <div className="lc-settingsError">{externalScriptsError}</div>
+              <div className="cd-settingsError">{externalScriptsError}</div>
             ) : null}
           </Fragment>
         ) : null}
-        <div className="lc-settingsItemLabel">{__( 'External styles', 'codellia' )}</div>
+        <div className="cd-settingsItemLabel">{__( 'External styles', 'codellia' )}</div>
         {hasStyles ? (
-          <div className="lc-settingsScriptList">
+          <div className="cd-settingsScriptList">
             {externalStyles.map((styleUrl, index) => (
-              <div className="lc-settingsScriptRow" key={`style-${index}`}>
+              <div className="cd-settingsScriptRow" key={`style-${index}`}>
                 <input
                   type="url"
-                  className="lc-formInput lc-settingsScriptInput"
+                  className="cd-formInput cd-settingsScriptInput"
                   placeholder={__( 'https://example.com/style.css', 'codellia' )}
                   value={styleUrl}
                   onChange={(event) => updateStyleAt(index, event.target.value, false)}
@@ -341,7 +341,7 @@ export function SettingsPanel({
                   disabled={disabled}
                 />
                 <button
-                  className="lc-btn lc-btn-danger lc-settingsScriptButton"
+                  className="cd-btn cd-btn-danger cd-settingsScriptButton"
                   type="button"
                   onClick={() => handleRemoveStyle(index)}
                   disabled={disabled}
@@ -352,7 +352,7 @@ export function SettingsPanel({
               </div>
             ))}
             <button
-              className="lc-btn lc-btn-secondary lc-settingsScriptAdd"
+              className="cd-btn cd-btn-secondary cd-settingsScriptAdd"
               type="button"
               onClick={handleAddStyle}
               disabled={!canAddStyle}
@@ -363,7 +363,7 @@ export function SettingsPanel({
           </div>
         ) : (
           <button
-            className="lc-btn lc-btn-secondary"
+            className="cd-btn cd-btn-secondary"
             type="button"
             onClick={handleAddStyle}
             disabled={!canAddStyle}
@@ -371,7 +371,7 @@ export function SettingsPanel({
             {__( 'Add external style', 'codellia' )}
           </button>
         )}
-        <div className="lc-settingsHelp">
+        <div className="cd-settingsHelp">
           {/* translators: %d: maximum number of items. */}
           {sprintf(
             __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'codellia' ),
@@ -379,26 +379,26 @@ export function SettingsPanel({
           )}
         </div>
         {externalStylesError ? (
-          <div className="lc-settingsError">{externalStylesError}</div>
+          <div className="cd-settingsError">{externalStylesError}</div>
         ) : null}
       </div>
 
-      <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">
           {__( 'Display settings', 'codellia' )}
         </div>
-        <div className="lc-settingsItem lc-settingsToggle">
-          <div className="lc-settingsItemLabel">
+        <div className="cd-settingsItem cd-settingsToggle">
+          <div className="cd-settingsItemLabel">
             {__( 'Enable live edit highlight', 'codellia' )}
           </div>
-          <label className="lc-toggle">
+          <label className="cd-toggle">
             <input
               type="checkbox"
               checked={liveHighlightEnabled}
               aria-label={__( 'Enable live edit highlight', 'codellia' )}
               onChange={(event) => onToggleLiveHighlight(event.target.checked)}
             />
-            <span className="lc-toggleTrack" aria-hidden="true" />
+            <span className="cd-toggleTrack" aria-hidden="true" />
           </label>
         </div>
       </div>

@@ -57,27 +57,27 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 
 const NOTICE_STORE = 'core/notices';
 const NOTICE_IDS = {
-  monaco: 'lc-monaco',
-  save: 'lc-save',
-  export: 'lc-export',
-  tailwind: 'lc-tailwind',
+  monaco: 'cd-monaco',
+  save: 'cd-save',
+  export: 'cd-export',
+  tailwind: 'cd-tailwind',
 };
 const NOTICE_SUCCESS_DURATION_MS = 3000;
 const NOTICE_ERROR_DURATION_MS = 5000;
 const NOTICE_OFFSET_GAP_PX = 8;
 
 const syncNoticeOffset = () => {
-  const toolbar = document.querySelector('.lc-toolbar') as HTMLElement | null;
+  const toolbar = document.querySelector('.cd-toolbar') as HTMLElement | null;
   if (!toolbar) {
     return;
   }
   const base = toolbar.getBoundingClientRect().bottom + NOTICE_OFFSET_GAP_PX;
-  const list = document.querySelector('.lc-noticeHost .components-snackbar-list') as HTMLElement | null;
+  const list = document.querySelector('.cd-noticeHost .components-snackbar-list') as HTMLElement | null;
   const noticeContainer = list?.querySelector('.components-snackbar-list__notices') as HTMLElement | null;
   const firstNotice = noticeContainer?.firstElementChild as HTMLElement | null;
   const noticeHeight = firstNotice?.getBoundingClientRect().height ?? 0;
   const offset = Math.max(0, Math.round(base + noticeHeight));
-  document.documentElement.style.setProperty('--lc-notice-offset-top', `${offset}px`);
+  document.documentElement.style.setProperty('--cd-notice-offset-top', `${offset}px`);
 };
 
 const createSnackbar = (
@@ -122,11 +122,11 @@ const mountNotices = () => {
   if (!wp?.components?.SnackbarList || !wp?.data?.useSelect) {
     return;
   }
-  if (document.querySelector('.lc-noticeHost')) {
+  if (document.querySelector('.cd-noticeHost')) {
     return;
   }
   const host = document.createElement('div');
-  host.className = 'lc-noticeHost';
+  host.className = 'cd-noticeHost';
   document.body.append(host);
 
   const SnackbarList = wp.components.SnackbarList;
@@ -239,7 +239,7 @@ async function main() {
     }
 
     const setupHost = document.createElement('div');
-    setupHost.className = 'lc-setupHost';
+    setupHost.className = 'cd-setupHost';
     document.body.append(setupHost);
 
     try {
@@ -568,7 +568,7 @@ async function main() {
           postTitle = resolvedTitle;
           toolbarApi?.update({ postTitle });
           window.dispatchEvent(
-            new CustomEvent('lc-title-updated', { detail: { title: resolvedTitle } })
+            new CustomEvent('cd-title-updated', { detail: { title: resolvedTitle } })
           );
           if (iframePreviewUrl) {
             ui.iframe.src = buildPreviewRefreshUrl(iframePreviewUrl);
@@ -840,7 +840,7 @@ async function main() {
         setSettingsOpen(true);
       }
       if (activeSettingsTab !== 'elements') {
-        window.dispatchEvent(new CustomEvent('lc-open-elements-tab'));
+        window.dispatchEvent(new CustomEvent('cd-open-elements-tab'));
       }
     },
   });

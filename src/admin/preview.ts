@@ -69,7 +69,7 @@ type PreviewControllerDeps = {
 };
 
 const CODELLIA_ATTR_NAME = 'data-codellia-id';
-const SC_PLACEHOLDER_ATTR = 'data-lc-sc-placeholder';
+const SC_PLACEHOLDER_ATTR = 'data-cd-sc-placeholder';
 const SHORTCODE_REGEX =
   /\[(\[?)([\w-]+)(?![\w-])([^\]\/]*(?:\/(?!\])|[^\]])*?)(?:(\/)\]|](?:([^\[]*?(?:\[(?!\/\2\])[^\[]*?)*?)\[\/\2\])?)(\]?)/g;
 const HTML_NS = 'http://www.w3.org/1999/xhtml';
@@ -311,7 +311,7 @@ function canonicalizeHtml(html: string): CanonicalResult {
     const fragment = parse5.parseFragment(html, { sourceCodeLocationInfo: true });
     const map: Record<string, SourceRange> = {};
     let seq = 0;
-    const nextId = () => `lc-${++seq}`;
+    const nextId = () => `cd-${++seq}`;
 
     walkCanonicalTree(fragment, null, map, nextId);
 
@@ -626,8 +626,8 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
             endPos.column
           ),
           options: {
-            className: 'lc-highlight-line',
-            inlineClassName: 'lc-highlight-inline',
+            className: 'cd-highlight-line',
+            inlineClassName: 'cd-highlight-inline',
             overviewRuler: {
               color: overviewHighlightColor,
               position: deps.monaco.editor.OverviewRulerLane.Full,
@@ -653,7 +653,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   const highlightByLcId = (lcId: string) => {
     const rangeInfo = lcSourceMap[lcId];
     if (!rangeInfo) {
-    console.warn('[Codellia] No source map for lc-id:', lcId);
+    console.warn('[Codellia] No source map for cd-id:', lcId);
       return;
     }
     deps.focusHtmlEditor();
@@ -669,8 +669,8 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       {
         range: monacoRange,
         options: {
-          className: 'lc-highlight-line',
-          inlineClassName: 'lc-highlight-inline',
+          className: 'cd-highlight-line',
+          inlineClassName: 'cd-highlight-inline',
           overviewRuler: {
             color: overviewHighlightColor,
             position: deps.monaco.editor.OverviewRulerLane.Full,

@@ -49,7 +49,7 @@ test('preview postMessage handshake works', async ({ page }) => {
   await page.evaluate(
     ({ url }) => {
       const iframe = document.createElement('iframe');
-      iframe.id = 'lc-preview-frame';
+      iframe.id = 'cd-preview-frame';
       iframe.src = url;
       iframe.style.width = '800px';
       iframe.style.height = '600px';
@@ -58,7 +58,7 @@ test('preview postMessage handshake works', async ({ page }) => {
     { url: previewUrl }
   );
 
-  await page.waitForSelector('#lc-preview-frame');
+  await page.waitForSelector('#cd-preview-frame');
 
   const readyPromise = page.evaluate(() => {
     return new Promise<{ type?: string }>((resolve) => {
@@ -73,7 +73,7 @@ test('preview postMessage handshake works', async ({ page }) => {
   });
 
   await page.evaluate(() => {
-    const iframe = document.getElementById('lc-preview-frame') as HTMLIFrameElement | null;
+    const iframe = document.getElementById('cd-preview-frame') as HTMLIFrameElement | null;
     iframe?.contentWindow?.postMessage({ type: 'CODELLIA_INIT' }, '*');
   });
 
@@ -90,7 +90,7 @@ test('preview ignores postMessage when allowedOrigin mismatches', async ({ page 
   await page.evaluate(
     ({ url }) => {
       const iframe = document.createElement('iframe');
-      iframe.id = 'lc-preview-frame';
+      iframe.id = 'cd-preview-frame';
       iframe.src = url;
       iframe.style.width = '800px';
       iframe.style.height = '600px';
@@ -99,7 +99,7 @@ test('preview ignores postMessage when allowedOrigin mismatches', async ({ page 
     { url: previewUrl }
   );
 
-  await page.waitForSelector('#lc-preview-frame');
+  await page.waitForSelector('#cd-preview-frame');
 
   const outcome = await page.evaluate(() => {
     return new Promise<'ready' | 'timeout'>((resolve) => {
@@ -110,7 +110,7 @@ test('preview ignores postMessage when allowedOrigin mismatches', async ({ page 
         }
       };
       window.addEventListener('message', handler as EventListener);
-      const iframe = document.getElementById('lc-preview-frame') as HTMLIFrameElement | null;
+      const iframe = document.getElementById('cd-preview-frame') as HTMLIFrameElement | null;
       iframe?.contentWindow?.postMessage({ type: 'CODELLIA_INIT' }, '*');
       window.setTimeout(() => {
         window.removeEventListener('message', handler as EventListener);

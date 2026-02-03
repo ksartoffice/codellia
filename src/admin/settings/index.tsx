@@ -171,9 +171,9 @@ function SettingsSidebar({
     const handleOpenElementsTab = () => {
       setActiveTab('elements');
     };
-    window.addEventListener('lc-open-elements-tab', handleOpenElementsTab);
+    window.addEventListener('cd-open-elements-tab', handleOpenElementsTab);
     return () => {
-      window.removeEventListener('lc-open-elements-tab', handleOpenElementsTab);
+      window.removeEventListener('cd-open-elements-tab', handleOpenElementsTab);
     };
   }, []);
 
@@ -352,14 +352,14 @@ function SettingsSidebar({
   };
 
   const tabs = (
-    <div className="lc-settingsTabsRow">
+    <div className="cd-settingsTabsRow">
       <div
-        className="lc-settingsTabs"
+        className="cd-settingsTabs"
         role="tablist"
         aria-label={__( 'Settings tabs', 'codellia' )}
       >
         <button
-          className={`lc-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
+          className={`cd-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
           type="button"
           role="tab"
           aria-selected={activeTab === 'settings'}
@@ -368,7 +368,7 @@ function SettingsSidebar({
           {__( 'Settings', 'codellia' )}
         </button>
         <button
-          className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
+          className={`cd-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
           type="button"
           role="tab"
           aria-selected={activeTab === 'elements'}
@@ -378,7 +378,7 @@ function SettingsSidebar({
         </button>
       </div>
       <button
-        className="lc-settingsClose"
+        className="cd-settingsClose"
         type="button"
         aria-label={__( 'Close settings panel', 'codellia' )}
         onClick={() => onClosePanel?.()}
