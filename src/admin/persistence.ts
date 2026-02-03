@@ -93,7 +93,7 @@ type SaveParams = {
   js: string;
 };
 
-export async function saveLivecode(
+export async function saveCodellia(
   params: SaveParams
 ): Promise<{ ok: boolean; error?: string }> {
   try {
@@ -141,7 +141,9 @@ type ExportParams = {
   liveHighlightEnabled: boolean;
 };
 
-export async function exportLivecode(params: ExportParams): Promise<{ ok: boolean; error?: string }> {
+export async function exportCodellia(
+  params: ExportParams
+): Promise<{ ok: boolean; error?: string }> {
   try {
     let generatedCss = '';
     if (params.tailwindEnabled) {

@@ -1,4 +1,4 @@
-=== Codellia ===
+=== Codellia Editor ===
 Contributors: yourname
 Tags: live preview, code editor, monaco, tailwind, shortcode
 Requires at least: 6.0
@@ -8,10 +8,10 @@ Stable tag: 1.0.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Codellia – Live HTML/CSS/JS Editor with Tailwind CSS.
+Codellia Editor - Live HTML/CSS/JS Editor with Tailwind CSS.
 
 == Description ==
-Codellia provides a dedicated editor for building HTML, CSS, and JavaScript snippets with a live preview. It adds a "Codellia" custom post type and redirects the standard editor to a Monaco-based UI.
+Codellia Editor provides a dedicated editor for building HTML, CSS, and JavaScript snippets with a live preview. It adds a "Codellia" custom post type and redirects the standard editor to a Monaco-based UI.
 
 Features:
 * Custom Codellia post type and dedicated editor
@@ -23,7 +23,7 @@ Features:
 
 == Installation ==
 1. Upload the plugin folder to /wp-content/plugins/codellia/.
-2. Activate Codellia through the Plugins screen.
+2. Activate Codellia Editor through the Plugins screen.
 3. Go to Codellia in the admin menu and create a new Codellia item.
 
 == Frequently Asked Questions ==

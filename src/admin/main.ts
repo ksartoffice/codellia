@@ -9,8 +9,8 @@ import { createPreviewController, type PreviewController } from './preview';
 import { getEditableElementAttributes, getEditableElementText } from './element-text';
 import {
   createTailwindCompiler,
-  exportLivecode,
-  saveLivecode,
+  exportCodellia,
+  saveCodellia,
   type TailwindCompiler,
 } from './persistence';
 import type { ImportResult } from './types';
@@ -410,7 +410,7 @@ async function main() {
 
     createSnackbar('info', __( 'Exporting...', 'codellia' ), NOTICE_IDS.export);
 
-    const result = await exportLivecode({
+    const result = await exportCodellia({
       apiFetch: wp.apiFetch,
       restCompileUrl: cfg.restCompileUrl,
       postId,
@@ -461,7 +461,7 @@ async function main() {
     }
     createSnackbar('info', __( 'Saving...', 'codellia' ), NOTICE_IDS.save);
 
-    const result = await saveLivecode({
+    const result = await saveCodellia({
       apiFetch: wp.apiFetch,
       restUrl: cfg.restUrl,
       postId,
