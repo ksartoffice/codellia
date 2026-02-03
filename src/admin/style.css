@@ -253,11 +253,13 @@ body.admin_page_codellia #wpbody-content {
 
 .cd-btn:active {
   background: #1b1f27;
+  color: #f1f3f5;
 }
 
 .cd-btn:focus {
   outline: 2px solid #4c84ff;
   outline-offset: 1px;
+  color: #f1f3f5;
 }
 
 .cd-btn-primary {
