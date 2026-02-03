@@ -1,11 +1,11 @@
 <?php
 /**
- * REST permission tests for CodeNagi.
+ * REST permission tests for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-use CodeNagi\Post_Type;
+use Codellia\Post_Type;
 
 class Test_Rest_Permissions extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -20,7 +20,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 	public function test_rest_routes_require_authentication(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_codenagi_post( $author_id );
+		$post_id   = $this->create_codellia_post( $author_id );
 
 		wp_set_current_user( 0 );
 
@@ -33,7 +33,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	public function test_rest_routes_forbid_subscriber(): void {
 		$author_id     = self::factory()->user->create( array( 'role' => 'author' ) );
 		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		$post_id       = $this->create_codenagi_post( $author_id );
+		$post_id       = $this->create_codellia_post( $author_id );
 
 		wp_set_current_user( $subscriber_id );
 
@@ -45,7 +45,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 	public function test_rest_routes_allow_author_for_editable_post(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_codenagi_post( $author_id );
+		$post_id   = $this->create_codellia_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
@@ -58,7 +58,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	public function test_rest_routes_allow_editor_for_others_post(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$editor_id = self::factory()->user->create( array( 'role' => 'editor' ) );
-		$post_id   = $this->create_codenagi_post( $author_id );
+		$post_id   = $this->create_codellia_post( $author_id );
 
 		wp_set_current_user( $editor_id );
 
@@ -71,7 +71,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	public function test_rest_routes_forbid_author_for_others_post(): void {
 		$author_id       = self::factory()->user->create( array( 'role' => 'author' ) );
 		$other_author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id         = $this->create_codenagi_post( $author_id );
+		$post_id         = $this->create_codellia_post( $author_id );
 
 		wp_set_current_user( $other_author_id );
 
@@ -81,38 +81,38 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		}
 	}
 
-	public function test_rest_routes_forbid_non_codenagi_post(): void {
+	public function test_rest_routes_forbid_non_codellia_post(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_non_codenagi_post( $author_id );
+		$post_id   = $this->create_non_codellia_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
 		foreach ( $this->get_rest_routes_with_params( $post_id ) as $route => $params ) {
 			$response = $this->dispatch_route( $route, $params );
-			$this->assertSame( 403, $response->get_status(), $route . ' should forbid non-codenagi posts.' );
+			$this->assertSame( 403, $response->get_status(), $route . ' should forbid non-codellia posts.' );
 		}
 	}
 
 	public function test_rest_import_requires_unfiltered_html(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_codenagi_post( $author_id );
+		$post_id   = $this->create_codellia_post( $author_id );
 
 		$import_params = $this->get_import_params( $post_id );
 
 		wp_set_current_user( $author_id );
-		$response = $this->dispatch_route( '/codenagi/v1/import', $import_params );
+		$response = $this->dispatch_route( '/codellia/v1/import', $import_params );
 		$this->assertSame( 403, $response->get_status(), 'Import should require unfiltered_html.' );
 
 		wp_set_current_user( $admin_id );
-		$response = $this->dispatch_route( '/codenagi/v1/import', $import_params );
+		$response = $this->dispatch_route( '/codellia/v1/import', $import_params );
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to import.' );
 	}
 
 	public function test_rest_save_requires_unfiltered_html_for_js_payload(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_codenagi_post( $author_id );
+		$post_id   = $this->create_codellia_post( $author_id );
 
 		$params = array(
 			'post_id' => $post_id,
@@ -121,18 +121,18 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		);
 
 		wp_set_current_user( $author_id );
-		$response = $this->dispatch_route( '/codenagi/v1/save', $params );
+		$response = $this->dispatch_route( '/codellia/v1/save', $params );
 		$this->assertSame( 403, $response->get_status(), 'Saving JS should require unfiltered_html.' );
 
 		wp_set_current_user( $admin_id );
-		$response = $this->dispatch_route( '/codenagi/v1/save', $params );
+		$response = $this->dispatch_route( '/codellia/v1/save', $params );
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to save JS.' );
 	}
 
 	public function test_rest_settings_requires_unfiltered_html_for_js_related_updates(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_codenagi_post( $author_id );
+		$post_id   = $this->create_codellia_post( $author_id );
 
 		$updates = array(
 			'shadowDomEnabled'  => true,
@@ -143,7 +143,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $author_id );
 		$response = $this->dispatch_route(
-			'/codenagi/v1/settings',
+			'/codellia/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => $updates,
@@ -153,7 +153,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/codenagi/v1/settings',
+			'/codellia/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => $updates,
@@ -162,7 +162,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to update JS settings.' );
 	}
 
-	private function create_codenagi_post( int $author_id ): int {
+	private function create_codellia_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,
@@ -172,7 +172,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		);
 	}
 
-	private function create_non_codenagi_post( int $author_id ): int {
+	private function create_non_codellia_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => 'post',
@@ -197,24 +197,24 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	private function get_rest_routes_with_params( int $post_id ): array {
 		$tailwind_css = "@tailwind base;\n@tailwind components;\n@tailwind utilities;";
 		return array(
-			'/codenagi/v1/save' => array(
+			'/codellia/v1/save' => array(
 				'post_id' => $post_id,
 				'html'    => '<p>Test</p>',
 			),
-			'/codenagi/v1/compile-tailwind' => array(
+			'/codellia/v1/compile-tailwind' => array(
 				'post_id' => $post_id,
 				'html'    => '<div class="text-sm"></div>',
 				'css'     => $tailwind_css,
 			),
-			'/codenagi/v1/setup' => array(
+			'/codellia/v1/setup' => array(
 				'post_id' => $post_id,
 				'mode'    => 'normal',
 			),
-			'/codenagi/v1/settings' => array(
+			'/codellia/v1/settings' => array(
 				'post_id' => $post_id,
 				'updates' => array(),
 			),
-			'/codenagi/v1/render-shortcodes' => array(
+			'/codellia/v1/render-shortcodes' => array(
 				'post_id'    => $post_id,
 				'shortcodes' => array(
 					array(
@@ -223,13 +223,13 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 					),
 				),
 			),
-			'/codenagi/v1/import' => $this->get_import_params( $post_id ),
+			'/codellia/v1/import' => $this->get_import_params( $post_id ),
 		);
 	}
 
 	private function get_author_allowed_routes( int $post_id ): array {
 		$routes = $this->get_rest_routes_with_params( $post_id );
-		unset( $routes['/codenagi/v1/import'] );
+		unset( $routes['/codellia/v1/import'] );
 		return $routes;
 	}
 

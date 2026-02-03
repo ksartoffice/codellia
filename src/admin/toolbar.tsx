@@ -145,44 +145,44 @@ function Toolbar({
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
   const toggleLabel = editorCollapsed
-    ? __( 'Show code', 'codenagi' )
-    : __( 'Hide code', 'codenagi' );
+    ? __( 'Show code', 'codellia' )
+    : __( 'Hide code', 'codellia' );
   const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
-  const viewPostLabel = isPublished ? __( 'View post', 'codenagi' ) : __( 'Preview', 'codenagi' );
+  const viewPostLabel = isPublished ? __( 'View post', 'codellia' ) : __( 'Preview', 'codellia' );
   const settingsTitle = settingsOpen
-    ? __( 'Close settings', 'codenagi' )
-    : __( 'Settings', 'codenagi' );
-  const viewportDesktopLabel = __( 'Desktop', 'codenagi' );
-  const viewportTabletLabel = __( 'Tablet', 'codenagi' );
-  const viewportMobileLabel = __( 'Mobile', 'codenagi' );
+    ? __( 'Close settings', 'codellia' )
+    : __( 'Settings', 'codellia' );
+  const viewportDesktopLabel = __( 'Desktop', 'codellia' );
+  const viewportTabletLabel = __( 'Tablet', 'codellia' );
+  const viewportMobileLabel = __( 'Mobile', 'codellia' );
   const isViewportDesktop = viewportMode === 'desktop';
   const isViewportTablet = viewportMode === 'tablet';
   const isViewportMobile = viewportMode === 'mobile';
   const previewLink = buildPreviewUrl(viewPostUrl);
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
-  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'codenagi' );
-  const draftSuffix = isDraft ? __( '(Draft)', 'codenagi' ) : '';
+  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'codellia' );
+  const draftSuffix = isDraft ? __( '(Draft)', 'codellia' ) : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
   const normalizedStatus = postStatus === 'auto-draft' ? 'draft' : postStatus;
-  const tailwindBadgeLabel = __( 'Tailwind CSS', 'codenagi' );
-  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'codenagi' );
+  const tailwindBadgeLabel = __( 'Tailwind CSS', 'codellia' );
+  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'codellia' );
   const saveLabel =
     normalizedStatus === 'draft'
-      ? __( 'Save draft', 'codenagi' )
+      ? __( 'Save draft', 'codellia' )
       : normalizedStatus === 'pending'
-        ? __( 'Save for review', 'codenagi' )
+        ? __( 'Save for review', 'codellia' )
         : normalizedStatus === 'private'
-          ? __( 'Update as private', 'codenagi' )
-          : __( 'Update', 'codenagi' );
+          ? __( 'Update as private', 'codellia' )
+          : __( 'Update', 'codellia' );
   const statusActions = [
-    { value: 'publish' as const, label: __( 'Publish', 'codenagi' ) },
-    { value: 'pending' as const, label: __( 'Move to review', 'codenagi' ) },
-    { value: 'private' as const, label: __( 'Make private', 'codenagi' ) },
-    { value: 'draft' as const, label: __( 'Revert to draft', 'codenagi' ) },
+    { value: 'publish' as const, label: __( 'Publish', 'codellia' ) },
+    { value: 'pending' as const, label: __( 'Move to review', 'codellia' ) },
+    { value: 'private' as const, label: __( 'Make private', 'codellia' ) },
+    { value: 'draft' as const, label: __( 'Revert to draft', 'codellia' ) },
   ];
   useEffect(() => {
     if (!titleModalOpen) {
@@ -214,7 +214,7 @@ function Toolbar({
     if (result.ok) {
       setTitleModalOpen(false);
     } else {
-      setTitleError(result.error || __( 'Update failed.', 'codenagi' ));
+      setTitleError(result.error || __( 'Update failed.', 'codellia' ));
     }
     setTitleSaving(false);
   };
@@ -281,8 +281,8 @@ function Toolbar({
         <a
           className="lc-btn lc-btn-back"
           href={backUrl}
-          aria-label={__( 'Back to WordPress', 'codenagi' )}
-          data-tooltip={__( 'Back to WordPress', 'codenagi' )}
+          aria-label={__( 'Back to WordPress', 'codellia' )}
+          data-tooltip={__( 'Back to WordPress', 'codellia' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.back }} />
           <span
@@ -295,8 +295,8 @@ function Toolbar({
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          aria-label={__( 'Undo', 'codenagi' )}
-          data-tooltip={__( 'Undo', 'codenagi' )}
+          aria-label={__( 'Undo', 'codellia' )}
+          data-tooltip={__( 'Undo', 'codellia' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.undo }} />
         </button>
@@ -305,8 +305,8 @@ function Toolbar({
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          aria-label={__( 'Redo', 'codenagi' )}
-          data-tooltip={__( 'Redo', 'codenagi' )}
+          aria-label={__( 'Redo', 'codellia' )}
+          data-tooltip={__( 'Redo', 'codellia' )}
         >
           <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.redo }} />
         </button>
@@ -375,12 +375,12 @@ function Toolbar({
           <div className="lc-modalBackdrop" onClick={closeTitleModal} />
           <div className="lc-modalDialog" role="dialog" aria-modal="true">
             <div className="lc-modalHeader">
-              <div className="lc-modalTitle">{__( 'Title', 'codenagi' )}</div>
+              <div className="lc-modalTitle">{__( 'Title', 'codellia' )}</div>
               <button
                 className="lc-modalClose"
                 type="button"
                 onClick={closeTitleModal}
-                aria-label={__( 'Close', 'codenagi' )}
+                aria-label={__( 'Close', 'codellia' )}
               >
                 <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS.close }} />
               </button>
@@ -395,7 +395,7 @@ function Toolbar({
               >
                 <div className="lc-formGroup">
                   <label className="lc-formLabel" htmlFor="lc-title-modal-input">
-                    {__( 'Title', 'codenagi' )}
+                    {__( 'Title', 'codellia' )}
                   </label>
                   <input
                     id="lc-title-modal-input"
@@ -414,10 +414,10 @@ function Toolbar({
                     type="button"
                     onClick={closeTitleModal}
                   >
-                    {__( 'Cancel', 'codenagi' )}
+                    {__( 'Cancel', 'codellia' )}
                   </button>
                   <button className="lc-btn lc-btn-primary" type="submit" disabled={titleSaving}>
-                    {titleSaving ? __( 'Saving...', 'codenagi' ) : __( 'Save', 'codenagi' )}
+                    {titleSaving ? __( 'Saving...', 'codellia' ) : __( 'Save', 'codellia' )}
                   </button>
                 </div>
               </form>
@@ -465,7 +465,7 @@ function Toolbar({
             type="button"
             onClick={onExport}
           >
-            <IconLabel label={__( 'Export', 'codenagi' )} svg={ICONS.export} />
+            <IconLabel label={__( 'Export', 'codellia' )} svg={ICONS.export} />
           </button>
           <div className="lc-splitButton">
             <button
@@ -480,8 +480,8 @@ function Toolbar({
               type="button"
               aria-haspopup="menu"
               aria-expanded={saveMenuOpen}
-              aria-label={__( 'Save options', 'codenagi' )}
-              data-tooltip={__( 'Save options', 'codenagi' )}
+              aria-label={__( 'Save options', 'codellia' )}
+              data-tooltip={__( 'Save options', 'codellia' )}
               onClick={toggleSaveMenu}
             >
               <span className="lc-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.chevronDown }} />
@@ -495,16 +495,16 @@ function Toolbar({
                 <div className="lc-splitMenuTitle">
                   {/* translators: %s: current status label. */}
                   {sprintf(
-                    __( 'Status: %s', 'codenagi' ),
+                    __( 'Status: %s', 'codellia' ),
                     normalizedStatus === 'draft'
-                      ? __( 'Draft', 'codenagi' )
+                      ? __( 'Draft', 'codellia' )
                       : normalizedStatus === 'pending'
-                        ? __( 'Pending', 'codenagi' )
+                        ? __( 'Pending', 'codellia' )
                         : normalizedStatus === 'private'
-                          ? __( 'Private', 'codenagi' )
+                          ? __( 'Private', 'codellia' )
                           : normalizedStatus === 'future'
-                            ? __( 'Scheduled', 'codenagi' )
-                            : __( 'Published', 'codenagi' )
+                            ? __( 'Scheduled', 'codellia' )
+                            : __( 'Published', 'codellia' )
                   )}
                 </div>
                 <div className="lc-splitMenuList">

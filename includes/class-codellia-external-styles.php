@@ -1,11 +1,11 @@
 <?php
 /**
- * External style helpers for CodeNagi.
+ * External style helpers for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,14 +16,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class External_Styles {
 	/**
-	 * Fetch external styles list for a CodeNagi post.
+	 * Fetch external styles list for a Codellia post.
 	 *
-	 * @param int      $post_id CodeNagi post ID.
+	 * @param int      $post_id Codellia post ID.
 	 * @param int|null $max     Optional max items.
 	 * @return array
 	 */
 	public static function get_external_styles( int $post_id, ?int $max = null ): array {
-		$raw  = get_post_meta( $post_id, '_codenagi_external_styles', true );
+		$raw  = get_post_meta( $post_id, '_codellia_external_styles', true );
 		$list = array();
 
 		if ( is_array( $raw ) ) {
@@ -50,7 +50,7 @@ class External_Styles {
 		$sanitized = array();
 		foreach ( array_values( $raw ) as $style_url ) {
 			if ( ! is_string( $style_url ) ) {
-				$error = __( 'Invalid externalStyles value.', 'codenagi' );
+				$error = __( 'Invalid externalStyles value.', 'codellia' );
 				return null;
 			}
 			$style_url = trim( $style_url );
@@ -59,7 +59,7 @@ class External_Styles {
 			}
 			$clean_url = self::sanitize_url( $style_url );
 			if ( ! $clean_url ) {
-				$error = __( 'External styles must be valid https:// URLs.', 'codenagi' );
+				$error = __( 'External styles must be valid https:// URLs.', 'codellia' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -67,7 +67,7 @@ class External_Styles {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = __( 'External styles exceed the maximum allowed.', 'codenagi' );
+			$error = __( 'External styles exceed the maximum allowed.', 'codellia' );
 			return null;
 		}
 

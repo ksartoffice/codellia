@@ -1,8 +1,8 @@
 <?php
 /**
- * PHPUnit bootstrap for CodeNagi.
+ * PHPUnit bootstrap for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
@@ -30,10 +30,10 @@ require_once $_tests_dir . '/includes/functions.php';
 /**
  * Manually load the plugin for the test suite.
  */
-function codenagi_manually_load_plugin() {
-	require dirname( __DIR__ ) . '/codenagi.php';
+function codellia_manually_load_plugin() {
+	require dirname( __DIR__ ) . '/codellia.php';
 }
-tests_add_filter( 'muplugins_loaded', 'codenagi_manually_load_plugin' );
+tests_add_filter( 'muplugins_loaded', 'codellia_manually_load_plugin' );
 
 require $_tests_dir . '/includes/bootstrap.php';
 

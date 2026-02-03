@@ -57,14 +57,14 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         deps.onCssCompiled(res.css);
         deps.onStatusClear();
       } else {
-        deps.onStatus(__( 'Tailwind compile failed.', 'codenagi' ));
+        deps.onStatus(__( 'Tailwind compile failed.', 'codellia' ));
       }
     } catch (e: any) {
       if (currentToken !== tailwindCompileToken) {
         return;
       }
       /* translators: %s: error message. */
-      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'codenagi' ), e?.message ?? e));
+      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'codellia' ), e?.message ?? e));
     } finally {
       if (currentToken === tailwindCompileToken) {
         tailwindCompileInFlight = false;
@@ -161,7 +161,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('[CodeNagi] Export compile failed', error);
+        console.error('[Codellia] Export compile failed', error);
       }
     }
 
@@ -186,7 +186,7 @@ export async function exportLivecode(params: ExportParams): Promise<{ ok: boolea
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `codenagi-${params.postId}.json`;
+    link.download = `codellia-${params.postId}.json`;
     document.body.append(link);
     link.click();
     link.remove();

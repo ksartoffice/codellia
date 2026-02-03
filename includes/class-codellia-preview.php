@@ -1,11 +1,11 @@
 <?php
 /**
- * Front-end preview handling for CodeNagi.
+ * Front-end preview handling for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,8 +28,8 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $is_preview = false;
-	private const MARKER_START      = 'codenagi:start';
-	private const MARKER_END        = 'codenagi:end';
+	private const MARKER_START      = 'codellia:start';
+	private const MARKER_END        = 'codellia:end';
 
 	/**
 	 * Register preview hooks.
@@ -48,7 +48,7 @@ class Preview {
 	 * @return array
 	 */
 	public static function register_query_vars( array $vars ): array {
-		$vars[] = 'codenagi_preview';
+		$vars[] = 'codellia_preview';
 		$vars[] = 'post_id';
 		$vars[] = 'token';
 		return $vars;
@@ -60,7 +60,7 @@ class Preview {
 	 * @return bool
 	 */
 	private static function is_preview_request(): bool {
-		return (bool) get_query_var( 'codenagi_preview' );
+		return (bool) get_query_var( 'codellia_preview' );
 	}
 
 	/**
@@ -75,23 +75,23 @@ class Preview {
 		$token   = (string) get_query_var( 'token' );
 
 		if ( ! $post_id ) {
-			wp_die( esc_html__( 'post_id is required.', 'codenagi' ) );
+			wp_die( esc_html__( 'post_id is required.', 'codellia' ) );
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codenagi' ) );
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
 		}
 
-		if ( ! wp_verify_nonce( $token, 'codenagi_preview_' . $post_id ) ) {
-			wp_die( esc_html__( 'Invalid preview token.', 'codenagi' ) );
+		if ( ! wp_verify_nonce( $token, 'codellia_preview_' . $post_id ) ) {
+			wp_die( esc_html__( 'Invalid preview token.', 'codellia' ) );
 		}
 
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
-			wp_die( esc_html__( 'Invalid post type.', 'codenagi' ) );
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+			wp_die( esc_html__( 'Invalid post type.', 'codellia' ) );
 		}
 
 		if ( ! get_post( $post_id ) ) {
-			wp_die( esc_html__( 'Post not found.', 'codenagi' ) );
+			wp_die( esc_html__( 'Post not found.', 'codellia' ) );
 		}
 
 		self::$post_id    = $post_id;
@@ -143,15 +143,15 @@ class Preview {
 		}
 
 		wp_enqueue_script(
-			'codenagi-preview',
-			CODENAGI_URL . 'includes/preview.js',
+			'codellia-preview',
+			CODELLIA_URL . 'includes/preview.js',
 			array(),
-			CODENAGI_VERSION,
+			CODELLIA_VERSION,
 			true
 		);
 
 		$admin_origin           = self::build_admin_origin();
-		$highlight_meta         = get_post_meta( self::$post_id, '_codenagi_live_highlight', true );
+		$highlight_meta         = get_post_meta( self::$post_id, '_codellia_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$payload                = array(
 			'allowedOrigin'        => $admin_origin,
@@ -161,13 +161,13 @@ class Preview {
 				'start' => self::MARKER_START,
 				'end'   => self::MARKER_END,
 			),
-			'renderRestUrl'        => rest_url( 'codenagi/v1/render-shortcodes' ),
+			'renderRestUrl'        => rest_url( 'codellia/v1/render-shortcodes' ),
 			'restNonce'            => wp_create_nonce( 'wp_rest' ),
 		);
 
 		wp_add_inline_script(
-			'codenagi-preview',
-			'window.CODENAGI_PREVIEW = ' . wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
+			'codellia-preview',
+			'window.CODELLIA_PREVIEW = ' . wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
 			'before'
 		);
 	}

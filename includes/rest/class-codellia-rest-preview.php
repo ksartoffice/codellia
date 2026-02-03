@@ -2,10 +2,10 @@
 /**
  * REST handlers for preview rendering.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,11 +25,11 @@ class Rest_Preview {
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		$items   = $request->get_param( 'shortcodes' );
 
-		if ( ! $post_id || ! Post_Type::is_codenagi_post( $post_id ) || ! $items || ! is_array( $items ) ) {
+		if ( ! $post_id || ! Post_Type::is_codellia_post( $post_id ) || ! $items || ! is_array( $items ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid parameters.', 'codenagi' ),
+					'error' => __( 'Invalid parameters.', 'codellia' ),
 				),
 				400
 			);
@@ -40,7 +40,7 @@ class Rest_Preview {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Post not found.', 'codenagi' ),
+					'error' => __( 'Post not found.', 'codellia' ),
 				),
 				404
 			);

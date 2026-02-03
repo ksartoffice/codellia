@@ -13,7 +13,7 @@
         }
       };
 
-  var data = window.CODENAGI_EDITOR || {};
+  var data = window.CODELLIA_EDITOR || {};
   var actionUrl = data.actionUrl || '';
 
   var getPostIdFromBlock = function () {
@@ -35,7 +35,7 @@
     return Number(input.value) || 0;
   };
 
-  var redirectToCodeNagi = function (postId) {
+  var redirectToCodellia = function (postId) {
     if (!actionUrl || !postId) {
       return;
     }
@@ -53,7 +53,7 @@
     }
 
     button.classList.add('is-busy');
-    button.textContent = __( 'Saving...', 'codenagi' );
+    button.textContent = __( 'Saving...', 'codellia' );
 
     dispatch.savePost();
     var unsubscribe = wpRef.data.subscribe(function () {
@@ -64,7 +64,7 @@
       var id = getPostId();
       if (!isSaving && id) {
         unsubscribe();
-        redirectToCodeNagi(id);
+        redirectToCodellia(id);
       }
     });
   };
@@ -74,23 +74,23 @@
     if (!toolbar) {
       return;
     }
-    if (document.querySelector('.codenagi-editor-toolbar')) {
+    if (document.querySelector('.codellia-editor-toolbar')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'codenagi-editor-toolbar';
+    container.className = 'codellia-editor-toolbar';
 
     var button = document.createElement('a');
-    button.className = 'components-button is-primary codenagi-editor-toolbar__button';
+    button.className = 'components-button is-primary codellia-editor-toolbar__button';
     button.href = '#';
-    button.textContent = __( 'Edit with CodeNagi', 'codenagi' );
+    button.textContent = __( 'Edit with Codellia', 'codellia' );
 
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromBlock() || Number(data.postId) || 0;
       if (postId) {
-        redirectToCodeNagi(postId);
+        redirectToCodellia(postId);
         return;
       }
 
@@ -123,16 +123,16 @@
   };
 
   var setupClassicEditor = function () {
-    if (document.querySelector('.codenagi-editor-bridge')) {
+    if (document.querySelector('.codellia-editor-bridge')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'codenagi-editor-bridge';
+    container.className = 'codellia-editor-bridge';
 
     var button = document.createElement('a');
-    button.className = 'button button-primary codenagi-editor-bridge__button';
-    button.textContent = __( 'Edit with CodeNagi', 'codenagi' );
+    button.className = 'button button-primary codellia-editor-bridge__button';
+    button.textContent = __( 'Edit with Codellia', 'codellia' );
     button.href = '#';
 
     container.appendChild(button);
@@ -150,12 +150,12 @@
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromClassic() || Number(data.postId) || 0;
-      redirectToCodeNagi(postId);
+      redirectToCodellia(postId);
     });
   };
 
   domReady(function () {
-    if (!document.body.classList.contains('post-type-codenagi')) {
+    if (!document.body.classList.contains('post-type-codellia')) {
       return;
     }
 

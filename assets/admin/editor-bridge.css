@@ -1,37 +1,37 @@
-﻿.codenagi-editor-bridge {
+﻿.codellia-editor-bridge {
   margin: 12px 0;
 }
 
-.codenagi-editor-bridge__title {
+.codellia-editor-bridge__title {
   margin: 0 0 8px;
   font-size: 16px;
 }
 
-.codenagi-editor-bridge__description {
+.codellia-editor-bridge__description {
   margin: 0 0 16px;
   color: #50575e;
 }
 
-.codenagi-editor-bridge__button.is-busy {
+.codellia-editor-bridge__button.is-busy {
   opacity: 0.7;
   pointer-events: none;
 }
 
-.block-editor-page.post-type-codenagi .block-editor-inserter,
-.block-editor-page.post-type-codenagi .block-editor-inserter__toggle,
-.block-editor-page.post-type-codenagi .block-editor-default-block-appender,
-.block-editor-page.post-type-codenagi .block-editor-block-list__insertion-point,
-.block-editor-page.post-type-codenagi .block-editor-block-list__block-appender {
+.block-editor-page.post-type-codellia .block-editor-inserter,
+.block-editor-page.post-type-codellia .block-editor-inserter__toggle,
+.block-editor-page.post-type-codellia .block-editor-default-block-appender,
+.block-editor-page.post-type-codellia .block-editor-block-list__insertion-point,
+.block-editor-page.post-type-codellia .block-editor-block-list__block-appender {
   display: none !important;
 }
 
-.block-editor-page.post-type-codenagi .block-editor-block-list__layout,
-.block-editor-page.post-type-codenagi .block-editor-writing-flow {
+.block-editor-page.post-type-codellia .block-editor-block-list__layout,
+.block-editor-page.post-type-codellia .block-editor-writing-flow {
   pointer-events: none;
   user-select: none;
 }
 
-.codenagi-editor-toolbar {
+.codellia-editor-toolbar {
   margin-left: 8px;
   display: inline-flex;
   align-items: center;

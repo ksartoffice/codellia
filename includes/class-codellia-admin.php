@@ -1,11 +1,11 @@
 <?php
 /**
- * Admin screen integration for CodeNagi.
+ * Admin screen integration for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,12 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Admin {
 
-	const MENU_SLUG                  = 'codenagi';
-	const SETTINGS_SLUG              = 'codenagi-settings';
-	const SETTINGS_GROUP             = 'codenagi_settings';
-	const OPTION_POST_SLUG           = 'codenagi_post_slug';
-	const OPTION_FLUSH_REWRITE       = 'codenagi_flush_rewrite';
-	const OPTION_DELETE_ON_UNINSTALL = 'codenagi_delete_on_uninstall';
+	const MENU_SLUG                  = 'codellia';
+	const SETTINGS_SLUG              = 'codellia-settings';
+	const SETTINGS_GROUP             = 'codellia_settings';
+	const OPTION_POST_SLUG           = 'codellia_post_slug';
+	const OPTION_FLUSH_REWRITE       = 'codellia_flush_rewrite';
+	const OPTION_DELETE_ON_UNINSTALL = 'codellia_delete_on_uninstall';
 	/**
 	 * Register admin hooks.
 	 */
@@ -30,32 +30,32 @@ class Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
-		add_action( 'admin_action_codenagi', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=codenagi.
+		add_action( 'admin_action_codellia', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=codellia.
 		add_action( 'load-post-new.php', array( __CLASS__, 'maybe_redirect_new_post' ) );
 		add_action( 'update_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_update' ), 10, 2 );
 		add_action( 'add_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_add' ), 10, 2 );
 		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 20 );
 	}
 	/**
-	 * Redirect from admin.php?action=codenagi to the custom editor page.
+	 * Redirect from admin.php?action=codellia to the custom editor page.
 	 */
 	public static function action_redirect(): void {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
-			wp_die( esc_html__( 'post_id is required.', 'codenagi' ) );
+			wp_die( esc_html__( 'post_id is required.', 'codellia' ) );
 		}
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
-			wp_die( esc_html__( 'This editor is only available for CodeNagi posts.', 'codenagi' ) );
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+			wp_die( esc_html__( 'This editor is only available for Codellia posts.', 'codellia' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codenagi' ) );
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
 		}
 		wp_safe_redirect( Post_Type::get_editor_url( $post_id ) );
 		exit;
 	}
 
 	/**
-	 * Redirect new CodeNagi posts directly to the custom editor.
+	 * Redirect new Codellia posts directly to the custom editor.
 	 */
 	public static function maybe_redirect_new_post(): void {
 		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : 'post'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -65,14 +65,14 @@ class Admin {
 
 		$post_type_object = get_post_type_object( $post_type );
 		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->create_posts ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codenagi' ) );
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
 		}
 
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => $post_type,
 				'post_status' => 'draft',
-				'post_title'  => __( 'Untitled CodeNagi', 'codenagi' ),
+				'post_title'  => __( 'Untitled Codellia', 'codellia' ),
 			),
 			true
 		);
@@ -92,8 +92,8 @@ class Admin {
 		// Hidden admin page (no menu entry). Accessed via redirects only.
 		add_submenu_page(
 			null,
-			__( 'CodeNagi', 'codenagi' ),
-			__( 'CodeNagi', 'codenagi' ),
+			__( 'Codellia', 'codellia' ),
+			__( 'Codellia', 'codellia' ),
 			'edit_posts',
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -101,8 +101,8 @@ class Admin {
 
 		add_submenu_page(
 			'edit.php?post_type=' . Post_Type::POST_TYPE,
-			__( 'Settings', 'codenagi' ),
-			__( 'Settings', 'codenagi' ),
+			__( 'Settings', 'codellia' ),
+			__( 'Settings', 'codellia' ),
 			'manage_options',
 			self::SETTINGS_SLUG,
 			array( __CLASS__, 'render_settings_page' )
@@ -135,33 +135,33 @@ class Admin {
 		);
 
 		add_settings_section(
-			'codenagi_permalink',
-			__( 'Permalink', 'codenagi' ),
+			'codellia_permalink',
+			__( 'Permalink', 'codellia' ),
 			array( __CLASS__, 'render_permalink_section' ),
 			self::SETTINGS_SLUG
 		);
 
 		add_settings_field(
 			self::OPTION_POST_SLUG,
-			__( 'CodeNagi slug', 'codenagi' ),
+			__( 'Codellia slug', 'codellia' ),
 			array( __CLASS__, 'render_post_slug_field' ),
 			self::SETTINGS_SLUG,
-			'codenagi_permalink'
+			'codellia_permalink'
 		);
 
 		add_settings_section(
-			'codenagi_cleanup',
-			__( 'Cleanup', 'codenagi' ),
+			'codellia_cleanup',
+			__( 'Cleanup', 'codellia' ),
 			array( __CLASS__, 'render_cleanup_section' ),
 			self::SETTINGS_SLUG
 		);
 
 		add_settings_field(
 			self::OPTION_DELETE_ON_UNINSTALL,
-			__( 'Delete data on uninstall', 'codenagi' ),
+			__( 'Delete data on uninstall', 'codellia' ),
 			array( __CLASS__, 'render_delete_on_uninstall_field' ),
 			self::SETTINGS_SLUG,
-			'codenagi_cleanup'
+			'codellia_cleanup'
 		);
 	}
 
@@ -228,7 +228,7 @@ class Admin {
 	 * Render permalink section description.
 	 */
 	public static function render_permalink_section(): void {
-		echo '<p>' . esc_html__( 'Change the URL slug for CodeNagi posts. Existing URLs will change after saving.', 'codenagi' ) . '</p>';
+		echo '<p>' . esc_html__( 'Change the URL slug for Codellia posts. Existing URLs will change after saving.', 'codellia' ) . '</p>';
 	}
 
 	/**
@@ -237,7 +237,7 @@ class Admin {
 	public static function render_post_slug_field(): void {
 		$value = get_option( self::OPTION_POST_SLUG, Post_Type::SLUG );
 		echo '<input type="text" class="regular-text" name="' . esc_attr( self::OPTION_POST_SLUG ) . '" value="' . esc_attr( $value ) . '" />';
-		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: codenagi.', 'codenagi' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: codellia.', 'codellia' ) . '</p>';
 	}
 
 	/**
@@ -245,7 +245,7 @@ class Admin {
 	 */
 	public static function render_cleanup_section(): void {
 
-		echo '<p>' . esc_html__( 'Choose whether CodeNagi posts should be deleted when the plugin is uninstalled.', 'codenagi' ) . '</p>';
+		echo '<p>' . esc_html__( 'Choose whether Codellia posts should be deleted when the plugin is uninstalled.', 'codellia' ) . '</p>';
 	}
 
 	/**
@@ -256,7 +256,7 @@ class Admin {
 		$value = get_option( self::OPTION_DELETE_ON_UNINSTALL, '0' );
 		echo '<label>';
 		echo '<input type="checkbox" name="' . esc_attr( self::OPTION_DELETE_ON_UNINSTALL ) . '" value="1" ' . checked( '1', $value, false ) . ' />';
-		echo ' ' . esc_html__( 'Delete all CodeNagi posts on uninstall (imported media is kept).', 'codenagi' );
+		echo ' ' . esc_html__( 'Delete all Codellia posts on uninstall (imported media is kept).', 'codellia' );
 		echo '</label>';
 	}
 
@@ -266,17 +266,17 @@ class Admin {
 	public static function render_page(): void {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
-			echo '<div class="wrap"><h1>' . esc_html__( 'CodeNagi', 'codenagi' ) . '</h1><p>' . esc_html__( 'post_id is required.', 'codenagi' ) . '</p></div>';
+			echo '<div class="wrap"><h1>' . esc_html__( 'Codellia', 'codellia' ) . '</h1><p>' . esc_html__( 'post_id is required.', 'codellia' ) . '</p></div>';
 			return;
 		}
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
-			wp_die( esc_html__( 'This editor is only available for CodeNagi posts.', 'codenagi' ) );
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+			wp_die( esc_html__( 'This editor is only available for Codellia posts.', 'codellia' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codenagi' ) );
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
 		}
 
-		echo '<div id="codenagi-app" data-post-id="' . esc_attr( $post_id ) . '"></div>';
+		echo '<div id="codellia-app" data-post-id="' . esc_attr( $post_id ) . '"></div>';
 	}
 
 	/**
@@ -289,7 +289,7 @@ class Admin {
 		}
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'CodeNagi Settings', 'codenagi' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Codellia Settings', 'codellia' ) . '</h1>';
 		echo '<form action="options.php" method="post">';
 		settings_fields( self::SETTINGS_GROUP );
 		do_settings_sections( self::SETTINGS_SLUG );
@@ -298,7 +298,7 @@ class Admin {
 		echo '</div>';
 	}
 	/**
-	 * Enqueue admin assets for the CodeNagi editor.
+	 * Enqueue admin assets for the Codellia editor.
 	 *
 	 * @param string $hook_suffix Current admin page hook.
 	 */
@@ -309,64 +309,64 @@ class Admin {
 		}
 
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $post_id || ! Post_Type::is_codenagi_post( $post_id ) ) {
+		if ( ! $post_id || ! Post_Type::is_codellia_post( $post_id ) ) {
 			return;
 		}
 
 		// Monaco AMD loader lives in assets/monaco/vs/loader.js.
 		wp_register_script(
-			'codenagi-monaco-loader',
-			CODENAGI_URL . 'assets/monaco/vs/loader.js',
+			'codellia-monaco-loader',
+			CODELLIA_URL . 'assets/monaco/vs/loader.js',
 			array(),
-			CODENAGI_VERSION,
+			CODELLIA_VERSION,
 			true
 		);
 		wp_add_inline_script(
-			'codenagi-monaco-loader',
-			'if (typeof window.define === "function" && window.define.amd) { window.__codenagiDefineAmd = window.define.amd; window.define.amd = undefined; }',
+			'codellia-monaco-loader',
+			'if (typeof window.define === "function" && window.define.amd) { window.__codelliaDefineAmd = window.define.amd; window.define.amd = undefined; }',
 			'after'
 		);
 
 		// Admin app bundle (Vite output).
 		wp_register_script(
-			'codenagi-admin',
-			CODENAGI_URL . 'assets/dist/main.js',
-			array( 'codenagi-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n', 'wp-data', 'wp-components', 'wp-notices' ),
-			CODENAGI_VERSION,
+			'codellia-admin',
+			CODELLIA_URL . 'assets/dist/main.js',
+			array( 'codellia-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n', 'wp-data', 'wp-components', 'wp-notices' ),
+			CODELLIA_VERSION,
 			true
 		);
 
 		wp_register_style(
-			'codenagi-admin',
-			CODENAGI_URL . 'assets/dist/style.css',
+			'codellia-admin',
+			CODELLIA_URL . 'assets/dist/style.css',
 			array(),
-			CODENAGI_VERSION
+			CODELLIA_VERSION
 		);
 
-		wp_enqueue_script( 'codenagi-admin' );
-		wp_enqueue_style( 'codenagi-admin' );
+		wp_enqueue_script( 'codellia-admin' );
+		wp_enqueue_style( 'codellia-admin' );
 		wp_enqueue_style( 'wp-components' );
 		wp_enqueue_media();
 
 		wp_set_script_translations(
-			'codenagi-admin',
-			'codenagi',
-			CODENAGI_PATH . 'languages'
+			'codellia-admin',
+			'codellia',
+			CODELLIA_PATH . 'languages'
 		);
 
 		// Inject initial data for the admin app.
 		$post       = $post_id ? get_post( $post_id ) : null;
 		$html       = $post ? (string) $post->post_content : '';
-		$css        = $post_id ? (string) get_post_meta( $post_id, '_codenagi_css', true ) : '';
-		$js         = $post_id ? (string) get_post_meta( $post_id, '_codenagi_js', true ) : '';
+		$css        = $post_id ? (string) get_post_meta( $post_id, '_codellia_css', true ) : '';
+		$js         = $post_id ? (string) get_post_meta( $post_id, '_codellia_js', true ) : '';
 		$back_url   = $post_id ? get_edit_post_link( $post_id, 'raw' ) : admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 
-		$preview_token      = $post_id ? wp_create_nonce( 'codenagi_preview_' . $post_id ) : '';
+		$preview_token      = $post_id ? wp_create_nonce( 'codellia_preview_' . $post_id ) : '';
 		$preview_url        = $post_id ? add_query_arg( 'preview', 'true', get_permalink( $post_id ) ) : home_url( '/' );
 		$iframe_preview_url = $post_id
 			? add_query_arg(
 				array(
-					'codenagi_preview' => 1,
+					'codellia_preview' => 1,
 					'post_id'    => $post_id,
 					'token'      => $preview_token,
 				),
@@ -382,23 +382,23 @@ class Admin {
 			'canEditJs'           => current_user_can( 'unfiltered_html' ),
 			'previewUrl'          => $preview_url,
 			'iframePreviewUrl'    => $iframe_preview_url,
-			'monacoVsPath'        => CODENAGI_URL . 'assets/monaco/vs',
-			'restUrl'             => rest_url( 'codenagi/v1/save' ),
-			'restCompileUrl'      => rest_url( 'codenagi/v1/compile-tailwind' ),
-			'renderShortcodesUrl' => rest_url( 'codenagi/v1/render-shortcodes' ),
-			'setupRestUrl'        => rest_url( 'codenagi/v1/setup' ),
-			'importRestUrl'       => rest_url( 'codenagi/v1/import' ),
+			'monacoVsPath'        => CODELLIA_URL . 'assets/monaco/vs',
+			'restUrl'             => rest_url( 'codellia/v1/save' ),
+			'restCompileUrl'      => rest_url( 'codellia/v1/compile-tailwind' ),
+			'renderShortcodesUrl' => rest_url( 'codellia/v1/render-shortcodes' ),
+			'setupRestUrl'        => rest_url( 'codellia/v1/setup' ),
+			'importRestUrl'       => rest_url( 'codellia/v1/import' ),
 			'backUrl'             => $back_url,
-			'settingsRestUrl'     => rest_url( 'codenagi/v1/settings' ),
+			'settingsRestUrl'     => rest_url( 'codellia/v1/settings' ),
 			'settingsData'        => Rest::build_settings_payload( $post_id ),
-			'tailwindEnabled'     => (bool) get_post_meta( $post_id, '_codenagi_tailwind', true ),
-			'setupRequired'       => get_post_meta( $post_id, '_codenagi_setup_required', true ) === '1',
+			'tailwindEnabled'     => (bool) get_post_meta( $post_id, '_codellia_tailwind', true ),
+			'setupRequired'       => get_post_meta( $post_id, '_codellia_setup_required', true ) === '1',
 			'restNonce'           => wp_create_nonce( 'wp_rest' ),
 		);
 
 		wp_add_inline_script(
-			'codenagi-admin',
-			'window.CODENAGI = ' . wp_json_encode(
+			'codellia-admin',
+			'window.CODELLIA = ' . wp_json_encode(
 				$data,
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			) . ';',

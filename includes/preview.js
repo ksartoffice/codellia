@@ -6,13 +6,13 @@
   const shadowScriptsId = 'lc-shadow-scripts';
   const externalScriptAttr = 'data-lc-external-script';
   const externalStyleAttr = 'data-lc-external-style';
-  const CODENAGI_ATTR_NAME = 'data-codenagi-id';
-  const config = window.CODENAGI_PREVIEW || {};
+  const CODELLIA_ATTR_NAME = 'data-codellia-id';
+  const config = window.CODELLIA_PREVIEW || {};
   const postId = config.post_id || null;
   const markerStart =
-    config.markers && config.markers.start ? String(config.markers.start) : 'codenagi:start';
+    config.markers && config.markers.start ? String(config.markers.start) : 'codellia:start';
   const markerEnd =
-    config.markers && config.markers.end ? String(config.markers.end) : 'codenagi:end';
+    config.markers && config.markers.end ? String(config.markers.end) : 'codellia:end';
   const allowedOrigin = getAllowedOrigin();
   let isReady = false;
   let hoverTarget = null;
@@ -254,7 +254,7 @@
     button.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      reply('CODENAGI_OPEN_ELEMENTS_TAB');
+      reply('CODELLIA_OPEN_ELEMENTS_TAB');
     });
     document.body.appendChild(button);
     selectActionButton = button;
@@ -343,7 +343,7 @@
     if (typeof event.composedPath === 'function') {
       const path = event.composedPath();
       for (const node of path) {
-        if (node instanceof Element && node.hasAttribute(CODENAGI_ATTR_NAME)) {
+        if (node instanceof Element && node.hasAttribute(CODELLIA_ATTR_NAME)) {
           return node;
         }
       }
@@ -351,7 +351,7 @@
     if (!event.target || !(event.target instanceof Element)) {
       return null;
     }
-    return event.target.closest('[' + CODENAGI_ATTR_NAME + ']');
+    return event.target.closest('[' + CODELLIA_ATTR_NAME + ']');
   }
 
   function handlePointerMove(event) {
@@ -371,9 +371,9 @@
     event.preventDefault();
     event.stopPropagation();
     drawSelection(target);
-    const lcId = target.getAttribute(CODENAGI_ATTR_NAME);
+    const lcId = target.getAttribute(CODELLIA_ATTR_NAME);
     if (lcId) {
-      reply('CODENAGI_SELECT', { lcId: lcId });
+      reply('CODELLIA_SELECT', { lcId: lcId });
     }
   }
 
@@ -709,12 +709,12 @@
   window.addEventListener('message', (event) => {
     if (allowedOrigin && event.origin !== allowedOrigin) return;
     const data = event.data || {};
-    if (data.type === 'CODENAGI_INIT') {
+    if (data.type === 'CODELLIA_INIT') {
       isReady = true;
-      reply('CODENAGI_READY', { post_id: postId });
+      reply('CODELLIA_READY', { post_id: postId });
       return;
     }
-    if (data.type === 'CODENAGI_RENDER') {
+    if (data.type === 'CODELLIA_RENDER') {
       if (!isReady) return;
       setShadowDomEnabled(Boolean(data.shadowDomEnabled));
       if ('liveHighlightEnabled' in data) {
@@ -722,39 +722,39 @@
       }
       render(data.canonicalHTML, data.cssText);
     }
-    if (data.type === 'CODENAGI_SET_CSS') {
+    if (data.type === 'CODELLIA_SET_CSS') {
       if (!isReady) return;
       setCssText(data.cssText);
     }
-    if (data.type === 'CODENAGI_SET_HIGHLIGHT') {
+    if (data.type === 'CODELLIA_SET_HIGHLIGHT') {
       if (!isReady) return;
       setDomSelectorEnabled(Boolean(data.liveHighlightEnabled));
     }
-    if (data.type === 'CODENAGI_SET_ELEMENTS_TAB_OPEN') {
+    if (data.type === 'CODELLIA_SET_ELEMENTS_TAB_OPEN') {
       if (!isReady) return;
       setElementsTabOpen(Boolean(data.open));
     }
-    if (data.type === 'CODENAGI_RUN_JS') {
+    if (data.type === 'CODELLIA_RUN_JS') {
       if (!isReady) return;
       jsEnabled = true;
       runJs(data.jsText || '');
     }
-    if (data.type === 'CODENAGI_DISABLE_JS') {
+    if (data.type === 'CODELLIA_DISABLE_JS') {
       if (!isReady) return;
       jsEnabled = false;
       removeScriptElement();
     }
-    if (data.type === 'CODENAGI_EXTERNAL_SCRIPTS') {
+    if (data.type === 'CODELLIA_EXTERNAL_SCRIPTS') {
       if (!isReady) return;
       setExternalScripts(data.urls || []);
     }
-    if (data.type === 'CODENAGI_EXTERNAL_STYLES') {
+    if (data.type === 'CODELLIA_EXTERNAL_STYLES') {
       if (!isReady) return;
       setExternalStyles(data.urls || []);
     }
   });
 
   attachDomSelector();
-  reply('CODENAGI_READY', { post_id: postId });
+  reply('CODELLIA_READY', { post_id: postId });
 })();
 

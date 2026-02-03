@@ -122,9 +122,9 @@ export function ElementPanel({ api }: ElementPanelProps) {
   if (!isVisible) {
     return (
       <div className="lc-settingsSection">
-        <div className="lc-settingsSectionTitle">{__( 'Elements', 'codenagi' )}</div>
+        <div className="lc-settingsSectionTitle">{__( 'Elements', 'codellia' )}</div>
         <div className="lc-settingsHelp">
-          {__( 'Select an element in the preview to edit its content and attributes.', 'codenagi' )}
+          {__( 'Select an element in the preview to edit its content and attributes.', 'codellia' )}
         </div>
       </div>
     );
@@ -132,11 +132,11 @@ export function ElementPanel({ api }: ElementPanelProps) {
 
   return (
     <div className="lc-settingsSection">
-      <div className="lc-settingsSectionTitle">{__( 'Elements', 'codenagi' )}</div>
+      <div className="lc-settingsSectionTitle">{__( 'Elements', 'codellia' )}</div>
       {hasText ? (
         <div className="lc-formGroup">
           <label className="lc-formLabel" htmlFor={fieldId}>
-            {__( 'Text', 'codenagi' )}
+            {__( 'Text', 'codellia' )}
           </label>
           <textarea
             id={fieldId}
@@ -148,21 +148,21 @@ export function ElementPanel({ api }: ElementPanelProps) {
         </div>
       ) : null}
       <div className="lc-formGroup">
-        <div className="lc-formLabel">{__( 'Attributes', 'codenagi' )}</div>
+        <div className="lc-formLabel">{__( 'Attributes', 'codellia' )}</div>
         <div className="lc-settingsScriptList">
           {attributes.map((attr, index) => (
             <div className="lc-settingsScriptRow" key={`attr-${index}`}>
               <input
                 type="text"
                 className="lc-formInput lc-settingsAttrNameInput"
-                placeholder={__( 'Attribute name', 'codenagi' )}
+                placeholder={__( 'Attribute name', 'codellia' )}
                 value={attr.name}
                 onChange={(event) => handleAttributeNameChange(index, event.target.value)}
               />
               <input
                 type="text"
                 className="lc-formInput lc-settingsScriptInput"
-                placeholder={__( 'Value', 'codenagi' )}
+                placeholder={__( 'Value', 'codellia' )}
                 value={attr.value}
                 onChange={(event) => handleAttributeValueChange(index, event.target.value)}
               />
@@ -170,9 +170,9 @@ export function ElementPanel({ api }: ElementPanelProps) {
                 className="lc-btn lc-btn-danger lc-settingsScriptButton"
                 type="button"
                 onClick={() => handleRemoveAttribute(index)}
-                aria-label={__( 'Remove attribute', 'codenagi' )}
+                aria-label={__( 'Remove attribute', 'codellia' )}
               >
-                {__( 'Remove', 'codenagi' )}
+                {__( 'Remove', 'codellia' )}
               </button>
             </div>
           ))}
@@ -181,7 +181,7 @@ export function ElementPanel({ api }: ElementPanelProps) {
             type="button"
             onClick={handleAddAttribute}
           >
-            {__( 'Add attribute', 'codenagi' )}
+            {__( 'Add attribute', 'codellia' )}
           </button>
         </div>
       </div>

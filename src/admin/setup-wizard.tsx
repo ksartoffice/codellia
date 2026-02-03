@@ -59,61 +59,61 @@ type ImportResponse = {
 
 function validateImportPayload(raw: any): { data?: ImportPayload; error?: string } {
   if (!raw || typeof raw !== 'object') {
-    return { error: __( 'Import file is not a valid JSON object.', 'codenagi' ) };
+    return { error: __( 'Import file is not a valid JSON object.', 'codellia' ) };
   }
 
   if (raw.version !== 1) {
-    return { error: __( 'Unsupported import version.', 'codenagi' ) };
+    return { error: __( 'Unsupported import version.', 'codellia' ) };
   }
 
   if (typeof raw.html !== 'string') {
-    return { error: __( 'Invalid HTML value.', 'codenagi' ) };
+    return { error: __( 'Invalid HTML value.', 'codellia' ) };
   }
 
   if (typeof raw.css !== 'string') {
-    return { error: __( 'Invalid CSS value.', 'codenagi' ) };
+    return { error: __( 'Invalid CSS value.', 'codellia' ) };
   }
 
   if (typeof raw.tailwindEnabled !== 'boolean') {
-    return { error: __( 'Invalid tailwindEnabled value.', 'codenagi' ) };
+    return { error: __( 'Invalid tailwindEnabled value.', 'codellia' ) };
   }
 
   if (raw.generatedCss !== undefined && typeof raw.generatedCss !== 'string') {
-    return { error: __( 'Invalid generatedCss value.', 'codenagi' ) };
+    return { error: __( 'Invalid generatedCss value.', 'codellia' ) };
   }
 
   if (raw.js !== undefined && typeof raw.js !== 'string') {
-    return { error: __( 'Invalid JavaScript value.', 'codenagi' ) };
+    return { error: __( 'Invalid JavaScript value.', 'codellia' ) };
   }
 
   if (raw.shadowDomEnabled !== undefined && typeof raw.shadowDomEnabled !== 'boolean') {
-    return { error: __( 'Invalid shadowDomEnabled value.', 'codenagi' ) };
+    return { error: __( 'Invalid shadowDomEnabled value.', 'codellia' ) };
   }
 
   if (raw.shortcodeEnabled !== undefined && typeof raw.shortcodeEnabled !== 'boolean') {
-    return { error: __( 'Invalid shortcodeEnabled value.', 'codenagi' ) };
+    return { error: __( 'Invalid shortcodeEnabled value.', 'codellia' ) };
   }
 
   if (raw.singlePageEnabled !== undefined && typeof raw.singlePageEnabled !== 'boolean') {
-    return { error: __( 'Invalid singlePageEnabled value.', 'codenagi' ) };
+    return { error: __( 'Invalid singlePageEnabled value.', 'codellia' ) };
   }
 
   if (raw.liveHighlightEnabled !== undefined && typeof raw.liveHighlightEnabled !== 'boolean') {
-    return { error: __( 'Invalid liveHighlightEnabled value.', 'codenagi' ) };
+    return { error: __( 'Invalid liveHighlightEnabled value.', 'codellia' ) };
   }
 
   if (
     raw.externalScripts !== undefined &&
     (!Array.isArray(raw.externalScripts) || raw.externalScripts.some((item: any) => typeof item !== 'string'))
   ) {
-    return { error: __( 'Invalid externalScripts value.', 'codenagi' ) };
+    return { error: __( 'Invalid externalScripts value.', 'codellia' ) };
   }
 
   if (
     raw.externalStyles !== undefined &&
     (!Array.isArray(raw.externalStyles) || raw.externalStyles.some((item: any) => typeof item !== 'string'))
   ) {
-    return { error: __( 'Invalid externalStyles value.', 'codenagi' ) };
+    return { error: __( 'Invalid externalStyles value.', 'codellia' ) };
   }
 
   return {
@@ -174,7 +174,7 @@ function SetupWizard({
       }
       setImportPayload(result.data || null);
     } catch (err: any) {
-      setError(__( 'Invalid JSON file.', 'codenagi' ));
+      setError(__( 'Invalid JSON file.', 'codellia' ));
       setImportPayload(null);
     }
   };
@@ -186,10 +186,10 @@ function SetupWizard({
     try {
       if (mode === 'import') {
         if (!importRestUrl) {
-          throw new Error(__( 'Import unavailable.', 'codenagi' ));
+          throw new Error(__( 'Import unavailable.', 'codellia' ));
         }
         if (!importPayload) {
-          throw new Error(__( 'Select a JSON file to import.', 'codenagi' ));
+          throw new Error(__( 'Select a JSON file to import.', 'codellia' ));
         }
 
         const response: ImportResponse = await apiFetch({
@@ -202,11 +202,11 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __( 'Import failed.', 'codenagi' ));
+          throw new Error(response?.error || __( 'Import failed.', 'codellia' ));
         }
 
         if (response.importWarnings?.length) {
-          console.warn('[CodeNagi] Import warnings', response.importWarnings);
+          console.warn('[Codellia] Import warnings', response.importWarnings);
         }
 
         const normalizedPayload = response.html
@@ -231,7 +231,7 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __( 'Setup failed.', 'codenagi' ));
+          throw new Error(response?.error || __( 'Setup failed.', 'codellia' ));
         }
 
         onComplete({ tailwindEnabled: Boolean(response.tailwindEnabled) });
@@ -246,11 +246,11 @@ function SetupWizard({
   return (
     <div className="lc-setupOverlay">
       <div className="lc-setupCard" role="dialog" aria-modal="true">
-        <div className="lc-setupTitle">{__( 'Choose editor mode', 'codenagi' )}</div>
+        <div className="lc-setupTitle">{__( 'Choose editor mode', 'codellia' )}</div>
         <div className="lc-setupIntro">
           {__(
             'Select TailwindCSS or Normal mode. This choice cannot be changed later.',
-            'codenagi'
+            'codellia'
           )}
         </div>
         <div className="lc-setupOptions">
@@ -264,10 +264,10 @@ function SetupWizard({
             />
             <span className="lc-setupOptionBody">
               <span className="lc-setupOptionTitle">
-                {__( 'Normal (HTML/CSS)', 'codenagi' )}
+                {__( 'Normal (HTML/CSS)', 'codellia' )}
               </span>
               <span className="lc-setupOptionDesc">
-                {__( 'Edit HTML and CSS directly with Monaco.', 'codenagi' )}
+                {__( 'Edit HTML and CSS directly with Monaco.', 'codellia' )}
               </span>
             </span>
           </label>
@@ -281,10 +281,10 @@ function SetupWizard({
             />
             <span className="lc-setupOptionBody">
               <span className="lc-setupOptionTitle">
-                {__( 'TailwindCSS', 'codenagi' )}
+                {__( 'TailwindCSS', 'codellia' )}
               </span>
               <span className="lc-setupOptionDesc">
-                {__( 'Use utility classes. CSS is compiled automatically.', 'codenagi' )}
+                {__( 'Use utility classes. CSS is compiled automatically.', 'codellia' )}
               </span>
             </span>
           </label>
@@ -298,10 +298,10 @@ function SetupWizard({
             />
             <span className="lc-setupOptionBody">
               <span className="lc-setupOptionTitle">
-                {__( 'Import JSON', 'codenagi' )}
+                {__( 'Import JSON', 'codellia' )}
               </span>
               <span className="lc-setupOptionDesc">
-                {__( 'Restore from an exported CodeNagi JSON file.', 'codenagi' )}
+                {__( 'Restore from an exported Codellia JSON file.', 'codellia' )}
               </span>
             </span>
           </label>
@@ -309,7 +309,7 @@ function SetupWizard({
         {mode === 'import' ? (
           <div className="lc-setupImport">
             <label className="lc-btn lc-btn-secondary lc-setupFileLabel">
-              {__( 'Choose JSON file', 'codenagi' )}
+              {__( 'Choose JSON file', 'codellia' )}
               <input
                 className="lc-setupFileInput"
                 type="file"
@@ -318,18 +318,18 @@ function SetupWizard({
               />
             </label>
             <div className="lc-setupFileName">
-              {importFileName || __( 'No file selected.', 'codenagi' )}
+              {importFileName || __( 'No file selected.', 'codellia' )}
             </div>
           </div>
         ) : null}
         <div className="lc-setupNote">
-          {__( 'This choice is locked for this CodeNagi page.', 'codenagi' )}
+          {__( 'This choice is locked for this Codellia page.', 'codellia' )}
         </div>
         <div className="lc-setupError">{error || ''}</div>
         <div className="lc-setupActions">
           {backUrl ? (
             <a className="lc-btn lc-btn-secondary" href={backUrl}>
-              {__( 'Back', 'codenagi' )}
+              {__( 'Back', 'codellia' )}
             </a>
           ) : null}
           <button
@@ -338,7 +338,7 @@ function SetupWizard({
             onClick={handleSubmit}
             disabled={saving}
           >
-            {saving ? __( 'Saving...', 'codenagi' ) : __( 'Continue', 'codenagi' )}
+            {saving ? __( 'Saving...', 'codellia' ) : __( 'Continue', 'codellia' )}
           </button>
         </div>
       </div>
@@ -350,8 +350,8 @@ export function runSetupWizard(config: SetupWizardConfig): Promise<SetupWizardRe
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = __( 'Setup unavailable.', 'codenagi' );
-    return Promise.reject(new Error(__( 'wp.apiFetch is unavailable.', 'codenagi' )));
+    container.textContent = __( 'Setup unavailable.', 'codellia' );
+    return Promise.reject(new Error(__( 'wp.apiFetch is unavailable.', 'codellia' )));
   }
 
   return new Promise((resolve) => {

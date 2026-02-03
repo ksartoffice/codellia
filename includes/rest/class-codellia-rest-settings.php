@@ -1,18 +1,18 @@
 <?php
 /**
- * REST settings handlers for CodeNagi.
+ * REST settings handlers for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * REST callbacks for updating CodeNagi settings.
+ * REST callbacks for updating Codellia settings.
  */
 class Rest_Settings {
 	private const MAX_EXTERNAL_SCRIPTS = 5;
@@ -21,7 +21,7 @@ class Rest_Settings {
 	/**
 	 * Build settings payload for the admin UI.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return array
 	 */
 	public static function build_settings_payload( int $post_id ): array {
@@ -40,23 +40,23 @@ class Rest_Settings {
 		$status_options = array(
 			array(
 				'value' => 'draft',
-				'label' => __( 'Draft', 'codenagi' ),
+				'label' => __( 'Draft', 'codellia' ),
 			),
 			array(
 				'value' => 'pending',
-				'label' => __( 'Pending', 'codenagi' ),
+				'label' => __( 'Pending', 'codellia' ),
 			),
 			array(
 				'value' => 'private',
-				'label' => __( 'Private', 'codenagi' ),
+				'label' => __( 'Private', 'codellia' ),
 			),
 			array(
 				'value' => 'future',
-				'label' => __( 'Scheduled', 'codenagi' ),
+				'label' => __( 'Scheduled', 'codellia' ),
 			),
 			array(
 				'value' => 'publish',
-				'label' => __( 'Published', 'codenagi' ),
+				'label' => __( 'Published', 'codellia' ),
 			),
 		);
 
@@ -79,7 +79,7 @@ class Rest_Settings {
 		$templates = array(
 			array(
 				'value' => 'default',
-				'label' => __( 'Default', 'codenagi' ),
+				'label' => __( 'Default', 'codellia' ),
 			),
 		);
 
@@ -113,7 +113,7 @@ class Rest_Settings {
 		$featured_url = $featured_id ? wp_get_attachment_image_url( $featured_id, 'medium' ) : '';
 		$featured_alt = $featured_id ? (string) get_post_meta( $featured_id, '_wp_attachment_image_alt', true ) : '';
 
-		$highlight_meta         = get_post_meta( $post_id, '_codenagi_live_highlight', true );
+		$highlight_meta         = get_post_meta( $post_id, '_codellia_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$single_page_enabled    = Post_Type::is_single_page_enabled( $post_id );
 
@@ -146,8 +146,8 @@ class Rest_Settings {
 			'formats'              => $formats,
 			'canPublish'           => current_user_can( 'publish_post', $post_id ),
 			'canTrash'             => current_user_can( 'delete_post', $post_id ),
-			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_codenagi_shadow_dom', true ),
-			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_codenagi_shortcode_enabled', true ),
+			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true ),
+			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shortcode_enabled', true ),
 			'singlePageEnabled'    => $single_page_enabled,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'canEditJs'            => current_user_can( 'unfiltered_html' ),
@@ -157,7 +157,7 @@ class Rest_Settings {
 	}
 
 	/**
-	 * Update CodeNagi settings from the admin UI.
+	 * Update Codellia settings from the admin UI.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -170,7 +170,7 @@ class Rest_Settings {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid payload.', 'codenagi' ),
+					'error' => __( 'Invalid payload.', 'codellia' ),
 				),
 				400
 			);
@@ -181,7 +181,7 @@ class Rest_Settings {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Post not found.', 'codenagi' ),
+					'error' => __( 'Post not found.', 'codellia' ),
 				),
 				404
 			);
@@ -223,7 +223,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Permission denied.', 'codenagi' ),
+						'error' => __( 'Permission denied.', 'codellia' ),
 					),
 					403
 				);
@@ -248,13 +248,13 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Permission denied.', 'codenagi' ),
+						'error' => __( 'Permission denied.', 'codellia' ),
 					),
 					403
 				);
 			}
 			$shadow_dom_enabled = rest_sanitize_boolean( $updates['shadowDomEnabled'] );
-			update_post_meta( $post_id, '_codenagi_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_codellia_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'shortcodeEnabled', $updates ) ) {
@@ -262,13 +262,13 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Permission denied.', 'codenagi' ),
+						'error' => __( 'Permission denied.', 'codellia' ),
 					),
 					403
 				);
 			}
 			$shortcode_enabled = rest_sanitize_boolean( $updates['shortcodeEnabled'] );
-			update_post_meta( $post_id, '_codenagi_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_codellia_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'singlePageEnabled', $updates ) ) {
@@ -276,18 +276,18 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Permission denied.', 'codenagi' ),
+						'error' => __( 'Permission denied.', 'codellia' ),
 					),
 					403
 				);
 			}
 			$single_page_enabled = rest_sanitize_boolean( $updates['singlePageEnabled'] );
-			update_post_meta( $post_id, '_codenagi_single_page_enabled', $single_page_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_codellia_single_page_enabled', $single_page_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'liveHighlightEnabled', $updates ) ) {
 			$live_highlight_enabled = rest_sanitize_boolean( $updates['liveHighlightEnabled'] );
-			update_post_meta( $post_id, '_codenagi_live_highlight', $live_highlight_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_codellia_live_highlight', $live_highlight_enabled ? '1' : '0' );
 		}
 
 		if ( array_key_exists( 'externalScripts', $updates ) ) {
@@ -295,7 +295,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Permission denied.', 'codenagi' ),
+						'error' => __( 'Permission denied.', 'codellia' ),
 					),
 					403
 				);
@@ -304,7 +304,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid external scripts payload.', 'codenagi' ),
+						'error' => __( 'Invalid external scripts payload.', 'codellia' ),
 					),
 					400
 				);
@@ -322,18 +322,18 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : __( 'External scripts must be valid https:// URLs.', 'codenagi' ),
+						'error' => null !== $error ? $error : __( 'External scripts must be valid https:// URLs.', 'codellia' ),
 					),
 					400
 				);
 			}
 
 			if ( empty( $sanitized ) ) {
-				delete_post_meta( $post_id, '_codenagi_external_scripts' );
+				delete_post_meta( $post_id, '_codellia_external_scripts' );
 			} else {
 				update_post_meta(
 					$post_id,
-					'_codenagi_external_scripts',
+					'_codellia_external_scripts',
 					wp_json_encode( $sanitized, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 				);
 			}
@@ -344,7 +344,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Permission denied.', 'codenagi' ),
+						'error' => __( 'Permission denied.', 'codellia' ),
 					),
 					403
 				);
@@ -353,7 +353,7 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid external styles payload.', 'codenagi' ),
+						'error' => __( 'Invalid external styles payload.', 'codellia' ),
 					),
 					400
 				);
@@ -371,18 +371,18 @@ class Rest_Settings {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : __( 'External styles must be valid https:// URLs.', 'codenagi' ),
+						'error' => null !== $error ? $error : __( 'External styles must be valid https:// URLs.', 'codellia' ),
 					),
 					400
 				);
 			}
 
 			if ( empty( $sanitized ) ) {
-				delete_post_meta( $post_id, '_codenagi_external_styles' );
+				delete_post_meta( $post_id, '_codellia_external_styles' );
 			} else {
 				update_post_meta(
 					$post_id,
-					'_codenagi_external_styles',
+					'_codellia_external_styles',
 					wp_json_encode( $sanitized, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 				);
 			}

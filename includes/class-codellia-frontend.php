@@ -1,11 +1,11 @@
 <?php
 /**
- * Front-end rendering for CodeNagi posts and shortcodes.
+ * Front-end rendering for Codellia posts and shortcodes.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 use TailwindPHP\tw;
 
@@ -42,13 +42,13 @@ class Frontend {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_js' ) );
 		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 20 );
-		add_shortcode( 'codenagi', array( __CLASS__, 'shortcode' ) );
+		add_shortcode( 'codellia', array( __CLASS__, 'shortcode' ) );
 	}
 
 	/**
 	 * Check whether single page view is disabled for a post.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return bool
 	 */
 	private static function is_single_page_disabled( int $post_id ): bool {
@@ -59,7 +59,7 @@ class Frontend {
 	 * Redirect single page requests when disabled.
 	 */
 	public static function maybe_redirect_single_page(): void {
-		if ( is_admin() || get_query_var( 'codenagi_preview' ) ) {
+		if ( is_admin() || get_query_var( 'codellia_preview' ) ) {
 			return;
 		}
 
@@ -76,7 +76,7 @@ class Frontend {
 			return;
 		}
 
-		$target = apply_filters( 'codenagi_single_page_redirect', home_url( '/' ), $post_id );
+		$target = apply_filters( 'codellia_single_page_redirect', home_url( '/' ), $post_id );
 		if ( '404' === $target ) {
 			global $wp_query;
 			$wp_query->set_404();
@@ -96,7 +96,7 @@ class Frontend {
 	 * Output noindex meta when single page is disabled.
 	 */
 	public static function maybe_add_noindex(): void {
-		if ( is_admin() || get_query_var( 'codenagi_preview' ) ) {
+		if ( is_admin() || get_query_var( 'codellia_preview' ) ) {
 			return;
 		}
 
@@ -151,11 +151,11 @@ class Frontend {
 		$meta_query[] = array(
 			'relation' => 'OR',
 			array(
-				'key'     => '_codenagi_single_page_enabled',
+				'key'     => '_codellia_single_page_enabled',
 				'compare' => 'NOT EXISTS',
 			),
 			array(
-				'key'     => '_codenagi_single_page_enabled',
+				'key'     => '_codellia_single_page_enabled',
 				'value'   => '1',
 				'compare' => '=',
 			),
@@ -177,7 +177,7 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return;
 		}
 
@@ -192,23 +192,23 @@ class Frontend {
 	/**
 	 * Check whether Shadow DOM rendering is enabled for a post.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return bool
 	 */
 	private static function is_shadow_dom_enabled( int $post_id ): bool {
-		return '1' === get_post_meta( $post_id, '_codenagi_shadow_dom', true );
+		return '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true );
 	}
 
 	/**
 	 * Resolve CSS for a post, handling Tailwind compilation where needed.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return string
 	 */
 	private static function get_css_for_post( int $post_id ): string {
-		$is_tailwind   = '1' === get_post_meta( $post_id, '_codenagi_tailwind', true );
-		$stored_css    = (string) get_post_meta( $post_id, '_codenagi_css', true );
-		$generated_css = (string) get_post_meta( $post_id, '_codenagi_generated_css', true );
+		$is_tailwind   = '1' === get_post_meta( $post_id, '_codellia_tailwind', true );
+		$stored_css    = (string) get_post_meta( $post_id, '_codellia_css', true );
+		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );
 		$css           = $is_tailwind ? $generated_css : $stored_css;
 
 		$has_unescaped_arbitrary = ! $is_tailwind
@@ -251,7 +251,7 @@ class Frontend {
 	}
 
 	/**
-	 * Filter CodeNagi post content for Shadow DOM preview.
+	 * Filter Codellia post content for Shadow DOM preview.
 	 *
 	 * @param string $content Post content.
 	 * @return string
@@ -260,7 +260,7 @@ class Frontend {
 		if ( is_admin() ) {
 			return $content;
 		}
-		if ( get_query_var( 'codenagi_preview' ) ) {
+		if ( get_query_var( 'codellia_preview' ) ) {
 			return $content;
 		}
 
@@ -269,7 +269,7 @@ class Frontend {
 			return $content;
 		}
 
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return $content;
 		}
 
@@ -283,7 +283,7 @@ class Frontend {
 			$style_html .= '<style id="lc-style">' . $css . '</style>';
 		}
 
-		$js               = (string) get_post_meta( $post_id, '_codenagi_js', true );
+		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 
 		$scripts_html = '';
@@ -300,7 +300,7 @@ class Frontend {
 	}
 
 	/**
-	 * Render the [codenagi] shortcode.
+	 * Render the [codellia] shortcode.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string
@@ -311,18 +311,18 @@ class Frontend {
 				'post_id' => 0,
 			),
 			(array) $atts,
-			'codenagi'
+			'codellia'
 		);
 		$post_id = absint( $atts['post_id'] ?? 0 );
 		if ( ! $post_id ) {
 			return '';
 		}
 
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return '';
 		}
 
-		if ( '1' !== get_post_meta( $post_id, '_codenagi_shortcode_enabled', true ) ) {
+		if ( '1' !== get_post_meta( $post_id, '_codellia_shortcode_enabled', true ) ) {
 			return '';
 		}
 
@@ -353,7 +353,7 @@ class Frontend {
 	/**
 	 * Build inline style HTML for Shadow DOM rendering.
 	 *
-	 * @param int $post_id  CodeNagi post ID.
+	 * @param int $post_id  Codellia post ID.
 	 * @param int $instance Instance number.
 	 * @return string
 	 */
@@ -371,7 +371,7 @@ class Frontend {
 	/**
 	 * Build external stylesheet tags for Shadow DOM rendering.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return string
 	 */
 	private static function build_external_styles_html( int $post_id ): string {
@@ -392,12 +392,12 @@ class Frontend {
 	/**
 	 * Build inline script tags for Shadow DOM rendering.
 	 *
-	 * @param int $post_id  CodeNagi post ID.
+	 * @param int $post_id  Codellia post ID.
 	 * @param int $instance Instance number.
 	 * @return string
 	 */
 	private static function build_inline_scripts( int $post_id, int $instance = 0 ): string {
-		$js               = (string) get_post_meta( $post_id, '_codenagi_js', true );
+		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 		if ( '' === $js && empty( $external_scripts ) ) {
 			return '';
@@ -420,7 +420,7 @@ class Frontend {
 	/**
 	 * Fetch inline assets for non-shadow shortcode rendering.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return array{style:string,scripts:string}
 	 */
 	private static function get_non_shadow_assets_html( int $post_id ): array {
@@ -451,7 +451,7 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return;
 		}
 
@@ -467,10 +467,10 @@ class Frontend {
 
 		$dependency = '';
 		foreach ( $external_styles as $index => $style_url ) {
-			$ext_handle = 'codenagi-ext-style-' . $post_id . '-' . $index;
+			$ext_handle = 'codellia-ext-style-' . $post_id . '-' . $index;
 			$ext_deps   = $dependency ? array( $dependency ) : array();
 			if ( ! wp_style_is( $ext_handle, 'registered' ) ) {
-				wp_register_style( $ext_handle, $style_url, $ext_deps, CODENAGI_VERSION );
+				wp_register_style( $ext_handle, $style_url, $ext_deps, CODELLIA_VERSION );
 			}
 			wp_enqueue_style( $ext_handle );
 			$dependency = $ext_handle;
@@ -480,11 +480,11 @@ class Frontend {
 			return;
 		}
 
-		$handle = 'codenagi';
+		$handle = 'codellia';
 		$deps   = $dependency ? array( $dependency ) : array();
 
 		if ( ! wp_style_is( $handle, 'registered' ) ) {
-			wp_register_style( $handle, false, $deps, CODENAGI_VERSION );
+			wp_register_style( $handle, false, $deps, CODELLIA_VERSION );
 		}
 
 		wp_enqueue_style( $handle );
@@ -498,7 +498,7 @@ class Frontend {
 		if ( is_admin() ) {
 			return;
 		}
-		if ( get_query_var( 'codenagi_preview' ) ) {
+		if ( get_query_var( 'codellia_preview' ) ) {
 			return;
 		}
 
@@ -507,7 +507,7 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return;
 		}
 
@@ -515,7 +515,7 @@ class Frontend {
 			return;
 		}
 
-		$js               = (string) get_post_meta( $post_id, '_codenagi_js', true );
+		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 		if ( '' === $js && empty( $external_scripts ) ) {
 			return;
@@ -523,19 +523,19 @@ class Frontend {
 
 		$dependency = '';
 		foreach ( $external_scripts as $index => $script_url ) {
-			$ext_handle = 'codenagi-ext-' . $post_id . '-' . $index;
+			$ext_handle = 'codellia-ext-' . $post_id . '-' . $index;
 			$ext_deps   = $dependency ? array( $dependency ) : array();
 			if ( ! wp_script_is( $ext_handle, 'registered' ) ) {
-				wp_register_script( $ext_handle, $script_url, $ext_deps, CODENAGI_VERSION, true );
+				wp_register_script( $ext_handle, $script_url, $ext_deps, CODELLIA_VERSION, true );
 			}
 			wp_enqueue_script( $ext_handle );
 			$dependency = $ext_handle;
 		}
 
-		$handle = 'codenagi-js';
+		$handle = 'codellia-js';
 		if ( ! wp_script_is( $handle, 'registered' ) ) {
 			$js_deps = $dependency ? array( $dependency ) : array();
-			wp_register_script( $handle, false, $js_deps, CODENAGI_VERSION, true );
+			wp_register_script( $handle, false, $js_deps, CODELLIA_VERSION, true );
 		}
 		wp_enqueue_script( $handle );
 		if ( '' !== $js ) {

@@ -1,7 +1,7 @@
 {
-  "name": "codenagi",
+  "name": "codellia",
   "version": "1.0.0",
-  "description": "Live HTML/CSS/JS editor with a custom CodeNagi post type, Monaco Editor, and live preview.",
+  "description": "Live HTML/CSS/JS editor with a custom Codellia post type, Monaco Editor, and live preview.",
   "license": "GPL-2.0+",
   "scripts": {
     "dev": "vite",
@@ -19,7 +19,7 @@
     "composer.json",
     "composer.lock",
     "readme.txt",
-    "codenagi.php",
+    "codellia.php",
     "LICENSE"
   ],
   "dependencies": {

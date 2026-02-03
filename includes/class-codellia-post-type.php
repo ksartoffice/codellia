@@ -1,22 +1,22 @@
 <?php
 /**
- * Custom post type registration for CodeNagi.
+ * Custom post type registration for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Registers and manages the CodeNagi custom post type.
+ * Registers and manages the Codellia custom post type.
  */
 class Post_Type {
-	const POST_TYPE = 'codenagi';
-	const SLUG      = 'codenagi';
+	const POST_TYPE = 'codellia';
+	const SLUG      = 'codellia';
 
 	/**
 	 * Register hooks for the post type.
@@ -25,7 +25,7 @@ class Post_Type {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_filter( 'display_post_states', array( __CLASS__, 'add_tailwind_state' ), 10, 2 );
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'filter_edit_post_link' ), 10, 3 );
-		add_filter( 'post_row_actions', array( __CLASS__, 'add_codenagi_row_action' ), 10, 2 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'add_codellia_row_action' ), 10, 2 );
 	}
 
 	/**
@@ -49,23 +49,23 @@ class Post_Type {
 	public static function register(): void {
 		$slug = self::get_slug();
 		$labels = array(
-			'name'               => _x( 'CodeNagi', 'post type general name', 'codenagi' ),
-			'singular_name'      => _x( 'CodeNagi', 'post type singular name', 'codenagi' ),
-			'add_new'            => _x( 'Add New', 'codenagi', 'codenagi' ),
-			'add_new_item'       => __( 'Add New CodeNagi', 'codenagi' ),
-			'edit_item'          => __( 'Edit CodeNagi', 'codenagi' ),
-			'new_item'           => __( 'New CodeNagi', 'codenagi' ),
-			'view_item'          => __( 'View on front end', 'codenagi' ),
-			'view_items'         => __( 'View on front end', 'codenagi' ),
-			'search_items'       => __( 'Search CodeNagi', 'codenagi' ),
-			'not_found'          => __( 'No CodeNagi found', 'codenagi' ),
-			'not_found_in_trash' => __( 'No CodeNagi found in Trash', 'codenagi' ),
-			'all_items'          => __( 'CodeNagi', 'codenagi' ),
-			'archives'           => __( 'CodeNagi Archives', 'codenagi' ),
+			'name'               => _x( 'Codellia', 'post type general name', 'codellia' ),
+			'singular_name'      => _x( 'Codellia', 'post type singular name', 'codellia' ),
+			'add_new'            => _x( 'Add New', 'codellia', 'codellia' ),
+			'add_new_item'       => __( 'Add New Codellia', 'codellia' ),
+			'edit_item'          => __( 'Edit Codellia', 'codellia' ),
+			'new_item'           => __( 'New Codellia', 'codellia' ),
+			'view_item'          => __( 'View on front end', 'codellia' ),
+			'view_items'         => __( 'View on front end', 'codellia' ),
+			'search_items'       => __( 'Search Codellia', 'codellia' ),
+			'not_found'          => __( 'No Codellia found', 'codellia' ),
+			'not_found_in_trash' => __( 'No Codellia found in Trash', 'codellia' ),
+			'all_items'          => __( 'Codellia', 'codellia' ),
+			'archives'           => __( 'Codellia Archives', 'codellia' ),
 		);
 
 		$args = array(
-			'label'               => __( 'CodeNagi', 'codenagi' ),
+			'label'               => __( 'Codellia', 'codellia' ),
 			'labels'              => $labels,
 			'public'              => true,
 			'exclude_from_search' => false,
@@ -89,7 +89,7 @@ class Post_Type {
 	}
 
 	/**
-	 * Resolve the current slug for the CodeNagi post type.
+	 * Resolve the current slug for the Codellia post type.
 	 *
 	 * @return string
 	 */
@@ -101,24 +101,24 @@ class Post_Type {
 	}
 
 	/**
-	 * Check whether a post is a CodeNagi post.
+	 * Check whether a post is a Codellia post.
 	 *
 	 * @param int|\WP_Post $post Post ID or object.
 	 * @return bool
 	 */
-	public static function is_codenagi_post( $post ): bool {
+	public static function is_codellia_post( $post ): bool {
 		$post = get_post( $post );
 		return $post && self::POST_TYPE === $post->post_type;
 	}
 
 	/**
-	 * Check whether single page view is enabled for a CodeNagi post.
+	 * Check whether single page view is enabled for a Codellia post.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return bool
 	 */
 	public static function is_single_page_enabled( int $post_id ): bool {
-		$value = get_post_meta( $post_id, '_codenagi_single_page_enabled', true );
+		$value = get_post_meta( $post_id, '_codellia_single_page_enabled', true );
 		if ( '' === $value ) {
 			return true;
 		}
@@ -127,9 +127,9 @@ class Post_Type {
 	}
 
 	/**
-	 * Build the editor URL for a CodeNagi post.
+	 * Build the editor URL for a Codellia post.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return string
 	 */
 	public static function get_editor_url( int $post_id ): string {
@@ -154,22 +154,22 @@ class Post_Type {
 			return $states;
 		}
 
-		$is_tailwind = '1' === get_post_meta( $post->ID, '_codenagi_tailwind', true );
+		$is_tailwind = '1' === get_post_meta( $post->ID, '_codellia_tailwind', true );
 		if ( $is_tailwind ) {
-			$states['codenagi_tailwind'] = __( 'TailwindCSS', 'codenagi' );
+			$states['codellia_tailwind'] = __( 'TailwindCSS', 'codellia' );
 		}
 
 		return $states;
 	}
 
 	/**
-	 * Add a CodeNagi editor link to post row actions.
+	 * Add a Codellia editor link to post row actions.
 	 *
 	 * @param array    $actions Row actions.
 	 * @param \WP_Post $post Post object.
 	 * @return array
 	 */
-	public static function add_codenagi_row_action( array $actions, \WP_Post $post ): array {
+	public static function add_codellia_row_action( array $actions, \WP_Post $post ): array {
 		if ( self::POST_TYPE !== $post->post_type ) {
 			return $actions;
 		}
@@ -178,17 +178,17 @@ class Post_Type {
 			return $actions;
 		}
 
-		$actions['codenagi_edit'] = sprintf(
+		$actions['codellia_edit'] = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( self::get_editor_url( $post->ID ) ),
-			esc_html__( 'Edit in CodeNagi', 'codenagi' )
+			esc_html__( 'Edit in Codellia', 'codellia' )
 		);
 
 		return $actions;
 	}
 
 	/**
-	 * Override the edit link to point to the CodeNagi editor on the front end.
+	 * Override the edit link to point to the Codellia editor on the front end.
 	 *
 	 * @param string $link Default edit link.
 	 * @param int    $post_id Post ID.
@@ -200,7 +200,7 @@ class Post_Type {
 			return $link;
 		}
 
-		if ( ! self::is_codenagi_post( $post_id ) ) {
+		if ( ! self::is_codellia_post( $post_id ) ) {
 			return $link;
 		}
 

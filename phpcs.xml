@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0"?>
-<ruleset name="CodeNagi">
-  <description>WordPress Coding Standards for CodeNagi.</description>
+<ruleset name="Codellia">
+  <description>WordPress Coding Standards for Codellia.</description>
 
   <config name="testVersion" value="8.2-"/>
   <arg name="extensions" value="php"/>
 
-  <file>codenagi.php</file>
+  <file>codellia.php</file>
   <file>includes</file>
 
   <exclude-pattern>vendor/*</exclude-pattern>

@@ -25,7 +25,7 @@ export type ElementAttributesInfo = {
 };
 
 const ALLOWED_INLINE_TAGS = new Set(['br', 'span']);
-const CODENAGI_ATTR_NAME = 'data-codenagi-id';
+const CODELLIA_ATTR_NAME = 'data-codellia-id';
 const VOID_TAGS = new Set([
   'area',
   'base',
@@ -84,7 +84,7 @@ function isEditableChild(node: DefaultTreeAdapterTypes.Node) {
 }
 
 function getExistingLcId(el: DefaultTreeAdapterTypes.Element): string | null {
-  const attr = el.attrs.find((item) => item.name === CODENAGI_ATTR_NAME);
+  const attr = el.attrs.find((item) => item.name === CODELLIA_ATTR_NAME);
   return attr ? attr.value : null;
 }
 
@@ -229,7 +229,7 @@ export function getEditableElementAttributes(html: string, lcId: string): Elemen
           const startTagText = html.slice(startOffset, endOffset);
           const selfClosing = /\/\s*>$/.test(startTagText);
           const attributes = child.attrs
-            .filter((attr) => attr.name !== CODENAGI_ATTR_NAME)
+            .filter((attr) => attr.name !== CODELLIA_ATTR_NAME)
             .map((attr) => ({
               name: attr.name,
               value: attr.value ?? '',

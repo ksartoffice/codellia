@@ -1,11 +1,11 @@
 <?php
 /**
- * Tests for the CodeNagi post type.
+ * Tests for the Codellia post type.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-use CodeNagi\Post_Type;
+use Codellia\Post_Type;
 
 class Test_Post_Type extends WP_UnitTestCase {
 	public function test_post_type_is_registered() {

@@ -1,18 +1,18 @@
 <?php
 /**
- * REST API route registration for CodeNagi.
+ * REST API route registration for Codellia.
  *
- * @package CodeNagi
+ * @package Codellia
  */
 
-namespace CodeNagi;
+namespace Codellia;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Registers REST endpoints for CodeNagi.
+ * Registers REST endpoints for Codellia.
  */
 class Rest {
 	/**
@@ -23,11 +23,11 @@ class Rest {
 	}
 
 	/**
-	 * Register REST routes for CodeNagi.
+	 * Register REST routes for Codellia.
 	 */
 	public static function register_routes(): void {
 		register_rest_route(
-			'codenagi/v1',
+			'codellia/v1',
 			'/save',
 			array(
 				'methods'             => 'POST',
@@ -37,7 +37,7 @@ class Rest {
 		);
 
 		register_rest_route(
-			'codenagi/v1',
+			'codellia/v1',
 			'/render-shortcodes',
 			array(
 				'methods'             => 'POST',
@@ -57,7 +57,7 @@ class Rest {
 		);
 
 		register_rest_route(
-			'codenagi/v1',
+			'codellia/v1',
 			'/compile-tailwind',
 			array(
 				'methods'             => 'POST',
@@ -81,7 +81,7 @@ class Rest {
 		);
 
 		register_rest_route(
-			'codenagi/v1',
+			'codellia/v1',
 			'/setup',
 			array(
 				'methods'             => 'POST',
@@ -101,7 +101,7 @@ class Rest {
 		);
 
 		register_rest_route(
-			'codenagi/v1',
+			'codellia/v1',
 			'/import',
 			array(
 				'methods'             => 'POST',
@@ -121,7 +121,7 @@ class Rest {
 		);
 
 		register_rest_route(
-			'codenagi/v1',
+			'codellia/v1',
 			'/settings',
 			array(
 				'methods'             => 'POST',
@@ -142,7 +142,7 @@ class Rest {
 	}
 
 	/**
-	 * Permission check for CodeNagi REST routes.
+	 * Permission check for Codellia REST routes.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return bool
@@ -152,7 +152,7 @@ class Rest {
 		if ( 0 >= $post_id ) {
 			return false;
 		}
-		if ( ! Post_Type::is_codenagi_post( $post_id ) ) {
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return false;
 		}
 		return current_user_can( 'edit_post', $post_id );
@@ -161,7 +161,7 @@ class Rest {
 	/**
 	 * Build settings payload for the admin app.
 	 *
-	 * @param int $post_id CodeNagi post ID.
+	 * @param int $post_id Codellia post ID.
 	 * @return array
 	 */
 	public static function build_settings_payload( int $post_id ): array {

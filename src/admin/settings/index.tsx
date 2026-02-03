@@ -90,7 +90,7 @@ const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
 });
 
-function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'codenagi' )) {
+function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'codellia' )) {
   if (typeof error === 'string' && error.trim()) return error;
   if (error instanceof Error) {
     if (error.message && error.message !== '[object Object]') return error.message;
@@ -215,7 +215,7 @@ function SettingsSidebar({
       });
 
       if (!response?.ok) {
-        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'codenagi' )));
+        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'codellia' )));
       }
 
       if (response?.settings) {
@@ -322,7 +322,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalScripts: normalizedNext });
     } catch (err: any) {
-      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'codenagi' )));
+      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'codellia' )));
       setExternalScripts(settings.externalScripts || []);
     }
   };
@@ -346,7 +346,7 @@ function SettingsSidebar({
     try {
       await updateSettings({ externalStyles: normalizedNext });
     } catch (err: any) {
-      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'codenagi' )));
+      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'codellia' )));
       setExternalStyles(settings.externalStyles || []);
     }
   };
@@ -356,7 +356,7 @@ function SettingsSidebar({
       <div
         className="lc-settingsTabs"
         role="tablist"
-        aria-label={__( 'Settings tabs', 'codenagi' )}
+        aria-label={__( 'Settings tabs', 'codellia' )}
       >
         <button
           className={`lc-settingsTab${activeTab === 'settings' ? ' is-active' : ''}`}
@@ -365,7 +365,7 @@ function SettingsSidebar({
           aria-selected={activeTab === 'settings'}
           onClick={() => handleTabChange('settings')}
         >
-          {__( 'Settings', 'codenagi' )}
+          {__( 'Settings', 'codellia' )}
         </button>
         <button
           className={`lc-settingsTab${activeTab === 'elements' ? ' is-active' : ''}`}
@@ -374,13 +374,13 @@ function SettingsSidebar({
           aria-selected={activeTab === 'elements'}
           onClick={() => handleTabChange('elements')}
         >
-          {__( 'Elements', 'codenagi' )}
+          {__( 'Elements', 'codellia' )}
         </button>
       </div>
       <button
         className="lc-settingsClose"
         type="button"
-        aria-label={__( 'Close settings panel', 'codenagi' )}
+        aria-label={__( 'Close settings panel', 'codellia' )}
         onClick={() => onClosePanel?.()}
       >
         <span
@@ -432,7 +432,7 @@ export function initSettings(config: SettingsConfig) {
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = __( 'Settings unavailable.', 'codenagi' );
+    container.textContent = __( 'Settings unavailable.', 'codellia' );
     return;
   }
 

@@ -1,38 +1,38 @@
 ﻿/* filepath: src/admin/style.css */
-body.admin_page_codenagi #wpadminbar,
-body.admin_page_codenagi #adminmenumain,
-body.admin_page_codenagi #adminmenuwrap,
-body.admin_page_codenagi #wpfooter,
-body.admin_page_codenagi #screen-meta,
-body.admin_page_codenagi #screen-meta-links {
+body.admin_page_codellia #wpadminbar,
+body.admin_page_codellia #adminmenumain,
+body.admin_page_codellia #adminmenuwrap,
+body.admin_page_codellia #wpfooter,
+body.admin_page_codellia #screen-meta,
+body.admin_page_codellia #screen-meta-links {
   display: none;
 }
 
-body.admin_page_codenagi #wpcontent,
-body.admin_page_codenagi #wpbody-content {
+body.admin_page_codellia #wpcontent,
+body.admin_page_codellia #wpbody-content {
   margin: 0;
   padding: 0;
 }
 
-body.admin_page_codenagi #wpcontent {
+body.admin_page_codellia #wpcontent {
   margin-left: 0;
 }
 
 html.wp-toolbar,
-body.admin_page_codenagi {
+body.admin_page_codellia {
   padding-top: 0;
   margin-top: 0;
   background: #111318;
 }
 
-body.admin_page_codenagi #wpwrap,
-body.admin_page_codenagi #wpcontent,
-body.admin_page_codenagi #wpbody,
-body.admin_page_codenagi #wpbody-content {
+body.admin_page_codellia #wpwrap,
+body.admin_page_codellia #wpcontent,
+body.admin_page_codellia #wpbody,
+body.admin_page_codellia #wpbody-content {
   height: 100%;
 }
 
-#codenagi-app {
+#codellia-app {
   height: 100vh;
 }
 
