@@ -640,9 +640,6 @@ msgid "No file selected."
 msgstr "ファイルが選択されていません。"
 
 #: assets/dist/main.js:1
-msgid "This choice is locked for this Codellia page."
-msgstr "この Codellia ページでは選択が固定されています。"
-
 #: assets/dist/main.js:1
 msgid "Back"
 msgstr "戻る"
