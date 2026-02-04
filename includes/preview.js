@@ -675,6 +675,7 @@
   function render(html, css) {
     if (shadowEnabled) {
       renderShadow(html, css);
+      reply('CODELLIA_RENDERED');
       return;
     }
     clearShadowHost();
@@ -685,6 +686,7 @@
     if (styleEl) {
       styleEl.textContent = css || '';
     }
+    reply('CODELLIA_RENDERED');
   }
 
   function setCssText(css) {
