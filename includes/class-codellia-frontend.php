@@ -282,21 +282,7 @@ class Frontend {
 		if ( '' !== $css ) {
 			$style_html .= '<style id="cd-style">' . $css . '</style>';
 		}
-
-		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
-		$external_scripts = External_Scripts::get_external_scripts( $post_id );
-
-		$scripts_html = '';
-		foreach ( $external_scripts as $script_url ) {
-			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			$scripts_html .= '<script src="' . esc_url( $script_url ) . '"></script>';
-		}
-		if ( '' !== $js ) {
-			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			$scripts_html .= '<script id="cd-script">' . $js . '</script>';
-		}
-
-		return '<div id="cd-shadow-host"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+		return '<div id="cd-shadow-host"><template shadowrootmode="open">' . $style_html . $content . '</template></div>';
 	}
 
 	/**
@@ -342,8 +328,8 @@ class Frontend {
 			$instance     = self::$shortcode_instance;
 			$host_id      = 'cd-shadow-host-' . $post_id . '-' . $instance;
 			$style_html   = self::build_inline_style( $post_id, $instance );
-			$scripts_html = self::build_inline_scripts( $post_id, $instance );
-			return '<div id="' . esc_attr( $host_id ) . '"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+			self::enqueue_shortcode_scripts( $post_id );
+			return '<div id="' . esc_attr( $host_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template></div>';
 		}
 
 		$assets = self::get_non_shadow_assets_html( $post_id );
@@ -439,6 +425,45 @@ class Frontend {
 	}
 
 	/**
+	 * Enqueue JS assets for shadow-dom shortcode rendering.
+	 *
+	 * @param int $post_id Codellia post ID.
+	 */
+	private static function enqueue_shortcode_scripts( int $post_id ): void {
+		if ( isset( self::$shortcode_assets_loaded[ $post_id ] ) ) {
+			return;
+		}
+		self::$shortcode_assets_loaded[ $post_id ] = true;
+
+		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
+		$external_scripts = External_Scripts::get_external_scripts( $post_id );
+		if ( '' === $js && empty( $external_scripts ) ) {
+			return;
+		}
+
+		$dependency = '';
+		foreach ( $external_scripts as $index => $script_url ) {
+			$ext_handle = 'codellia-ext-' . $post_id . '-' . $index;
+			$ext_deps   = $dependency ? array( $dependency ) : array();
+			if ( ! wp_script_is( $ext_handle, 'registered' ) ) {
+				wp_register_script( $ext_handle, $script_url, $ext_deps, CODELLIA_VERSION, true );
+			}
+			wp_enqueue_script( $ext_handle );
+			$dependency = $ext_handle;
+		}
+
+		$handle = 'codellia-js-' . $post_id;
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			$js_deps = $dependency ? array( $dependency ) : array();
+			wp_register_script( $handle, false, $js_deps, CODELLIA_VERSION, true );
+		}
+		wp_enqueue_script( $handle );
+		if ( '' !== $js ) {
+			wp_add_inline_script( $handle, $js );
+		}
+	}
+
+	/**
 	 * Enqueue CSS assets for non-shadow front-end rendering.
 	 */
 	public static function enqueue_css(): void {
@@ -508,10 +533,6 @@ class Frontend {
 		}
 
 		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
-			return;
-		}
-
-		if ( self::is_shadow_dom_enabled( $post_id ) ) {
 			return;
 		}
 
