@@ -72,7 +72,7 @@ class Admin {
 			array(
 				'post_type'   => $post_type,
 				'post_status' => 'draft',
-				'post_title'  => __( 'Untitled Codellia', 'codellia' ),
+				'post_title'  => __( 'Untitled Codellia Page', 'codellia' ),
 			),
 			true
 		);
@@ -360,6 +360,7 @@ class Admin {
 		$css        = $post_id ? (string) get_post_meta( $post_id, '_codellia_css', true ) : '';
 		$js         = $post_id ? (string) get_post_meta( $post_id, '_codellia_js', true ) : '';
 		$back_url   = $post_id ? get_edit_post_link( $post_id, 'raw' ) : admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
+		$list_url   = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 
 		$preview_token      = $post_id ? wp_create_nonce( 'codellia_preview_' . $post_id ) : '';
 		$preview_url        = $post_id ? add_query_arg( 'preview', 'true', get_permalink( $post_id ) ) : home_url( '/' );
@@ -389,6 +390,7 @@ class Admin {
 			'setupRestUrl'        => rest_url( 'codellia/v1/setup' ),
 			'importRestUrl'       => rest_url( 'codellia/v1/import' ),
 			'backUrl'             => $back_url,
+			'listUrl'             => $list_url,
 			'settingsRestUrl'     => rest_url( 'codellia/v1/settings' ),
 			'settingsData'        => Rest::build_settings_payload( $post_id ),
 			'tailwindEnabled'     => (bool) get_post_meta( $post_id, '_codellia_tailwind', true ),

@@ -149,8 +149,8 @@ msgid "Add New"
 msgstr "新規追加"
 
 #: includes/class-codellia-post-type.php:56
-msgid "Add New Codellia"
-msgstr "Codellia を新規追加"
+msgid "Add New Codellia Page"
+msgstr "Codelliaページを新規追加"
 
 #: includes/class-codellia-post-type.php:57
 msgid "Edit Codellia"
@@ -196,8 +196,8 @@ msgid "TailwindCSS"
 msgstr "TailwindCSS"
 
 #: includes/class-codellia-post-type.php:226
-msgid "Untitled Codellia"
-msgstr "無題の Codellia"
+msgid "Untitled Codellia Page"
+msgstr "無題の Codellia ページ"
 
 #: includes/class-codellia-preview.php:86
 msgid "Invalid preview token."
@@ -640,9 +640,6 @@ msgid "No file selected."
 msgstr "ファイルが選択されていません。"
 
 #: assets/dist/main.js:1
-msgid "This choice is locked for this Codellia page."
-msgstr "この Codellia ページでは選択が固定されています。"
-
 #: assets/dist/main.js:1
 msgid "Back"
 msgstr "戻る"
@@ -713,6 +710,10 @@ msgstr "未保存の変更"
 #: assets/dist/main.js:1
 msgid "Back to WordPress"
 msgstr "WordPress に戻る"
+
+#: assets/dist/main.js:1
+msgid "Codellia pages"
+msgstr "Codelliaページ一覧"
 
 #: assets/dist/main.js:1
 msgid "Undo"

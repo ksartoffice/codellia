@@ -38,6 +38,7 @@ declare global {
       settingsRestUrl: string;
       settingsData: SettingsData;
       backUrl?: string;
+      listUrl?: string;
       tailwindEnabled?: boolean;
       setupRequired?: boolean;
       restNonce: string;
@@ -249,7 +250,7 @@ async function main() {
         restUrl: cfg.setupRestUrl,
         importRestUrl: cfg.importRestUrl,
         apiFetch: wp?.apiFetch,
-        backUrl: cfg.backUrl,
+        backUrl: cfg.listUrl || cfg.backUrl,
         initialTailwindEnabled: tailwindEnabled,
       });
       tailwindEnabled = result.tailwindEnabled;
@@ -319,6 +320,7 @@ async function main() {
   let activeCssTab: 'css' | 'js' = 'css';
   let editorsReady = false;
   let hasUnsavedChanges = false;
+  let saveInFlight: Promise<{ ok: boolean; error?: string }> | null = null;
   let lastSaved = { html: '', css: '', js: '' };
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
@@ -459,47 +461,76 @@ async function main() {
     if (!htmlModel || !cssModel) {
       return { ok: false, error: __( 'Save failed.', 'codellia' ) };
     }
+    if (!getUnsavedFlags().hasAny) {
+      return { ok: true };
+    }
+    if (saveInFlight) {
+      return await saveInFlight;
+    }
+    saveInFlight = (async () => {
     createSnackbar('info', __( 'Saving...', 'codellia' ), NOTICE_IDS.save);
 
-    const result = await saveCodellia({
-      apiFetch: wp.apiFetch,
-      restUrl: cfg.restUrl,
-      postId,
-      html: htmlModel.getValue(),
-      css: cssModel.getValue(),
-      tailwindEnabled,
-      canEditJs,
-      js: jsModel.getValue(),
-    });
+      const result = await saveCodellia({
+        apiFetch: wp.apiFetch,
+        restUrl: cfg.restUrl,
+        postId,
+        html: htmlModel.getValue(),
+        css: cssModel.getValue(),
+        tailwindEnabled,
+        canEditJs,
+        js: jsModel.getValue(),
+      });
 
-    if (result.ok) {
-      markSavedState();
-      createSnackbar(
-        'success',
-        __( 'Saved.', 'codellia' ),
-        NOTICE_IDS.save,
-        NOTICE_SUCCESS_DURATION_MS
-      );
-      return { ok: true };
-    } else if (result.error) {
-      /* translators: %s: error message. */
-      createSnackbar(
-        'error',
-        sprintf(__( 'Save error: %s', 'codellia' ), result.error),
-        NOTICE_IDS.save,
-        NOTICE_ERROR_DURATION_MS
-      );
-      return { ok: false, error: result.error };
-    } else {
-      createSnackbar(
-        'error',
-        __( 'Save failed.', 'codellia' ),
-        NOTICE_IDS.save,
-        NOTICE_ERROR_DURATION_MS
-      );
-      return { ok: false, error: __( 'Save failed.', 'codellia' ) };
+      if (result.ok) {
+        markSavedState();
+        createSnackbar(
+          'success',
+          __( 'Saved.', 'codellia' ),
+          NOTICE_IDS.save,
+          NOTICE_SUCCESS_DURATION_MS
+        );
+        return { ok: true };
+      } else if (result.error) {
+        /* translators: %s: error message. */
+        createSnackbar(
+          'error',
+          sprintf(__( 'Save error: %s', 'codellia' ), result.error),
+          NOTICE_IDS.save,
+          NOTICE_ERROR_DURATION_MS
+        );
+        return { ok: false, error: result.error };
+      } else {
+        createSnackbar(
+          'error',
+          __( 'Save failed.', 'codellia' ),
+          NOTICE_IDS.save,
+          NOTICE_ERROR_DURATION_MS
+        );
+        return { ok: false, error: __( 'Save failed.', 'codellia' ) };
+      }
+    })();
+
+    try {
+      return await saveInFlight;
+    } finally {
+      saveInFlight = null;
     }
   }
+
+  const runSaveShortcut = async () => {
+    await handleSave();
+  };
+
+  const registerSaveShortcut = (
+    editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor
+  ) => {
+    editorInstance.addAction({
+      id: 'codellia.save',
+      label: __( 'Save', 'codellia' ),
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      run: runSaveShortcut,
+    });
+  };
 
   const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
   const buildPreviewRefreshUrl = (url: string) => {
@@ -525,6 +556,7 @@ async function main() {
     ui.toolbar,
     {
       backUrl: cfg.backUrl || '/wp-admin/',
+      listUrl: cfg.listUrl || '',
       canUndo: false,
       canRedo: false,
       editorCollapsed,
@@ -640,6 +672,10 @@ async function main() {
   });
 
   ({ monaco, htmlModel, cssModel, jsModel, htmlEditor, cssEditor, jsEditor } = monacoSetup);
+
+  registerSaveShortcut(htmlEditor);
+  registerSaveShortcut(cssEditor);
+  registerSaveShortcut(jsEditor);
 
   removeNotice(NOTICE_IDS.monaco);
   markSavedState();

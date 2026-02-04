@@ -322,9 +322,6 @@ function SetupWizard({
             </div>
           </div>
         ) : null}
-        <div className="cd-setupNote">
-          {__( 'This choice is locked for this Codellia page.', 'codellia' )}
-        </div>
         <div className="cd-setupError">{error || ''}</div>
         <div className="cd-setupActions">
           {backUrl ? (
