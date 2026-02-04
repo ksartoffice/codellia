@@ -60,7 +60,7 @@ class Post_Type {
 			'search_items'       => __( 'Search Codellia', 'codellia' ),
 			'not_found'          => __( 'No Codellia found', 'codellia' ),
 			'not_found_in_trash' => __( 'No Codellia found in Trash', 'codellia' ),
-			'all_items'          => __( 'Codellia', 'codellia' ),
+			'all_items'          => __( 'Codellia pages', 'codellia' ),
 			'archives'           => __( 'Codellia Archives', 'codellia' ),
 		);
 
