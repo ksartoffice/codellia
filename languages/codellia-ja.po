@@ -853,10 +853,15 @@ msgstr "アンインストール時に Codellia 投稿をすべて削除しま�
 #: includes/class-codellia-admin.php:161
 msgid "Codellia Editor Settings"
 msgstr "Codellia Editor 設定"
+#: assets/dist/main.js:1
+msgid "Shadow DOM Hint"
+msgstr "Shadow DOM ヒント"
 
+#: assets/dist/main.js:1
+msgid "When Shadow DOM is enabled, HTML is rendered inside the Shadow Root."
+msgstr "Shadow DOM を有効にすると、HTML は Shadow Root 内に描画されます。"
 
-
-
-
-
+#: assets/dist/main.js:1
+msgid "Use the following root instead of document to query elements."
+msgstr "document ではなく、次の root から要素を取得してください。"
 

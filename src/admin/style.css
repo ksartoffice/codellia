@@ -1286,6 +1286,41 @@ body.admin_page_codellia #wpbody-content {
   padding: 12px 16px 16px;
 }
 
+.cd-hintBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cd-hintText {
+  margin: 0;
+  font-size: 13px;
+  color: #c9cdd6;
+}
+
+.cd-hintCode {
+  margin: 0;
+  padding: 10px 12px;
+  background: #11141a;
+  border: 1px solid #2b3340;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #e6e8ea;
+  font-family: var(
+    --vscode-editor-font-family,
+    'SFMono-Regular',
+    Menlo,
+    Monaco,
+    Consolas,
+    'Liberation Mono',
+    'Courier New',
+    monospace
+  );
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: text;
+}
+
 .cd-modalError {
   color: #ff9a9a;
   padding: 0 16px;

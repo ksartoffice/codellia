@@ -798,6 +798,138 @@ async function main() {
     ui.jsTab.disabled = !canEditJs;
     ui.jsControls.style.display = canEditJs && activeCssTab === 'js' ? '' : 'none';
     ui.runButton.disabled = !jsEnabled || !canEditJs;
+    ui.shadowHintButton.style.display = shadowDomEnabled ? '' : 'none';
+    ui.shadowHintButton.disabled = !shadowDomEnabled || !canEditJs;
+  };
+
+  const shadowHintTitle = __( 'Shadow DOM Hint', 'codellia' );
+  const shadowHintLead = __(
+    'When Shadow DOM is enabled, HTML is rendered inside the Shadow Root.',
+    'codellia'
+  );
+  const shadowHintDetail = __(
+    'Use the following root instead of document to query elements.',
+    'codellia'
+  );
+  const shadowHintCode =
+    "const root = document.querySelector('codellia-output')?.shadowRoot || document;";
+
+  let shadowHintModal: HTMLDivElement | null = null;
+  let shadowHintModalKeyHandler: ((event: KeyboardEvent) => void) | null = null;
+
+  const copyToClipboard = async (text: string): Promise<boolean> => {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // fallback below
+      }
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'true');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    textarea.remove();
+    return ok;
+  };
+
+  const closeShadowHintModal = () => {
+    if (!shadowHintModal) return;
+    shadowHintModal.remove();
+    shadowHintModal = null;
+    if (shadowHintModalKeyHandler) {
+      window.removeEventListener('keydown', shadowHintModalKeyHandler);
+      shadowHintModalKeyHandler = null;
+    }
+  };
+
+  const openShadowHintModal = () => {
+    if (shadowHintModal || !shadowDomEnabled) return;
+
+    const modal = document.createElement('div');
+    modal.className = 'cd-modal';
+    const backdrop = document.createElement('div');
+    backdrop.className = 'cd-modalBackdrop';
+    backdrop.addEventListener('click', closeShadowHintModal);
+
+    const dialog = document.createElement('div');
+    dialog.className = 'cd-modalDialog';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-label', shadowHintTitle);
+
+    const header = document.createElement('div');
+    header.className = 'cd-modalHeader';
+    const title = document.createElement('div');
+    title.className = 'cd-modalTitle';
+    title.textContent = shadowHintTitle;
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'cd-modalClose';
+    closeButton.setAttribute('aria-label', __( 'Close', 'codellia' ));
+    closeButton.textContent = '×';
+    closeButton.addEventListener('click', closeShadowHintModal);
+    header.append(title, closeButton);
+
+    const body = document.createElement('div');
+    body.className = 'cd-modalBody';
+    const bodyWrap = document.createElement('div');
+    bodyWrap.className = 'cd-hintBody';
+    const lead = document.createElement('p');
+    lead.className = 'cd-hintText';
+    lead.textContent = shadowHintLead;
+    const detail = document.createElement('p');
+    detail.className = 'cd-hintText';
+    detail.textContent = shadowHintDetail;
+    const codeBlock = document.createElement('pre');
+    codeBlock.className = 'cd-hintCode';
+    codeBlock.textContent = shadowHintCode;
+    bodyWrap.append(lead, detail, codeBlock);
+    body.append(bodyWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'cd-modalActions';
+    const copyButton = document.createElement('button');
+    copyButton.type = 'button';
+    copyButton.className = 'cd-btn cd-btn-secondary';
+    copyButton.textContent = __( 'Copy', 'codellia' );
+    copyButton.addEventListener('click', async () => {
+      const ok = await copyToClipboard(shadowHintCode);
+      if (ok) {
+        copyButton.textContent = __( 'Copied', 'codellia' );
+        window.setTimeout(() => {
+          copyButton.textContent = __( 'Copy', 'codellia' );
+        }, 1400);
+      }
+    });
+    const closeAction = document.createElement('button');
+    closeAction.type = 'button';
+    closeAction.className = 'cd-btn cd-btn-primary';
+    closeAction.textContent = __( 'Close', 'codellia' );
+    closeAction.addEventListener('click', closeShadowHintModal);
+    actions.append(copyButton, closeAction);
+
+    dialog.append(header, body, actions);
+    modal.append(backdrop, dialog);
+    document.body.appendChild(modal);
+    shadowHintModal = modal;
+
+    shadowHintModalKeyHandler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeShadowHintModal();
+      }
+    };
+    window.addEventListener('keydown', shadowHintModalKeyHandler);
   };
 
   const setCssTab = (tab: 'css' | 'js') => {
@@ -921,6 +1053,10 @@ async function main() {
 
   const setShadowDomEnabled = (enabled: boolean) => {
     shadowDomEnabled = enabled;
+    updateJsUi();
+    if (!shadowDomEnabled) {
+      closeShadowHintModal();
+    }
     preview?.sendRender();
     preview?.sendExternalScripts(jsEnabled ? externalScripts : []);
     preview?.sendExternalStyles(externalStyles);
@@ -1009,6 +1145,10 @@ async function main() {
   ui.runButton.addEventListener('click', () => {
     if (!jsEnabled || !canEditJs) return;
     preview?.requestRunJs();
+  });
+  ui.shadowHintButton.addEventListener('click', () => {
+    if (!shadowDomEnabled) return;
+    openShadowHintModal();
   });
 
   const minLeftWidth = 320;

@@ -13,6 +13,7 @@ type LayoutRefs = {
   jsTab: HTMLButtonElement;
   jsControls: HTMLDivElement;
   runButton: HTMLButtonElement;
+  shadowHintButton: HTMLButtonElement;
   editorResizer: HTMLDivElement;
   main: HTMLDivElement;
   left: HTMLDivElement;
@@ -76,7 +77,11 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
   runButton.type = 'button';
   runButton.className = 'cd-editorAction';
   runButton.textContent = __( 'Run', 'codellia' );
-  jsControls.append(runButton);
+  const shadowHintButton = document.createElement('button');
+  shadowHintButton.type = 'button';
+  shadowHintButton.className = 'cd-editorAction cd-editorAction-hint';
+  shadowHintButton.textContent = __( 'Shadow DOM Hint', 'codellia' );
+  jsControls.append(shadowHintButton, runButton);
 
   cssHeader.append(cssTabs, jsControls);
   const cssWrap = el('div', 'cd-editorWrap cd-editorWrap-tabs');
@@ -116,6 +121,7 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
     jsTab,
     jsControls,
     runButton,
+    shadowHintButton,
     editorResizer,
     main,
     left,
