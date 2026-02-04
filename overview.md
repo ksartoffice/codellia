@@ -5,15 +5,16 @@
 ----
 - プラグイン正式名は「Codellia Editor」。内部名/各種識別子は「Codellia」。
 - Codellia専用のカスタム投稿タイプ `codellia` を登録し、通常の投稿/固定ページは対象外。
-- `post-new.php`/`post.php` から専用エディタ (`admin.php?page=codellia`) へ自動リダイレクトし、ブロック/クラシックは無効。
+- 新規作成時は専用エディタ (`admin.php?page=codellia`) へ自動遷移。既存投稿ではブロック/クラシックに「Edit with Codellia」ボタンを追加して遷移。
 - Monaco Editor で HTML/CSS/JavaScript を編集し、右側 iframe に実フロントを即時プレビュー。
 - 管理一覧には TailwindCSS 使用状態を表示。
 
 編集UI (React)
 -------------
-- ツールバー: Back, Undo/Redo, エディタ表示切替, Save, Export, Settings。未保存の変更を表示し、離脱時に警告。
+- ツールバー: Back、Undo/Redo、タイトル編集、ステータス変更（下書き/レビュー/非公開/公開）、ビューポート切替（Desktop/Tablet/Mobile）、エディタ表示切替、Save、Export、Settings、プレビュー/表示リンク。未保存の変更を表示し、離脱時に警告。
 - エディタ: HTML と CSS/JS タブ、JS は Run ボタンでプレビューへ即時実行。
-- ペインは左右/上下リサイズ、設定パネルはタブ式 (投稿/デザイン/要素) で開閉。
+- ペインは左右/上下リサイズ、設定パネルは「Settings」「Elements」タブで開閉。
+- Settings タブ: 出力/レンダリング/外部リソース/表示の各設定を管理。
 - 要素タブ: 選択した要素のテキスト/属性を編集（安全なテキストノードのみ）。
 
 プレビューと DOM セレクタ
@@ -25,7 +26,7 @@
 セットアップ/インポート
 ----------------------
 - 初回はセットアップウィザードで「Normal」/「Tailwind」/「Import JSON」を選択し、`_codellia_tailwind_locked` で固定。
-- Import/Export JSON v1: HTML/CSS/JS、Tailwind、生成CSS、外部スクリプト/スタイル、Shadow DOM/Shortcode/Live Highlight。
+- Import/Export JSON v1: HTML/CSS/JS、Tailwind、生成CSS、外部スクリプト/スタイル、Shadow DOM/Shortcode/単一ページ公開/Live Highlight。
 - Import時はHTMLをそのまま反映（外部画像の取り込みは行わない）。
 
 Tailwind CSS
@@ -45,12 +46,15 @@ Shadow DOM
 
 ショートコード
 --------------
-- `[codellia post_id="123"]` で埋め込み可能。公開状態/権限をチェックし、Shadow DOM 設定も尊重。
+- ショートコードは設定で有効化した場合のみ出力。`[codellia post_id="123"]` で埋め込み可能。公開状態/権限をチェックし、Shadow DOM 設定も尊重。
+- ショートコード有効時は「単一ページとして公開しない」を切り替え可能。
 
 フロント表示
 ------------
 - Codellia 投稿の本文を出力し、CSS/JS/外部アセットをインラインまたは enqueue。
 - Shadow DOM 有効時はホスト要素にテンプレートを差し込み。
+- `wpautop`/`shortcode_unautop` を外し、不要な `<p>` 挿入を防止。
+- 単一ページ公開を無効化した場合は noindex を付与し、検索/アーカイブから除外。単一ページはリダイレクトまたは 404（`codellia_single_page_redirect` フィルタ）で制御。
 
 REST API
 --------
@@ -58,16 +62,21 @@ REST API
 - `/codellia/v1/compile-tailwind`: プレビュー用コンパイル。
 - `/codellia/v1/setup`: セットアップモード決定。
 - `/codellia/v1/import`: JSON インポート。
-- `/codellia/v1/settings`: 投稿/デザイン設定の更新。
+- `/codellia/v1/settings`: 各種設定の更新。
 - `/codellia/v1/render-shortcodes`: ショートコードのサーバレンダリング。
 
 保存データ (post_meta)
 ----------------------
-- `_codellia_css`, `_codellia_js`, `_codellia_js_enabled`
+- `_codellia_css`, `_codellia_js`
 - `_codellia_tailwind`, `_codellia_tailwind_locked`, `_codellia_generated_css`
-- `_codellia_shadow_dom`, `_codellia_shortcode_enabled`
+- `_codellia_shadow_dom`, `_codellia_shortcode_enabled`, `_codellia_single_page_enabled`
 - `_codellia_external_scripts`, `_codellia_external_styles`
 - `_codellia_live_highlight`, `_codellia_setup_required`
+
+管理設定
+--------
+- `Codellia > Settings` で投稿スラッグ (`codellia_post_slug`) を変更可能。
+- 同画面でアンインストール時のデータ削除を設定（`codellia_delete_on_uninstall`）。
 
 postMessage プロトコル
 ----------------------
@@ -78,7 +87,7 @@ postMessage プロトコル
 権限/セキュリティ
 -----------------
 - Codellia 投稿かつ `edit_post` を満たす場合のみ編集可能。
-- JS/外部スクリプト/外部スタイル/Shadow DOM/ショートコードの更新は `unfiltered_html` が必要。
+- JS/外部スクリプト/外部スタイル/Shadow DOM/ショートコード/単一ページ公開の更新は `unfiltered_html` が必要。
 - プレビューは nonce 付き token と `event.origin` を検証。
 
 
