@@ -651,6 +651,7 @@
 
     const wrapper = document.createElement('div');
     wrapper.innerHTML = html || '';
+    hydrateDeclarativeShadowDom(wrapper);
     const frag = document.createDocumentFragment();
     while (wrapper.firstChild) {
       frag.appendChild(wrapper.firstChild);
@@ -664,6 +665,7 @@
     if (!root) return;
     const content = ensureShadowContent(root);
     content.innerHTML = html || '';
+    hydrateDeclarativeShadowDom(content);
     const styleEl = ensureStyleElement();
     if (styleEl) {
       styleEl.textContent = css || '';
@@ -687,6 +689,26 @@
       styleEl.textContent = css || '';
     }
     reply('CODELLIA_RENDERED');
+  }
+
+  function hydrateDeclarativeShadowDom(root) {
+    if (!root || typeof root.querySelectorAll !== 'function') return;
+    const templates = root.querySelectorAll('template[shadowrootmode]');
+    templates.forEach((tpl) => {
+      const host = tpl.parentElement;
+      if (!host) return;
+      if (host.hasAttribute('data-cd-shadow-hydrated')) return;
+      const modeAttr = tpl.getAttribute('shadowrootmode');
+      const mode = modeAttr === 'closed' ? 'closed' : 'open';
+      try {
+        const shadow = host.attachShadow({ mode: mode });
+        shadow.appendChild(tpl.content.cloneNode(true));
+        host.setAttribute('data-cd-shadow-hydrated', '1');
+        tpl.remove();
+      } catch (e) {
+        // noop
+      }
+    });
   }
 
   function setCssText(css) {
