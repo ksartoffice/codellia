@@ -206,7 +206,7 @@ class Admin {
 	 * @param string $value Option value.
 	 */
 	public static function handle_post_slug_add( $option, $value ): void {
-		if ( (string) $value !== '' ) {
+		if ( '' !== (string) $value ) {
 			update_option( self::OPTION_FLUSH_REWRITE, '1' );
 		}
 	}
