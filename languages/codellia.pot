@@ -810,7 +810,7 @@ msgid "When Shadow DOM is enabled, HTML is rendered inside the Shadow Root."
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Use the following root instead of document to query elements."
+msgid "Use the root below (scoped by data-post-id) instead of document to query elements."
 msgstr ""
 
 #: assets/dist/main.js:23

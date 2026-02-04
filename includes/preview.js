@@ -64,6 +64,9 @@
     range.deleteContents();
 
     const host = document.createElement('codellia-output');
+    if (postId) {
+      host.setAttribute('data-post-id', String(postId));
+    }
     range.insertNode(host);
     range.detach();
 

@@ -808,11 +808,13 @@ async function main() {
     'codellia'
   );
   const shadowHintDetail = __(
-    'Use the following root instead of document to query elements.',
+    'Use the root below (scoped by data-post-id) instead of document to query elements.',
     'codellia'
   );
-  const shadowHintCode =
-    "const root = document.querySelector('codellia-output')?.shadowRoot || document;";
+  const shadowHostSelector = postId
+    ? `codellia-output[data-post-id="${postId}"]`
+    : 'codellia-output';
+  const shadowHintCode = `const root = document.querySelector('${shadowHostSelector}')?.shadowRoot || document;`;
 
   let shadowHintModal: HTMLDivElement | null = null;
   let shadowHintModalKeyHandler: ((event: KeyboardEvent) => void) | null = null;

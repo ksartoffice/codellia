@@ -54,7 +54,7 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 		$output            = Frontend::filter_content( (string) $post->post_content );
 		$this->restore_query( $original_wp_query );
 
-		$this->assertStringContainsString( '<codellia-output>', $output );
+		$this->assertStringContainsString( '<codellia-output data-post-id="' . $post_id . '">', $output );
 		$this->assertStringContainsString( '<template shadowrootmode="open">', $output );
 		$this->assertStringContainsString( '<link rel="stylesheet" href="https://example.com/app.css">', $output );
 		$this->assertStringContainsString( '<style id="cd-style">body{color:red;}</style>', $output );
@@ -87,7 +87,7 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 
 		$output = do_shortcode( '[codellia post_id="' . $post_id . '"]' );
 
-		$this->assertStringContainsString( '<codellia-output>', $output );
+		$this->assertStringContainsString( '<codellia-output data-post-id="' . $post_id . '">', $output );
 		$this->assertStringContainsString( '<link rel="stylesheet" href="https://example.com/shortcode.css">', $output );
 		$this->assertStringContainsString( 'id="cd-style-' . $post_id . '-1"', $output );
 		$this->assertStringContainsString( '<p>Codellia content</p>', $output );

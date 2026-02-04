@@ -862,6 +862,6 @@ msgid "When Shadow DOM is enabled, HTML is rendered inside the Shadow Root."
 msgstr "Shadow DOM を有効にすると、HTML は Shadow Root 内に描画されます。"
 
 #: assets/dist/main.js:1
-msgid "Use the following root instead of document to query elements."
-msgstr "document ではなく、次の root から要素を取得してください。"
+msgid "Use the root below (scoped by data-post-id) instead of document to query elements."
+msgstr "document ではなく、data-post-id で絞った次の root から要素を取得してください。"
 
