@@ -126,7 +126,7 @@ class Frontend {
 			return;
 		}
 
-		$post_type = $query->get( 'post_type' );
+		$post_type     = $query->get( 'post_type' );
 		$should_filter = false;
 
 		if ( $query->is_search() ) {
@@ -543,5 +543,3 @@ class Frontend {
 		}
 	}
 }
-
-

@@ -47,7 +47,7 @@ class Post_Type {
 	 * Register the custom post type.
 	 */
 	public static function register(): void {
-		$slug = self::get_slug();
+		$slug   = self::get_slug();
 		$labels = array(
 			'name'               => _x( 'Codellia', 'post type general name', 'codellia' ),
 			'singular_name'      => _x( 'Codellia', 'post type singular name', 'codellia' ),
@@ -206,7 +206,4 @@ class Post_Type {
 
 		return self::get_editor_url( $post_id );
 	}
-
 }
-
-

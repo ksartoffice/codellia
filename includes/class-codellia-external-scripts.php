@@ -131,6 +131,3 @@ class External_Scripts {
 		return esc_url_raw( $validated );
 	}
 }
-
-
-

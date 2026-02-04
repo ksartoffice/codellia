@@ -168,6 +168,3 @@ class Rest {
 		return Rest_Settings::build_settings_payload( $post_id );
 	}
 }
-
-
-

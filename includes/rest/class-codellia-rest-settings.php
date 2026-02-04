@@ -187,9 +187,9 @@ class Rest_Settings {
 			);
 		}
 
-		$status     = isset( $updates['status'] ) ? sanitize_key( (string) $updates['status'] ) : null;
-		$visibility = isset( $updates['visibility'] ) ? sanitize_key( (string) $updates['visibility'] ) : null;
-		$valid_statuses = array( 'draft', 'pending', 'private', 'publish' );
+		$status           = isset( $updates['status'] ) ? sanitize_key( (string) $updates['status'] ) : null;
+		$visibility       = isset( $updates['visibility'] ) ? sanitize_key( (string) $updates['visibility'] ) : null;
+		$valid_statuses   = array( 'draft', 'pending', 'private', 'publish' );
 		$valid_visibility = array( 'public', 'private' );
 
 		if ( null !== $status && ! in_array( $status, $valid_statuses, true ) ) {
@@ -397,5 +397,3 @@ class Rest_Settings {
 		);
 	}
 }
-
-

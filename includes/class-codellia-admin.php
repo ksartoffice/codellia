@@ -355,12 +355,12 @@ class Admin {
 		);
 
 		// Inject initial data for the admin app.
-		$post       = $post_id ? get_post( $post_id ) : null;
-		$html       = $post ? (string) $post->post_content : '';
-		$css        = $post_id ? (string) get_post_meta( $post_id, '_codellia_css', true ) : '';
-		$js         = $post_id ? (string) get_post_meta( $post_id, '_codellia_js', true ) : '';
-		$back_url   = $post_id ? get_edit_post_link( $post_id, 'raw' ) : admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
-		$list_url   = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
+		$post     = $post_id ? get_post( $post_id ) : null;
+		$html     = $post ? (string) $post->post_content : '';
+		$css      = $post_id ? (string) get_post_meta( $post_id, '_codellia_css', true ) : '';
+		$js       = $post_id ? (string) get_post_meta( $post_id, '_codellia_js', true ) : '';
+		$back_url = $post_id ? get_edit_post_link( $post_id, 'raw' ) : admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
+		$list_url = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 
 		$preview_token      = $post_id ? wp_create_nonce( 'codellia_preview_' . $post_id ) : '';
 		$preview_url        = $post_id ? add_query_arg( 'preview', 'true', get_permalink( $post_id ) ) : home_url( '/' );
@@ -368,8 +368,8 @@ class Admin {
 			? add_query_arg(
 				array(
 					'codellia_preview' => 1,
-					'post_id'    => $post_id,
-					'token'      => $preview_token,
+					'post_id'          => $post_id,
+					'token'            => $preview_token,
 				),
 				get_permalink( $post_id )
 			)
@@ -408,5 +408,3 @@ class Admin {
 		);
 	}
 }
-
-

@@ -131,6 +131,3 @@ class External_Styles {
 		return esc_url_raw( $validated );
 	}
 }
-
-
-

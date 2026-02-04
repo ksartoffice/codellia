@@ -181,5 +181,3 @@ class Rest_Save {
 		);
 	}
 }
-
-

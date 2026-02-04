@@ -245,7 +245,7 @@ class Rest_Import {
 		$html             = $payload['html'];
 		$css_input        = self::sanitize_css_input( $payload['css'] );
 		$tailwind_enabled = $payload['tailwindEnabled'];
-		$result = wp_update_post(
+		$result           = wp_update_post(
 			array(
 				'ID'           => $post_id,
 				'post_content' => $html,
@@ -355,5 +355,3 @@ class Rest_Import {
 		return str_ireplace( '</style', '&lt;/style', $css );
 	}
 }
-
-
