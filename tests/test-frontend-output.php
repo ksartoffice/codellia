@@ -54,14 +54,14 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 		$output            = Frontend::filter_content( (string) $post->post_content );
 		$this->restore_query( $original_wp_query );
 
-		$this->assertStringContainsString( '<div id="cd-shadow-host">', $output );
+		$this->assertStringContainsString( '<codellia-output>', $output );
 		$this->assertStringContainsString( '<template shadowrootmode="open">', $output );
 		$this->assertStringContainsString( '<link rel="stylesheet" href="https://example.com/app.css">', $output );
 		$this->assertStringContainsString( '<style id="cd-style">body{color:red;}</style>', $output );
 		$this->assertStringContainsString( '<p>Codellia content</p>', $output );
-		$this->assertStringContainsString( '<script src="https://example.com/app.js"></script>', $output );
-		$this->assertStringContainsString( '<script id="cd-script">console.log("x");</script>', $output );
-		$this->assertStringContainsString( '</template></div>', $output );
+		$this->assertStringNotContainsString( '<script src="https://example.com/app.js"></script>', $output );
+		$this->assertStringNotContainsString( '<script id="cd-script">console.log("x");</script>', $output );
+		$this->assertStringContainsString( '</template></codellia-output>', $output );
 	}
 
 	public function test_shortcode_renders_shadow_dom_with_unique_ids(): void {
@@ -87,12 +87,12 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 
 		$output = do_shortcode( '[codellia post_id="' . $post_id . '"]' );
 
-		$this->assertStringContainsString( 'id="cd-shadow-host-' . $post_id . '-1"', $output );
+		$this->assertStringContainsString( '<codellia-output>', $output );
 		$this->assertStringContainsString( '<link rel="stylesheet" href="https://example.com/shortcode.css">', $output );
 		$this->assertStringContainsString( 'id="cd-style-' . $post_id . '-1"', $output );
 		$this->assertStringContainsString( '<p>Codellia content</p>', $output );
-		$this->assertStringContainsString( '<script src="https://example.com/shortcode.js"></script>', $output );
-		$this->assertStringContainsString( 'id="cd-script-' . $post_id . '-1"', $output );
+		$this->assertStringNotContainsString( '<script src="https://example.com/shortcode.js"></script>', $output );
+		$this->assertStringNotContainsString( 'id="cd-script-' . $post_id . '-1"', $output );
 	}
 
 	public function test_shortcode_non_shadow_inlines_assets_once(): void {

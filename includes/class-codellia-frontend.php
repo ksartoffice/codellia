@@ -282,7 +282,7 @@ class Frontend {
 		if ( '' !== $css ) {
 			$style_html .= '<style id="cd-style">' . $css . '</style>';
 		}
-		return '<div id="cd-shadow-host"><template shadowrootmode="open">' . $style_html . $content . '</template></div>';
+		return '<codellia-output><template shadowrootmode="open">' . $style_html . $content . '</template></codellia-output>';
 	}
 
 	/**
@@ -326,10 +326,9 @@ class Frontend {
 		if ( self::is_shadow_dom_enabled( $post_id ) ) {
 			++self::$shortcode_instance;
 			$instance     = self::$shortcode_instance;
-			$host_id      = 'cd-shadow-host-' . $post_id . '-' . $instance;
 			$style_html   = self::build_inline_style( $post_id, $instance );
 			self::enqueue_shortcode_scripts( $post_id );
-			return '<div id="' . esc_attr( $host_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template></div>';
+			return '<codellia-output><template shadowrootmode="open">' . $style_html . $content . '</template></codellia-output>';
 		}
 
 		$assets = self::get_non_shadow_assets_html( $post_id );

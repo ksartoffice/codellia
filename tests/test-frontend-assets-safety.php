@@ -59,6 +59,8 @@ class Test_Frontend_Assets_Safety extends WP_UnitTestCase {
 		$wp_query->queried_object    = $post;
 
 		$output = Frontend::filter_content( (string) $post->post_content );
+		Frontend::enqueue_js();
+		$scripts = wp_scripts();
 
 		if ( null !== $original_wp_query ) {
 			$wp_query = $original_wp_query;
@@ -66,11 +68,20 @@ class Test_Frontend_Assets_Safety extends WP_UnitTestCase {
 			unset( $wp_query );
 		}
 
-		$this->assertStringContainsString( 'https://example.com/good.js', $output, 'Valid https scripts should render.' );
 		$this->assertStringContainsString( 'https://example.com/good.css', $output, 'Valid https styles should render.' );
-		$this->assertStringNotContainsString( 'http://example.com/bad.js', $output, 'Invalid script URLs should be filtered.' );
 		$this->assertStringNotContainsString( 'http://example.com/bad.css', $output, 'Invalid style URLs should be filtered.' );
 		$this->assertStringNotContainsString( 'javascript:', $output, 'javascript: URLs should be filtered.' );
+
+		$good_handle = 'codellia-ext-' . $post_id . '-0';
+		$this->assertTrue( wp_script_is( $good_handle, 'enqueued' ), 'Valid https scripts should enqueue.' );
+		$this->assertSame( 'https://example.com/good.js', $scripts->registered[ $good_handle ]->src );
+		foreach ( $scripts->registered as $script ) {
+			if ( empty( $script->src ) ) {
+				continue;
+			}
+			$this->assertStringNotContainsString( 'http://example.com/bad.js', $script->src, 'Invalid script URLs should be filtered.' );
+			$this->assertStringNotContainsString( 'javascript:', $script->src, 'javascript: URLs should be filtered.' );
+		}
 	}
 
 	private function create_codellia_post( int $author_id ): int {

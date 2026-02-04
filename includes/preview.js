@@ -1,7 +1,6 @@
 ﻿(function () {
   const styleId = 'cd-style';
   const scriptId = 'cd-script';
-  const shadowHostId = 'cd-shadow-host';
   const shadowContentId = 'cd-shadow-content';
   const shadowScriptsId = 'cd-shadow-scripts';
   const externalScriptAttr = 'data-cd-external-script';
@@ -64,8 +63,7 @@
     range.setEndBefore(markers.end);
     range.deleteContents();
 
-    const host = document.createElement('div');
-    host.id = shadowHostId;
+    const host = document.createElement('codellia-output');
     range.insertNode(host);
     range.detach();
 
