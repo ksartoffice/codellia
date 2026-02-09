@@ -53,7 +53,8 @@ class Frontend {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_redirect_single_page' ) );
 		add_action( 'wp_head', array( __CLASS__, 'maybe_add_noindex' ), 1 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'exclude_single_page_from_query' ) );
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ) );
+		// Enqueue late so Codellia styles can override theme styles on the front-end.
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ), 999 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_js' ) );
 		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 20 );
 		add_shortcode( 'codellia', array( __CLASS__, 'shortcode' ) );
