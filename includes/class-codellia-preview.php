@@ -49,6 +49,7 @@ class Preview {
 	 */
 	public static function register_query_vars( array $vars ): array {
 		$vars[] = 'codellia_preview';
+		$vars[] = 'codellia_layout';
 		$vars[] = 'post_id';
 		$vars[] = 'token';
 		return $vars;

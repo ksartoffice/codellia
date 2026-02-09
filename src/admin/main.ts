@@ -56,6 +56,13 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
+const resolveLayout = (value?: string): 'default' | 'canvas' | 'fullwidth' | 'theme' => {
+  if (value === 'canvas' || value === 'fullwidth' || value === 'theme' || value === 'default') {
+    return value;
+  }
+  return 'default';
+};
+
 const NOTICE_STORE = 'core/notices';
 const NOTICE_IDS = {
   monaco: 'cd-monaco',
@@ -325,6 +332,7 @@ async function main() {
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
   let postTitle = cfg.settingsData?.title || '';
+  let layoutMode = resolveLayout(cfg.settingsData?.layout);
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -532,7 +540,24 @@ async function main() {
     });
   };
 
-  const iframePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
+  const basePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
+  const buildPreviewLayoutUrl = (url: string, layout: string) => {
+    if (!url) {
+      return url;
+    }
+    try {
+      const previewUrl = new URL(url, window.location.origin);
+      if (layout && layout !== 'default') {
+        previewUrl.searchParams.set('codellia_layout', layout);
+      } else {
+        previewUrl.searchParams.delete('codellia_layout');
+      }
+      return previewUrl.toString();
+    } catch {
+      return url;
+    }
+  };
+  const getPreviewUrl = () => buildPreviewLayoutUrl(basePreviewUrl, layoutMode);
   const buildPreviewRefreshUrl = (url: string) => {
     if (!url) {
       return url;
@@ -602,8 +627,8 @@ async function main() {
           window.dispatchEvent(
             new CustomEvent('cd-title-updated', { detail: { title: resolvedTitle } })
           );
-          if (iframePreviewUrl) {
-            ui.iframe.src = buildPreviewRefreshUrl(iframePreviewUrl);
+          if (basePreviewUrl) {
+            ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
           }
           return { ok: true };
         } catch (error: any) {
@@ -654,8 +679,8 @@ async function main() {
   createSnackbar('info', __( 'Loading Monaco...', 'codellia' ), NOTICE_IDS.monaco);
 
   // iframe
-  ui.iframe.src = iframePreviewUrl;
-  const targetOrigin = new URL(iframePreviewUrl).origin;
+  ui.iframe.src = getPreviewUrl();
+  const targetOrigin = new URL(getPreviewUrl()).origin;
 
   // Monaco
   const monacoSetup = await initMonacoEditors({
@@ -1143,6 +1168,11 @@ async function main() {
       postStatus = nextSettings.status || postStatus;
       postTitle = nextSettings.title || postTitle;
       singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
+      const nextLayout = resolveLayout(nextSettings.layout);
+      if (nextLayout !== layoutMode) {
+        layoutMode = nextLayout;
+        ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+      }
       toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
     },
     onClosePanel: () => setSettingsOpen(false),

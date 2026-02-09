@@ -44,6 +44,9 @@ class Frontend {
 	 * @var bool
 	 */
 	private static bool $shadow_runtime_enqueued = false;
+	private const LAYOUT_META_KEY                = '_codellia_layout';
+	private const LAYOUT_VALUES                  = array( 'default', 'canvas', 'fullwidth', 'theme' );
+	private const DEFAULT_LAYOUT_VALUES          = array( 'canvas', 'fullwidth', 'theme' );
 
 	/**
 	 * Register front-end hooks.
@@ -57,6 +60,7 @@ class Frontend {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ), 999 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_js' ) );
 		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 20 );
+		add_filter( 'template_include', array( __CLASS__, 'maybe_override_template' ), 20 );
 		add_shortcode( 'codellia', array( __CLASS__, 'shortcode' ) );
 	}
 
@@ -212,6 +216,94 @@ class Frontend {
 	 */
 	private static function is_shadow_dom_enabled( int $post_id ): bool {
 		return '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true );
+	}
+
+	/**
+	 * Normalize layout string.
+	 *
+	 * @param mixed $value Layout value.
+	 * @return string
+	 */
+	private static function normalize_layout( $value ): string {
+		$layout = is_string( $value ) ? $value : '';
+		return in_array( $layout, self::LAYOUT_VALUES, true ) ? $layout : 'default';
+	}
+
+	/**
+	 * Resolve default layout from options.
+	 *
+	 * @return string
+	 */
+	private static function resolve_default_layout(): string {
+		$layout = get_option( Admin::OPTION_DEFAULT_LAYOUT, 'theme' );
+		$layout = Admin::sanitize_default_layout( $layout );
+		return in_array( $layout, self::DEFAULT_LAYOUT_VALUES, true ) ? $layout : 'theme';
+	}
+
+	/**
+	 * Resolve layout for the current request.
+	 *
+	 * @param int $post_id Codellia post ID.
+	 * @return string
+	 */
+	private static function resolve_layout( int $post_id ): string {
+		$layout = self::normalize_layout( get_post_meta( $post_id, self::LAYOUT_META_KEY, true ) );
+
+		if ( get_query_var( 'codellia_preview' ) ) {
+			$override = self::normalize_layout( get_query_var( 'codellia_layout' ) );
+			if ( 'default' !== $override ) {
+				$layout = $override;
+			}
+		}
+
+		if ( 'default' === $layout ) {
+			$layout = self::resolve_default_layout();
+		}
+
+		return $layout;
+	}
+
+	/**
+	 * Override single template based on Codellia layout.
+	 *
+	 * @param string $template Template path.
+	 * @return string
+	 */
+	public static function maybe_override_template( string $template ): string {
+		if ( is_admin() ) {
+			return $template;
+		}
+
+		if ( ! is_singular( Post_Type::POST_TYPE ) ) {
+			return $template;
+		}
+
+		$post_id = get_queried_object_id();
+		if ( ! $post_id ) {
+			return $template;
+		}
+
+		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+			return $template;
+		}
+
+		$layout = self::resolve_layout( $post_id );
+		if ( 'theme' === $layout ) {
+			return $template;
+		}
+
+		$path = '';
+		if ( 'canvas' === $layout ) {
+			$path = CODELLIA_PATH . 'templates/single-codellia-canvas.php';
+		} elseif ( 'fullwidth' === $layout ) {
+			$path = CODELLIA_PATH . 'templates/single-codellia-fullwidth.php';
+		}
+
+		if ( $path && file_exists( $path ) ) {
+			return $path;
+		}
+
+		return $template;
 	}
 
 	/**
