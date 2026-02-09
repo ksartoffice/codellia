@@ -813,6 +813,10 @@ async function main() {
   );
   const shadowHintCode =
     "const root = document.currentScript?.closest('codellia-output')?.shadowRoot || document;";
+  const shadowHintNote = __(
+    'Note: root can be Document or ShadowRoot; create* APIs are only on Document.',
+    'codellia'
+  );
 
   let shadowHintModal: HTMLDivElement | null = null;
   let shadowHintModalKeyHandler: ((event: KeyboardEvent) => void) | null = null;
@@ -894,7 +898,10 @@ async function main() {
     const codeBlock = document.createElement('pre');
     codeBlock.className = 'cd-hintCode';
     codeBlock.textContent = shadowHintCode;
-    bodyWrap.append(lead, detail, codeBlock);
+    const note = document.createElement('p');
+    note.className = 'cd-hintText';
+    note.textContent = shadowHintNote;
+    bodyWrap.append(lead, detail, codeBlock, note);
     body.append(bodyWrap);
 
     const actions = document.createElement('div');

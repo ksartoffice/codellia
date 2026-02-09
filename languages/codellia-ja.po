@@ -862,6 +862,10 @@ msgid "When Shadow DOM is enabled, HTML is rendered inside the Shadow Root."
 msgstr "Shadow DOM を有効にすると、HTML は Shadow Root 内に描画されます。"
 
 #: assets/dist/main.js:1
-msgid "Use the root below (scoped by data-post-id) instead of document to query elements."
-msgstr "document ではなく、data-post-id で絞った次の root から要素を取得してください。"
+msgid "Use the root below (scoped to this script) instead of document to query elements."
+msgstr "document ではなく、このスクリプトにスコープされた次の root から要素を取得してください。"
+
+#: assets/dist/main.js:1
+msgid "Note: root can be Document or ShadowRoot; create* APIs are only on Document."
+msgstr "注意: root は Document または ShadowRoot になります。create* API は Document のみです。"
 
