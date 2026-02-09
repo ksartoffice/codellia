@@ -372,6 +372,7 @@ msgid "Invalid setup mode."
 msgstr ""
 
 #: assets/dist/main.js:1
+#: includes/class-codellia-admin.php:157
 msgid "Layout"
 msgstr ""
 
@@ -397,6 +398,23 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Theme"
+msgstr ""
+
+#: assets/dist/main.js:1
+#, js-format
+msgid "Default (%s)"
+msgstr ""
+
+#: includes/class-codellia-admin.php:172
+msgid "Default layout"
+msgstr ""
+
+#: includes/class-codellia-admin.php:276
+msgid "Choose the default layout used by Codellia previews."
+msgstr ""
+
+#: includes/class-codellia-admin.php:304
+msgid "Applies when layout is set to Default."
 msgstr ""
 
 #: assets/dist/main.js:1

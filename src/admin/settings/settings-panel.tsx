@@ -4,6 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 type SettingsPanelProps = {
   postId: number;
   canEditJs: boolean;
+  layout: 'default' | 'canvas' | 'fullwidth' | 'theme';
+  defaultLayout: 'canvas' | 'fullwidth' | 'theme';
+  onChangeLayout: (layout: 'default' | 'canvas' | 'fullwidth' | 'theme') => void;
   shadowDomEnabled: boolean;
   onToggleShadowDom: (enabled: boolean) => void;
   shortcodeEnabled: boolean;
@@ -30,6 +33,9 @@ const MAX_EXTERNAL_STYLES = 5;
 export function SettingsPanel({
   postId,
   canEditJs,
+  layout,
+  defaultLayout,
+  onChangeLayout,
   shadowDomEnabled,
   onToggleShadowDom,
   shortcodeEnabled,
@@ -50,9 +56,6 @@ export function SettingsPanel({
   externalStylesError,
 }: SettingsPanelProps) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
-  const [layoutMode, setLayoutMode] = useState<'default' | 'canvas' | 'fullwidth' | 'theme'>(
-    'default'
-  );
   const copyTimeoutRef = useRef<number | null>(null);
   const shortcodeInputRef = useRef<HTMLInputElement | null>(null);
   const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
@@ -60,6 +63,12 @@ export function SettingsPanel({
   const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
   const hasStyles = externalStyles.length > 0;
   const shortcodeText = `[codellia post_id="${postId}"]`;
+  const layoutLabels: Record<'canvas' | 'fullwidth' | 'theme', string> = {
+    canvas: __( 'Canvas', 'codellia' ),
+    fullwidth: __( 'Full width', 'codellia' ),
+    theme: __( 'Theme', 'codellia' ),
+  };
+  const resolvedDefaultLayout = layoutLabels[defaultLayout] || layoutLabels.theme;
 
   useEffect(() => {
     return () => {
@@ -155,17 +164,19 @@ export function SettingsPanel({
           <div className="cd-settingsItemLabel">{__( 'Layout', 'codellia' )}</div>
           <select
             className="cd-formSelect"
-            value={layoutMode}
+            value={layout}
             onChange={(event) =>
-              setLayoutMode(event.target.value as 'default' | 'canvas' | 'fullwidth' | 'theme')
+              onChangeLayout(event.target.value as 'default' | 'canvas' | 'fullwidth' | 'theme')
             }
             aria-label={__( 'Layout', 'codellia' )}
             disabled={disabled}
           >
-            <option value="default">{__( 'Default', 'codellia' )}</option>
-            <option value="canvas">{__( 'Canvas', 'codellia' )}</option>
-            <option value="fullwidth">{__( 'Full width', 'codellia' )}</option>
-            <option value="theme">{__( 'Theme', 'codellia' )}</option>
+            <option value="default">
+              {sprintf(__( 'Default (%s)', 'codellia' ), resolvedDefaultLayout)}
+            </option>
+            <option value="canvas">{layoutLabels.canvas}</option>
+            <option value="fullwidth">{layoutLabels.fullwidth}</option>
+            <option value="theme">{layoutLabels.theme}</option>
           </select>
         </div>
         <div className="cd-settingsHelp">
