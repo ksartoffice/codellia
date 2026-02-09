@@ -372,6 +372,34 @@ msgid "Invalid setup mode."
 msgstr ""
 
 #: assets/dist/main.js:1
+msgid "Layout"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Default follows the admin layout setting."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Canvas hides the theme header and footer (editor only)."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Full width includes header, full-width content, and footer."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Canvas"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Full width"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Theme"
+msgstr ""
+
+#: assets/dist/main.js:1
 msgid "Output settings"
 msgstr ""
 

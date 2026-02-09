@@ -330,6 +330,34 @@ msgid "Invalid setup mode."
 msgstr "セットアップモードが不正です。"
 
 #: assets/dist/main.js:1
+msgid "Layout"
+msgstr "レイアウト"
+
+#: assets/dist/main.js:1
+msgid "Default follows the admin layout setting."
+msgstr "デフォルトは管理画面のレイアウト設定に従います。"
+
+#: assets/dist/main.js:1
+msgid "Canvas hides the theme header and footer (editor only)."
+msgstr "キャンバスはテーマのヘッダーとフッターを非表示にします（編集画面のみ）。"
+
+#: assets/dist/main.js:1
+msgid "Full width includes header, full-width content, and footer."
+msgstr "全幅はヘッダー、全幅コンテンツ、フッターを含みます。"
+
+#: assets/dist/main.js:1
+msgid "Canvas"
+msgstr "キャンバス"
+
+#: assets/dist/main.js:1
+msgid "Full width"
+msgstr "全幅"
+
+#: assets/dist/main.js:1
+msgid "Theme"
+msgstr "テーマ"
+
+#: assets/dist/main.js:1
 msgid "Output settings"
 msgstr "出力設定"
 

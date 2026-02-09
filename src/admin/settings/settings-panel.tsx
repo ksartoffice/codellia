@@ -50,6 +50,9 @@ export function SettingsPanel({
   externalStylesError,
 }: SettingsPanelProps) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [layoutMode, setLayoutMode] = useState<'default' | 'canvas' | 'fullwidth' | 'theme'>(
+    'default'
+  );
   const copyTimeoutRef = useRef<number | null>(null);
   const shortcodeInputRef = useRef<HTMLInputElement | null>(null);
   const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
@@ -146,6 +149,36 @@ export function SettingsPanel({
 
   return (
     <Fragment>
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">{__( 'Layout', 'codellia' )}</div>
+        <div className="cd-settingsItem">
+          <div className="cd-settingsItemLabel">{__( 'Layout', 'codellia' )}</div>
+          <select
+            className="cd-formSelect"
+            value={layoutMode}
+            onChange={(event) =>
+              setLayoutMode(event.target.value as 'default' | 'canvas' | 'fullwidth' | 'theme')
+            }
+            aria-label={__( 'Layout', 'codellia' )}
+            disabled={disabled}
+          >
+            <option value="default">{__( 'Default', 'codellia' )}</option>
+            <option value="canvas">{__( 'Canvas', 'codellia' )}</option>
+            <option value="fullwidth">{__( 'Full width', 'codellia' )}</option>
+            <option value="theme">{__( 'Theme', 'codellia' )}</option>
+          </select>
+        </div>
+        <div className="cd-settingsHelp">
+          {__( 'Default follows the admin layout setting.', 'codellia' )}
+        </div>
+        <div className="cd-settingsHelp">
+          {__( 'Canvas hides the theme header and footer (editor only).', 'codellia' )}
+        </div>
+        <div className="cd-settingsHelp">
+          {__( 'Full width includes header, full-width content, and footer.', 'codellia' )}
+        </div>
+      </div>
+
       <div className="cd-settingsSection">
         <div className="cd-settingsSectionTitle">
           {__( 'Output settings', 'codellia' )}
