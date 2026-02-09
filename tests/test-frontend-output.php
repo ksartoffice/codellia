@@ -61,7 +61,9 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<p>Codellia content</p>', $output );
 		$this->assertStringNotContainsString( '<script src="https://example.com/app.js"></script>', $output );
 		$this->assertStringNotContainsString( '<script id="cd-script">console.log("x");</script>', $output );
-		$this->assertStringContainsString( '</template></codellia-output>', $output );
+		$this->assertStringContainsString( 'data-codellia-js="1"', $output );
+		$this->assertStringContainsString( '</template>', $output );
+		$this->assertStringContainsString( '</codellia-output>', $output );
 	}
 
 	public function test_shortcode_renders_shadow_dom_with_unique_ids(): void {
