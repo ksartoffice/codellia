@@ -32,6 +32,20 @@ class Frontend {
 	private static array $shortcode_assets_loaded = array();
 
 	/**
+	 * Tracks external script handles by URL for deduping.
+	 *
+	 * @var array<string,string>
+	 */
+	private static array $external_script_handles = array();
+
+	/**
+	 * Tracks whether the shadow runtime has been enqueued.
+	 *
+	 * @var bool
+	 */
+	private static bool $shadow_runtime_enqueued = false;
+
+	/**
 	 * Register front-end hooks.
 	 */
 	public static function init(): void {
@@ -39,7 +53,8 @@ class Frontend {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_redirect_single_page' ) );
 		add_action( 'wp_head', array( __CLASS__, 'maybe_add_noindex' ), 1 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'exclude_single_page_from_query' ) );
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ) );
+		// Enqueue late so Codellia styles can override theme styles on the front-end.
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ), 999 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_js' ) );
 		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 20 );
 		add_shortcode( 'codellia', array( __CLASS__, 'shortcode' ) );
@@ -126,7 +141,7 @@ class Frontend {
 			return;
 		}
 
-		$post_type = $query->get( 'post_type' );
+		$post_type     = $query->get( 'post_type' );
 		$should_filter = false;
 
 		if ( $query->is_search() ) {
@@ -282,21 +297,8 @@ class Frontend {
 		if ( '' !== $css ) {
 			$style_html .= '<style id="cd-style">' . $css . '</style>';
 		}
-
-		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
-		$external_scripts = External_Scripts::get_external_scripts( $post_id );
-
-		$scripts_html = '';
-		foreach ( $external_scripts as $script_url ) {
-			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			$scripts_html .= '<script src="' . esc_url( $script_url ) . '"></script>';
-		}
-		if ( '' !== $js ) {
-			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			$scripts_html .= '<script id="cd-script">' . $js . '</script>';
-		}
-
-		return '<div id="cd-shadow-host"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+		$script_html = self::build_inline_shadow_script( $post_id );
+		return '<codellia-output data-post-id="' . esc_attr( $post_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template>' . $script_html . '</codellia-output>';
 	}
 
 	/**
@@ -340,10 +342,10 @@ class Frontend {
 		if ( self::is_shadow_dom_enabled( $post_id ) ) {
 			++self::$shortcode_instance;
 			$instance     = self::$shortcode_instance;
-			$host_id      = 'cd-shadow-host-' . $post_id . '-' . $instance;
 			$style_html   = self::build_inline_style( $post_id, $instance );
-			$scripts_html = self::build_inline_scripts( $post_id, $instance );
-			return '<div id="' . esc_attr( $host_id ) . '"><template shadowrootmode="open">' . $style_html . $content . $scripts_html . '</template></div>';
+			$script_html  = self::build_inline_shadow_script( $post_id, $instance );
+			self::enqueue_shortcode_scripts( $post_id );
+			return '<codellia-output data-post-id="' . esc_attr( $post_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template>' . $script_html . '</codellia-output>';
 		}
 
 		$assets = self::get_non_shadow_assets_html( $post_id );
@@ -390,7 +392,28 @@ class Frontend {
 	}
 
 	/**
-	 * Build inline script tags for Shadow DOM rendering.
+	 * Build inline script payload for Shadow DOM rendering.
+	 *
+	 * @param int $post_id  Codellia post ID.
+	 * @param int $instance Instance number.
+	 * @return string
+	 */
+	private static function build_inline_shadow_script( int $post_id, int $instance = 0 ): string {
+		$js = (string) get_post_meta( $post_id, '_codellia_js', true );
+		if ( '' === $js ) {
+			return '';
+		}
+
+		$external_scripts = External_Scripts::get_external_scripts( $post_id );
+		$wait_attr        = empty( $external_scripts ) ? '' : ' data-codellia-js-wait="load"';
+		$suffix = 0 < $instance ? '-' . $post_id . '-' . $instance : '-' . $post_id;
+		$encoded = rawurlencode( $js );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		return '<script type="application/json" id="cd-script-data' . esc_attr( $suffix ) . '" data-codellia-js="1"' . $wait_attr . '>' . esc_html( $encoded ) . '</script>';
+	}
+
+	/**
+	 * Build inline script tags for non-shadow rendering.
 	 *
 	 * @param int $post_id  Codellia post ID.
 	 * @param int $instance Instance number.
@@ -436,6 +459,83 @@ class Frontend {
 			'style'   => self::build_inline_style( $post_id ),
 			'scripts' => self::build_inline_scripts( $post_id ),
 		);
+	}
+
+	/**
+	 * Enqueue external scripts for shadow-dom shortcode rendering.
+	 *
+	 * @param int $post_id Codellia post ID.
+	 */
+	private static function enqueue_shortcode_scripts( int $post_id ): void {
+		if ( isset( self::$shortcode_assets_loaded[ $post_id ] ) ) {
+			return;
+		}
+		self::$shortcode_assets_loaded[ $post_id ] = true;
+
+		$js = (string) get_post_meta( $post_id, '_codellia_js', true );
+		if ( '' !== $js ) {
+			self::enqueue_shadow_runtime();
+		}
+
+		$external_scripts = External_Scripts::get_external_scripts( $post_id );
+		if ( empty( $external_scripts ) ) {
+			return;
+		}
+
+		self::enqueue_external_scripts( $post_id );
+	}
+
+	/**
+	 * Enqueue external script URLs once per page.
+	 *
+	 * @param int $post_id Codellia post ID.
+	 * @return string Last dependency handle.
+	 */
+	private static function enqueue_external_scripts( int $post_id ): string {
+		$external_scripts = External_Scripts::get_external_scripts( $post_id );
+		if ( empty( $external_scripts ) ) {
+			return '';
+		}
+
+		$dependency = '';
+		foreach ( $external_scripts as $index => $script_url ) {
+			if ( isset( self::$external_script_handles[ $script_url ] ) ) {
+				$dependency = self::$external_script_handles[ $script_url ];
+				continue;
+			}
+			$ext_handle = 'codellia-ext-' . $post_id . '-' . $index;
+			$ext_deps   = $dependency ? array( $dependency ) : array();
+			if ( ! wp_script_is( $ext_handle, 'registered' ) ) {
+				wp_register_script( $ext_handle, $script_url, $ext_deps, CODELLIA_VERSION, true );
+			}
+			wp_enqueue_script( $ext_handle );
+			self::$external_script_handles[ $script_url ] = $ext_handle;
+			$dependency                                   = $ext_handle;
+		}
+
+		return $dependency;
+	}
+
+	/**
+	 * Enqueue runtime script for executing Shadow DOM inline JS payloads.
+	 */
+	private static function enqueue_shadow_runtime(): void {
+		if ( self::$shadow_runtime_enqueued ) {
+			return;
+		}
+		self::$shadow_runtime_enqueued = true;
+
+		$handle = 'codellia-shadow-runtime';
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			wp_register_script(
+				$handle,
+				CODELLIA_URL . 'includes/shadow-runtime.js',
+				array(),
+				CODELLIA_VERSION,
+				true
+			);
+		}
+		wp_enqueue_script( $handle );
 	}
 
 	/**
@@ -511,25 +611,19 @@ class Frontend {
 			return;
 		}
 
-		if ( self::is_shadow_dom_enabled( $post_id ) ) {
-			return;
-		}
-
 		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 		if ( '' === $js && empty( $external_scripts ) ) {
 			return;
 		}
 
-		$dependency = '';
-		foreach ( $external_scripts as $index => $script_url ) {
-			$ext_handle = 'codellia-ext-' . $post_id . '-' . $index;
-			$ext_deps   = $dependency ? array( $dependency ) : array();
-			if ( ! wp_script_is( $ext_handle, 'registered' ) ) {
-				wp_register_script( $ext_handle, $script_url, $ext_deps, CODELLIA_VERSION, true );
+		$dependency = self::enqueue_external_scripts( $post_id );
+
+		if ( self::is_shadow_dom_enabled( $post_id ) ) {
+			if ( '' !== $js ) {
+				self::enqueue_shadow_runtime();
 			}
-			wp_enqueue_script( $ext_handle );
-			$dependency = $ext_handle;
+			return;
 		}
 
 		$handle = 'codellia-js';
@@ -543,5 +637,3 @@ class Frontend {
 		}
 	}
 }
-
-

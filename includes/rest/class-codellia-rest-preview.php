@@ -90,5 +90,3 @@ class Rest_Preview {
 		);
 	}
 }
-
-

@@ -81,5 +81,3 @@ function codellia_deactivate() {
 	\Codellia\Post_Type::deactivation();
 }
 register_deactivation_hook( __FILE__, 'codellia_deactivate' );
-
-

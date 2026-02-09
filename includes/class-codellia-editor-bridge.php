@@ -105,9 +105,9 @@ class Editor_Bridge {
 	/**
 	 * Mark new Codellia posts as requiring setup.
 	 *
-	 * @param int     $post_id Post ID.
+	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post Post object.
-	 * @param bool    $update Whether this is an existing post.
+	 * @param bool     $update Whether this is an existing post.
 	 */
 	public static function maybe_mark_setup_required( int $post_id, \WP_Post $post, bool $update ): void {
 		if ( $update ) {
@@ -157,5 +157,3 @@ class Editor_Bridge {
 		return $screen && Post_Type::POST_TYPE === $screen->post_type;
 	}
 }
-
-

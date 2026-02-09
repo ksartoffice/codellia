@@ -472,7 +472,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     );
   };
 
-  const requestRunJs = () => {
+  const sendRunJs = () => {
     if (!deps.getJsEnabled()) return;
     if (!deps.jsModel) {
       pendingJsAction = 'run';
@@ -489,6 +489,47 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       },
       deps.targetOrigin
     );
+  };
+
+  const reloadPreviewIframe = (): boolean => {
+    const iframe = deps.iframe;
+    if (!iframe) return false;
+    if (iframe.contentWindow) {
+      try {
+        iframe.contentWindow.location.reload();
+        return true;
+      } catch (error) {
+        // fallback to src refresh below
+      }
+    }
+    const src = iframe.getAttribute('src');
+    if (!src) return false;
+    try {
+      const url = new URL(src, window.location.href);
+      url.searchParams.set('cd_js_reload', String(Date.now()));
+      iframe.src = url.toString();
+      return true;
+    } catch (error) {
+      iframe.src = src;
+      return true;
+    }
+  };
+
+  const requestRunJs = () => {
+    if (!deps.getJsEnabled()) return;
+    if (!deps.jsModel) {
+      pendingJsAction = 'run';
+      return;
+    }
+    if (!previewReady) {
+      pendingJsAction = 'run';
+      return;
+    }
+    pendingJsAction = 'run';
+    if (reloadPreviewIframe()) {
+      return;
+    }
+    sendRender();
   };
 
   const requestDisableJs = () => {
@@ -568,10 +609,8 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   const flushPendingJsAction = () => {
     if (!pendingJsAction) return;
     const action = pendingJsAction;
-    pendingJsAction = null;
-    if (action === 'run') {
-      requestRunJs();
-    } else if (action === 'disable') {
+    if (action === 'disable') {
+      pendingJsAction = null;
       requestDisableJs();
     }
   };
@@ -710,6 +749,13 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
         sendElementsTabState(nextOpen);
       } else {
         sendElementsTabState(elementsTabOpen);
+      }
+    }
+
+    if (data?.type === 'CODELLIA_RENDERED') {
+      if (pendingJsAction === 'run') {
+        pendingJsAction = null;
+        sendRunJs();
       }
     }
 

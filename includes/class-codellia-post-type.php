@@ -24,7 +24,7 @@ class Post_Type {
 	public static function init(): void {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_filter( 'display_post_states', array( __CLASS__, 'add_tailwind_state' ), 10, 2 );
-		add_filter( 'get_edit_post_link', array( __CLASS__, 'filter_edit_post_link' ), 10, 3 );
+		add_filter( 'get_edit_post_link', array( __CLASS__, 'filter_edit_post_link' ), 10, 2 );
 		add_filter( 'post_row_actions', array( __CLASS__, 'add_codellia_row_action' ), 10, 2 );
 	}
 
@@ -47,7 +47,7 @@ class Post_Type {
 	 * Register the custom post type.
 	 */
 	public static function register(): void {
-		$slug = self::get_slug();
+		$slug   = self::get_slug();
 		$labels = array(
 			'name'               => _x( 'Codellia', 'post type general name', 'codellia' ),
 			'singular_name'      => _x( 'Codellia', 'post type singular name', 'codellia' ),
@@ -60,7 +60,7 @@ class Post_Type {
 			'search_items'       => __( 'Search Codellia', 'codellia' ),
 			'not_found'          => __( 'No Codellia found', 'codellia' ),
 			'not_found_in_trash' => __( 'No Codellia found in Trash', 'codellia' ),
-			'all_items'          => __( 'Codellia', 'codellia' ),
+			'all_items'          => __( 'Codellia pages', 'codellia' ),
 			'archives'           => __( 'Codellia Archives', 'codellia' ),
 		);
 
@@ -192,10 +192,9 @@ class Post_Type {
 	 *
 	 * @param string $link Default edit link.
 	 * @param int    $post_id Post ID.
-	 * @param string $context Context.
 	 * @return string
 	 */
-	public static function filter_edit_post_link( string $link, int $post_id, string $context ): string {
+	public static function filter_edit_post_link( string $link, int $post_id ): string {
 		if ( is_admin() ) {
 			return $link;
 		}
@@ -206,7 +205,4 @@ class Post_Type {
 
 		return self::get_editor_url( $post_id );
 	}
-
 }
-
-

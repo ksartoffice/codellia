@@ -162,6 +162,25 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to update JS settings.' );
 	}
 
+	public function test_rest_settings_forbid_publish_without_capability(): void {
+		$contributor_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$post_id        = $this->create_codellia_post( $contributor_id );
+
+		wp_set_current_user( $contributor_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/settings',
+			array(
+				'post_id' => $post_id,
+				'updates' => array(
+					'status' => 'publish',
+				),
+			)
+		);
+
+		$this->assertSame( 403, $response->get_status(), 'Contributors should not be able to publish posts.' );
+	}
+
 	private function create_codellia_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(

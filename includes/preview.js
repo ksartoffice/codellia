@@ -1,7 +1,6 @@
 ﻿(function () {
   const styleId = 'cd-style';
   const scriptId = 'cd-script';
-  const shadowHostId = 'cd-shadow-host';
   const shadowContentId = 'cd-shadow-content';
   const shadowScriptsId = 'cd-shadow-scripts';
   const externalScriptAttr = 'data-cd-external-script';
@@ -64,8 +63,10 @@
     range.setEndBefore(markers.end);
     range.deleteContents();
 
-    const host = document.createElement('div');
-    host.id = shadowHostId;
+    const host = document.createElement('codellia-output');
+    if (postId) {
+      host.setAttribute('data-post-id', String(postId));
+    }
     range.insertNode(host);
     range.detach();
 
@@ -146,6 +147,17 @@
     const root = ensureShadowRoot();
     if (!root) return document.head || document.body;
     return ensureShadowScripts(root);
+  }
+
+  function getInlineScriptHost() {
+    if (!shadowEnabled) {
+      return document.body || document.head;
+    }
+    const root = ensureShadowRoot();
+    if (root && root.host) {
+      return root.host;
+    }
+    return document.body || document.head;
   }
 
   function setShadowDomEnabled(enabled) {
@@ -459,8 +471,7 @@
         scriptEl.id = scriptId;
         scriptEl.type = 'text/javascript';
         scriptEl.text = String(jsText);
-        const host = shadowEnabled ? getScriptHost() : document.body || document.head;
-        host.appendChild(scriptEl);
+        getInlineScriptHost().appendChild(scriptEl);
       } finally {
         if (restoreDomReadyShim) {
           restoreDomReadyShim();
@@ -651,6 +662,7 @@
 
     const wrapper = document.createElement('div');
     wrapper.innerHTML = html || '';
+    hydrateDeclarativeShadowDom(wrapper);
     const frag = document.createDocumentFragment();
     while (wrapper.firstChild) {
       frag.appendChild(wrapper.firstChild);
@@ -664,6 +676,7 @@
     if (!root) return;
     const content = ensureShadowContent(root);
     content.innerHTML = html || '';
+    hydrateDeclarativeShadowDom(content);
     const styleEl = ensureStyleElement();
     if (styleEl) {
       styleEl.textContent = css || '';
@@ -675,6 +688,7 @@
   function render(html, css) {
     if (shadowEnabled) {
       renderShadow(html, css);
+      reply('CODELLIA_RENDERED');
       return;
     }
     clearShadowHost();
@@ -685,6 +699,27 @@
     if (styleEl) {
       styleEl.textContent = css || '';
     }
+    reply('CODELLIA_RENDERED');
+  }
+
+  function hydrateDeclarativeShadowDom(root) {
+    if (!root || typeof root.querySelectorAll !== 'function') return;
+    const templates = root.querySelectorAll('template[shadowrootmode]');
+    templates.forEach((tpl) => {
+      const host = tpl.parentElement;
+      if (!host) return;
+      if (host.hasAttribute('data-cd-shadow-hydrated')) return;
+      const modeAttr = tpl.getAttribute('shadowrootmode');
+      const mode = modeAttr === 'closed' ? 'closed' : 'open';
+      try {
+        const shadow = host.attachShadow({ mode: mode });
+        shadow.appendChild(tpl.content.cloneNode(true));
+        host.setAttribute('data-cd-shadow-hydrated', '1');
+        tpl.remove();
+      } catch (e) {
+        // noop
+      }
+    });
   }
 
   function setCssText(css) {

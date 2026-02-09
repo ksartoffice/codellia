@@ -190,6 +190,3 @@ class Preview {
 		return $origin;
 	}
 }
-
-
-

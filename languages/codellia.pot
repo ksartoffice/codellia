@@ -473,10 +473,12 @@ msgid "Copy shortcode"
 msgstr ""
 
 #: assets/dist/main.js:1
+#: src/admin/main.ts
 msgid "Copied"
 msgstr ""
 
 #: assets/dist/main.js:1
+#: src/admin/main.ts
 msgid "Copy"
 msgstr ""
 
@@ -797,6 +799,22 @@ msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Run"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Shadow DOM Hint"
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "When Shadow DOM is enabled, HTML is rendered inside the Shadow Root."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Use the root below (scoped to this script) instead of document to query elements."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Note: root can be Document or ShadowRoot; create* APIs are only on Document."
 msgstr ""
 
 #: assets/dist/main.js:23

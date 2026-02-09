@@ -1,0 +1,202 @@
+<?php
+/**
+ * REST success path tests for Codellia.
+ *
+ * @package Codellia
+ */
+
+use Codellia\External_Scripts;
+use Codellia\External_Styles;
+use Codellia\Post_Type;
+
+class Test_Rest_Success extends WP_UnitTestCase {
+	protected function setUp(): void {
+		parent::setUp();
+		rest_get_server();
+
+		if ( ! post_type_exists( Post_Type::POST_TYPE ) ) {
+			Post_Type::register();
+		}
+	}
+
+	protected function tearDown(): void {
+		wp_set_current_user( 0 );
+		parent::tearDown();
+	}
+
+	public function test_save_updates_content_and_meta_for_admin_with_js(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$html = '<p>Hello Codellia</p>';
+		$css  = '</style>body{color:red;}';
+		$js   = 'console.log("hello");';
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/save',
+			array(
+				'post_id'         => $post_id,
+				'html'            => $html,
+				'css'             => $css,
+				'js'              => $js,
+				'tailwindEnabled' => false,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Save should succeed for admins with JS.' );
+		$this->assertSame( true, $response->get_data()['ok'] ?? false, 'Response should include ok=true.' );
+
+		$post = get_post( $post_id );
+		$this->assertInstanceOf( WP_Post::class, $post );
+		$this->assertSame( $html, (string) $post->post_content, 'Post content should be saved.' );
+
+		$expected_css = str_ireplace( '</style', '&lt;/style', $css );
+		$this->assertSame( $expected_css, get_post_meta( $post_id, '_codellia_css', true ) );
+		$this->assertSame( $js, get_post_meta( $post_id, '_codellia_js', true ) );
+
+		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_tailwind', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_codellia_generated_css', true ) );
+	}
+
+	public function test_save_allows_author_without_js(): void {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$post_id   = $this->create_codellia_post( $author_id );
+
+		wp_set_current_user( $author_id );
+
+		$html = '<p>Author content</p>';
+		$css  = 'body{background:#fff;}';
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/save',
+			array(
+				'post_id'         => $post_id,
+				'html'            => $html,
+				'css'             => $css,
+				'tailwindEnabled' => false,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Save should succeed for authors without JS.' );
+
+		$post = get_post( $post_id );
+		$this->assertInstanceOf( WP_Post::class, $post );
+		$this->assertSame( $html, (string) $post->post_content, 'Post content should be saved.' );
+		$this->assertSame( $css, get_post_meta( $post_id, '_codellia_css', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_codellia_js', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_tailwind', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
+	}
+
+	public function test_settings_update_persists_metadata_and_post_fields(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$updates = array(
+			'title'                => 'Updated Codellia',
+			'status'               => 'pending',
+			'visibility'           => 'public',
+			'shadowDomEnabled'     => true,
+			'shortcodeEnabled'     => true,
+			'singlePageEnabled'    => false,
+			'liveHighlightEnabled' => false,
+			'externalScripts'      => array( 'https://example.com/app.js' ),
+			'externalStyles'       => array( 'https://example.com/app.css' ),
+		);
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/settings',
+			array(
+				'post_id' => $post_id,
+				'updates' => $updates,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Settings update should succeed for admins.' );
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false, 'Response should include ok=true.' );
+
+		$post = get_post( $post_id );
+		$this->assertInstanceOf( WP_Post::class, $post );
+		$this->assertSame( 'Updated Codellia', (string) $post->post_title );
+		$this->assertSame( 'pending', (string) $post->post_status );
+		$this->assertSame( '', (string) $post->post_password );
+
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shadow_dom', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shortcode_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_single_page_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_live_highlight', true ) );
+
+		$this->assertSame(
+			array( 'https://example.com/app.js' ),
+			External_Scripts::get_external_scripts( $post_id )
+		);
+		$this->assertSame(
+			array( 'https://example.com/app.css' ),
+			External_Styles::get_external_styles( $post_id )
+		);
+
+		$this->assertSame( true, $data['settings']['shadowDomEnabled'] ?? null );
+		$this->assertSame( true, $data['settings']['shortcodeEnabled'] ?? null );
+		$this->assertSame( false, $data['settings']['singlePageEnabled'] ?? null );
+		$this->assertSame( false, $data['settings']['liveHighlightEnabled'] ?? null );
+		$this->assertSame( array( 'https://example.com/app.js' ), $data['settings']['externalScripts'] ?? null );
+		$this->assertSame( array( 'https://example.com/app.css' ), $data['settings']['externalStyles'] ?? null );
+	}
+
+	public function test_save_compiles_tailwind_and_stores_generated_css(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$tailwind_css = "@tailwind base;\n@tailwind components;\n@tailwind utilities;";
+		$html         = '<div class="text-sm">Tailwind</div>';
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/save',
+			array(
+				'post_id'         => $post_id,
+				'html'            => $html,
+				'css'             => $tailwind_css,
+				'tailwindEnabled' => true,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Tailwind save should succeed for admins.' );
+
+		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );
+		$this->assertNotSame( '', $generated_css, 'Generated CSS should not be empty.' );
+		$this->assertStringContainsString( '.text-sm', $generated_css, 'Generated CSS should include the expected utility.' );
+
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
+	}
+
+	private function create_codellia_post( int $author_id ): int {
+		return (int) self::factory()->post->create(
+			array(
+				'post_type'   => Post_Type::POST_TYPE,
+				'post_status' => 'draft',
+				'post_author' => $author_id,
+			)
+		);
+	}
+
+	private function dispatch_route( string $route, array $params ): WP_REST_Response {
+		$request = new WP_REST_Request( 'POST', $route );
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+		$response = rest_do_request( $request );
+		if ( is_wp_error( $response ) ) {
+			$this->fail( $response->get_error_message() );
+		}
+		return $response;
+	}
+}
