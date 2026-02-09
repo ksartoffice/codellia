@@ -339,12 +339,16 @@ msgid "Default follows the admin layout setting."
 msgstr "デフォルトは管理画面のレイアウト設定に従います。"
 
 #: assets/dist/main.js:1
-msgid "Canvas hides the theme header and footer (editor only)."
-msgstr "キャンバスはテーマのヘッダーとフッターを非表示にします（編集画面のみ）。"
+msgid "Canvas hides the theme header and footer."
+msgstr "キャンバスはテーマのヘッダーとフッターを非表示にします。"
 
 #: assets/dist/main.js:1
 msgid "Full width includes header, full-width content, and footer."
 msgstr "全幅はヘッダー、全幅コンテンツ、フッターを含みます。"
+
+#: assets/dist/main.js:1
+msgid "Theme uses the active theme layout."
+msgstr "テーマは有効なテーマのレイアウトを使用します。"
 
 #: assets/dist/main.js:1
 msgid "Canvas"

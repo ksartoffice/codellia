@@ -381,11 +381,15 @@ msgid "Default follows the admin layout setting."
 msgstr ""
 
 #: assets/dist/main.js:1
-msgid "Canvas hides the theme header and footer (editor only)."
+msgid "Canvas hides the theme header and footer."
 msgstr ""
 
 #: assets/dist/main.js:1
 msgid "Full width includes header, full-width content, and footer."
+msgstr ""
+
+#: assets/dist/main.js:1
+msgid "Theme uses the active theme layout."
 msgstr ""
 
 #: assets/dist/main.js:1

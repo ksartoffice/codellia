@@ -69,6 +69,14 @@ export function SettingsPanel({
     theme: __( 'Theme', 'codellia' ),
   };
   const resolvedDefaultLayout = layoutLabels[defaultLayout] || layoutLabels.theme;
+  const layoutHelp =
+    layout === 'default'
+      ? __( 'Default follows the admin layout setting.', 'codellia' )
+      : layout === 'canvas'
+        ? __( 'Canvas hides the theme header and footer.', 'codellia' )
+        : layout === 'fullwidth'
+          ? __( 'Full width includes header, full-width content, and footer.', 'codellia' )
+          : __( 'Theme uses the active theme layout.', 'codellia' );
 
   useEffect(() => {
     return () => {
@@ -179,15 +187,7 @@ export function SettingsPanel({
             <option value="theme">{layoutLabels.theme}</option>
           </select>
         </div>
-        <div className="cd-settingsHelp">
-          {__( 'Default follows the admin layout setting.', 'codellia' )}
-        </div>
-        <div className="cd-settingsHelp">
-          {__( 'Canvas hides the theme header and footer (editor only).', 'codellia' )}
-        </div>
-        <div className="cd-settingsHelp">
-          {__( 'Full width includes header, full-width content, and footer.', 'codellia' )}
-        </div>
+        {layoutHelp ? <div className="cd-settingsHelp">{layoutHelp}</div> : null}
       </div>
 
       <div className="cd-settingsSection">
