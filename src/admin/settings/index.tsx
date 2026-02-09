@@ -47,6 +47,8 @@ export type SettingsData = {
   formats: SettingsOption[];
   canPublish: boolean;
   canTrash: boolean;
+  layout?: 'default' | 'canvas' | 'fullwidth' | 'theme';
+  defaultLayout?: 'canvas' | 'fullwidth' | 'theme';
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   singlePageEnabled: boolean;
@@ -129,10 +131,24 @@ function SettingsSidebar({
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeTab, setActiveTab] = useState<SettingsTab>('settings');
+  const resolveLayout = (value?: string): 'default' | 'canvas' | 'fullwidth' | 'theme' => {
+    if (value === 'canvas' || value === 'fullwidth' || value === 'theme' || value === 'default') {
+      return value;
+    }
+    return 'default';
+  };
+  const resolveDefaultLayout = (value?: string): 'canvas' | 'fullwidth' | 'theme' => {
+    if (value === 'canvas' || value === 'fullwidth' || value === 'theme') {
+      return value;
+    }
+    return 'theme';
+  };
   const resolveSinglePageEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
+  const [layout, setLayout] = useState(resolveLayout(data.layout));
+  const [defaultLayout, setDefaultLayout] = useState(resolveDefaultLayout(data.defaultLayout));
   const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
   const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
   const [singlePageEnabled, setSinglePageEnabled] = useState(
@@ -150,6 +166,14 @@ function SettingsSidebar({
   useEffect(() => {
     setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
   }, [settings.shadowDomEnabled]);
+
+  useEffect(() => {
+    setLayout(resolveLayout(settings.layout));
+  }, [settings.layout]);
+
+  useEffect(() => {
+    setDefaultLayout(resolveDefaultLayout(settings.defaultLayout));
+  }, [settings.defaultLayout]);
 
   useEffect(() => {
     setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
@@ -174,6 +198,20 @@ function SettingsSidebar({
     window.addEventListener('cd-open-elements-tab', handleOpenElementsTab);
     return () => {
       window.removeEventListener('cd-open-elements-tab', handleOpenElementsTab);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleSettingsUpdated = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (!detail || !detail.settings) {
+        return;
+      }
+      setSettings((prev) => ({ ...prev, ...detail.settings }));
+    };
+    window.addEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
+    return () => {
+      window.removeEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
     };
   }, []);
 
@@ -250,6 +288,22 @@ function SettingsSidebar({
     } catch (err: any) {
       setDesignError(err?.message || String(err));
       setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
+    }
+  };
+
+  const handleLayoutChange = async (
+    next: 'default' | 'canvas' | 'fullwidth' | 'theme'
+  ) => {
+    if (!canEditJs) {
+      return;
+    }
+    setDesignError('');
+    setLayout(next);
+    try {
+      await updateSettings({ layout: next });
+    } catch (err: any) {
+      setDesignError(err?.message || String(err));
+      setLayout(resolveLayout(settings.layout));
     }
   };
 
@@ -401,6 +455,9 @@ function SettingsSidebar({
         <SettingsPanel
           postId={postId}
           canEditJs={canEditJs}
+          layout={layout}
+          defaultLayout={defaultLayout}
+          onChangeLayout={handleLayoutChange}
           shadowDomEnabled={shadowDomEnabled}
           onToggleShadowDom={handleShadowDomToggle}
           shortcodeEnabled={shortcodeEnabled}

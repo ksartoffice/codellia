@@ -20,6 +20,7 @@ class Admin {
 	const SETTINGS_SLUG              = 'codellia-settings';
 	const SETTINGS_GROUP             = 'codellia_settings';
 	const OPTION_POST_SLUG           = 'codellia_post_slug';
+	const OPTION_DEFAULT_LAYOUT      = 'codellia_default_layout';
 	const OPTION_FLUSH_REWRITE       = 'codellia_flush_rewrite';
 	const OPTION_DELETE_ON_UNINSTALL = 'codellia_delete_on_uninstall';
 	/**
@@ -126,6 +127,16 @@ class Admin {
 
 		register_setting(
 			self::SETTINGS_GROUP,
+			self::OPTION_DEFAULT_LAYOUT,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_default_layout' ),
+				'default'           => 'theme',
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
 			self::OPTION_DELETE_ON_UNINSTALL,
 			array(
 				'type'              => 'string',
@@ -141,12 +152,27 @@ class Admin {
 			self::SETTINGS_SLUG
 		);
 
+		add_settings_section(
+			'codellia_layout',
+			__( 'Layout', 'codellia' ),
+			array( __CLASS__, 'render_layout_section' ),
+			self::SETTINGS_SLUG
+		);
+
 		add_settings_field(
 			self::OPTION_POST_SLUG,
 			__( 'Codellia slug', 'codellia' ),
 			array( __CLASS__, 'render_post_slug_field' ),
 			self::SETTINGS_SLUG,
 			'codellia_permalink'
+		);
+
+		add_settings_field(
+			self::OPTION_DEFAULT_LAYOUT,
+			__( 'Default layout', 'codellia' ),
+			array( __CLASS__, 'render_default_layout_field' ),
+			self::SETTINGS_SLUG,
+			'codellia_layout'
 		);
 
 		add_settings_section(
@@ -185,6 +211,18 @@ class Admin {
 	public static function sanitize_post_slug( $value ): string {
 		$slug = sanitize_title( (string) $value );
 		return '' !== $slug ? $slug : Post_Type::SLUG;
+	}
+
+	/**
+	 * Sanitize default layout value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_default_layout( $value ): string {
+		$layout = is_string( $value ) ? sanitize_key( $value ) : '';
+		$valid  = array( 'canvas', 'fullwidth', 'theme' );
+		return in_array( $layout, $valid, true ) ? $layout : 'theme';
 	}
 
 	/**
@@ -232,12 +270,38 @@ class Admin {
 	}
 
 	/**
+	 * Render layout section description.
+	 */
+	public static function render_layout_section(): void {
+		echo '<p>' . esc_html__( 'Choose the default layout used by Codellia previews.', 'codellia' ) . '</p>';
+	}
+
+	/**
 	 * Render post slug input field.
 	 */
 	public static function render_post_slug_field(): void {
 		$value = get_option( self::OPTION_POST_SLUG, Post_Type::SLUG );
 		echo '<input type="text" class="regular-text" name="' . esc_attr( self::OPTION_POST_SLUG ) . '" value="' . esc_attr( $value ) . '" />';
 		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: codellia.', 'codellia' ) . '</p>';
+	}
+
+	/**
+	 * Render default layout select field.
+	 */
+	public static function render_default_layout_field(): void {
+		$value  = get_option( self::OPTION_DEFAULT_LAYOUT, 'theme' );
+		$value  = self::sanitize_default_layout( $value );
+		$layout = array(
+			'canvas'    => __( 'Canvas', 'codellia' ),
+			'fullwidth' => __( 'Full width', 'codellia' ),
+			'theme'     => __( 'Theme', 'codellia' ),
+		);
+		echo '<select name="' . esc_attr( self::OPTION_DEFAULT_LAYOUT ) . '">';
+		foreach ( $layout as $key => $label ) {
+			echo '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Applies when layout is set to Default.', 'codellia' ) . '</p>';
 	}
 
 	/**

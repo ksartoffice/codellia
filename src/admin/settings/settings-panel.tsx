@@ -4,6 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 type SettingsPanelProps = {
   postId: number;
   canEditJs: boolean;
+  layout: 'default' | 'canvas' | 'fullwidth' | 'theme';
+  defaultLayout: 'canvas' | 'fullwidth' | 'theme';
+  onChangeLayout: (layout: 'default' | 'canvas' | 'fullwidth' | 'theme') => void;
   shadowDomEnabled: boolean;
   onToggleShadowDom: (enabled: boolean) => void;
   shortcodeEnabled: boolean;
@@ -30,6 +33,9 @@ const MAX_EXTERNAL_STYLES = 5;
 export function SettingsPanel({
   postId,
   canEditJs,
+  layout,
+  defaultLayout,
+  onChangeLayout,
   shadowDomEnabled,
   onToggleShadowDom,
   shortcodeEnabled,
@@ -57,6 +63,20 @@ export function SettingsPanel({
   const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
   const hasStyles = externalStyles.length > 0;
   const shortcodeText = `[codellia post_id="${postId}"]`;
+  const layoutLabels: Record<'canvas' | 'fullwidth' | 'theme', string> = {
+    canvas: __( 'Canvas', 'codellia' ),
+    fullwidth: __( 'Full width', 'codellia' ),
+    theme: __( 'Theme', 'codellia' ),
+  };
+  const resolvedDefaultLayout = layoutLabels[defaultLayout] || layoutLabels.theme;
+  const layoutHelp =
+    layout === 'default'
+      ? __( 'Default follows the admin layout setting.', 'codellia' )
+      : layout === 'canvas'
+        ? __( 'Canvas hides the theme header and footer.', 'codellia' )
+        : layout === 'fullwidth'
+          ? __( 'Full width includes header, full-width content, and footer.', 'codellia' )
+          : __( 'Theme uses the active theme layout.', 'codellia' );
 
   useEffect(() => {
     return () => {
@@ -146,6 +166,30 @@ export function SettingsPanel({
 
   return (
     <Fragment>
+      <div className="cd-settingsSection">
+        <div className="cd-settingsSectionTitle">{__( 'Layout', 'codellia' )}</div>
+        <div className="cd-settingsItem">
+          <div className="cd-settingsItemLabel">{__( 'Layout', 'codellia' )}</div>
+          <select
+            className="cd-formSelect"
+            value={layout}
+            onChange={(event) =>
+              onChangeLayout(event.target.value as 'default' | 'canvas' | 'fullwidth' | 'theme')
+            }
+            aria-label={__( 'Layout', 'codellia' )}
+            disabled={disabled}
+          >
+            <option value="default">
+              {sprintf(__( 'Default (%s)', 'codellia' ), resolvedDefaultLayout)}
+            </option>
+            <option value="canvas">{layoutLabels.canvas}</option>
+            <option value="fullwidth">{layoutLabels.fullwidth}</option>
+            <option value="theme">{layoutLabels.theme}</option>
+          </select>
+        </div>
+        {layoutHelp ? <div className="cd-settingsHelp">{layoutHelp}</div> : null}
+      </div>
+
       <div className="cd-settingsSection">
         <div className="cd-settingsSectionTitle">
           {__( 'Output settings', 'codellia' )}

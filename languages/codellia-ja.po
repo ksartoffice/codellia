@@ -330,6 +330,56 @@ msgid "Invalid setup mode."
 msgstr "セットアップモードが不正です。"
 
 #: assets/dist/main.js:1
+#: includes/class-codellia-admin.php:157
+msgid "Layout"
+msgstr "レイアウト"
+
+#: assets/dist/main.js:1
+msgid "Default follows the admin layout setting."
+msgstr "デフォルトは管理画面のレイアウト設定に従います。"
+
+#: assets/dist/main.js:1
+msgid "Canvas hides the theme header and footer."
+msgstr "キャンバスはテーマのヘッダーとフッターを非表示にします。"
+
+#: assets/dist/main.js:1
+msgid "Full width includes header, full-width content, and footer."
+msgstr "全幅はヘッダー、全幅コンテンツ、フッターを含みます。"
+
+#: assets/dist/main.js:1
+msgid "Theme uses the active theme layout."
+msgstr "テーマは有効なテーマのレイアウトを使用します。"
+
+#: assets/dist/main.js:1
+msgid "Canvas"
+msgstr "キャンバス"
+
+#: assets/dist/main.js:1
+msgid "Full width"
+msgstr "全幅"
+
+#: assets/dist/main.js:1
+msgid "Theme"
+msgstr "テーマ"
+
+#: assets/dist/main.js:1
+#, js-format
+msgid "Default (%s)"
+msgstr "デフォルト（%s）"
+
+#: includes/class-codellia-admin.php:172
+msgid "Default layout"
+msgstr "デフォルトレイアウト"
+
+#: includes/class-codellia-admin.php:276
+msgid "Choose the default layout used by Codellia previews."
+msgstr "Codellia のプレビューで使用するデフォルトレイアウトを選択します。"
+
+#: includes/class-codellia-admin.php:304
+msgid "Applies when layout is set to Default."
+msgstr "レイアウトがデフォルトのときに適用されます。"
+
+#: assets/dist/main.js:1
 msgid "Output settings"
 msgstr "出力設定"
 

@@ -17,6 +17,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Rest_Settings {
 	private const MAX_EXTERNAL_SCRIPTS = 5;
 	private const MAX_EXTERNAL_STYLES  = 5;
+	private const LAYOUT_VALUES        = array( 'default', 'canvas', 'fullwidth', 'theme' );
+	private const DEFAULT_LAYOUT_VALUES = array( 'canvas', 'fullwidth', 'theme' );
+
+	/**
+	 * Normalize layout value stored in post meta.
+	 *
+	 * @param mixed $value Raw layout.
+	 * @return string
+	 */
+	private static function normalize_layout( $value ): string {
+		$layout = is_string( $value ) ? $value : '';
+		return in_array( $layout, self::LAYOUT_VALUES, true ) ? $layout : 'default';
+	}
+
+	/**
+	 * Normalize default layout value stored in options.
+	 *
+	 * @param mixed $value Raw layout.
+	 * @return string
+	 */
+	private static function normalize_default_layout( $value ): string {
+		$layout = is_string( $value ) ? $value : '';
+		return in_array( $layout, self::DEFAULT_LAYOUT_VALUES, true ) ? $layout : 'theme';
+	}
 
 	/**
 	 * Build settings payload for the admin UI.
@@ -116,6 +140,11 @@ class Rest_Settings {
 		$highlight_meta         = get_post_meta( $post_id, '_codellia_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$single_page_enabled    = Post_Type::is_single_page_enabled( $post_id );
+		$layout_meta            = get_post_meta( $post_id, '_codellia_layout', true );
+		$layout                 = self::normalize_layout( $layout_meta );
+		$default_layout         = self::normalize_default_layout(
+			get_option( Admin::OPTION_DEFAULT_LAYOUT, 'theme' )
+		);
 
 		$template_slug = get_page_template_slug( $post_id );
 		$template_slug = $template_slug ? $template_slug : 'default';
@@ -146,6 +175,8 @@ class Rest_Settings {
 			'formats'              => $formats,
 			'canPublish'           => current_user_can( 'publish_post', $post_id ),
 			'canTrash'             => current_user_can( 'delete_post', $post_id ),
+			'layout'               => $layout,
+			'defaultLayout'        => $default_layout,
 			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true ),
 			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shortcode_enabled', true ),
 			'singlePageEnabled'    => $single_page_enabled,
@@ -255,6 +286,11 @@ class Rest_Settings {
 			}
 			$shadow_dom_enabled = rest_sanitize_boolean( $updates['shadowDomEnabled'] );
 			update_post_meta( $post_id, '_codellia_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
+		}
+
+		if ( array_key_exists( 'layout', $updates ) ) {
+			$layout_value = self::normalize_layout( $updates['layout'] );
+			update_post_meta( $post_id, '_codellia_layout', $layout_value );
 		}
 
 		if ( array_key_exists( 'shortcodeEnabled', $updates ) ) {
