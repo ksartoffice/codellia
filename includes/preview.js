@@ -149,6 +149,17 @@
     return ensureShadowScripts(root);
   }
 
+  function getInlineScriptHost() {
+    if (!shadowEnabled) {
+      return document.body || document.head;
+    }
+    const root = ensureShadowRoot();
+    if (root && root.host) {
+      return root.host;
+    }
+    return document.body || document.head;
+  }
+
   function setShadowDomEnabled(enabled) {
     const next = Boolean(enabled);
     if (shadowEnabled === next) return;
@@ -460,8 +471,7 @@
         scriptEl.id = scriptId;
         scriptEl.type = 'text/javascript';
         scriptEl.text = String(jsText);
-        const host = shadowEnabled ? getScriptHost() : document.body || document.head;
-        host.appendChild(scriptEl);
+        getInlineScriptHost().appendChild(scriptEl);
       } finally {
         if (restoreDomReadyShim) {
           restoreDomReadyShim();
