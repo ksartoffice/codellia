@@ -248,7 +248,7 @@ class Rest_Import {
 		$result           = wp_update_post(
 			array(
 				'ID'           => $post_id,
-				'post_content' => $html,
+				'post_content' => wp_slash( $html ),
 			),
 			true
 		);
@@ -291,8 +291,8 @@ class Rest_Import {
 			}
 		}
 
-		update_post_meta( $post_id, '_codellia_css', $css_input );
-		update_post_meta( $post_id, '_codellia_js', $js_input );
+		update_post_meta( $post_id, '_codellia_css', wp_slash( $css_input ) );
+		update_post_meta( $post_id, '_codellia_js', wp_slash( $js_input ) );
 		delete_post_meta( $post_id, '_codellia_js_enabled' );
 		update_post_meta( $post_id, '_codellia_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_codellia_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
@@ -307,7 +307,7 @@ class Rest_Import {
 		delete_post_meta( $post_id, '_codellia_setup_required' );
 
 		if ( $tailwind_enabled ) {
-			update_post_meta( $post_id, '_codellia_generated_css', $compiled_css );
+			update_post_meta( $post_id, '_codellia_generated_css', wp_slash( $compiled_css ) );
 		} else {
 			delete_post_meta( $post_id, '_codellia_generated_css' );
 		}
