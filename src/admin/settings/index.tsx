@@ -202,6 +202,20 @@ function SettingsSidebar({
   }, []);
 
   useEffect(() => {
+    const handleSettingsUpdated = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (!detail || !detail.settings) {
+        return;
+      }
+      setSettings((prev) => ({ ...prev, ...detail.settings }));
+    };
+    window.addEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
+    return () => {
+      window.removeEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
     setExternalScripts(settings.externalScripts || []);
     onExternalScriptsChange?.(settings.externalScripts || []);
   }, [settings.externalScripts, onExternalScriptsChange]);

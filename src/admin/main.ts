@@ -63,12 +63,20 @@ const resolveLayout = (value?: string): 'default' | 'canvas' | 'fullwidth' | 'th
   return 'default';
 };
 
+const resolveDefaultLayout = (value?: string): 'canvas' | 'fullwidth' | 'theme' => {
+  if (value === 'canvas' || value === 'fullwidth' || value === 'theme') {
+    return value;
+  }
+  return 'theme';
+};
+
 const NOTICE_STORE = 'core/notices';
 const NOTICE_IDS = {
   monaco: 'cd-monaco',
   save: 'cd-save',
   export: 'cd-export',
   tailwind: 'cd-tailwind',
+  layoutFallback: 'cd-layout-fallback',
 };
 const NOTICE_SUCCESS_DURATION_MS = 3000;
 const NOTICE_ERROR_DURATION_MS = 5000;
@@ -333,6 +341,7 @@ async function main() {
   let postStatus = cfg.settingsData?.status || 'draft';
   let postTitle = cfg.settingsData?.title || '';
   let layoutMode = resolveLayout(cfg.settingsData?.layout);
+  let defaultLayout = resolveDefaultLayout(cfg.settingsData?.defaultLayout);
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -398,6 +407,9 @@ async function main() {
   const syncElementsTabState = () => {
     preview?.sendElementsTabState(settingsOpen && activeSettingsTab === 'elements');
   };
+
+  const getResolvedLayout = () => (layoutMode === 'default' ? defaultLayout : layoutMode);
+  const isThemeLayoutActive = () => getResolvedLayout() === 'theme';
 
   const setSettingsOpen = (open: boolean) => {
     settingsOpen = open;
@@ -964,6 +976,143 @@ async function main() {
     window.addEventListener('keydown', shadowHintModalKeyHandler);
   };
 
+  const missingMarkersTitle = __( 'Theme layout unavailable', 'codellia' );
+  const missingMarkersBody = __(
+    'This theme does not output "the_content", so the preview cannot be rendered. Codellia will switch the layout to Full width.',
+    'codellia'
+  );
+  const missingMarkersActionLabel = __( 'OK', 'codellia' );
+  const missingMarkersFallbackLayout: 'canvas' | 'fullwidth' = 'fullwidth';
+
+  let missingMarkersModal: HTMLDivElement | null = null;
+  let missingMarkersInFlight = false;
+  let missingMarkersHandled = false;
+
+  const closeMissingMarkersModal = () => {
+    if (!missingMarkersModal) return;
+    missingMarkersModal.remove();
+    missingMarkersModal = null;
+  };
+
+  const applyMissingMarkersLayout = async () => {
+    if (missingMarkersInFlight) {
+      return false;
+    }
+    if (!cfg.settingsRestUrl || !wp?.apiFetch) {
+      createSnackbar(
+        'error',
+        __( 'Settings unavailable.', 'codellia' ),
+        NOTICE_IDS.layoutFallback,
+        NOTICE_ERROR_DURATION_MS
+      );
+      return false;
+    }
+    missingMarkersInFlight = true;
+    try {
+      const response = await wp.apiFetch({
+        url: cfg.settingsRestUrl,
+        method: 'POST',
+        data: {
+          post_id: postId,
+          updates: { layout: missingMarkersFallbackLayout },
+        },
+      });
+      if (!response?.ok) {
+        createSnackbar(
+          'error',
+          response?.error || __( 'Update failed.', 'codellia' ),
+          NOTICE_IDS.layoutFallback,
+          NOTICE_ERROR_DURATION_MS
+        );
+        return false;
+      }
+      const nextSettings = response.settings as SettingsData | undefined;
+      const nextLayout = resolveLayout(nextSettings?.layout ?? missingMarkersFallbackLayout);
+      layoutMode = nextLayout;
+      if (nextSettings && typeof nextSettings.defaultLayout === 'string') {
+        defaultLayout = resolveDefaultLayout(nextSettings.defaultLayout);
+      }
+      window.dispatchEvent(
+        new CustomEvent('cd-settings-updated', {
+          detail: { settings: nextSettings ?? { layout: nextLayout } },
+        })
+      );
+      if (basePreviewUrl) {
+        ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+      }
+      missingMarkersHandled = true;
+      return true;
+    } catch (error: any) {
+      createSnackbar(
+        'error',
+        error?.message || __( 'Update failed.', 'codellia' ),
+        NOTICE_IDS.layoutFallback,
+        NOTICE_ERROR_DURATION_MS
+      );
+      return false;
+    } finally {
+      missingMarkersInFlight = false;
+    }
+  };
+
+  const openMissingMarkersModal = () => {
+    if (missingMarkersModal) return;
+
+    const modal = document.createElement('div');
+    modal.className = 'cd-modal';
+    const backdrop = document.createElement('div');
+    backdrop.className = 'cd-modalBackdrop';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'cd-modalDialog';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-label', missingMarkersTitle);
+
+    const header = document.createElement('div');
+    header.className = 'cd-modalHeader';
+    const title = document.createElement('div');
+    title.className = 'cd-modalTitle';
+    title.textContent = missingMarkersTitle;
+    header.append(title);
+
+    const body = document.createElement('div');
+    body.className = 'cd-modalBody';
+    const bodyText = document.createElement('p');
+    bodyText.className = 'cd-hintText';
+    bodyText.textContent = missingMarkersBody;
+    body.append(bodyText);
+
+    const actions = document.createElement('div');
+    actions.className = 'cd-modalActions';
+    const okButton = document.createElement('button');
+    okButton.type = 'button';
+    okButton.className = 'cd-btn cd-btn-primary';
+    okButton.textContent = missingMarkersActionLabel;
+    okButton.addEventListener('click', async () => {
+      if (missingMarkersInFlight) return;
+      okButton.disabled = true;
+      const ok = await applyMissingMarkersLayout();
+      if (ok) {
+        closeMissingMarkersModal();
+        return;
+      }
+      okButton.disabled = false;
+    });
+    actions.append(okButton);
+
+    dialog.append(header, body, actions);
+    modal.append(backdrop, dialog);
+    document.body.appendChild(modal);
+    missingMarkersModal = modal;
+  };
+
+  const handleMissingMarkers = () => {
+    if (missingMarkersHandled) return;
+    if (!isThemeLayoutActive()) return;
+    openMissingMarkersModal();
+  };
+
   const setCssTab = (tab: 'css' | 'js') => {
     const nextTab = tab === 'js' && !canEditJs ? 'css' : tab;
     activeCssTab = nextTab;
@@ -1042,6 +1191,9 @@ async function main() {
       if (activeSettingsTab !== 'elements') {
         window.dispatchEvent(new CustomEvent('cd-open-elements-tab'));
       }
+    },
+    onMissingMarkers: () => {
+      handleMissingMarkers();
     },
   });
   syncElementsTabState();
@@ -1168,9 +1320,20 @@ async function main() {
       postStatus = nextSettings.status || postStatus;
       postTitle = nextSettings.title || postTitle;
       singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
+      const currentResolved = getResolvedLayout();
       const nextLayout = resolveLayout(nextSettings.layout);
+      const nextDefaultLayout =
+        typeof nextSettings.defaultLayout === 'string'
+          ? resolveDefaultLayout(nextSettings.defaultLayout)
+          : defaultLayout;
+      if (typeof nextSettings.defaultLayout === 'string') {
+        defaultLayout = nextDefaultLayout;
+      }
       if (nextLayout !== layoutMode) {
         layoutMode = nextLayout;
+      }
+      const nextResolved = nextLayout === 'default' ? nextDefaultLayout : nextLayout;
+      if (nextResolved !== currentResolved) {
         ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
       }
       toolbarApi?.update({ viewPostUrl, postStatus, postTitle });

@@ -30,6 +30,7 @@
   let shadowRoot = null;
   let lastJsText = '';
   let jsEnabled = false;
+  let missingMarkersNotified = false;
   let domSelectorEnabled =
     config.liveHighlightEnabled === undefined ? true : Boolean(config.liveHighlightEnabled);
 
@@ -686,6 +687,10 @@
   }
 
   function render(html, css) {
+    if (!findMarkers()) {
+      notifyMissingMarkers();
+      return;
+    }
     if (shadowEnabled) {
       renderShadow(html, css);
       reply('CODELLIA_RENDERED');
@@ -739,6 +744,12 @@
     } catch (e) {
       // noop
     }
+  }
+
+  function notifyMissingMarkers() {
+    if (missingMarkersNotified) return;
+    missingMarkersNotified = true;
+    reply('CODELLIA_MISSING_MARKERS');
   }
 
   window.addEventListener('message', (event) => {

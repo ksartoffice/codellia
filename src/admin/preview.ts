@@ -66,6 +66,7 @@ type PreviewControllerDeps = {
   renderShortcodes?: (items: ShortcodePlaceholder[]) => Promise<Record<string, string>>;
   onSelect?: (lcId: string) => void;
   onOpenElementsTab?: () => void;
+  onMissingMarkers?: () => void;
 };
 
 const CODELLIA_ATTR_NAME = 'data-codellia-id';
@@ -766,6 +767,10 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
 
     if (data?.type === 'CODELLIA_OPEN_ELEMENTS_TAB') {
       deps.onOpenElementsTab?.();
+    }
+
+    if (data?.type === 'CODELLIA_MISSING_MARKERS') {
+      deps.onMissingMarkers?.();
     }
   };
 
