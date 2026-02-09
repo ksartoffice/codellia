@@ -15,6 +15,7 @@
     "assets/monaco/**",
     "includes/**",
     "languages/**",
+    "templates/**",
     "vendor/**",
     "composer.json",
     "composer.lock",
