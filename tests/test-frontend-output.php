@@ -131,6 +131,33 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'id="cd-script-' . $post_id . '"', $second );
 	}
 
+	public function test_enqueue_css_preserves_tailwind_escaped_arbitrary_values(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id, 'publish' );
+		$post     = get_post( $post_id );
+
+		$this->assertInstanceOf( WP_Post::class, $post );
+
+		update_post_meta( $post_id, '_codellia_tailwind', '1' );
+
+		$generated_css = '.text-\\[2rem\\]{font-size:2rem;}';
+		update_post_meta( $post_id, '_codellia_generated_css', wp_slash( $generated_css ) );
+
+		$original_wp_query = $this->set_query_for_post( $post_id, $post );
+		Frontend::enqueue_css();
+		$this->restore_query( $original_wp_query );
+
+		$this->assertTrue( wp_style_is( 'codellia', 'enqueued' ) );
+
+		$styles       = wp_styles();
+		$inline_rules = $styles->get_data( 'codellia', 'after' );
+		$this->assertIsArray( $inline_rules );
+		$inline_css = implode( "\n", $inline_rules );
+
+		$this->assertStringContainsString( $generated_css, $inline_css );
+		$this->assertStringNotContainsString( '.text-[2rem]', $inline_css );
+	}
+
 	private function create_codellia_post( int $author_id, string $status ): int {
 		return (int) self::factory()->post->create(
 			array(
