@@ -9,31 +9,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+add_filter(
+	'body_class',
+	static function ( $classes ) {
+		$classes[] = 'codellia-layout-fullwidth';
+		return $classes;
+	}
+);
+
 get_header();
-?>
-<style>
-	.codellia-layout-fullwidth {
-		width: 100%;
-		max-width: none;
-		margin: 0;
-		padding: 0;
-	}
-	.codellia-layout-fullwidth .codellia-content {
-		width: 100%;
-		max-width: none;
-		margin: 0 auto;
-		padding: 0;
-	}
-</style>
-<main class="codellia-layout-fullwidth">
-	<div class="codellia-content">
-		<?php
-		while ( have_posts() ) :
-			the_post();
-			the_content();
-		endwhile;
-		?>
-	</div>
-</main>
-<?php
+while ( have_posts() ) :
+	the_post();
+	the_content();
+endwhile;
+
 get_footer();
