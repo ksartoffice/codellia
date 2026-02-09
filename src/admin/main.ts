@@ -56,6 +56,42 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
+const VIEWPORT_TARGET_WIDTH = 1024;
+const VIEWPORT_TRIGGER_WIDTH = 900;
+const VIEWPORT_ORIGINAL_ATTR = 'data-codellia-original-viewport';
+
+const applySmallScreenViewport = () => {
+  const meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
+  if (!meta) {
+    return;
+  }
+
+  if (!meta.hasAttribute(VIEWPORT_ORIGINAL_ATTR)) {
+    const original = meta.getAttribute('content') ?? '';
+    meta.setAttribute(VIEWPORT_ORIGINAL_ATTR, original);
+  }
+
+  const original = meta.getAttribute(VIEWPORT_ORIGINAL_ATTR) ?? '';
+  const isSmallScreen =
+    Math.min(window.screen.width, window.screen.height) <= VIEWPORT_TRIGGER_WIDTH;
+
+  if (isSmallScreen) {
+    const nextContent = `width=${VIEWPORT_TARGET_WIDTH}`;
+    if (meta.getAttribute('content') !== nextContent) {
+      meta.setAttribute('content', nextContent);
+    }
+  } else if (meta.getAttribute('content') !== original) {
+    meta.setAttribute('content', original);
+  }
+};
+
+const initSmallScreenViewport = () => {
+  applySmallScreenViewport();
+  const refresh = debounce(() => applySmallScreenViewport(), 150);
+  window.addEventListener('resize', refresh);
+  window.addEventListener('orientationchange', refresh);
+};
+
 const resolveLayout = (value?: string): 'default' | 'canvas' | 'fullwidth' | 'theme' => {
   if (value === 'canvas' || value === 'fullwidth' || value === 'theme' || value === 'default') {
     return value;
@@ -176,6 +212,7 @@ async function main() {
   const postId = cfg.post_id;
   const mount = document.getElementById('codellia-app');
   if (!mount) return;
+  initSmallScreenViewport();
   mountNotices();
 
   const ui = buildLayout(mount);
