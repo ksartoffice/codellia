@@ -97,6 +97,9 @@ class Preview {
 
 		self::$post_id    = $post_id;
 		self::$is_preview = true;
+		add_filter( 'show_admin_bar', '__return_false' );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'disable_admin_bar_assets' ), 100 );
+		remove_action( 'wp_head', '_admin_bar_bump_cb' );
 
 		// Disable auto formatting so markers are not wrapped in <p> tags.
 		if ( has_filter( 'the_content', 'wpautop' ) ) {
@@ -110,6 +113,20 @@ class Preview {
 			define( 'DONOTCACHEPAGE', true );
 		}
 		nocache_headers();
+	}
+
+	/**
+	 * Remove admin bar assets and bump styles on preview requests.
+	 */
+	public static function disable_admin_bar_assets(): void {
+		if ( ! self::$is_preview ) {
+			return;
+		}
+
+		wp_dequeue_style( 'admin-bar' );
+		wp_deregister_style( 'admin-bar' );
+		wp_dequeue_script( 'admin-bar' );
+		remove_action( 'wp_head', '_admin_bar_bump_cb' );
 	}
 
 	/**
