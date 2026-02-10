@@ -59,6 +59,31 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
 const VIEWPORT_TARGET_WIDTH = 1280;
 const VIEWPORT_TRIGGER_WIDTH = 900;
 const VIEWPORT_ORIGINAL_ATTR = 'data-codellia-original-viewport';
+const ADMIN_TITLE_SEPARATORS = [' \u2039 ', ' &lsaquo; '];
+
+const buildEditorDocumentTitleLabel = (postTitle: string) => {
+  const resolvedTitle = postTitle.trim() || __('Untitled', 'codellia');
+  /* translators: %s: post title. */
+  return sprintf(__('Codellia Editor: %s', 'codellia'), resolvedTitle);
+};
+
+const extractAdminTitleSuffix = (title: string) => {
+  for (const separator of ADMIN_TITLE_SEPARATORS) {
+    const position = title.indexOf(separator);
+    if (position >= 0) {
+      return title.slice(position);
+    }
+  }
+  return '';
+};
+
+const createDocumentTitleSync = (initialTitle: string) => {
+  const suffix = extractAdminTitleSuffix(initialTitle);
+  return (postTitle: string) => {
+    const nextLabel = buildEditorDocumentTitleLabel(postTitle);
+    document.title = suffix ? `${nextLabel}${suffix}` : nextLabel;
+  };
+};
 
 const applySmallScreenViewport = () => {
   const meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
@@ -384,6 +409,8 @@ async function main() {
   let postTitle = cfg.settingsData?.title || '';
   let layoutMode = resolveLayout(cfg.settingsData?.layout);
   let defaultLayout = resolveDefaultLayout(cfg.settingsData?.defaultLayout);
+  const syncDocumentTitle = createDocumentTitleSync(document.title);
+  syncDocumentTitle(postTitle);
 
   let preview: PreviewController | null = null;
   let tailwindCompiler: TailwindCompiler | null = null;
@@ -502,6 +529,7 @@ async function main() {
     setShadowDomEnabled(shadowDomEnabled);
     setLiveHighlightEnabled(liveHighlightEnabled);
     toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
+    syncDocumentTitle(postTitle);
 
     const nextResolved = nextLayout === 'default' ? nextDefaultLayout : nextLayout;
     if ((refreshPreview || nextResolved !== currentResolved) && basePreviewUrl) {
@@ -749,6 +777,7 @@ async function main() {
               : nextTitle;
           postTitle = resolvedTitle;
           toolbarApi?.update({ postTitle });
+          syncDocumentTitle(postTitle);
           window.dispatchEvent(
             new CustomEvent('cd-title-updated', { detail: { title: resolvedTitle } })
           );
