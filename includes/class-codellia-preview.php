@@ -28,6 +28,12 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $is_preview = false;
+	/**
+	 * Whether preview markers have already been inserted in this request.
+	 *
+	 * @var bool
+	 */
+	private static bool $marker_inserted = false;
 	private const MARKER_START      = 'codellia:start';
 	private const MARKER_END        = 'codellia:end';
 
@@ -37,7 +43,7 @@ class Preview {
 	public static function init(): void {
 		add_filter( 'query_vars', array( __CLASS__, 'register_query_vars' ) );
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_handle_preview' ) );
-		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 0 );
+		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 999999 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 	}
 
@@ -97,6 +103,7 @@ class Preview {
 
 		self::$post_id    = $post_id;
 		self::$is_preview = true;
+		self::$marker_inserted = false;
 		add_filter( 'show_admin_bar', '__return_false' );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'disable_admin_bar_assets' ), 100 );
 		remove_action( 'wp_head', '_admin_bar_bump_cb' );
@@ -140,9 +147,21 @@ class Preview {
 			return $content;
 		}
 
-		if ( ! is_main_query() || ! in_the_loop() ) {
+		if ( self::$marker_inserted ) {
 			return $content;
 		}
+
+		$current_post_id = self::resolve_current_post_id();
+		if ( ! $current_post_id || self::$post_id !== $current_post_id ) {
+			return $content;
+		}
+
+		if ( self::has_marker_comments( $content ) ) {
+			self::$marker_inserted = true;
+			return $content;
+		}
+
+		self::$marker_inserted = true;
 
 		return sprintf(
 			'<!--%s-->%s<!--%s-->',
@@ -150,6 +169,38 @@ class Preview {
 			$content,
 			self::MARKER_END
 		);
+	}
+
+	/**
+	 * Resolve the current post ID from content filter context.
+	 *
+	 * @return int
+	 */
+	private static function resolve_current_post_id(): int {
+		$post_id = get_the_ID();
+		if ( $post_id ) {
+			return (int) $post_id;
+		}
+
+		global $post;
+		if ( $post instanceof \WP_Post ) {
+			return (int) $post->ID;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Check whether content already contains preview marker comments.
+	 *
+	 * @param string $content Post content.
+	 * @return bool
+	 */
+	private static function has_marker_comments( string $content ): bool {
+		$start_marker = '<!--' . self::MARKER_START . '-->';
+		$end_marker   = '<!--' . self::MARKER_END . '-->';
+
+		return false !== strpos( $content, $start_marker ) && false !== strpos( $content, $end_marker );
 	}
 
 	/**
