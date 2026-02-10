@@ -31,11 +31,32 @@ class Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'current_screen', array( __CLASS__, 'maybe_suppress_editor_notices' ) );
 		add_action( 'admin_action_codellia', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=codellia.
 		add_action( 'load-post-new.php', array( __CLASS__, 'maybe_redirect_new_post' ) );
 		add_action( 'update_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_update' ), 10, 2 );
 		add_action( 'add_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_add' ), 10, 2 );
 		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 20 );
+	}
+
+	/**
+	 * Suppress all admin notices on the full-screen Codellia editor page.
+	 *
+	 * @param \WP_Screen $screen Current admin screen.
+	 */
+	public static function maybe_suppress_editor_notices( $screen ): void {
+		if ( ! $screen instanceof \WP_Screen ) {
+			return;
+		}
+
+		if ( 'admin_page_' . self::MENU_SLUG !== $screen->id ) {
+			return;
+		}
+
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
 	}
 	/**
 	 * Redirect from admin.php?action=codellia to the custom editor page.
@@ -410,6 +431,13 @@ class Admin {
 		wp_enqueue_script( 'codellia-admin' );
 		wp_enqueue_style( 'codellia-admin' );
 		wp_enqueue_style( 'wp-components' );
+		wp_add_inline_style(
+			'codellia-admin',
+			'body.admin_page_codellia #wpbody-content > .notice,'
+			. 'body.admin_page_codellia #wpbody-content > .update-nag,'
+			. 'body.admin_page_codellia #wpbody-content > .updated,'
+			. 'body.admin_page_codellia #wpbody-content > .error{display:none !important;}'
+		);
 		wp_enqueue_media();
 
 		wp_set_script_translations(
