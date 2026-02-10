@@ -56,7 +56,7 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
-const VIEWPORT_TARGET_WIDTH = 1024;
+const VIEWPORT_TARGET_WIDTH = 1280;
 const VIEWPORT_TRIGGER_WIDTH = 900;
 const VIEWPORT_ORIGINAL_ATTR = 'data-codellia-original-viewport';
 
