@@ -1421,7 +1421,7 @@ body.admin_page_codellia #wpbody-content {
 /* Prevent WP core button styles from leaking into Monaco UI */
 .wp-core-ui .cd-app .monaco-editor .button,
 .wp-core-ui .cd-app .monaco-editor .button-secondary {
-  background: transparent;
+  background: transparent!important;
   border: 0;
   color: inherit;
   box-shadow: none;
@@ -1437,6 +1437,10 @@ body.admin_page_codellia #wpbody-content {
 
 .monaco-editor .cd-highlight-line {
   background: rgba(37, 99, 235, 0.12);
+}
+
+.monaco-highlighted-label .highlight {
+  background-color: transparent;
 }
 
 /* @media (max-width: 1280px) {
