@@ -433,9 +433,9 @@ class Frontend {
 
 		if ( self::is_shadow_dom_enabled( $post_id ) ) {
 			++self::$shortcode_instance;
-			$instance     = self::$shortcode_instance;
-			$style_html   = self::build_inline_style( $post_id, $instance );
-			$script_html  = self::build_inline_shadow_script( $post_id, $instance );
+			$instance    = self::$shortcode_instance;
+			$style_html  = self::build_inline_style( $post_id, $instance );
+			$script_html = self::build_inline_shadow_script( $post_id, $instance );
 			self::enqueue_shortcode_scripts( $post_id );
 			return '<codellia-output data-post-id="' . esc_attr( $post_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template>' . $script_html . '</codellia-output>';
 		}
@@ -498,8 +498,8 @@ class Frontend {
 
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 		$wait_attr        = empty( $external_scripts ) ? '' : ' data-codellia-js-wait="load"';
-		$suffix = 0 < $instance ? '-' . $post_id . '-' . $instance : '-' . $post_id;
-		$encoded = rawurlencode( $js );
+		$suffix           = 0 < $instance ? '-' . $post_id . '-' . $instance : '-' . $post_id;
+		$encoded          = rawurlencode( $js );
 		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		return '<script type="application/json" id="cd-script-data' . esc_attr( $suffix ) . '" data-codellia-js="1"' . $wait_attr . '>' . esc_html( $encoded ) . '</script>';
 	}

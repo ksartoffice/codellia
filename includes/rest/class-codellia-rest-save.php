@@ -24,6 +24,7 @@ class Rest_Save {
 	 * @return \WP_REST_Response
 	 */
 	public static function save( \WP_REST_Request $request ): \WP_REST_Response {
+
 		$post_id          = absint( $request->get_param( 'post_id' ) );
 		$html             = (string) $request->get_param( 'html' );
 		$css_input        = self::sanitize_css_input( (string) $request->get_param( 'css' ) );
@@ -56,13 +57,13 @@ class Rest_Save {
 
 		if ( $has_settings ) {
 			if ( ! is_array( $settings_updates ) ) {
-				return new \WP_REST_Response(
-					array(
-						'ok'    => false,
-						'error' => __( 'Invalid payload.', 'codellia' ),
-					),
-					400
-				);
+					return new \WP_REST_Response(
+						array(
+							'ok'    => false,
+							'error' => __( 'Invalid payload.', 'codellia' ),
+						),
+						400
+					);
 			}
 			$prepared_updates = Rest_Settings::prepare_updates( $post_id, $settings_updates );
 			if ( is_wp_error( $prepared_updates ) ) {
@@ -83,7 +84,6 @@ class Rest_Save {
 		$tailwind_meta   = get_post_meta( $post_id, '_codellia_tailwind', true );
 		$tailwind_locked = '1' === get_post_meta( $post_id, '_codellia_tailwind_locked', true );
 		$has_tailwind    = '' !== $tailwind_meta;
-
 		if ( $tailwind_locked || $has_tailwind ) {
 			$tailwind_enabled = '1' === $tailwind_meta;
 		}
@@ -168,7 +168,6 @@ class Rest_Save {
 			200
 		);
 	}
-
 	/**
 	 * Sanitize CSS input to prevent style tag injection.
 	 *

@@ -15,9 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * REST callbacks for updating Codellia settings.
  */
 class Rest_Settings {
+
 	private const LAYOUT_VALUES         = array( 'default', 'standalone', 'frame', 'theme' );
 	private const DEFAULT_LAYOUT_VALUES = array( 'standalone', 'frame', 'theme' );
-
 	/**
 	 * Normalize layout value stored in post meta.
 	 *
@@ -194,6 +194,7 @@ class Rest_Settings {
 	 * @return \WP_REST_Response
 	 */
 	public static function update_settings( \WP_REST_Request $request ): \WP_REST_Response {
+
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		$updates = $request->get_param( 'updates' );
 
@@ -234,6 +235,7 @@ class Rest_Settings {
 	 * @return array|\WP_Error
 	 */
 	public static function prepare_updates( int $post_id, array $updates ) {
+
 		$post = get_post( $post_id );
 		if ( ! $post ) {
 			return new \WP_Error(
@@ -296,7 +298,7 @@ class Rest_Settings {
 					array( 'status' => 403 )
 				);
 			}
-			$shadow_dom_enabled = rest_sanitize_boolean( $updates['shadowDomEnabled'] );
+			$shadow_dom_enabled                               = rest_sanitize_boolean( $updates['shadowDomEnabled'] );
 			$prepared['meta_updates']['_codellia_shadow_dom'] = $shadow_dom_enabled ? '1' : '0';
 		}
 
@@ -312,25 +314,25 @@ class Rest_Settings {
 					array( 'status' => 403 )
 				);
 			}
-			$shortcode_enabled = rest_sanitize_boolean( $updates['shortcodeEnabled'] );
+			$shortcode_enabled                                       = rest_sanitize_boolean( $updates['shortcodeEnabled'] );
 			$prepared['meta_updates']['_codellia_shortcode_enabled'] = $shortcode_enabled ? '1' : '0';
 		}
 
 		if ( array_key_exists( 'singlePageEnabled', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
-				return new \WP_Error(
-					'codellia_permission_denied',
-					__( 'Permission denied.', 'codellia' ),
-					array( 'status' => 403 )
-				);
+					return new \WP_Error(
+						'codellia_permission_denied',
+						__( 'Permission denied.', 'codellia' ),
+						array( 'status' => 403 )
+					);
 			}
-			$single_page_enabled = rest_sanitize_boolean( $updates['singlePageEnabled'] );
+			$single_page_enabled                                       = rest_sanitize_boolean( $updates['singlePageEnabled'] );
 			$prepared['meta_updates']['_codellia_single_page_enabled'] = $single_page_enabled ? '1' : '0';
 		}
 
 		if ( array_key_exists( 'liveHighlightEnabled', $updates ) ) {
-			$live_highlight_enabled = rest_sanitize_boolean( $updates['liveHighlightEnabled'] );
-			$prepared['meta_updates']['_codellia_live_highlight'] = $live_highlight_enabled ? '1' : '0';
+			$live_highlight_enabled                                   = rest_sanitize_boolean( $updates['liveHighlightEnabled'] );
+				$prepared['meta_updates']['_codellia_live_highlight'] = $live_highlight_enabled ? '1' : '0';
 		}
 
 		if ( array_key_exists( 'externalScripts', $updates ) ) {
@@ -358,15 +360,15 @@ class Rest_Settings {
 				$error
 			);
 			if ( null === $sanitized ) {
-				return new \WP_Error(
-					'codellia_invalid_external_scripts',
-					null !== $error ? $error : __( 'External scripts must be valid https:// URLs.', 'codellia' ),
-					array( 'status' => 400 )
-				);
+					return new \WP_Error(
+						'codellia_invalid_external_scripts',
+						null !== $error ? $error : __( 'External scripts must be valid https:// URLs.', 'codellia' ),
+						array( 'status' => 400 )
+					);
 			}
 
 			if ( empty( $sanitized ) ) {
-				$prepared['meta_deletes'][] = '_codellia_external_scripts';
+					$prepared['meta_deletes'][] = '_codellia_external_scripts';
 			} else {
 				$prepared['meta_updates']['_codellia_external_scripts'] = wp_json_encode(
 					$sanitized,
@@ -400,20 +402,20 @@ class Rest_Settings {
 				$error
 			);
 			if ( null === $sanitized ) {
-				return new \WP_Error(
-					'codellia_invalid_external_styles',
-					null !== $error ? $error : __( 'External styles must be valid https:// URLs.', 'codellia' ),
-					array( 'status' => 400 )
-				);
+					return new \WP_Error(
+						'codellia_invalid_external_styles',
+						null !== $error ? $error : __( 'External styles must be valid https:// URLs.', 'codellia' ),
+						array( 'status' => 400 )
+					);
 			}
 
 			if ( empty( $sanitized ) ) {
-				$prepared['meta_deletes'][] = '_codellia_external_styles';
+					$prepared['meta_deletes'][] = '_codellia_external_styles';
 			} else {
-				$prepared['meta_updates']['_codellia_external_styles'] = wp_json_encode(
-					$sanitized,
-					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-				);
+					$prepared['meta_updates']['_codellia_external_styles'] = wp_json_encode(
+						$sanitized,
+						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+					);
 			}
 		}
 
@@ -428,6 +430,7 @@ class Rest_Settings {
 	 * @return true|\WP_Error
 	 */
 	public static function apply_prepared_updates( int $post_id, array $prepared ) {
+
 		$post_update = $prepared['post_update'] ?? array( 'ID' => $post_id );
 		if ( ! is_array( $post_update ) ) {
 			$post_update = array( 'ID' => $post_id );
@@ -467,6 +470,7 @@ class Rest_Settings {
 	 * @return \WP_REST_Response
 	 */
 	private static function build_error_response( \WP_Error $error ): \WP_REST_Response {
+
 		$status = self::resolve_error_status( $error );
 		return new \WP_REST_Response(
 			array(
@@ -484,6 +488,7 @@ class Rest_Settings {
 	 * @return int
 	 */
 	private static function resolve_error_status( \WP_Error $error ): int {
+
 		$data = $error->get_error_data();
 		if ( is_array( $data ) && isset( $data['status'] ) ) {
 			return (int) $data['status'];

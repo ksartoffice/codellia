@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * REST callbacks for Codellia import.
  */
 class Rest_Import {
+
 	/**
 	 * Import a Codellia JSON payload into a post.
 	 *
