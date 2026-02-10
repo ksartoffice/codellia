@@ -34,8 +34,8 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $marker_inserted = false;
-	private const MARKER_START      = 'codellia:start';
-	private const MARKER_END        = 'codellia:end';
+	private const MARKER_START           = 'codellia:start';
+	private const MARKER_END             = 'codellia:end';
 
 	/**
 	 * Register preview hooks.
@@ -101,8 +101,8 @@ class Preview {
 			wp_die( esc_html__( 'Post not found.', 'codellia' ) );
 		}
 
-		self::$post_id    = $post_id;
-		self::$is_preview = true;
+		self::$post_id         = $post_id;
+		self::$is_preview      = true;
 		self::$marker_inserted = false;
 		add_filter( 'show_admin_bar', '__return_false' );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'disable_admin_bar_assets' ), 100 );
