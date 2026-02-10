@@ -30,6 +30,9 @@ class Rest_Save {
 		$js_input         = (string) $request->get_param( 'js' );
 		$has_js           = $request->has_param( 'js' );
 		$tailwind_enabled = rest_sanitize_boolean( $request->get_param( 'tailwindEnabled' ) );
+		$settings_updates = $request->get_param( 'settingsUpdates' );
+		$has_settings     = $request->has_param( 'settingsUpdates' );
+		$prepared_updates = null;
 
 		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
 			return new \WP_REST_Response(
@@ -49,6 +52,32 @@ class Rest_Save {
 				),
 				403
 			);
+		}
+
+		if ( $has_settings ) {
+			if ( ! is_array( $settings_updates ) ) {
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => __( 'Invalid payload.', 'codellia' ),
+					),
+					400
+				);
+			}
+			$prepared_updates = Rest_Settings::prepare_updates( $post_id, $settings_updates );
+			if ( is_wp_error( $prepared_updates ) ) {
+				$error_data = $prepared_updates->get_error_data();
+				$status     = is_array( $error_data ) && isset( $error_data['status'] )
+					? (int) $error_data['status']
+					: 400;
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => $prepared_updates->get_error_message(),
+					),
+					$status
+				);
+			}
 		}
 
 		$tailwind_meta   = get_post_meta( $post_id, '_codellia_tailwind', true );
@@ -114,7 +143,30 @@ class Rest_Save {
 		update_post_meta( $post_id, '_codellia_tailwind', $tailwind_enabled ? '1' : '0' );
 		update_post_meta( $post_id, '_codellia_tailwind_locked', '1' );
 
-		return new \WP_REST_Response( array( 'ok' => true ), 200 );
+		if ( $has_settings && is_array( $prepared_updates ) ) {
+			$applied_updates = Rest_Settings::apply_prepared_updates( $post_id, $prepared_updates );
+			if ( is_wp_error( $applied_updates ) ) {
+				$error_data = $applied_updates->get_error_data();
+				$status     = is_array( $error_data ) && isset( $error_data['status'] )
+					? (int) $error_data['status']
+					: 400;
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => $applied_updates->get_error_message(),
+					),
+					$status
+				);
+			}
+		}
+
+		return new \WP_REST_Response(
+			array(
+				'ok'       => true,
+				'settings' => Rest_Settings::build_settings_payload( $post_id ),
+			),
+			200
+		);
 	}
 
 	/**

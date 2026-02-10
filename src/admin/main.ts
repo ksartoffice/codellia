@@ -1,6 +1,6 @@
 ﻿import './style.css';
 import { createElement, createRoot, render } from '@wordpress/element';
-import { initSettings, type SettingsData } from './settings';
+import { initSettings, type PendingSettingsState, type SettingsData } from './settings';
 import { runSetupWizard } from './setup-wizard';
 import { mountToolbar, type ToolbarApi, type ViewportMode } from './toolbar';
 import { buildLayout } from './layout';
@@ -373,6 +373,9 @@ async function main() {
   let editorsReady = false;
   let hasUnsavedChanges = false;
   let saveInFlight: Promise<{ ok: boolean; error?: string }> | null = null;
+  let pendingSettingsUpdates: Record<string, any> = {};
+  let hasUnsavedSettings = false;
+  let hasSettingsValidationErrors = false;
   let lastSaved = { html: '', css: '', js: '' };
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
@@ -410,12 +413,24 @@ async function main() {
 
   const getUnsavedFlags = () => {
     if (!htmlModel || !cssModel || !jsModel) {
-      return { html: false, css: false, js: false, hasAny: false };
+      return {
+        html: false,
+        css: false,
+        js: false,
+        settings: hasUnsavedSettings,
+        hasAny: hasUnsavedSettings,
+      };
     }
     const htmlDirty = htmlModel.getValue() !== lastSaved.html;
     const cssDirty = cssModel.getValue() !== lastSaved.css;
     const jsDirty = jsModel.getValue() !== lastSaved.js;
-    return { html: htmlDirty, css: cssDirty, js: jsDirty, hasAny: htmlDirty || cssDirty || jsDirty };
+    return {
+      html: htmlDirty,
+      css: cssDirty,
+      js: jsDirty,
+      settings: hasUnsavedSettings,
+      hasAny: htmlDirty || cssDirty || jsDirty || hasUnsavedSettings,
+    };
   };
 
   const syncUnsavedUi = () => {
@@ -454,6 +469,42 @@ async function main() {
     toolbarApi?.update({ settingsOpen: open });
     syncElementsTabState();
     applyViewportLayout();
+  };
+
+  const applySavedSettings = (nextSettings: SettingsData, refreshPreview: boolean) => {
+    const currentResolved = getResolvedLayout();
+    if (typeof nextSettings.viewUrl === 'string') {
+      viewPostUrl = nextSettings.viewUrl;
+    }
+    postStatus = nextSettings.status || postStatus;
+    postTitle = nextSettings.title || postTitle;
+    shadowDomEnabled = Boolean(nextSettings.shadowDomEnabled);
+    shortcodeEnabled = Boolean(nextSettings.shortcodeEnabled);
+    singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
+    liveHighlightEnabled = nextSettings.liveHighlightEnabled ?? liveHighlightEnabled;
+    externalScripts = Array.isArray(nextSettings.externalScripts)
+      ? [...nextSettings.externalScripts]
+      : [];
+    externalStyles = Array.isArray(nextSettings.externalStyles)
+      ? [...nextSettings.externalStyles]
+      : [];
+    const nextLayout = resolveLayout(nextSettings.layout);
+    const nextDefaultLayout =
+      typeof nextSettings.defaultLayout === 'string'
+        ? resolveDefaultLayout(nextSettings.defaultLayout)
+        : defaultLayout;
+    if (typeof nextSettings.defaultLayout === 'string') {
+      defaultLayout = nextDefaultLayout;
+    }
+    layoutMode = nextLayout;
+    setShadowDomEnabled(shadowDomEnabled);
+    setLiveHighlightEnabled(liveHighlightEnabled);
+    toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
+
+    const nextResolved = nextLayout === 'default' ? nextDefaultLayout : nextLayout;
+    if ((refreshPreview || nextResolved !== currentResolved) && basePreviewUrl) {
+      ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+    }
   };
 
   async function handleExport() {
@@ -521,9 +572,20 @@ async function main() {
     if (!getUnsavedFlags().hasAny) {
       return { ok: true };
     }
+    if (hasSettingsValidationErrors) {
+      const validationErrorMessage = __( 'Fix settings errors before saving.', 'codellia' );
+      createSnackbar(
+        'error',
+        validationErrorMessage,
+        NOTICE_IDS.save,
+        NOTICE_ERROR_DURATION_MS
+      );
+      return { ok: false, error: validationErrorMessage };
+    }
     if (saveInFlight) {
       return await saveInFlight;
     }
+    const settingsUpdates = hasUnsavedSettings ? { ...pendingSettingsUpdates } : undefined;
     saveInFlight = (async () => {
     createSnackbar('info', __( 'Saving...', 'codellia' ), NOTICE_IDS.save);
 
@@ -536,9 +598,21 @@ async function main() {
         tailwindEnabled,
         canEditJs,
         js: jsModel.getValue(),
+        settingsUpdates,
       });
 
       if (result.ok) {
+        if (result.settings) {
+          applySavedSettings(result.settings, Boolean(settingsUpdates));
+          window.dispatchEvent(
+            new CustomEvent('cd-settings-updated', {
+              detail: { settings: result.settings },
+            })
+          );
+        }
+        pendingSettingsUpdates = {};
+        hasUnsavedSettings = false;
+        hasSettingsValidationErrors = false;
         markSavedState();
         createSnackbar(
           'success',
@@ -1329,13 +1403,21 @@ async function main() {
     container: ui.settingsBody,
     header: ui.settingsHeader,
     data: cfg.settingsData,
-    restUrl: cfg.settingsRestUrl,
     postId,
-    backUrl: cfg.backUrl,
-    apiFetch: wp?.apiFetch,
+    onLayoutChange: (nextLayout) => {
+      const currentResolved = getResolvedLayout();
+      layoutMode = resolveLayout(nextLayout);
+      const nextResolved = getResolvedLayout();
+      if (nextResolved !== currentResolved && basePreviewUrl) {
+        ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+      }
+    },
     onShadowDomToggle: setShadowDomEnabled,
     onShortcodeToggle: (enabled) => {
       shortcodeEnabled = enabled;
+    },
+    onSinglePageToggle: (enabled) => {
+      singlePageEnabled = enabled;
     },
     onLiveHighlightToggle: setLiveHighlightEnabled,
     onExternalScriptsChange: (scripts) => {
@@ -1350,30 +1432,11 @@ async function main() {
       activeSettingsTab = tab;
       syncElementsTabState();
     },
-    onSettingsUpdate: (nextSettings) => {
-      if (typeof nextSettings.viewUrl === 'string') {
-        viewPostUrl = nextSettings.viewUrl;
-      }
-      postStatus = nextSettings.status || postStatus;
-      postTitle = nextSettings.title || postTitle;
-      singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
-      const currentResolved = getResolvedLayout();
-      const nextLayout = resolveLayout(nextSettings.layout);
-      const nextDefaultLayout =
-        typeof nextSettings.defaultLayout === 'string'
-          ? resolveDefaultLayout(nextSettings.defaultLayout)
-          : defaultLayout;
-      if (typeof nextSettings.defaultLayout === 'string') {
-        defaultLayout = nextDefaultLayout;
-      }
-      if (nextLayout !== layoutMode) {
-        layoutMode = nextLayout;
-      }
-      const nextResolved = nextLayout === 'default' ? nextDefaultLayout : nextLayout;
-      if (nextResolved !== currentResolved) {
-        ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
-      }
-      toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
+    onPendingUpdatesChange: (nextState: PendingSettingsState) => {
+      pendingSettingsUpdates = { ...nextState.updates };
+      hasUnsavedSettings = nextState.hasUnsavedSettings;
+      hasSettingsValidationErrors = nextState.hasValidationErrors;
+      syncUnsavedUi();
     },
     onClosePanel: () => setSettingsOpen(false),
     elementsApi,

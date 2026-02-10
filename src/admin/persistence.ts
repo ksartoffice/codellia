@@ -1,4 +1,5 @@
-﻿import type { ExportPayload } from './types';
+import type { ExportPayload } from './types';
+import type { SettingsData } from './settings';
 import { __, sprintf } from '@wordpress/i18n';
 
 type ApiFetch = (args: any) => Promise<any>;
@@ -91,11 +92,12 @@ type SaveParams = {
   tailwindEnabled: boolean;
   canEditJs: boolean;
   js: string;
+  settingsUpdates?: Record<string, any>;
 };
 
 export async function saveCodellia(
   params: SaveParams
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; settings?: SettingsData }> {
   try {
     const payload: Record<string, any> = {
       post_id: params.postId,
@@ -106,6 +108,9 @@ export async function saveCodellia(
     if (params.canEditJs) {
       payload.js = params.js;
     }
+    if (params.settingsUpdates && Object.keys(params.settingsUpdates).length > 0) {
+      payload.settingsUpdates = params.settingsUpdates;
+    }
     const res = await params.apiFetch({
       url: params.restUrl,
       method: 'POST',
@@ -113,7 +118,11 @@ export async function saveCodellia(
     });
 
     if (res?.ok) {
-      return { ok: true };
+      const settings =
+        res?.settings && typeof res.settings === 'object'
+          ? (res.settings as SettingsData)
+          : undefined;
+      return { ok: true, settings };
     }
     if (typeof res?.error === 'string' && res.error.trim()) {
       return { ok: false, error: res.error };
@@ -201,4 +210,3 @@ export async function exportCodellia(
     return { ok: false, error: e?.message ?? e };
   }
 }
-
