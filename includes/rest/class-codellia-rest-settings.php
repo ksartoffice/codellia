@@ -17,8 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Rest_Settings {
 	private const MAX_EXTERNAL_SCRIPTS = 5;
 	private const MAX_EXTERNAL_STYLES  = 5;
-	private const LAYOUT_VALUES        = array( 'default', 'canvas', 'fullwidth', 'theme' );
-	private const DEFAULT_LAYOUT_VALUES = array( 'canvas', 'fullwidth', 'theme' );
+	private const LAYOUT_VALUES         = array( 'default', 'standalone', 'frame', 'theme' );
+	private const DEFAULT_LAYOUT_VALUES = array( 'standalone', 'frame', 'theme' );
 
 	/**
 	 * Normalize layout value stored in post meta.

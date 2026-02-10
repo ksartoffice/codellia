@@ -221,7 +221,7 @@ class Admin {
 	 */
 	public static function sanitize_default_layout( $value ): string {
 		$layout = is_string( $value ) ? sanitize_key( $value ) : '';
-		$valid  = array( 'canvas', 'fullwidth', 'theme' );
+		$valid  = array( 'standalone', 'frame', 'theme' );
 		return in_array( $layout, $valid, true ) ? $layout : 'theme';
 	}
 
@@ -292,9 +292,9 @@ class Admin {
 		$value  = get_option( self::OPTION_DEFAULT_LAYOUT, 'theme' );
 		$value  = self::sanitize_default_layout( $value );
 		$layout = array(
-			'canvas'    => __( 'Canvas', 'codellia' ),
-			'fullwidth' => __( 'Full width', 'codellia' ),
-			'theme'     => __( 'Theme', 'codellia' ),
+			'standalone' => __( 'Standalone', 'codellia' ),
+			'frame'      => __( 'Frame', 'codellia' ),
+			'theme'      => __( 'Theme', 'codellia' ),
 		);
 		echo '<select name="' . esc_attr( self::OPTION_DEFAULT_LAYOUT ) . '">';
 		foreach ( $layout as $key => $label ) {

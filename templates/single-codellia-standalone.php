@@ -1,6 +1,6 @@
 <?php
 /**
- * Canvas layout template for Codellia.
+ * Standalone layout template for Codellia.
  *
  * @package Codellia
  */
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php wp_head(); ?>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body <?php body_class( 'codellia-layout-canvas' ); ?>>
+<body <?php body_class( 'codellia-layout-standalone' ); ?>>
 	<?php wp_body_open(); ?>
 	<?php
 	while ( have_posts() ) :

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-21T05:49:23+01:00\n"
+"POT-Creation-Date: 2026-02-10T02:18:10+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: codellia\n"
@@ -17,14 +17,6 @@ msgstr ""
 #. Plugin Name of the plugin
 #: codellia.php
 msgid "Codellia Editor"
-msgstr ""
-
-#. Author of the plugin
-#: codellia.php
-#: includes/class-codellia-admin.php:58
-#: includes/class-codellia-admin.php:59
-#: includes/class-codellia-admin.php:139
-msgid "Codellia"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -37,83 +29,128 @@ msgstr ""
 msgid "Live HTML/CSS/JS editor with real-time preview and Tailwind CSS support for WordPress."
 msgstr ""
 
-#: includes/class-codellia-admin.php:39
-#: includes/class-codellia-admin.php:139
-#: includes/class-codellia-preview.php:78
+#. Author of the plugin
+#: codellia.php
+#: includes/class-codellia-admin.php:96
+#: includes/class-codellia-admin.php:97
+#: includes/class-codellia-admin.php:333
+#: includes/class-codellia-post-type.php:68
+msgid "Codellia"
+msgstr ""
+
+#: includes/class-codellia-admin.php:46
+#: includes/class-codellia-admin.php:333
+#: includes/class-codellia-preview.php:79
 msgid "post_id is required."
 msgstr ""
 
-#: includes/class-codellia-admin.php:42
-#: includes/class-codellia-admin.php:143
+#: includes/class-codellia-admin.php:49
+#: includes/class-codellia-admin.php:337
 msgid "This editor is only available for Codellia posts."
 msgstr ""
 
-#: includes/class-codellia-admin.php:45
-#: includes/class-codellia-admin.php:146
-#: includes/class-codellia-preview.php:82
+#: includes/class-codellia-admin.php:52
+#: includes/class-codellia-admin.php:69
+#: includes/class-codellia-admin.php:340
+#: includes/class-codellia-preview.php:83
 #: includes/rest/class-codellia-rest-import.php:47
-#: includes/rest/class-codellia-rest-save.php:50
-#: includes/rest/class-codellia-rest-settings.php:230
-#: includes/rest/class-codellia-rest-settings.php:294
-#: includes/rest/class-codellia-rest-settings.php:365
-#: includes/rest/class-codellia-rest-settings.php:379
-#: includes/rest/class-codellia-rest-settings.php:393
-#: includes/rest/class-codellia-rest-settings.php:412
-#: includes/rest/class-codellia-rest-settings.php:461
+#: includes/rest/class-codellia-rest-save.php:48
+#: includes/rest/class-codellia-rest-settings.php:257
+#: includes/rest/class-codellia-rest-settings.php:282
+#: includes/rest/class-codellia-rest-settings.php:301
+#: includes/rest/class-codellia-rest-settings.php:315
+#: includes/rest/class-codellia-rest-settings.php:334
+#: includes/rest/class-codellia-rest-settings.php:383
 msgid "Permission denied."
 msgstr ""
 
-#: includes/class-codellia-admin.php:67
-#: includes/class-codellia-admin.php:68
-#: assets/dist/main.js:1
+#: includes/class-codellia-admin.php:76
+msgid "Untitled Codellia Page"
+msgstr ""
+
+#: includes/class-codellia-admin.php:105
+#: includes/class-codellia-admin.php:106
+#: assets/dist/main.js:81
 msgid "Settings"
 msgstr ""
 
-#: includes/class-codellia-admin.php:103
+#: includes/class-codellia-admin.php:150
 msgid "Permalink"
 msgstr ""
 
-#: includes/class-codellia-admin.php:110
+#: includes/class-codellia-admin.php:157
+#: assets/dist/main.js:81
+msgid "Layout"
+msgstr ""
+
+#: includes/class-codellia-admin.php:164
 msgid "Codellia slug"
 msgstr ""
 
-#: includes/class-codellia-admin.php:160
-msgid "Change the URL slug for Codellia posts. Existing URLs will change after saving."
+#: includes/class-codellia-admin.php:172
+msgid "Default layout"
 msgstr ""
 
-#: includes/class-codellia-admin.php:169
-msgid "Allowed: lowercase letters, numbers, and hyphens. Default: codellia."
-msgstr ""
-
-#: includes/class-codellia-admin.php:91
+#: includes/class-codellia-admin.php:180
 msgid "Cleanup"
 msgstr ""
 
-#: includes/class-codellia-admin.php:98
+#: includes/class-codellia-admin.php:187
 msgid "Delete data on uninstall"
 msgstr ""
 
-#: includes/class-codellia-admin.php:119
+#: includes/class-codellia-admin.php:269
+msgid "Change the URL slug for Codellia posts. Existing URLs will change after saving."
+msgstr ""
+
+#: includes/class-codellia-admin.php:276
+msgid "Choose the default layout used by Codellia previews."
+msgstr ""
+
+#: includes/class-codellia-admin.php:285
+msgid "Allowed: lowercase letters, numbers, and hyphens. Default: codellia."
+msgstr ""
+
+#: includes/class-codellia-admin.php:295
+#: assets/dist/main.js:81
+msgid "Standalone"
+msgstr ""
+
+#: includes/class-codellia-admin.php:296
+#: assets/dist/main.js:81
+msgid "Frame"
+msgstr ""
+
+#: includes/class-codellia-admin.php:297
+#: assets/dist/main.js:81
+msgid "Theme"
+msgstr ""
+
+#: includes/class-codellia-admin.php:304
+msgid "Applies when layout is set to Default."
+msgstr ""
+
+#: includes/class-codellia-admin.php:312
 msgid "Choose whether Codellia posts should be deleted when the plugin is uninstalled."
 msgstr ""
 
-#: includes/class-codellia-admin.php:129
+#: includes/class-codellia-admin.php:323
 msgid "Delete all Codellia posts on uninstall (imported media is kept)."
 msgstr ""
 
-#: includes/class-codellia-admin.php:161
+#: includes/class-codellia-admin.php:356
 msgid "Codellia Editor Settings"
 msgstr ""
 
 #: includes/class-codellia-external-scripts.php:53
-#: includes/rest/class-codellia-rest-import.php:194
-#: includes/rest/class-codellia-rest-import.php:210
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:193
+#: includes/rest/class-codellia-rest-import.php:209
+#: assets/dist/main.js:81
 msgid "Invalid externalScripts value."
 msgstr ""
 
 #: includes/class-codellia-external-scripts.php:62
-#: includes/rest/class-codellia-rest-settings.php:439
+#: includes/rest/class-codellia-rest-settings.php:361
 msgid "External scripts must be valid https:// URLs."
 msgstr ""
 
@@ -122,14 +159,14 @@ msgid "External scripts exceed the maximum allowed."
 msgstr ""
 
 #: includes/class-codellia-external-styles.php:53
-#: includes/rest/class-codellia-rest-import.php:223
-#: includes/rest/class-codellia-rest-import.php:239
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:222
+#: includes/rest/class-codellia-rest-import.php:238
+#: assets/dist/main.js:81
 msgid "Invalid externalStyles value."
 msgstr ""
 
 #: includes/class-codellia-external-styles.php:62
-#: includes/rest/class-codellia-rest-settings.php:488
+#: includes/rest/class-codellia-rest-settings.php:410
 msgid "External styles must be valid https:// URLs."
 msgstr ""
 
@@ -137,123 +174,81 @@ msgstr ""
 msgid "External styles exceed the maximum allowed."
 msgstr ""
 
-#: includes/class-codellia-media-import.php:43
-msgid "HTML parser unavailable; external images were not imported."
-msgstr ""
-
-#: includes/class-codellia-media-import.php:109
-msgid "Skipped invalid image URL."
-msgstr ""
-
-#. translators: %s: image URL.
-#: includes/class-codellia-media-import.php:121
-#, php-format
-msgid "Skipping image import (missing upload_files): %s"
-msgstr ""
-
-#. translators: 1: image URL, 2: error message.
-#: includes/class-codellia-media-import.php:139
-#, php-format
-msgid "Failed to download image: %1$s (%2$s)"
-msgstr ""
-
-#. translators: 1: image URL, 2: error message.
-#: includes/class-codellia-media-import.php:160
-#, php-format
-msgid "Failed to sideload image: %1$s (%2$s)"
-msgstr ""
-
-#. translators: %s: image URL.
-#: includes/class-codellia-media-import.php:435
-#, php-format
-msgid "Unable to detect image type: %s"
-msgstr ""
-
-#. translators: 1: mime type, 2: image URL.
-#: includes/class-codellia-media-import.php:445
-#, php-format
-msgid "Unsupported image type (%1$s): %2$s"
-msgstr ""
-
-#: includes/class-codellia-post-type.php:53
+#: includes/class-codellia-post-type.php:52
 msgctxt "post type general name"
 msgid "Codellia"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:54
+#: includes/class-codellia-post-type.php:53
 msgctxt "post type singular name"
 msgid "Codellia"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:55
+#: includes/class-codellia-post-type.php:54
 msgctxt "codellia"
 msgid "Add New"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:56
+#: includes/class-codellia-post-type.php:55
 msgid "Add New Codellia Page"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:57
+#: includes/class-codellia-post-type.php:56
 msgid "Edit Codellia"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:58
+#: includes/class-codellia-post-type.php:57
 msgid "New Codellia"
 msgstr ""
 
+#: includes/class-codellia-post-type.php:58
 #: includes/class-codellia-post-type.php:59
-#: includes/class-codellia-post-type.php:60
 msgid "View on front end"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:61
+#: includes/class-codellia-post-type.php:60
 msgid "Search Codellia"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:62
+#: includes/class-codellia-post-type.php:61
 msgid "No Codellia found"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:63
+#: includes/class-codellia-post-type.php:62
 msgid "No Codellia found in Trash"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:64
-#: includes/class-codellia-post-type.php:69
-msgid "Codellia"
+#: includes/class-codellia-post-type.php:63
+#: assets/dist/main.js:81
+msgid "Codellia pages"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:65
+#: includes/class-codellia-post-type.php:64
 msgid "Codellia Archives"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:185
-msgid "Edit in Codellia"
-msgstr ""
-
-#: includes/class-codellia-post-type.php:210
-#: assets/dist/main.js:1
+#: includes/class-codellia-post-type.php:159
+#: assets/dist/main.js:81
 msgid "TailwindCSS"
 msgstr ""
 
-#: includes/class-codellia-post-type.php:226
-msgid "Untitled Codellia Page"
+#: includes/class-codellia-post-type.php:184
+msgid "Edit in Codellia"
 msgstr ""
 
-#: includes/class-codellia-preview.php:86
+#: includes/class-codellia-preview.php:87
 msgid "Invalid preview token."
 msgstr ""
 
-#: includes/class-codellia-preview.php:90
+#: includes/class-codellia-preview.php:91
 #: includes/rest/class-codellia-rest-import.php:37
-#: includes/rest/class-codellia-rest-save.php:40
-#: includes/rest/class-codellia-rest-save.php:139
+#: includes/rest/class-codellia-rest-save.php:38
+#: includes/rest/class-codellia-rest-save.php:148
 #: includes/rest/class-codellia-rest-setup.php:32
 msgid "Invalid post type."
 msgstr ""
 
-#: includes/class-codellia-preview.php:94
+#: includes/class-codellia-preview.php:95
 #: includes/rest/class-codellia-rest-preview.php:43
 #: includes/rest/class-codellia-rest-settings.php:215
 msgid "Post not found."
@@ -264,64 +259,59 @@ msgid "Invalid import payload."
 msgstr ""
 
 #: includes/rest/class-codellia-rest-import.php:68
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Unsupported import version."
 msgstr ""
 
 #: includes/rest/class-codellia-rest-import.php:78
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Invalid HTML value."
 msgstr ""
 
 #: includes/rest/class-codellia-rest-import.php:88
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Invalid CSS value."
 msgstr ""
 
 #: includes/rest/class-codellia-rest-import.php:98
-#: assets/dist/main.js:1
-msgid "Invalid tailwind flag."
+#: assets/dist/main.js:81
+msgid "Invalid tailwindEnabled value."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-import.php:110
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:109
+#: assets/dist/main.js:81
 msgid "Invalid JavaScript value."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-import.php:124
-#: assets/dist/main.js:1
-msgid "Invalid jsEnabled value."
-msgstr ""
-
-#: includes/rest/class-codellia-rest-import.php:138
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:123
+#: assets/dist/main.js:81
 msgid "Invalid shadowDomEnabled value."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-import.php:152
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:137
+#: assets/dist/main.js:81
 msgid "Invalid shortcodeEnabled value."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-import.php:166
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:151
+#: assets/dist/main.js:81
 msgid "Invalid singlePageEnabled value."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-import.php:166
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:165
+#: assets/dist/main.js:81
 msgid "Invalid liveHighlightEnabled value."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-import.php:180
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-import.php:179
+#: assets/dist/main.js:81
 msgid "Invalid generatedCss value."
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/rest/class-codellia-rest-import.php:295
-#: includes/rest/class-codellia-rest-save.php:97
-#: includes/rest/class-codellia-rest-save.php:158
+#: includes/rest/class-codellia-rest-import.php:284
+#: includes/rest/class-codellia-rest-save.php:95
+#: includes/rest/class-codellia-rest-save.php:167
 #, php-format
 msgid "Tailwind compile failed: %s"
 msgstr ""
@@ -330,28 +320,32 @@ msgstr ""
 msgid "Invalid parameters."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:43
+#: includes/rest/class-codellia-rest-settings.php:67
+#: assets/dist/main.js:81
 msgid "Draft"
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:47
+#: includes/rest/class-codellia-rest-settings.php:71
+#: assets/dist/main.js:81
 msgid "Pending"
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:51
-#: assets/dist/main.js:1
+#: includes/rest/class-codellia-rest-settings.php:75
+#: assets/dist/main.js:81
 msgid "Private"
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:55
+#: includes/rest/class-codellia-rest-settings.php:79
+#: assets/dist/main.js:81
 msgid "Scheduled"
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:59
+#: includes/rest/class-codellia-rest-settings.php:83
+#: assets/dist/main.js:81
 msgid "Published"
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:82
+#: includes/rest/class-codellia-rest-settings.php:106
 msgid "Default"
 msgstr ""
 
@@ -359,11 +353,11 @@ msgstr ""
 msgid "Invalid payload."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:421
+#: includes/rest/class-codellia-rest-settings.php:343
 msgid "Invalid external scripts payload."
 msgstr ""
 
-#: includes/rest/class-codellia-rest-settings.php:470
+#: includes/rest/class-codellia-rest-settings.php:392
 msgid "Invalid external styles payload."
 msgstr ""
 
@@ -371,560 +365,493 @@ msgstr ""
 msgid "Invalid setup mode."
 msgstr ""
 
-#: assets/dist/main.js:1
-#: includes/class-codellia-admin.php:157
-msgid "Layout"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Default follows the admin layout setting."
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Canvas hides the theme header and footer."
+#: assets/dist/main.js:81
+msgid "Standalone hides the theme header and footer."
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Full width includes header, full-width content, and footer."
+#: assets/dist/main.js:81
+msgid "Frame uses the theme header and footer."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Theme uses the active theme layout."
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Canvas"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Full width"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Theme"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 #, js-format
 msgid "Default (%s)"
 msgstr ""
 
-#: includes/class-codellia-admin.php:172
-msgid "Default layout"
-msgstr ""
-
-#: includes/class-codellia-admin.php:276
-msgid "Choose the default layout used by Codellia previews."
-msgstr ""
-
-#: includes/class-codellia-admin.php:304
-msgid "Applies when layout is set to Default."
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Output settings"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Enable JavaScript"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Enable Shadow DOM (DSD)"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Enable shortcode"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+msgid "Codellia shortcode"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Copy shortcode"
+msgstr ""
+
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
+msgid "Copied"
+msgstr ""
+
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
+msgid "Copy"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Copied."
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Copy failed."
+msgstr ""
+
+#: assets/dist/main.js:81
 msgid "Do not publish as single page"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+msgid "You can paste this into a shortcode block in Gutenberg or Elementor."
+msgstr ""
+
+#: assets/dist/main.js:81
 msgid "Requires unfiltered_html capability."
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Prevents interference with existing theme CSS."
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Rendering settings"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Enable live edit highlight"
+#: assets/dist/main.js:81
+msgid "Enable Shadow DOM (DSD)"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+msgid "Prevents interference with existing theme CSS."
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "External resource settings"
+msgstr ""
+
+#: assets/dist/main.js:81
 msgid "External scripts"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "https://example.com/script.js"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Remove external script"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Remove"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Add external script"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Add"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 #, js-format
 msgid "Only URLs starting with https:// are allowed. You can add up to %d items."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "External styles"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "https://example.com/style.css"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Remove external style"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Add external style"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "External resource settings"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Display settings"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "You can paste this into a shortcode block in Gutenberg or Elementor."
+#: assets/dist/main.js:81
+msgid "Enable live edit highlight"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Codellia shortcode"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Copy shortcode"
-msgstr ""
-
-#: assets/dist/main.js:1
-#: src/admin/main.ts
-msgid "Copied"
-msgstr ""
-
-#: assets/dist/main.js:1
-#: src/admin/main.ts
-msgid "Copy"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Copied."
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Copy failed."
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Elements"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Select an element in the preview to edit its content and attributes."
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Text"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Attributes"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Attribute name"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Value"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Remove attribute"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Add attribute"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+msgid "Select an element in the preview to edit its content and attributes."
+msgstr ""
+
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
 msgid "Update failed."
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Close"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Status"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Status: %s"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Draft"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Pending"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Scheduled"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Published"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Password"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Cancel"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Save"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Save draft"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Update"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Save for review"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Update as private"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Publish"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Move to review"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Make private"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Revert to draft"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Save options"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Select"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Settings tabs"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Close settings panel"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Title"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
 msgid "Settings unavailable."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Import file is not a valid JSON object."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Invalid JSON file."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Import unavailable."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Select a JSON file to import."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Import failed."
 msgstr ""
 
-#: assets/dist/main.js:1
-#: assets/dist/main.js:23
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
 msgid "Setup failed."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Choose editor mode"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Select TailwindCSS or Normal mode. This choice cannot be changed later."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Normal (HTML/CSS)"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Edit HTML and CSS directly with Monaco."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Use utility classes. CSS is compiled automatically."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Import JSON"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Restore from an exported Codellia JSON file."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Choose JSON file"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "No file selected."
 msgstr ""
 
-#: assets/dist/main.js:1
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Back"
 msgstr ""
 
-#: assets/dist/main.js:1
-#: assets/dist/main.js:23
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
 msgid "Saving..."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Continue"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Setup unavailable."
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "wp.apiFetch is unavailable."
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Show"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Hide"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Show code"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Hide code"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "(Draft)"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "View post"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Preview"
 msgstr ""
 
-#: assets/admin/editor-bridge.js
-msgid "Edit with Codellia"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Close settings"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "Unsaved changes"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Back to WordPress"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Codellia pages"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Undo"
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Redo"
-msgstr ""
-
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Desktop"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Tablet"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Mobile"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+msgid "Back to WordPress"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Untitled"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "(Draft)"
+msgstr ""
+
+#: assets/dist/main.js:81
 msgid "Tailwind CSS"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Editing in Tailwind CSS mode"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+msgid "Save draft"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Save for review"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Update as private"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Update"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Publish"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Move to review"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Make private"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Revert to draft"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Undo"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Redo"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Title"
+msgstr ""
+
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
+msgid "Close"
+msgstr ""
+
+#: assets/dist/main.js:81
+msgid "Cancel"
+msgstr ""
+
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
+msgid "Save"
+msgstr ""
+
+#: assets/dist/main.js:81
 msgid "Export"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+msgid "Save options"
+msgstr ""
+
+#: assets/dist/main.js:81
+#, js-format
+msgid "Status: %s"
+msgstr ""
+
+#: assets/dist/main.js:81
 msgid "HTML"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "CSS"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "JavaScript"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
 msgid "Run"
 msgstr ""
 
-#: assets/dist/main.js:1
+#: assets/dist/main.js:81
+#: assets/dist/main.js:103
 msgid "Shadow DOM Hint"
 msgstr ""
 
-#: assets/dist/main.js:1
-msgid "When Shadow DOM is enabled, HTML is rendered inside the Shadow Root."
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Use the root below (scoped to this script) instead of document to query elements."
-msgstr ""
-
-#: assets/dist/main.js:1
-msgid "Note: root can be Document or ShadowRoot; create* APIs are only on Document."
-msgstr ""
-
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "Tailwind compile failed."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 #, js-format
 msgid "Tailwind error: %s"
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "Setup wizard unavailable."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "Export unavailable."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "Exporting..."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "Exported."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 #, js-format
 msgid "Export error: %s"
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "Export failed."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
+msgid "Save failed."
+msgstr ""
+
+#: assets/dist/main.js:103
 msgid "Saved."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 #, js-format
 msgid "Save error: %s"
 msgstr ""
 
-#: assets/dist/main.js:23
-msgid "Save failed."
-msgstr ""
-
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "Loading Monaco..."
 msgstr ""
 
-#: assets/dist/main.js:23
+#: assets/dist/main.js:103
 msgid "You may have unsaved changes."
 msgstr ""
 
+#: assets/dist/main.js:103
+msgid "When Shadow DOM is enabled, HTML is rendered inside the Shadow Root."
+msgstr ""
 
+#: assets/dist/main.js:103
+msgid "Use the root below (scoped to this script) instead of document to query elements."
+msgstr ""
 
+#: assets/dist/main.js:103
+msgid "Note: root can be Document or ShadowRoot; create* APIs are only on Document."
+msgstr ""
 
+#: assets/dist/main.js:103
+msgid "Theme layout unavailable"
+msgstr ""
 
+#: assets/dist/main.js:103
+msgid "This theme does not output \"the_content\", so the preview cannot be rendered. Codellia will switch the layout to Frame."
+msgstr ""
 
-
+#: assets/dist/main.js:103
+msgid "OK"
+msgstr ""
