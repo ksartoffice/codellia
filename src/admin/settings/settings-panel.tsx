@@ -18,17 +18,16 @@ type SettingsPanelProps = {
   externalScripts: string[];
   onChangeExternalScripts: (scripts: string[]) => void;
   onCommitExternalScripts: (scripts: string[]) => void;
+  externalScriptsMax: number;
   externalStyles: string[];
   onChangeExternalStyles: (styles: string[]) => void;
   onCommitExternalStyles: (styles: string[]) => void;
+  externalStylesMax: number;
   disabled?: boolean;
   error?: string;
   externalScriptsError?: string;
   externalStylesError?: string;
 };
-
-const MAX_EXTERNAL_SCRIPTS = 5;
-const MAX_EXTERNAL_STYLES = 5;
 
 export function SettingsPanel({
   postId,
@@ -47,9 +46,11 @@ export function SettingsPanel({
   externalScripts,
   onChangeExternalScripts,
   onCommitExternalScripts,
+  externalScriptsMax,
   externalStyles,
   onChangeExternalStyles,
   onCommitExternalStyles,
+  externalStylesMax,
   disabled = false,
   error,
   externalScriptsError,
@@ -58,9 +59,9 @@ export function SettingsPanel({
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
   const copyTimeoutRef = useRef<number | null>(null);
   const shortcodeInputRef = useRef<HTMLInputElement | null>(null);
-  const canAddScript = !disabled && externalScripts.length < MAX_EXTERNAL_SCRIPTS;
+  const canAddScript = !disabled && externalScripts.length < externalScriptsMax;
   const hasScripts = externalScripts.length > 0;
-  const canAddStyle = !disabled && externalStyles.length < MAX_EXTERNAL_STYLES;
+  const canAddStyle = !disabled && externalStyles.length < externalStylesMax;
   const hasStyles = externalStyles.length > 0;
   const shortcodeText = `[codellia post_id="${postId}"]`;
   const layoutLabels: Record<'standalone' | 'frame' | 'theme', string> = {
@@ -356,7 +357,7 @@ export function SettingsPanel({
                   'Only URLs starting with https:// are allowed. You can add up to %d items.',
                   'codellia'
                 ),
-                MAX_EXTERNAL_SCRIPTS
+                externalScriptsMax
               )}
             </div>
             {externalScriptsError ? (
@@ -419,7 +420,7 @@ export function SettingsPanel({
           {/* translators: %d: maximum number of items. */}
           {sprintf(
             __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'codellia' ),
-            MAX_EXTERNAL_STYLES
+            externalStylesMax
           )}
         </div>
         {externalStylesError ? (

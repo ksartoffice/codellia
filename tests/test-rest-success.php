@@ -91,6 +91,58 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
 	}
 
+	public function test_save_applies_settings_updates_and_returns_settings_payload(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/save',
+			array(
+				'post_id'         => $post_id,
+				'html'            => '<p>Save with settings updates</p>',
+				'css'             => 'body{color:#111;}',
+				'tailwindEnabled' => false,
+				'settingsUpdates' => array(
+					'layout'               => 'frame',
+					'shadowDomEnabled'     => true,
+					'shortcodeEnabled'     => true,
+					'singlePageEnabled'    => false,
+					'liveHighlightEnabled' => false,
+					'externalScripts'      => array( 'https://example.com/runtime.js' ),
+					'externalStyles'       => array( 'https://example.com/runtime.css' ),
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Save with settings updates should succeed.' );
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false, 'Response should include ok=true.' );
+		$this->assertIsArray( $data['settings'] ?? null, 'Response should include settings payload.' );
+
+		$this->assertSame( 'frame', get_post_meta( $post_id, '_codellia_layout', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shadow_dom', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shortcode_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_single_page_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_live_highlight', true ) );
+		$this->assertSame(
+			array( 'https://example.com/runtime.js' ),
+			External_Scripts::get_external_scripts( $post_id )
+		);
+		$this->assertSame(
+			array( 'https://example.com/runtime.css' ),
+			External_Styles::get_external_styles( $post_id )
+		);
+
+		$this->assertSame( true, $data['settings']['shadowDomEnabled'] ?? null );
+		$this->assertSame( false, $data['settings']['singlePageEnabled'] ?? null );
+		$this->assertSame(
+			array( 'https://example.com/runtime.js' ),
+			$data['settings']['externalScripts'] ?? null
+		);
+	}
+
 	public function test_settings_update_persists_metadata_and_post_fields(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );

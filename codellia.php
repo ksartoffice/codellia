@@ -34,6 +34,7 @@ if ( file_exists( $codellia_autoload ) ) {
 require_once CODELLIA_PATH . 'includes/class-codellia-post-type.php';
 require_once CODELLIA_PATH . 'includes/class-codellia-admin.php';
 require_once CODELLIA_PATH . 'includes/class-codellia-editor-bridge.php';
+require_once CODELLIA_PATH . 'includes/class-codellia-limits.php';
 require_once CODELLIA_PATH . 'includes/class-codellia-external-scripts.php';
 require_once CODELLIA_PATH . 'includes/class-codellia-external-styles.php';
 require_once CODELLIA_PATH . 'includes/rest/class-codellia-rest-save.php';

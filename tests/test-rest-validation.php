@@ -250,6 +250,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 						'https://example.com/4.js',
 						'https://example.com/5.js',
 						'https://example.com/6.js',
+						'https://example.com/7.js',
+						'https://example.com/8.js',
+						'https://example.com/9.js',
+						'https://example.com/10.js',
+						'https://example.com/11.js',
 					),
 				),
 			)
@@ -311,12 +316,49 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 						'https://example.com/4.css',
 						'https://example.com/5.css',
 						'https://example.com/6.css',
+						'https://example.com/7.css',
+						'https://example.com/8.css',
+						'https://example.com/9.css',
+						'https://example.com/10.css',
+						'https://example.com/11.css',
 					),
 				),
 			)
 		);
 
 		$this->assertSame( 400, $response->get_status(), 'External styles should respect the max limit.' );
+	}
+
+	public function test_save_rejects_invalid_settings_updates_and_preserves_content(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => 'Before save',
+			)
+		);
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/save',
+			array(
+				'post_id'         => $post_id,
+				'html'            => 'After save',
+				'css'             => '',
+				'tailwindEnabled' => false,
+				'settingsUpdates' => array(
+					'externalScripts' => array( 'http://example.com/invalid.js' ),
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'Invalid settings updates should fail save.' );
+
+		$post = get_post( $post_id );
+		$this->assertInstanceOf( WP_Post::class, $post );
+		$this->assertSame( 'Before save', (string) $post->post_content, 'Content should stay unchanged when settings validation fails.' );
 	}
 
 	public function test_save_strips_xss_from_html_for_author(): void {

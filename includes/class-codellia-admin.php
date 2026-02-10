@@ -31,11 +31,119 @@ class Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_filter( 'admin_title', array( __CLASS__, 'filter_admin_title' ), 10, 2 );
+		add_action( 'current_screen', array( __CLASS__, 'maybe_suppress_editor_notices' ) );
 		add_action( 'admin_action_codellia', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=codellia.
 		add_action( 'load-post-new.php', array( __CLASS__, 'maybe_redirect_new_post' ) );
 		add_action( 'update_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_update' ), 10, 2 );
 		add_action( 'add_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_add' ), 10, 2 );
 		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 20 );
+	}
+
+	/**
+	 * Suppress all admin notices on the full-screen Codellia editor page.
+	 *
+	 * @param \WP_Screen $screen Current admin screen.
+	 */
+	public static function maybe_suppress_editor_notices( $screen ): void {
+		if ( ! $screen instanceof \WP_Screen ) {
+			return;
+		}
+
+		if ( 'admin_page_' . self::MENU_SLUG !== $screen->id ) {
+			return;
+		}
+
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
+	}
+
+	/**
+	 * Build the browser title for the Codellia editor screen.
+	 *
+	 * @param string $admin_title Current admin title.
+	 * @param string $title       Current admin page title (left side).
+	 * @return string
+	 */
+	public static function filter_admin_title( string $admin_title, string $title ): string {
+		if ( ! self::is_editor_page_request() ) {
+			return $admin_title;
+		}
+
+		$post_title = self::resolve_editor_post_title();
+		$suffix     = self::extract_admin_title_suffix( $admin_title, $title );
+
+		/* translators: %s: post title. */
+		$editor_title = sprintf( __( 'Codellia Editor: %s', 'codellia' ), $post_title );
+
+		if ( '' === $suffix ) {
+			return $editor_title;
+		}
+
+		return $editor_title . $suffix;
+	}
+
+	/**
+	 * Check whether the current request targets the Codellia editor page.
+	 *
+	 * @return bool
+	 */
+	private static function is_editor_page_request(): bool {
+		$page = isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return self::MENU_SLUG === $page;
+	}
+
+	/**
+	 * Resolve the post title used in the browser title.
+	 *
+	 * @return string
+	 */
+	private static function resolve_editor_post_title(): string {
+		$fallback_title = __( 'Untitled', 'codellia' );
+		$post_id        = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $post_id ) {
+			return $fallback_title;
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post || Post_Type::POST_TYPE !== $post->post_type ) {
+			return $fallback_title;
+		}
+
+		$post_title = trim( wp_strip_all_tags( (string) $post->post_title ) );
+		return '' !== $post_title ? $post_title : $fallback_title;
+	}
+
+	/**
+	 * Keep WordPress suffix (site name + WordPress) as-is when replacing the left title.
+	 *
+	 * @param string $admin_title Current admin title.
+	 * @param string $title       Current admin page title (left side).
+	 * @return string
+	 */
+	private static function extract_admin_title_suffix( string $admin_title, string $title ): string {
+		if ( '' === $admin_title ) {
+			return '';
+		}
+
+		if ( '' !== $title && str_starts_with( $admin_title, $title ) ) {
+			return (string) substr( $admin_title, strlen( $title ) );
+		}
+
+		$separators = array(
+			' ' . "\xE2\x80\xB9" . ' ',
+			' &lsaquo; ',
+		);
+		foreach ( $separators as $separator ) {
+			$position = strpos( $admin_title, $separator );
+			if ( false !== $position ) {
+				return (string) substr( $admin_title, $position );
+			}
+		}
+
+		return '';
 	}
 	/**
 	 * Redirect from admin.php?action=codellia to the custom editor page.
@@ -410,6 +518,13 @@ class Admin {
 		wp_enqueue_script( 'codellia-admin' );
 		wp_enqueue_style( 'codellia-admin' );
 		wp_enqueue_style( 'wp-components' );
+		wp_add_inline_style(
+			'codellia-admin',
+			'body.admin_page_codellia #wpbody-content > .notice,'
+			. 'body.admin_page_codellia #wpbody-content > .update-nag,'
+			. 'body.admin_page_codellia #wpbody-content > .updated,'
+			. 'body.admin_page_codellia #wpbody-content > .error{display:none !important;}'
+		);
 		wp_enqueue_media();
 
 		wp_set_script_translations(

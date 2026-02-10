@@ -23,9 +23,9 @@ class External_Styles {
 	 * @return array
 	 */
 	public static function get_external_styles( int $post_id, ?int $max = null ): array {
+
 		$raw  = get_post_meta( $post_id, '_codellia_external_styles', true );
 		$list = array();
-
 		if ( is_array( $raw ) ) {
 			$list = $raw;
 		} elseif ( is_string( $raw ) && '' !== $raw ) {
@@ -35,9 +35,12 @@ class External_Styles {
 			}
 		}
 
+		if ( null === $max ) {
+			$max = Limits::MAX_EXTERNAL_STYLES;
+		}
+
 		return self::sanitize_list( $list, $max );
 	}
-
 	/**
 	 * Validate a list of external stylesheet URLs.
 	 *

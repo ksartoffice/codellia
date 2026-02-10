@@ -129,6 +129,30 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to save JS.' );
 	}
 
+	public function test_rest_save_requires_unfiltered_html_for_js_related_settings_updates(): void {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id   = $this->create_codellia_post( $author_id );
+
+		$params = array(
+			'post_id'         => $post_id,
+			'html'            => '<p>Test</p>',
+			'css'             => '',
+			'tailwindEnabled' => false,
+			'settingsUpdates' => array(
+				'shadowDomEnabled' => true,
+			),
+		);
+
+		wp_set_current_user( $author_id );
+		$response = $this->dispatch_route( '/codellia/v1/save', $params );
+		$this->assertSame( 403, $response->get_status(), 'Saving JS-related settings should require unfiltered_html.' );
+
+		wp_set_current_user( $admin_id );
+		$response = $this->dispatch_route( '/codellia/v1/save', $params );
+		$this->assertSame( 200, $response->get_status(), 'Admins should be able to save JS-related settings.' );
+	}
+
 	public function test_rest_settings_requires_unfiltered_html_for_js_related_updates(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );

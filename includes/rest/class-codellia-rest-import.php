@@ -17,8 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * REST callbacks for Codellia import.
  */
 class Rest_Import {
-	private const MAX_EXTERNAL_SCRIPTS = 5;
-	private const MAX_EXTERNAL_STYLES  = 5;
 
 	/**
 	 * Import a Codellia JSON payload into a post.
@@ -199,7 +197,7 @@ class Rest_Import {
 			$error            = null;
 			$external_scripts = External_Scripts::validate_list(
 				array_values( $payload['externalScripts'] ),
-				self::MAX_EXTERNAL_SCRIPTS,
+				Limits::MAX_EXTERNAL_SCRIPTS,
 				$error
 			);
 			if ( null === $external_scripts ) {
@@ -228,7 +226,7 @@ class Rest_Import {
 			$error           = null;
 			$external_styles = External_Styles::validate_list(
 				array_values( $payload['externalStyles'] ),
-				self::MAX_EXTERNAL_STYLES,
+				Limits::MAX_EXTERNAL_STYLES,
 				$error
 			);
 			if ( null === $external_styles ) {

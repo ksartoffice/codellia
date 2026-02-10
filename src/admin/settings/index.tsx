@@ -1,14 +1,15 @@
-﻿import {
+import {
   createElement,
   Fragment,
   createPortal,
   createRoot,
   render,
-  useCallback,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { X } from 'lucide';
 import { renderLucideIcon } from '../lucide-icons';
 import { SettingsPanel } from './settings-panel';
@@ -56,35 +57,34 @@ export type SettingsData = {
   canEditJs: boolean;
   externalScripts: string[];
   externalStyles: string[];
+  externalScriptsMax: number;
+  externalStylesMax: number;
+};
+
+export type PendingSettingsState = {
+  updates: Record<string, any>;
+  hasUnsavedSettings: boolean;
+  hasValidationErrors: boolean;
 };
 
 type SettingsConfig = {
   container: HTMLElement;
   header?: HTMLElement;
   data: SettingsData;
-  restUrl: string;
   postId: number;
-  backUrl?: string;
-  apiFetch?: (args: any) => Promise<any>;
+  onLayoutChange?: (layout: 'default' | 'standalone' | 'frame' | 'theme') => void;
   onShadowDomToggle?: (enabled: boolean) => void;
   onShortcodeToggle?: (enabled: boolean) => void;
+  onSinglePageToggle?: (enabled: boolean) => void;
   onLiveHighlightToggle?: (enabled: boolean) => void;
   onExternalScriptsChange?: (scripts: string[]) => void;
   onExternalStylesChange?: (styles: string[]) => void;
   onTabChange?: (tab: SettingsTab) => void;
   onSettingsUpdate?: (settings: SettingsData) => void;
+  onPendingUpdatesChange?: (state: PendingSettingsState) => void;
   onClosePanel?: () => void;
   elementsApi?: ElementPanelApi;
 };
-
-type UpdateResponse = {
-  ok?: boolean;
-  error?: string;
-  settings?: SettingsData;
-  redirectUrl?: string;
-};
-
-type UpdateSettings = (updates: Record<string, any>) => Promise<UpdateResponse>;
 
 type SettingsTab = 'settings' | 'elements';
 
@@ -92,43 +92,43 @@ const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
 });
 
-function getErrorMessage(error: unknown, fallback = __( 'Update failed.', 'codellia' )) {
-  if (typeof error === 'string' && error.trim()) return error;
-  if (error instanceof Error) {
-    if (error.message && error.message !== '[object Object]') return error.message;
-    const cause = (error as { cause?: unknown }).cause;
-    if (cause) return getErrorMessage(cause, fallback);
-  }
-  if (error && typeof error === 'object') {
-    const message = (error as { message?: unknown }).message;
-    if (typeof message === 'string' && message.trim()) return message;
-    const errorField = (error as { error?: unknown }).error;
-    if (typeof errorField === 'string' && errorField.trim()) return errorField;
-    const nestedMessage = (errorField as { message?: unknown })?.message;
-    if (typeof nestedMessage === 'string' && nestedMessage.trim()) return nestedMessage;
-  }
-  return fallback;
+function normalizeList(list: string[]) {
+  return list
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
+function isSameList(left: string[], right: string[]) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
 
+function isValidHttpsUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
 
 function SettingsSidebar({
   data,
-  restUrl,
   postId,
-  backUrl,
-  apiFetch,
   header,
+  onLayoutChange,
   onShadowDomToggle,
   onShortcodeToggle,
+  onSinglePageToggle,
   onLiveHighlightToggle,
   onExternalScriptsChange,
   onExternalStylesChange,
   onTabChange,
   onSettingsUpdate,
+  onPendingUpdatesChange,
   onClosePanel,
   elementsApi,
 }: SettingsConfig) {
+  const settingsRef = useRef<SettingsData>({ ...data });
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeTab, setActiveTab] = useState<SettingsTab>('settings');
   const resolveLayout = (value?: string): 'default' | 'standalone' | 'frame' | 'theme' => {
@@ -162,30 +162,24 @@ function SettingsSidebar({
   const [externalScriptsError, setExternalScriptsError] = useState('');
   const [externalStyles, setExternalStyles] = useState<string[]>(data.externalStyles || []);
   const [externalStylesError, setExternalStylesError] = useState('');
+  const externalScriptsMax = settings.externalScriptsMax;
+  const externalStylesMax = settings.externalStylesMax;
 
-  useEffect(() => {
-    setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
-  }, [settings.shadowDomEnabled]);
-
-  useEffect(() => {
-    setLayout(resolveLayout(settings.layout));
-  }, [settings.layout]);
-
-  useEffect(() => {
-    setDefaultLayout(resolveDefaultLayout(settings.defaultLayout));
-  }, [settings.defaultLayout]);
-
-  useEffect(() => {
-    setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
-  }, [settings.shortcodeEnabled]);
-
-  useEffect(() => {
-    setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
-  }, [settings.singlePageEnabled]);
-
-  useEffect(() => {
-    setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
-  }, [settings.liveHighlightEnabled]);
+  const applySettingsSnapshot = (nextSettings: SettingsData) => {
+    settingsRef.current = nextSettings;
+    setSettings(nextSettings);
+    setShadowDomEnabled(Boolean(nextSettings.shadowDomEnabled));
+    setLayout(resolveLayout(nextSettings.layout));
+    setDefaultLayout(resolveDefaultLayout(nextSettings.defaultLayout));
+    setShortcodeEnabled(Boolean(nextSettings.shortcodeEnabled));
+    setSinglePageEnabled(resolveSinglePageEnabled(nextSettings.singlePageEnabled));
+    setLiveHighlightEnabled(resolveLiveHighlightEnabled(nextSettings.liveHighlightEnabled));
+    setExternalScripts(nextSettings.externalScripts || []);
+    setExternalStyles(nextSettings.externalStyles || []);
+    setDesignError('');
+    setExternalScriptsError('');
+    setExternalStylesError('');
+  };
 
   useEffect(() => {
     onTabChange?.(activeTab);
@@ -207,23 +201,21 @@ function SettingsSidebar({
       if (!detail || !detail.settings) {
         return;
       }
-      setSettings((prev) => ({ ...prev, ...detail.settings }));
+      const nextSettings = { ...settingsRef.current, ...detail.settings } as SettingsData;
+      applySettingsSnapshot(nextSettings);
+      onSettingsUpdate?.(nextSettings);
     };
     window.addEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
     return () => {
       window.removeEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
     };
-  }, []);
+  }, [onSettingsUpdate]);
+
+  const canEditJs = Boolean(settings.canEditJs);
 
   useEffect(() => {
-    setExternalScripts(settings.externalScripts || []);
-    onExternalScriptsChange?.(settings.externalScripts || []);
-  }, [settings.externalScripts, onExternalScriptsChange]);
-
-  useEffect(() => {
-    setExternalStyles(settings.externalStyles || []);
-    onExternalStylesChange?.(settings.externalStyles || []);
-  }, [settings.externalStyles, onExternalStylesChange]);
+    onLayoutChange?.(layout);
+  }, [layout, onLayoutChange]);
 
   useEffect(() => {
     onShadowDomToggle?.(shadowDomEnabled);
@@ -234,64 +226,62 @@ function SettingsSidebar({
   }, [shortcodeEnabled, onShortcodeToggle]);
 
   useEffect(() => {
+    onSinglePageToggle?.(singlePageEnabled);
+  }, [singlePageEnabled, onSinglePageToggle]);
+
+  useEffect(() => {
     onLiveHighlightToggle?.(liveHighlightEnabled);
   }, [liveHighlightEnabled, onLiveHighlightToggle]);
+
+  useEffect(() => {
+    onExternalScriptsChange?.(normalizeList(externalScripts));
+  }, [externalScripts, onExternalScriptsChange]);
+
+  useEffect(() => {
+    onExternalStylesChange?.(normalizeList(externalStyles));
+  }, [externalStyles, onExternalStylesChange]);
+
+  const validateExternalScripts = (list: string[]) => {
+    if (list.length > externalScriptsMax) {
+      /* translators: %d: maximum number of items. */
+      return sprintf(
+        __( 'You can add up to %d external scripts.', 'codellia' ),
+        externalScriptsMax
+      );
+    }
+    if (list.some((entry) => !isValidHttpsUrl(entry))) {
+      return __( 'External scripts must be valid https:// URLs.', 'codellia' );
+    }
+    return '';
+  };
+
+  const validateExternalStyles = (list: string[]) => {
+    if (list.length > externalStylesMax) {
+      /* translators: %d: maximum number of items. */
+      return sprintf(
+        __( 'You can add up to %d external styles.', 'codellia' ),
+        externalStylesMax
+      );
+    }
+    if (list.some((entry) => !isValidHttpsUrl(entry))) {
+      return __( 'External styles must be valid https:// URLs.', 'codellia' );
+    }
+    return '';
+  };
 
   const handleTabChange = (tab: SettingsTab) => {
     setActiveTab(tab);
   };
 
-  const updateSettings = useCallback(
-    async (updates: Record<string, any>) => {
-      const response = await apiFetch?.({
-        url: restUrl,
-        method: 'POST',
-        data: {
-          post_id: postId,
-          updates,
-        },
-      });
-
-      if (!response?.ok) {
-        throw new Error(getErrorMessage(response?.error, __( 'Update failed.', 'codellia' )));
-      }
-
-      if (response?.settings) {
-        const nextSettings = response.settings as SettingsData;
-        setSettings(nextSettings);
-        onSettingsUpdate?.(nextSettings);
-      }
-
-      return response;
-    },
-    [apiFetch, restUrl, postId, onSettingsUpdate]
-  );
-
-  const canEditJs = Boolean(settings.canEditJs);
-
-  const normalizeList = (list: string[]) =>
-    list
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-
-  const isSameList = (left: string[], right: string[]) =>
-    left.length === right.length && left.every((value, index) => value === right[index]);
-
-  const handleShadowDomToggle = async (enabled: boolean) => {
+  const handleShadowDomToggle = (enabled: boolean) => {
     if (!canEditJs) {
       return;
     }
     setDesignError('');
     setShadowDomEnabled(enabled);
-    try {
-      await updateSettings({ shadowDomEnabled: enabled });
-    } catch (err: any) {
-      setDesignError(err?.message || String(err));
-      setShadowDomEnabled(Boolean(settings.shadowDomEnabled));
-    }
   };
 
-  const handleLayoutChange = async (
+  const handleLayoutChange = (
     next: 'default' | 'standalone' | 'frame' | 'theme'
   ) => {
     if (!canEditJs) {
@@ -299,15 +289,9 @@ function SettingsSidebar({
     }
     setDesignError('');
     setLayout(next);
-    try {
-      await updateSettings({ layout: next });
-    } catch (err: any) {
-      setDesignError(err?.message || String(err));
-      setLayout(resolveLayout(settings.layout));
-    }
   };
 
-  const handleShortcodeToggle = async (enabled: boolean) => {
+  const handleShortcodeToggle = (enabled: boolean) => {
     if (!canEditJs) {
       return;
     }
@@ -317,93 +301,129 @@ function SettingsSidebar({
     if (shouldEnableSinglePage) {
       setSinglePageEnabled(true);
     }
-    try {
-      if (shouldEnableSinglePage) {
-        await updateSettings({ shortcodeEnabled: enabled, singlePageEnabled: true });
-      } else {
-        await updateSettings({ shortcodeEnabled: enabled });
-      }
-    } catch (err: any) {
-      setDesignError(err?.message || String(err));
-      setShortcodeEnabled(Boolean(settings.shortcodeEnabled));
-      if (shouldEnableSinglePage) {
-        setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
-      }
-    }
   };
 
-  const handleSinglePageToggle = async (enabled: boolean) => {
+  const handleSinglePageToggle = (enabled: boolean) => {
     if (!canEditJs) {
       return;
     }
     setDesignError('');
     setSinglePageEnabled(enabled);
-    try {
-      await updateSettings({ singlePageEnabled: enabled });
-    } catch (err: any) {
-      setDesignError(err?.message || String(err));
-      setSinglePageEnabled(resolveSinglePageEnabled(settings.singlePageEnabled));
-    }
   };
 
-  const handleLiveHighlightToggle = async (enabled: boolean) => {
+  const handleLiveHighlightToggle = (enabled: boolean) => {
     setDesignError('');
     setLiveHighlightEnabled(enabled);
-    try {
-      await updateSettings({ liveHighlightEnabled: enabled });
-    } catch (err: any) {
-      setDesignError(err?.message || String(err));
-      setLiveHighlightEnabled(resolveLiveHighlightEnabled(settings.liveHighlightEnabled));
-    }
   };
 
   const handleExternalScriptsChange = (next: string[]) => {
     setExternalScripts(next);
+    setExternalScriptsError('');
   };
 
-  const handleExternalScriptsCommit = async (next: string[]) => {
+  const handleExternalScriptsCommit = (next: string[]) => {
     if (!canEditJs) {
       return;
     }
     const normalizedNext = normalizeList(next);
-    const normalizedCurrent = normalizeList(settings.externalScripts || []);
-    if (isSameList(normalizedNext, normalizedCurrent)) {
-      setExternalScripts(normalizedNext);
-      return;
-    }
-    setExternalScriptsError('');
     setExternalScripts(next);
-    try {
-      await updateSettings({ externalScripts: normalizedNext });
-    } catch (err: any) {
-      setExternalScriptsError(getErrorMessage(err, __( 'Update failed.', 'codellia' )));
-      setExternalScripts(settings.externalScripts || []);
-    }
+    setExternalScriptsError(validateExternalScripts(normalizedNext));
   };
 
   const handleExternalStylesChange = (next: string[]) => {
     setExternalStyles(next);
+    setExternalStylesError('');
   };
 
-  const handleExternalStylesCommit = async (next: string[]) => {
+  const handleExternalStylesCommit = (next: string[]) => {
     if (!canEditJs) {
       return;
     }
     const normalizedNext = normalizeList(next);
-    const normalizedCurrent = normalizeList(settings.externalStyles || []);
-    if (isSameList(normalizedNext, normalizedCurrent)) {
-      setExternalStyles(normalizedNext);
-      return;
-    }
-    setExternalStylesError('');
     setExternalStyles(next);
-    try {
-      await updateSettings({ externalStyles: normalizedNext });
-    } catch (err: any) {
-      setExternalStylesError(getErrorMessage(err, __( 'Update failed.', 'codellia' )));
-      setExternalStyles(settings.externalStyles || []);
-    }
+    setExternalStylesError(validateExternalStyles(normalizedNext));
   };
+
+  const pendingSettingsState = useMemo<PendingSettingsState>(() => {
+    const updates: Record<string, any> = {};
+    const savedLayout = resolveLayout(settings.layout);
+    const savedShadowDomEnabled = Boolean(settings.shadowDomEnabled);
+    const savedShortcodeEnabled = Boolean(settings.shortcodeEnabled);
+    const savedSinglePageEnabled = resolveSinglePageEnabled(settings.singlePageEnabled);
+    const savedLiveHighlightEnabled = resolveLiveHighlightEnabled(settings.liveHighlightEnabled);
+    const normalizedExternalScripts = normalizeList(externalScripts);
+    const normalizedSavedExternalScripts = normalizeList(settings.externalScripts || []);
+    const normalizedExternalStyles = normalizeList(externalStyles);
+    const normalizedSavedExternalStyles = normalizeList(settings.externalStyles || []);
+
+    const layoutChanged = layout !== savedLayout;
+    const shadowDomChanged = canEditJs && shadowDomEnabled !== savedShadowDomEnabled;
+    const shortcodeChanged = canEditJs && shortcodeEnabled !== savedShortcodeEnabled;
+    const singlePageChanged = canEditJs && singlePageEnabled !== savedSinglePageEnabled;
+    const liveHighlightChanged = liveHighlightEnabled !== savedLiveHighlightEnabled;
+    const externalScriptsChanged =
+      canEditJs && !isSameList(normalizedExternalScripts, normalizedSavedExternalScripts);
+    const externalStylesChanged =
+      canEditJs && !isSameList(normalizedExternalStyles, normalizedSavedExternalStyles);
+
+    if (layoutChanged) {
+      updates.layout = layout;
+    }
+    if (shadowDomChanged) {
+      updates.shadowDomEnabled = shadowDomEnabled;
+    }
+    if (shortcodeChanged) {
+      updates.shortcodeEnabled = shortcodeEnabled;
+    }
+    if (singlePageChanged) {
+      updates.singlePageEnabled = singlePageEnabled;
+    }
+    if (liveHighlightChanged) {
+      updates.liveHighlightEnabled = liveHighlightEnabled;
+    }
+    if (externalScriptsChanged && !externalScriptsError) {
+      updates.externalScripts = normalizedExternalScripts;
+    }
+    if (externalStylesChanged && !externalStylesError) {
+      updates.externalStyles = normalizedExternalStyles;
+    }
+
+    return {
+      updates,
+      hasUnsavedSettings:
+        layoutChanged ||
+        shadowDomChanged ||
+        shortcodeChanged ||
+        singlePageChanged ||
+        liveHighlightChanged ||
+        externalScriptsChanged ||
+        externalStylesChanged,
+      hasValidationErrors: Boolean(designError || externalScriptsError || externalStylesError),
+    };
+  }, [
+    canEditJs,
+    designError,
+    externalScripts,
+    externalScriptsError,
+    externalStyles,
+    externalStylesError,
+    layout,
+    liveHighlightEnabled,
+    settings.externalScripts,
+    settings.externalStyles,
+    settings.layout,
+    settings.liveHighlightEnabled,
+    settings.shadowDomEnabled,
+    settings.shortcodeEnabled,
+    settings.singlePageEnabled,
+    shadowDomEnabled,
+    shortcodeEnabled,
+    singlePageEnabled,
+  ]);
+
+  useEffect(() => {
+    onPendingUpdatesChange?.(pendingSettingsState);
+  }, [onPendingUpdatesChange, pendingSettingsState]);
 
   const tabs = (
     <div className="cd-settingsTabsRow">
@@ -472,6 +492,8 @@ function SettingsSidebar({
           externalStyles={externalStyles}
           onChangeExternalStyles={handleExternalStylesChange}
           onCommitExternalStyles={handleExternalStylesCommit}
+          externalScriptsMax={externalScriptsMax}
+          externalStylesMax={externalStylesMax}
           disabled={!canEditJs}
           error={designError}
           externalScriptsError={externalScriptsError}
@@ -480,18 +502,12 @@ function SettingsSidebar({
       ) : null}
 
       {activeTab === 'elements' ? <ElementPanel api={elementsApi} /> : null}
-
     </Fragment>
   );
 }
 
 export function initSettings(config: SettingsConfig) {
-  const { container, apiFetch } = config;
-
-  if (!apiFetch) {
-    container.textContent = __( 'Settings unavailable.', 'codellia' );
-    return;
-  }
+  const { container } = config;
 
   const root = typeof createRoot === 'function' ? createRoot(container) : null;
   const node = <SettingsSidebar {...config} />;
@@ -501,4 +517,3 @@ export function initSettings(config: SettingsConfig) {
     render(node, container);
   }
 }
-

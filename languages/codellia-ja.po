@@ -840,6 +840,11 @@ msgstr "スタンドアロンはテーマのヘッダーとフッターを表示
 msgid "Untitled"
 msgstr ""
 
+#: includes/class-codellia-admin.php:83
+#: assets/dist/main.js:81
+msgid "Codellia Editor: %s"
+msgstr "Codellia Editor: %s"
+
 #: assets/dist/main.js:103
 msgid "Theme layout unavailable"
 msgstr ""

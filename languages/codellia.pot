@@ -673,6 +673,11 @@ msgstr ""
 msgid "Untitled"
 msgstr ""
 
+#: includes/class-codellia-admin.php:83
+#: assets/dist/main.js:81
+msgid "Codellia Editor: %s"
+msgstr ""
+
 #: assets/dist/main.js:81
 msgid "(Draft)"
 msgstr ""
