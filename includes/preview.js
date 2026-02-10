@@ -71,34 +71,25 @@
     range.insertNode(host);
     range.detach();
 
-    host.innerHTML =
-      '<template shadowrootmode="open">' +
-      '<style id="' +
-      styleId +
-      '"></style>' +
-      '<div id="' +
-      shadowContentId +
-      '"></div>' +
-      '<div id="' +
-      shadowScriptsId +
-      '"></div>' +
-      '</template>';
-
     shadowHost = host;
-    shadowRoot = host.shadowRoot || null;
-    if (!shadowRoot && host.attachShadow) {
-      shadowRoot = host.attachShadow({ mode: 'open' });
-      shadowRoot.innerHTML =
-        '<style id="' +
-        styleId +
-        '"></style>' +
-        '<div id="' +
-        shadowContentId +
-        '"></div>' +
-        '<div id="' +
-        shadowScriptsId +
-        '"></div>';
+    shadowRoot = null;
+    if (host.attachShadow) {
+      try {
+        shadowRoot = host.attachShadow({ mode: 'open' });
+      } catch (e) {
+        shadowRoot = null;
+      }
     }
+    const root = shadowRoot || host;
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    const contentEl = document.createElement('div');
+    contentEl.id = shadowContentId;
+    const scriptsEl = document.createElement('div');
+    scriptsEl.id = shadowScriptsId;
+    root.appendChild(styleEl);
+    root.appendChild(contentEl);
+    root.appendChild(scriptsEl);
     return shadowHost;
   }
 
