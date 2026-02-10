@@ -332,6 +332,8 @@ async function main() {
         ...cfg.settingsData,
         externalScripts: payload.externalScripts ?? [],
         externalStyles: payload.externalStyles ?? [],
+        externalScriptsMax: cfg.settingsData.externalScriptsMax,
+        externalStylesMax: cfg.settingsData.externalStylesMax,
         shadowDomEnabled: payload.shadowDomEnabled ?? false,
         shortcodeEnabled: payload.shortcodeEnabled ?? cfg.settingsData.shortcodeEnabled ?? false,
         singlePageEnabled:

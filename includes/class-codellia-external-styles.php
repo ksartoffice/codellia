@@ -35,6 +35,10 @@ class External_Styles {
 			}
 		}
 
+		if ( null === $max ) {
+			$max = Limits::MAX_EXTERNAL_STYLES;
+		}
+
 		return self::sanitize_list( $list, $max );
 	}
 

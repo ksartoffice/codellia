@@ -319,7 +319,7 @@ body.admin_page_codellia #wpbody-content {
   border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
-  color: #e6e8ea;
+  color: #e6e8ea!important;
   font-size: 12px;
   text-decoration: none;
   white-space: nowrap;

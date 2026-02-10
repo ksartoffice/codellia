@@ -57,6 +57,8 @@ export type SettingsData = {
   canEditJs: boolean;
   externalScripts: string[];
   externalStyles: string[];
+  externalScriptsMax: number;
+  externalStylesMax: number;
 };
 
 export type PendingSettingsState = {
@@ -89,9 +91,6 @@ type SettingsTab = 'settings' | 'elements';
 const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
 });
-
-const MAX_EXTERNAL_SCRIPTS = 5;
-const MAX_EXTERNAL_STYLES = 5;
 
 function normalizeList(list: string[]) {
   return list
@@ -163,6 +162,8 @@ function SettingsSidebar({
   const [externalScriptsError, setExternalScriptsError] = useState('');
   const [externalStyles, setExternalStyles] = useState<string[]>(data.externalStyles || []);
   const [externalStylesError, setExternalStylesError] = useState('');
+  const externalScriptsMax = settings.externalScriptsMax;
+  const externalStylesMax = settings.externalStylesMax;
 
   const applySettingsSnapshot = (nextSettings: SettingsData) => {
     settingsRef.current = nextSettings;
@@ -241,11 +242,11 @@ function SettingsSidebar({
   }, [externalStyles, onExternalStylesChange]);
 
   const validateExternalScripts = (list: string[]) => {
-    if (list.length > MAX_EXTERNAL_SCRIPTS) {
+    if (list.length > externalScriptsMax) {
       /* translators: %d: maximum number of items. */
       return sprintf(
         __( 'You can add up to %d external scripts.', 'codellia' ),
-        MAX_EXTERNAL_SCRIPTS
+        externalScriptsMax
       );
     }
     if (list.some((entry) => !isValidHttpsUrl(entry))) {
@@ -255,11 +256,11 @@ function SettingsSidebar({
   };
 
   const validateExternalStyles = (list: string[]) => {
-    if (list.length > MAX_EXTERNAL_STYLES) {
+    if (list.length > externalStylesMax) {
       /* translators: %d: maximum number of items. */
       return sprintf(
         __( 'You can add up to %d external styles.', 'codellia' ),
-        MAX_EXTERNAL_STYLES
+        externalStylesMax
       );
     }
     if (list.some((entry) => !isValidHttpsUrl(entry))) {
@@ -491,6 +492,8 @@ function SettingsSidebar({
           externalStyles={externalStyles}
           onChangeExternalStyles={handleExternalStylesChange}
           onCommitExternalStyles={handleExternalStylesCommit}
+          externalScriptsMax={externalScriptsMax}
+          externalStylesMax={externalStylesMax}
           disabled={!canEditJs}
           error={designError}
           externalScriptsError={externalScriptsError}

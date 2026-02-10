@@ -250,6 +250,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 						'https://example.com/4.js',
 						'https://example.com/5.js',
 						'https://example.com/6.js',
+						'https://example.com/7.js',
+						'https://example.com/8.js',
+						'https://example.com/9.js',
+						'https://example.com/10.js',
+						'https://example.com/11.js',
 					),
 				),
 			)
@@ -311,6 +316,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 						'https://example.com/4.css',
 						'https://example.com/5.css',
 						'https://example.com/6.css',
+						'https://example.com/7.css',
+						'https://example.com/8.css',
+						'https://example.com/9.css',
+						'https://example.com/10.css',
+						'https://example.com/11.css',
 					),
 				),
 			)

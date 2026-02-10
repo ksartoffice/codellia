@@ -15,8 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * REST callbacks for updating Codellia settings.
  */
 class Rest_Settings {
-	private const MAX_EXTERNAL_SCRIPTS = 5;
-	private const MAX_EXTERNAL_STYLES  = 5;
 	private const LAYOUT_VALUES         = array( 'default', 'standalone', 'frame', 'theme' );
 	private const DEFAULT_LAYOUT_VALUES = array( 'standalone', 'frame', 'theme' );
 
@@ -182,8 +180,10 @@ class Rest_Settings {
 			'singlePageEnabled'    => $single_page_enabled,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'canEditJs'            => current_user_can( 'unfiltered_html' ),
-			'externalScripts'      => External_Scripts::get_external_scripts( $post_id, self::MAX_EXTERNAL_SCRIPTS ),
-			'externalStyles'       => External_Styles::get_external_styles( $post_id, self::MAX_EXTERNAL_STYLES ),
+			'externalScripts'      => External_Scripts::get_external_scripts( $post_id, Limits::MAX_EXTERNAL_SCRIPTS ),
+			'externalStyles'       => External_Styles::get_external_styles( $post_id, Limits::MAX_EXTERNAL_STYLES ),
+			'externalScriptsMax'   => Limits::MAX_EXTERNAL_SCRIPTS,
+			'externalStylesMax'    => Limits::MAX_EXTERNAL_STYLES,
 		);
 	}
 
@@ -354,7 +354,7 @@ class Rest_Settings {
 			$error          = null;
 			$sanitized      = External_Scripts::validate_list(
 				$string_scripts,
-				self::MAX_EXTERNAL_SCRIPTS,
+				Limits::MAX_EXTERNAL_SCRIPTS,
 				$error
 			);
 			if ( null === $sanitized ) {
@@ -396,7 +396,7 @@ class Rest_Settings {
 			$error         = null;
 			$sanitized     = External_Styles::validate_list(
 				$string_styles,
-				self::MAX_EXTERNAL_STYLES,
+				Limits::MAX_EXTERNAL_STYLES,
 				$error
 			);
 			if ( null === $sanitized ) {

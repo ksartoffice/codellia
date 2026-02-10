@@ -35,6 +35,10 @@ class External_Scripts {
 			}
 		}
 
+		if ( null === $max ) {
+			$max = Limits::MAX_EXTERNAL_SCRIPTS;
+		}
+
 		return self::sanitize_list( $list, $max );
 	}
 
