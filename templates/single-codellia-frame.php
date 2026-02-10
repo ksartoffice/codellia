@@ -1,6 +1,6 @@
 <?php
 /**
- * Full width layout template for Codellia.
+ * Frame layout template for Codellia.
  *
  * @package Codellia
  */
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_filter(
 	'body_class',
 	static function ( $classes ) {
-		$classes[] = 'codellia-layout-fullwidth';
+		$classes[] = 'codellia-layout-frame';
 		return $classes;
 	}
 );

@@ -47,8 +47,8 @@ export type SettingsData = {
   formats: SettingsOption[];
   canPublish: boolean;
   canTrash: boolean;
-  layout?: 'default' | 'canvas' | 'fullwidth' | 'theme';
-  defaultLayout?: 'canvas' | 'fullwidth' | 'theme';
+  layout?: 'default' | 'standalone' | 'frame' | 'theme';
+  defaultLayout?: 'standalone' | 'frame' | 'theme';
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   singlePageEnabled: boolean;
@@ -131,14 +131,14 @@ function SettingsSidebar({
 }: SettingsConfig) {
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeTab, setActiveTab] = useState<SettingsTab>('settings');
-  const resolveLayout = (value?: string): 'default' | 'canvas' | 'fullwidth' | 'theme' => {
-    if (value === 'canvas' || value === 'fullwidth' || value === 'theme' || value === 'default') {
+  const resolveLayout = (value?: string): 'default' | 'standalone' | 'frame' | 'theme' => {
+    if (value === 'standalone' || value === 'frame' || value === 'theme' || value === 'default') {
       return value;
     }
     return 'default';
   };
-  const resolveDefaultLayout = (value?: string): 'canvas' | 'fullwidth' | 'theme' => {
-    if (value === 'canvas' || value === 'fullwidth' || value === 'theme') {
+  const resolveDefaultLayout = (value?: string): 'standalone' | 'frame' | 'theme' => {
+    if (value === 'standalone' || value === 'frame' || value === 'theme') {
       return value;
     }
     return 'theme';
@@ -292,7 +292,7 @@ function SettingsSidebar({
   };
 
   const handleLayoutChange = async (
-    next: 'default' | 'canvas' | 'fullwidth' | 'theme'
+    next: 'default' | 'standalone' | 'frame' | 'theme'
   ) => {
     if (!canEditJs) {
       return;

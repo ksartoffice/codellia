@@ -56,15 +56,51 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
-const resolveLayout = (value?: string): 'default' | 'canvas' | 'fullwidth' | 'theme' => {
-  if (value === 'canvas' || value === 'fullwidth' || value === 'theme' || value === 'default') {
+const VIEWPORT_TARGET_WIDTH = 1280;
+const VIEWPORT_TRIGGER_WIDTH = 900;
+const VIEWPORT_ORIGINAL_ATTR = 'data-codellia-original-viewport';
+
+const applySmallScreenViewport = () => {
+  const meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
+  if (!meta) {
+    return;
+  }
+
+  if (!meta.hasAttribute(VIEWPORT_ORIGINAL_ATTR)) {
+    const original = meta.getAttribute('content') ?? '';
+    meta.setAttribute(VIEWPORT_ORIGINAL_ATTR, original);
+  }
+
+  const original = meta.getAttribute(VIEWPORT_ORIGINAL_ATTR) ?? '';
+  const isSmallScreen =
+    Math.min(window.screen.width, window.screen.height) <= VIEWPORT_TRIGGER_WIDTH;
+
+  if (isSmallScreen) {
+    const nextContent = `width=${VIEWPORT_TARGET_WIDTH}`;
+    if (meta.getAttribute('content') !== nextContent) {
+      meta.setAttribute('content', nextContent);
+    }
+  } else if (meta.getAttribute('content') !== original) {
+    meta.setAttribute('content', original);
+  }
+};
+
+const initSmallScreenViewport = () => {
+  applySmallScreenViewport();
+  const refresh = debounce(() => applySmallScreenViewport(), 150);
+  window.addEventListener('resize', refresh);
+  window.addEventListener('orientationchange', refresh);
+};
+
+const resolveLayout = (value?: string): 'default' | 'standalone' | 'frame' | 'theme' => {
+  if (value === 'standalone' || value === 'frame' || value === 'theme' || value === 'default') {
     return value;
   }
   return 'default';
 };
 
-const resolveDefaultLayout = (value?: string): 'canvas' | 'fullwidth' | 'theme' => {
-  if (value === 'canvas' || value === 'fullwidth' || value === 'theme') {
+const resolveDefaultLayout = (value?: string): 'standalone' | 'frame' | 'theme' => {
+  if (value === 'standalone' || value === 'frame' || value === 'theme') {
     return value;
   }
   return 'theme';
@@ -176,6 +212,7 @@ async function main() {
   const postId = cfg.post_id;
   const mount = document.getElementById('codellia-app');
   if (!mount) return;
+  initSmallScreenViewport();
   mountNotices();
 
   const ui = buildLayout(mount);
@@ -978,11 +1015,11 @@ async function main() {
 
   const missingMarkersTitle = __( 'Theme layout unavailable', 'codellia' );
   const missingMarkersBody = __(
-    'This theme does not output "the_content", so the preview cannot be rendered. Codellia will switch the layout to Full width.',
+    'This theme does not output "the_content", so the preview cannot be rendered. Codellia will switch the layout to Frame.',
     'codellia'
   );
   const missingMarkersActionLabel = __( 'OK', 'codellia' );
-  const missingMarkersFallbackLayout: 'canvas' | 'fullwidth' = 'fullwidth';
+  const missingMarkersFallbackLayout: 'standalone' | 'frame' = 'frame';
 
   let missingMarkersModal: HTMLDivElement | null = null;
   let missingMarkersInFlight = false;
@@ -1611,12 +1648,12 @@ async function main() {
     syncUnsavedUi();
   });
 
-  // ������ iframe load ���ɑ���
+  // Handle iframe load event
   ui.iframe.addEventListener('load', () => {
     preview?.handleIframeLoad();
   });
 
-  // iframe -> parent �ւ̒ʐM�FDOM �Z���N�^�̎󂯎����⏉�����ɗp����
+  // Handle messages from iframe to parent for DOM selection and initialization
   window.addEventListener('message', (event) => {
     preview?.handleMessage(event);
   });

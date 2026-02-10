@@ -45,8 +45,8 @@ class Frontend {
 	 */
 	private static bool $shadow_runtime_enqueued = false;
 	private const LAYOUT_META_KEY                = '_codellia_layout';
-	private const LAYOUT_VALUES                  = array( 'default', 'canvas', 'fullwidth', 'theme' );
-	private const DEFAULT_LAYOUT_VALUES          = array( 'canvas', 'fullwidth', 'theme' );
+	private const LAYOUT_VALUES                  = array( 'default', 'standalone', 'frame', 'theme' );
+	private const DEFAULT_LAYOUT_VALUES          = array( 'standalone', 'frame', 'theme' );
 
 	/**
 	 * Register front-end hooks.
@@ -293,10 +293,10 @@ class Frontend {
 		}
 
 		$path = '';
-		if ( 'canvas' === $layout ) {
-			$path = CODELLIA_PATH . 'templates/single-codellia-canvas.php';
-		} elseif ( 'fullwidth' === $layout ) {
-			$path = CODELLIA_PATH . 'templates/single-codellia-fullwidth.php';
+		if ( 'standalone' === $layout ) {
+			$path = CODELLIA_PATH . 'templates/single-codellia-standalone.php';
+		} elseif ( 'frame' === $layout ) {
+			$path = CODELLIA_PATH . 'templates/single-codellia-frame.php';
 		}
 
 		if ( $path && file_exists( $path ) ) {
