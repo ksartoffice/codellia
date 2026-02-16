@@ -15,39 +15,10 @@ import { renderLucideIcon } from '../lucide-icons';
 import { SettingsPanel } from './settings-panel';
 import { ElementPanel, type ElementPanelApi } from './element-panel';
 
-type SettingsOption = {
-  value: string;
-  label: string;
-};
-
-type SettingsAuthor = {
-  id: number;
-  name: string;
-};
-
 export type SettingsData = {
   title: string;
   status: string;
-  visibility: 'public' | 'private' | 'password';
-  password?: string;
-  dateLocal?: string;
-  dateLabel?: string;
-  slug: string;
   viewUrl?: string;
-  author: number;
-  commentStatus: 'open' | 'closed';
-  pingStatus: 'open' | 'closed';
-  template: string;
-  format: string;
-  featuredImageId: number;
-  featuredImageUrl?: string;
-  featuredImageAlt?: string;
-  statusOptions: SettingsOption[];
-  authors: SettingsAuthor[];
-  templates: SettingsOption[];
-  formats: SettingsOption[];
-  canPublish: boolean;
-  canTrash: boolean;
   layout?: 'default' | 'standalone' | 'frame' | 'theme';
   defaultLayout?: 'standalone' | 'frame' | 'theme';
   shadowDomEnabled: boolean;

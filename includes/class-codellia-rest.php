@@ -51,6 +51,7 @@ class Rest {
 					'shortcodes' => array(
 						'type'     => 'array',
 						'required' => true,
+						'maxItems' => Limits::MAX_RENDER_SHORTCODES,
 					),
 				),
 			)
@@ -69,12 +70,14 @@ class Rest {
 						'required' => true,
 					),
 					'html'    => array(
-						'type'     => 'string',
-						'required' => true,
+						'type'      => 'string',
+						'required'  => true,
+						'maxLength' => Limits::MAX_TAILWIND_HTML_BYTES,
 					),
 					'css'     => array(
-						'type'     => 'string',
-						'required' => false,
+						'type'      => 'string',
+						'required'  => false,
+						'maxLength' => Limits::MAX_TAILWIND_CSS_BYTES,
 					),
 				),
 			)

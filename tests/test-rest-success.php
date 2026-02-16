@@ -8,8 +8,48 @@
 use Codellia\External_Scripts;
 use Codellia\External_Styles;
 use Codellia\Post_Type;
+use Codellia\Rest_Settings;
 
 class Test_Rest_Success extends WP_UnitTestCase {
+	private const SETTINGS_PAYLOAD_KEYS = array(
+		'title',
+		'status',
+		'viewUrl',
+		'layout',
+		'defaultLayout',
+		'shadowDomEnabled',
+		'shortcodeEnabled',
+		'singlePageEnabled',
+		'liveHighlightEnabled',
+		'canEditJs',
+		'externalScripts',
+		'externalStyles',
+		'externalScriptsMax',
+		'externalStylesMax',
+	);
+
+	private const REMOVED_SETTINGS_PAYLOAD_KEYS = array(
+		'visibility',
+		'password',
+		'dateLocal',
+		'dateLabel',
+		'slug',
+		'author',
+		'authors',
+		'commentStatus',
+		'pingStatus',
+		'template',
+		'format',
+		'featuredImageId',
+		'featuredImageUrl',
+		'featuredImageAlt',
+		'statusOptions',
+		'templates',
+		'formats',
+		'canPublish',
+		'canTrash',
+	);
+
 	protected function setUp(): void {
 		parent::setUp();
 		rest_get_server();
@@ -120,6 +160,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$data = $response->get_data();
 		$this->assertSame( true, $data['ok'] ?? false, 'Response should include ok=true.' );
 		$this->assertIsArray( $data['settings'] ?? null, 'Response should include settings payload.' );
+		$this->assert_settings_payload_keys( $data['settings'] );
 
 		$this->assertSame( 'frame', get_post_meta( $post_id, '_codellia_layout', true ) );
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shadow_dom', true ) );
@@ -172,6 +213,8 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status(), 'Settings update should succeed for admins.' );
 		$data = $response->get_data();
 		$this->assertSame( true, $data['ok'] ?? false, 'Response should include ok=true.' );
+		$this->assertIsArray( $data['settings'] ?? null, 'Response should include settings payload.' );
+		$this->assert_settings_payload_keys( $data['settings'] );
 
 		$post = get_post( $post_id );
 		$this->assertInstanceOf( WP_Post::class, $post );
@@ -199,6 +242,47 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertSame( false, $data['settings']['liveHighlightEnabled'] ?? null );
 		$this->assertSame( array( 'https://example.com/app.js' ), $data['settings']['externalScripts'] ?? null );
 		$this->assertSame( array( 'https://example.com/app.css' ), $data['settings']['externalStyles'] ?? null );
+	}
+
+	public function test_build_settings_payload_returns_minimal_keys_only(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$settings = Rest_Settings::build_settings_payload( $post_id );
+
+		$this->assertIsArray( $settings, 'Settings payload should be an array.' );
+		$this->assert_settings_payload_keys( $settings );
+		$this->assertArrayNotHasKey( 'authors', $settings, 'Authors should not be returned.' );
+	}
+
+	public function test_import_returns_minimal_settings_payload(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/import',
+			array(
+				'post_id' => $post_id,
+				'payload' => array(
+					'version'         => 1,
+					'html'            => '<p>Imported</p>',
+					'css'             => '',
+					'tailwindEnabled' => false,
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Import should succeed for admins.' );
+
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false, 'Response should include ok=true.' );
+		$this->assertIsArray( $data['settingsData'] ?? null, 'Response should include settingsData payload.' );
+		$this->assert_settings_payload_keys( $data['settingsData'] );
+		$this->assertArrayNotHasKey( 'authors', $data['settingsData'], 'Authors should not be returned.' );
 	}
 
 	public function test_save_compiles_tailwind_and_stores_generated_css(): void {
@@ -250,5 +334,22 @@ class Test_Rest_Success extends WP_UnitTestCase {
 			$this->fail( $response->get_error_message() );
 		}
 		return $response;
+	}
+
+	private function assert_settings_payload_keys( array $settings ): void {
+		$expected_keys = self::SETTINGS_PAYLOAD_KEYS;
+		sort( $expected_keys );
+		$actual_keys = array_keys( $settings );
+		sort( $actual_keys );
+
+		$this->assertSame( $expected_keys, $actual_keys, 'Settings payload keys should match the minimal schema.' );
+
+		foreach ( self::REMOVED_SETTINGS_PAYLOAD_KEYS as $removed_key ) {
+			$this->assertArrayNotHasKey(
+				$removed_key,
+				$settings,
+				sprintf( 'Legacy settings key "%s" should not exist.', $removed_key )
+			);
+		}
 	}
 }

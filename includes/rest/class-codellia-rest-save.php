@@ -88,6 +88,19 @@ class Rest_Save {
 			$tailwind_enabled = '1' === $tailwind_meta;
 		}
 
+		if ( $tailwind_enabled ) {
+			$size_validation = self::validate_tailwind_input_size( $html, $css_input );
+			if ( is_wp_error( $size_validation ) ) {
+				return new \WP_REST_Response(
+					array(
+						'ok'    => false,
+						'error' => $size_validation->get_error_message(),
+					),
+					400
+				);
+			}
+		}
+
 		$result = wp_update_post(
 			array(
 				'ID'           => $post_id,
@@ -182,6 +195,33 @@ class Rest_Save {
 	}
 
 	/**
+	 * Validate Tailwind compile input size.
+	 *
+	 * @param string $html HTML input.
+	 * @param string $css  CSS input.
+	 * @return true|\WP_Error
+	 */
+	private static function validate_tailwind_input_size( string $html, string $css ) {
+		if ( strlen( $html ) > Limits::MAX_TAILWIND_HTML_BYTES ) {
+			return new \WP_Error(
+				'codellia_tailwind_html_too_large',
+				__( 'Tailwind HTML input exceeds the maximum size.', 'codellia' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( strlen( $css ) > Limits::MAX_TAILWIND_CSS_BYTES ) {
+			return new \WP_Error(
+				'codellia_tailwind_css_too_large',
+				__( 'Tailwind CSS input exceeds the maximum size.', 'codellia' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Compile Tailwind CSS for preview.
 	 *
 	 * @param \WP_REST_Request $request REST request.
@@ -197,6 +237,17 @@ class Rest_Save {
 				array(
 					'ok'    => false,
 					'error' => __( 'Invalid post type.', 'codellia' ),
+				),
+				400
+			);
+		}
+
+		$size_validation = self::validate_tailwind_input_size( $html, $css_input );
+		if ( is_wp_error( $size_validation ) ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => $size_validation->get_error_message(),
 				),
 				400
 			);

@@ -1,0 +1,122 @@
+<?php
+/**
+ * Admin settings and rewrite behavior tests for Codellia.
+ *
+ * @package Codellia
+ */
+
+use Codellia\Admin;
+use Codellia\Post_Type;
+
+class Test_Admin_Settings extends WP_UnitTestCase {
+	protected function setUp(): void {
+		parent::setUp();
+
+		if ( ! post_type_exists( Post_Type::POST_TYPE ) ) {
+			Post_Type::register();
+		}
+
+		if ( ! class_exists( 'WP_Admin_Bar' ) ) {
+			require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
+		}
+	}
+
+	protected function tearDown(): void {
+		delete_option( Admin::OPTION_FLUSH_REWRITE );
+		delete_option( Admin::OPTION_POST_SLUG );
+		delete_option( Admin::OPTION_DEFAULT_LAYOUT );
+		delete_option( Admin::OPTION_DELETE_ON_UNINSTALL );
+		parent::tearDown();
+	}
+
+	public function test_sanitize_post_slug_returns_sanitized_value_or_default(): void {
+		$this->assertSame( 'my-custom-slug', Admin::sanitize_post_slug( 'My Custom Slug' ) );
+		$this->assertSame( Post_Type::SLUG, Admin::sanitize_post_slug( '' ) );
+	}
+
+	public function test_sanitize_default_layout_allows_known_values_only(): void {
+		$this->assertSame( 'standalone', Admin::sanitize_default_layout( 'standalone' ) );
+		$this->assertSame( 'frame', Admin::sanitize_default_layout( 'frame' ) );
+		$this->assertSame( 'theme', Admin::sanitize_default_layout( 'invalid' ) );
+	}
+
+	public function test_sanitize_delete_on_uninstall_accepts_only_string_one(): void {
+		$this->assertSame( '1', Admin::sanitize_delete_on_uninstall( '1' ) );
+		$this->assertSame( '0', Admin::sanitize_delete_on_uninstall( '0' ) );
+		$this->assertSame( '0', Admin::sanitize_delete_on_uninstall( 1 ) );
+	}
+
+	public function test_filter_admin_url_rewrites_codellia_add_new_url_with_nonce(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$url    = admin_url( 'post-new.php?post_type=' . Post_Type::POST_TYPE );
+		$result = Admin::filter_admin_url( $url, 'post-new.php?post_type=' . Post_Type::POST_TYPE, get_current_blog_id() );
+
+		$parts = wp_parse_url( str_replace( '&amp;', '&', $result ) );
+		$query = array();
+		if ( ! empty( $parts['query'] ) ) {
+			parse_str( (string) $parts['query'], $query );
+		}
+
+		$this->assertSame( Admin::NEW_POST_ACTION, $query['action'] ?? '' );
+		$this->assertSame( Post_Type::POST_TYPE, $query['post_type'] ?? '' );
+		$this->assertNotEmpty( $query['_wpnonce'] ?? '' );
+	}
+
+	public function test_filter_admin_url_keeps_non_codellia_routes_unchanged(): void {
+		$path   = 'post-new.php?post_type=post';
+		$url    = admin_url( $path );
+		$result = Admin::filter_admin_url( $url, $path, get_current_blog_id() );
+
+		$this->assertSame( $url, $result );
+	}
+
+	public function test_override_admin_bar_new_link_replaces_href(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$admin_bar = new WP_Admin_Bar();
+		$admin_bar->add_node(
+			array(
+				'id'   => 'new-' . Post_Type::POST_TYPE,
+				'href' => admin_url( 'post-new.php?post_type=' . Post_Type::POST_TYPE ),
+			)
+		);
+
+		Admin::override_admin_bar_new_link( $admin_bar );
+		$node = $admin_bar->get_node( 'new-' . Post_Type::POST_TYPE );
+
+		$this->assertNotNull( $node );
+		$this->assertStringContainsString( 'action=' . Admin::NEW_POST_ACTION, $node->href );
+		$this->assertStringContainsString( '_wpnonce=', $node->href );
+	}
+
+	public function test_handle_post_slug_update_sets_flush_flag_only_when_value_changes(): void {
+		update_option( Admin::OPTION_FLUSH_REWRITE, '0' );
+
+		Admin::handle_post_slug_update( 'codellia', 'codellia' );
+		$this->assertSame( '0', get_option( Admin::OPTION_FLUSH_REWRITE, '0' ) );
+
+		Admin::handle_post_slug_update( 'codellia', 'codellia-new' );
+		$this->assertSame( '1', get_option( Admin::OPTION_FLUSH_REWRITE, '0' ) );
+	}
+
+	public function test_handle_post_slug_add_sets_flush_flag_for_non_empty_value(): void {
+		update_option( Admin::OPTION_FLUSH_REWRITE, '0' );
+
+		Admin::handle_post_slug_add( Admin::OPTION_POST_SLUG, '' );
+		$this->assertSame( '0', get_option( Admin::OPTION_FLUSH_REWRITE, '0' ) );
+
+		Admin::handle_post_slug_add( Admin::OPTION_POST_SLUG, 'custom-slug' );
+		$this->assertSame( '1', get_option( Admin::OPTION_FLUSH_REWRITE, '0' ) );
+	}
+
+	public function test_maybe_flush_rewrite_rules_clears_flush_option(): void {
+		update_option( Admin::OPTION_FLUSH_REWRITE, '1' );
+
+		Admin::maybe_flush_rewrite_rules();
+
+		$this->assertFalse( get_option( Admin::OPTION_FLUSH_REWRITE, false ) );
+	}
+}

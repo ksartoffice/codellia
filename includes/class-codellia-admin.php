@@ -19,6 +19,8 @@ class Admin {
 	const MENU_SLUG                  = 'codellia';
 	const SETTINGS_SLUG              = 'codellia-settings';
 	const SETTINGS_GROUP             = 'codellia_settings';
+	const NEW_POST_ACTION            = 'codellia_new';
+	const NEW_POST_NONCE_ACTION      = 'codellia_new_post';
 	const OPTION_POST_SLUG           = 'codellia_post_slug';
 	const OPTION_DEFAULT_LAYOUT      = 'codellia_default_layout';
 	const OPTION_FLUSH_REWRITE       = 'codellia_flush_rewrite';
@@ -34,7 +36,10 @@ class Admin {
 		add_filter( 'admin_title', array( __CLASS__, 'filter_admin_title' ), 10, 2 );
 		add_action( 'current_screen', array( __CLASS__, 'maybe_suppress_editor_notices' ) );
 		add_action( 'admin_action_codellia', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=codellia.
+		add_action( 'admin_action_' . self::NEW_POST_ACTION, array( __CLASS__, 'action_create_new_post' ) );
 		add_action( 'load-post-new.php', array( __CLASS__, 'maybe_redirect_new_post' ) );
+		add_filter( 'admin_url', array( __CLASS__, 'filter_admin_url' ), 10, 3 );
+		add_action( 'admin_bar_menu', array( __CLASS__, 'override_admin_bar_new_link' ), 100 );
 		add_action( 'update_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_update' ), 10, 2 );
 		add_action( 'add_option_' . self::OPTION_POST_SLUG, array( __CLASS__, 'handle_post_slug_add' ), 10, 2 );
 		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 20 );
@@ -177,6 +182,34 @@ class Admin {
 			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
 		}
 
+		$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! wp_verify_nonce( $nonce, self::NEW_POST_NONCE_ACTION ) ) {
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+		}
+
+		wp_safe_redirect( self::get_new_post_action_url() );
+		exit;
+	}
+
+	/**
+	 * Create a new Codellia draft post from a nonce-protected admin action.
+	 */
+	public static function action_create_new_post(): void {
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : Post_Type::POST_TYPE; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( Post_Type::POST_TYPE !== $post_type ) {
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+		}
+
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->create_posts ) ) {
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+		}
+
+		$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! wp_verify_nonce( $nonce, self::NEW_POST_NONCE_ACTION ) ) {
+			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+		}
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => $post_type,
@@ -186,11 +219,78 @@ class Admin {
 			true
 		);
 		if ( is_wp_error( $post_id ) ) {
-			return;
+			wp_die( esc_html( $post_id->get_error_message() ) );
 		}
 
 		wp_safe_redirect( Post_Type::get_editor_url( (int) $post_id ) );
 		exit;
+	}
+
+	/**
+	 * Replace Codellia add-new admin links with a nonce-protected action URL.
+	 *
+	 * @param string $url     Generated admin URL.
+	 * @param string $path    Requested admin path.
+	 * @param mixed  $blog_id Site ID.
+	 * @return string
+	 */
+	public static function filter_admin_url( string $url, string $path, $blog_id ): string {
+		unset( $blog_id );
+
+		if ( '' === $path ) {
+			return $url;
+		}
+
+		$normalized_path = str_replace( '&amp;', '&', $path );
+		$parts           = wp_parse_url( $normalized_path );
+		$route_path      = isset( $parts['path'] ) ? ltrim( (string) $parts['path'], '/' ) : '';
+		if ( 'post-new.php' !== $route_path ) {
+			return $url;
+		}
+
+		$query = array();
+		if ( ! empty( $parts['query'] ) ) {
+			parse_str( (string) $parts['query'], $query );
+		}
+		$post_type = isset( $query['post_type'] ) ? sanitize_key( (string) $query['post_type'] ) : 'post';
+		if ( Post_Type::POST_TYPE !== $post_type ) {
+			return $url;
+		}
+
+		return self::get_new_post_action_url();
+	}
+
+	/**
+	 * Update admin bar "New Codellia" link to use nonce-protected action URL.
+	 *
+	 * @param \WP_Admin_Bar $admin_bar Admin bar instance.
+	 */
+	public static function override_admin_bar_new_link( \WP_Admin_Bar $admin_bar ): void {
+		$node = $admin_bar->get_node( 'new-' . Post_Type::POST_TYPE );
+		if ( ! $node ) {
+			return;
+		}
+
+		$node->href = self::get_new_post_action_url();
+		$admin_bar->add_node( $node );
+	}
+
+	/**
+	 * Build nonce-protected URL for creating a new Codellia draft.
+	 *
+	 * @return string
+	 */
+	private static function get_new_post_action_url(): string {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'    => self::NEW_POST_ACTION,
+					'post_type' => Post_Type::POST_TYPE,
+				),
+				admin_url( 'admin.php' )
+			),
+			self::NEW_POST_NONCE_ACTION
+		);
 	}
 
 	/**
