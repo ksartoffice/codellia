@@ -1,5 +1,5 @@
 === Codellia Editor ===
-Contributors: yourname
+Contributors: codellia
 Tags: live preview, code editor, monaco, tailwind, shortcode
 Requires at least: 6.6
 Tested up to: 6.9
@@ -16,8 +16,10 @@ Codellia Editor provides a dedicated editor for building HTML, CSS, and JavaScri
 Features:
 * Custom Codellia post type and dedicated editor
 * Monaco Editor with HTML/CSS/JS tabs and live iframe preview
+* Setup wizard (Normal/Tailwind/Import JSON) with per-post mode lock
 * Tailwind mode with on-demand compilation
-* Import/export JSON projects
+* Import/export JSON projects (version 1)
+* Per-post layout control: Default/Standalone/Frame/Theme
 * External scripts/styles (https only), live edit highlight, and optional Shadow DOM isolation
 * Shortcode embedding (enable in settings): [codellia post_id="123"]
 * Optional single-page disable for shortcode-based output
@@ -40,8 +42,14 @@ Yes. Enable the shortcode and turn on "Do not publish as single page." Disabled 
 = Can I switch between Normal and Tailwind modes? =
 The setup wizard lets you choose Normal or Tailwind. The choice is locked per Codellia post.
 
+= How do layouts work? =
+Each Codellia post can use Default, Standalone, Frame, or Theme layout. Default follows Codellia > Settings > Default layout. If Theme layout does not expose the_content in your theme, Codellia preview prompts to switch to Frame.
+
 = Can I change the Codellia URL slug? =
 Yes. Go to Codellia > Settings and update the Codellia slug.
+
+= Can I set a default layout for new previews? =
+Yes. Go to Codellia > Settings and set the Default layout (Standalone/Frame/Theme).
 
 = Does the plugin delete data on uninstall? =
 By default, Codellia posts are kept when the plugin is uninstalled. You can enable data removal from the Codellia > Settings screen.
