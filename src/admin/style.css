@@ -623,7 +623,12 @@ body.admin_page_codellia #wpbody-content {
   color: #a7adb8;
 }
 
-.cd-editorHeader.has-unsaved::after,
+.cd-editorTitle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.cd-editorTitle.has-unsaved::after,
 .cd-editorTab.has-unsaved::after {
   content: '\25CF';
   margin-left: 6px;

@@ -710,6 +710,26 @@ msgid "Run"
 msgstr "実行"
 
 #: assets/dist/main.js:103
+msgid "Media library is unavailable."
+msgstr "メディアライブラリを利用できません。"
+
+#: assets/dist/main.js:103
+msgid "Select media to insert into HTML."
+msgstr "HTML に挿入するメディアを選択してください。"
+
+#: assets/dist/main.js:103
+msgid "Insert into HTML"
+msgstr "HTML に挿入"
+
+#: assets/dist/main.js:103
+msgid "The selected media has no URL and was not inserted."
+msgstr "選択したメディアに URL がないため挿入されませんでした。"
+
+#: assets/dist/main.js:81
+msgid "Add Media"
+msgstr "メディアを追加"
+
+#: assets/dist/main.js:103
 msgid "Tailwind compile failed."
 msgstr "Tailwind のコンパイルに失敗しました。"
 

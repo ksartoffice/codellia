@@ -4,6 +4,8 @@ type LayoutRefs = {
   app: HTMLDivElement;
   toolbar: HTMLDivElement;
   htmlHeader: HTMLDivElement;
+  htmlTitle: HTMLSpanElement;
+  addMediaButton: HTMLButtonElement;
   htmlEditorDiv: HTMLDivElement;
   cssEditorDiv: HTMLDivElement;
   jsEditorDiv: HTMLDivElement;
@@ -52,8 +54,16 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
   settings.append(settingsInner);
 
   const htmlPane = el('div', 'cd-editorPane cd-editorPane-html is-active');
-  const htmlHeader = el('div', 'cd-editorHeader');
-  htmlHeader.textContent = __( 'HTML', 'codellia' );
+  const htmlHeader = el('div', 'cd-editorHeader cd-editorHeader-tabs');
+  const htmlTitle = el('span', 'cd-editorTitle');
+  htmlTitle.textContent = __( 'HTML', 'codellia' );
+  const htmlActions = el('div', 'cd-editorActions');
+  const addMediaButton = document.createElement('button');
+  addMediaButton.type = 'button';
+  addMediaButton.className = 'cd-editorAction cd-editorAction-media';
+  addMediaButton.textContent = __( 'Add Media', 'codellia' );
+  htmlActions.append(addMediaButton);
+  htmlHeader.append(htmlTitle, htmlActions);
   const htmlWrap = el('div', 'cd-editorWrap');
   const htmlEditorDiv = el('div', 'cd-editor cd-editor-html');
   htmlWrap.append(htmlEditorDiv);
@@ -112,6 +122,8 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
     app,
     toolbar,
     htmlHeader,
+    htmlTitle,
+    addMediaButton,
     htmlEditorDiv,
     cssEditorDiv,
     jsEditorDiv,
