@@ -6,6 +6,7 @@
  */
 
 use Codellia\Frontend;
+use Codellia\Limits;
 use Codellia\Post_Type;
 
 class Test_Rest_Validation extends WP_UnitTestCase {
@@ -329,6 +330,97 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertSame( 400, $response->get_status(), 'External styles should respect the max limit.' );
 	}
 
+	public function test_compile_tailwind_rejects_html_over_limit(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/compile-tailwind',
+			array(
+				'post_id' => $post_id,
+				'html'    => str_repeat( 'a', Limits::MAX_TAILWIND_HTML_BYTES + 1 ),
+				'css'     => $this->get_tailwind_css_base(),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'Tailwind compile should reject oversized HTML.' );
+	}
+
+	public function test_compile_tailwind_rejects_css_over_limit(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/compile-tailwind',
+			array(
+				'post_id' => $post_id,
+				'html'    => '<div class="text-sm"></div>',
+				'css'     => $this->build_tailwind_css_of_size( Limits::MAX_TAILWIND_CSS_BYTES + 1 ),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'Tailwind compile should reject oversized CSS.' );
+	}
+
+	public function test_compile_tailwind_accepts_exact_limit_sizes(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/compile-tailwind',
+			array(
+				'post_id' => $post_id,
+				'html'    => str_repeat( 'a', Limits::MAX_TAILWIND_HTML_BYTES ),
+				'css'     => $this->build_tailwind_css_of_size( Limits::MAX_TAILWIND_CSS_BYTES ),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Tailwind compile should accept exact-limit HTML/CSS.' );
+	}
+
+	public function test_render_shortcodes_accepts_max_items_boundary(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/render-shortcodes',
+			array(
+				'post_id'    => $post_id,
+				'shortcodes' => $this->build_shortcode_items( Limits::MAX_RENDER_SHORTCODES ),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Shortcode rendering should accept the max item count.' );
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false );
+		$this->assertCount( Limits::MAX_RENDER_SHORTCODES, $data['results'] ?? array() );
+	}
+
+	public function test_render_shortcodes_rejects_over_limit(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/render-shortcodes',
+			array(
+				'post_id'    => $post_id,
+				'shortcodes' => $this->build_shortcode_items( Limits::MAX_RENDER_SHORTCODES + 1 ),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'Shortcode rendering should reject too many items.' );
+	}
+
 	public function test_save_rejects_invalid_settings_updates_and_preserves_content(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );
@@ -359,6 +451,35 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 		$this->assertInstanceOf( WP_Post::class, $post );
 		$this->assertSame( 'Before save', (string) $post->post_content, 'Content should stay unchanged when settings validation fails.' );
+	}
+
+	public function test_save_rejects_tailwind_input_over_limit_and_preserves_content(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => 'Before save',
+			)
+		);
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/save',
+			array(
+				'post_id'         => $post_id,
+				'html'            => str_repeat( 'a', Limits::MAX_TAILWIND_HTML_BYTES + 1 ),
+				'css'             => $this->get_tailwind_css_base(),
+				'tailwindEnabled' => true,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status(), 'Save should reject oversized Tailwind input.' );
+
+		$post = get_post( $post_id );
+		$this->assertInstanceOf( WP_Post::class, $post );
+		$this->assertSame( 'Before save', (string) $post->post_content, 'Content should stay unchanged when Tailwind input is oversized.' );
 	}
 
 	public function test_save_strips_xss_from_html_for_author(): void {
@@ -464,6 +585,35 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 			'css'             => '',
 			'tailwindEnabled' => false,
 		);
+	}
+
+	private function get_tailwind_css_base(): string {
+		return "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n";
+	}
+
+	private function build_tailwind_css_of_size( int $bytes ): string {
+		$base = $this->get_tailwind_css_base();
+		if ( strlen( $base ) >= $bytes ) {
+			return substr( $base, 0, $bytes );
+		}
+
+		$pad = $bytes - strlen( $base );
+		if ( $pad < 4 ) {
+			return $base . str_repeat( 'a', $pad );
+		}
+
+		return $base . '/*' . str_repeat( 'a', $pad - 4 ) . '*/';
+	}
+
+	private function build_shortcode_items( int $count ): array {
+		$items = array();
+		for ( $index = 1; $index <= $count; $index++ ) {
+			$items[] = array(
+				'id'        => 'item-' . $index,
+				'shortcode' => '',
+			);
+		}
+		return $items;
 	}
 }
 

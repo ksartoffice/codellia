@@ -35,6 +35,16 @@ class Rest_Preview {
 			);
 		}
 
+		if ( count( $items ) > Limits::MAX_RENDER_SHORTCODES ) {
+			return new \WP_REST_Response(
+				array(
+					'ok'    => false,
+					'error' => __( 'Too many shortcodes requested.', 'codellia' ),
+				),
+				400
+			);
+		}
+
 		$post = get_post( $post_id );
 		if ( ! $post ) {
 			return new \WP_REST_Response(
