@@ -52,89 +52,6 @@ class Rest_Settings {
 			return array();
 		}
 
-		$visibility = 'public';
-		if ( 'private' === $post->post_status ) {
-			$visibility = 'private';
-		} elseif ( $post->post_password ) {
-			$visibility = 'password';
-		}
-
-		$status_options = array(
-			array(
-				'value' => 'draft',
-				'label' => __( 'Draft', 'codellia' ),
-			),
-			array(
-				'value' => 'pending',
-				'label' => __( 'Pending', 'codellia' ),
-			),
-			array(
-				'value' => 'private',
-				'label' => __( 'Private', 'codellia' ),
-			),
-			array(
-				'value' => 'future',
-				'label' => __( 'Scheduled', 'codellia' ),
-			),
-			array(
-				'value' => 'publish',
-				'label' => __( 'Published', 'codellia' ),
-			),
-		);
-
-		$authors = array_map(
-			static function ( $user ) {
-				return array(
-					'id'   => (int) $user->ID,
-					'name' => (string) $user->display_name,
-				);
-			},
-			get_users(
-				array(
-					'fields'  => array( 'ID', 'display_name' ),
-					'orderby' => 'display_name',
-					'order'   => 'ASC',
-				)
-			)
-		);
-
-		$templates = array(
-			array(
-				'value' => 'default',
-				'label' => __( 'Default', 'codellia' ),
-			),
-		);
-
-		$theme        = wp_get_theme();
-		$template_map = $theme->get_page_templates( $post );
-		foreach ( $template_map as $template_name => $template_file ) {
-			$templates[] = array(
-				'value' => (string) $template_file,
-				'label' => (string) $template_name,
-			);
-		}
-
-		$formats = array(
-			array(
-				'value' => 'standard',
-				'label' => get_post_format_string( 'standard' ),
-			),
-		);
-		if ( current_theme_supports( 'post-formats' ) ) {
-			$supported_formats = get_theme_support( 'post-formats' );
-			$supported_formats = is_array( $supported_formats ) ? ( $supported_formats[0] ?? array() ) : array();
-			foreach ( $supported_formats as $format ) {
-				$formats[] = array(
-					'value' => (string) $format,
-					'label' => get_post_format_string( $format ),
-				);
-			}
-		}
-
-		$featured_id  = (int) get_post_thumbnail_id( $post_id );
-		$featured_url = $featured_id ? wp_get_attachment_image_url( $featured_id, 'medium' ) : '';
-		$featured_alt = $featured_id ? (string) get_post_meta( $featured_id, '_wp_attachment_image_alt', true ) : '';
-
 		$highlight_meta         = get_post_meta( $post_id, '_codellia_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$single_page_enabled    = Post_Type::is_single_page_enabled( $post_id );
@@ -144,35 +61,10 @@ class Rest_Settings {
 			get_option( Admin::OPTION_DEFAULT_LAYOUT, 'theme' )
 		);
 
-		$template_slug = get_page_template_slug( $post_id );
-		$template_slug = $template_slug ? $template_slug : 'default';
-
-		$post_format = get_post_format( $post_id );
-		$post_format = $post_format ? $post_format : 'standard';
-
 		return array(
 			'title'                => (string) $post->post_title,
 			'status'               => (string) $post->post_status,
-			'visibility'           => $visibility,
-			'password'             => (string) $post->post_password,
-			'dateLocal'            => get_post_time( 'Y-m-d\\TH:i', false, $post ),
-			'dateLabel'            => get_post_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), false, $post ),
-			'slug'                 => (string) $post->post_name,
 			'viewUrl'              => $single_page_enabled ? (string) get_permalink( $post_id ) : '',
-			'author'               => (int) $post->post_author,
-			'commentStatus'        => (string) $post->comment_status,
-			'pingStatus'           => (string) $post->ping_status,
-			'template'             => (string) $template_slug,
-			'format'               => (string) $post_format,
-			'featuredImageId'      => $featured_id,
-			'featuredImageUrl'     => $featured_url ? (string) $featured_url : '',
-			'featuredImageAlt'     => $featured_alt,
-			'statusOptions'        => $status_options,
-			'authors'              => $authors,
-			'templates'            => $templates,
-			'formats'              => $formats,
-			'canPublish'           => current_user_can( 'publish_post', $post_id ),
-			'canTrash'             => current_user_can( 'delete_post', $post_id ),
 			'layout'               => $layout,
 			'defaultLayout'        => $default_layout,
 			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true ),
