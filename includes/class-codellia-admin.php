@@ -235,6 +235,8 @@ class Admin {
 	 * @return string
 	 */
 	public static function filter_admin_url( string $url, string $path, $blog_id ): string {
+		unset( $blog_id );
+
 		if ( '' === $path ) {
 			return $url;
 		}
