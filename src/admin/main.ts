@@ -1970,6 +1970,19 @@ async function main() {
     editorCollapsed = collapsed;
     ui.app.classList.toggle('is-editor-collapsed', collapsed);
     toolbarApi?.update({ editorCollapsed: collapsed });
+
+    if (compactEditorMode) {
+      if (collapsed) {
+        ui.left.style.width = '';
+        ui.left.style.flex = '0 0 0';
+      } else {
+        clearLeftWidth();
+      }
+      applyViewportLayout();
+      showPreviewBadgeAfterLayout();
+      return;
+    }
+
     if (collapsed) {
       const currentWidth = ui.left.getBoundingClientRect().width;
       if (currentWidth > 0) {
