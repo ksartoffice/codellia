@@ -13,6 +13,8 @@ import {
   Download,
   ExternalLink,
   Monitor,
+  PanelBottomClose,
+  PanelBottomOpen,
   PanelLeftClose,
   PanelLeftOpen,
   Redo2,
@@ -33,6 +35,7 @@ type ToolbarState = {
   canUndo: boolean;
   canRedo: boolean;
   editorCollapsed: boolean;
+  compactEditorMode: boolean;
   settingsOpen: boolean;
   tailwindEnabled: boolean;
   viewportMode: ViewportMode;
@@ -88,6 +91,12 @@ const ICONS = {
   panelOpen: renderLucideIcon(PanelLeftOpen, {
     class: 'lucide lucide-panel-left-open-icon lucide-panel-left-open',
   }),
+  panelBottomClose: renderLucideIcon(PanelBottomClose, {
+    class: 'lucide lucide-panel-bottom-close-icon lucide-panel-bottom-close',
+  }),
+  panelBottomOpen: renderLucideIcon(PanelBottomOpen, {
+    class: 'lucide lucide-panel-bottom-open-icon lucide-panel-bottom-open',
+  }),
   desktop: renderLucideIcon(Monitor, {
     class: 'lucide lucide-monitor-icon lucide-monitor',
   }),
@@ -123,6 +132,7 @@ function Toolbar({
   canUndo,
   canRedo,
   editorCollapsed,
+  compactEditorMode,
   settingsOpen,
   tailwindEnabled,
   hasUnsavedChanges,
@@ -149,7 +159,13 @@ function Toolbar({
   const toggleLabel = editorCollapsed
     ? __( 'Show code', 'codellia' )
     : __( 'Hide code', 'codellia' );
-  const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
+  const toggleIcon = compactEditorMode
+    ? editorCollapsed
+      ? ICONS.panelBottomClose
+      : ICONS.panelBottomOpen
+    : editorCollapsed
+      ? ICONS.panelOpen
+      : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
   const viewPostLabel = isPublished ? __( 'View post', 'codellia' ) : __( 'Preview', 'codellia' );

@@ -872,6 +872,7 @@ async function main() {
       canUndo: false,
       canRedo: false,
       editorCollapsed,
+      compactEditorMode,
       settingsOpen,
       tailwindEnabled,
       viewportMode,
@@ -1560,6 +1561,7 @@ async function main() {
     }
     compactEditorMode = nextCompact;
     ui.app.classList.toggle('is-compact-editors', compactEditorMode);
+    toolbarApi?.update({ compactEditorMode });
     if (compactEditorMode) {
       ui.htmlPane.style.flex = '';
       ui.htmlPane.style.height = '';

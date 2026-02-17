@@ -1613,7 +1613,7 @@ body.admin_page_codellia #wpbody-content {
     min-width: 0;
     margin-left: auto;
     margin-right: auto;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: hidden;
     white-space: nowrap;
     padding-bottom: 2px;
