@@ -13,6 +13,7 @@
     "e2e:install": "playwright install"
   },
   "files": [
+    "assets/admin/**",
     "assets/dist/**",
     "assets/monaco/**",
     "includes/**",
@@ -23,7 +24,8 @@
     "composer.lock",
     "readme.txt",
     "codellia.php",
-    "LICENSE"
+    "LICENSE",
+    "uninstall.php"
   ],
   "dependencies": {
     "@wordpress/components": "^31.0.0",
