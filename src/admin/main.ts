@@ -6,7 +6,7 @@ import {
   type SettingsData,
 } from './settings';
 import { runSetupWizard } from './setup-wizard';
-import { mountToolbar, type ToolbarApi, type ViewportMode } from './toolbar';
+import { mountToolbar, type ToolbarApi } from './toolbar';
 import { buildLayout } from './layout';
 import { initMonacoEditors, type MonacoType } from './monaco';
 import { createPreviewController, type PreviewController } from './preview';
@@ -20,6 +20,8 @@ import { createDocumentTitleSync } from './domain/document-title';
 import { buildMediaHtml } from './domain/media-html';
 import { createSaveExportController } from './controllers/save-export-controller';
 import { createModalController } from './controllers/modal-controller';
+import { createEditorUiController } from './controllers/editor-ui-controller';
+import { createViewportController } from './controllers/viewport-controller';
 import {
   createNotices,
   NOTICE_ERROR_DURATION_MS,
@@ -29,7 +31,7 @@ import {
 import { debounce } from './utils/debounce';
 import type { AppConfig } from './types/app-config';
 import { resolveInitialState } from './bootstrap/resolve-initial-state';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 // wp-api-fetch は admin 側でグローバル wp.apiFetch として使える
 declare const wp: any;
@@ -44,7 +46,6 @@ declare global {
 
 const COMPACT_EDITOR_BREAKPOINT = 900;
 const HTML_WORD_WRAP_STORAGE_KEY = 'codellia.html.wordWrap';
-type CompactEditorTab = 'html' | 'css' | 'js';
 type HtmlWordWrapMode = 'off' | 'on';
 
 const readHtmlWordWrapMode = (): HtmlWordWrapMode => {
@@ -78,77 +79,25 @@ async function main() {
   ui.editorResizer.setAttribute('role', 'separator');
   ui.editorResizer.setAttribute('aria-orientation', 'horizontal');
 
-  const PREVIEW_BADGE_HIDE_MS = 2200;
-  const PREVIEW_BADGE_TRANSITION_MS = 320;
-  const compactDesktopViewportWidth = 1280;
-  const viewportPresetWidths = {
-    mobile: 375,
-    tablet: 768,
-  } as const;
-  let previewBadgeTimer: number | undefined;
-  let previewBadgeRaf = 0;
-
-  const updatePreviewBadge = () => {
-    const width = compactEditorMode
-      ? viewportMode === 'desktop'
-        ? compactDesktopViewportWidth
-        : viewportPresetWidths[viewportMode]
-      : viewportMode === 'desktop'
-        ? Math.round(ui.iframe.getBoundingClientRect().width)
-        : Math.round(
-            Math.min(
-              viewportPresetWidths[viewportMode],
-              Math.max(0, ui.right.getBoundingClientRect().width) || viewportPresetWidths[viewportMode]
-            )
-          );
-    if (width > 0) {
-      ui.previewBadge.textContent = `${width}px`;
-    }
-  };
-
-  const showPreviewBadge = () => {
-    updatePreviewBadge();
-    ui.previewBadge.classList.add('is-visible');
-    window.clearTimeout(previewBadgeTimer);
-    previewBadgeTimer = window.setTimeout(() => {
-      ui.previewBadge.classList.remove('is-visible');
-    }, PREVIEW_BADGE_HIDE_MS);
-  };
-
-  const showPreviewBadgeAfterLayout = () => {
-    if (isStackedLayout()) {
-      applyViewportLayout();
-      showPreviewBadge();
-      return;
-    }
-    let done = false;
-    const finalize = () => {
-      if (done) return;
-      done = true;
-      ui.left.removeEventListener('transitionend', onTransitionEnd);
-      applyViewportLayout();
-      showPreviewBadge();
-    };
-    const onTransitionEnd = (event: TransitionEvent) => {
-      if (event.propertyName === 'width' || event.propertyName === 'flex-basis') {
-        finalize();
-      }
-    };
-    ui.left.addEventListener('transitionend', onTransitionEnd, { once: true });
-    window.setTimeout(finalize, PREVIEW_BADGE_TRANSITION_MS);
-  };
-
-  const schedulePreviewBadge = () => {
-    if (previewBadgeRaf) {
-      return;
-    }
-    previewBadgeRaf = window.requestAnimationFrame(() => {
-      previewBadgeRaf = 0;
-      showPreviewBadge();
-    });
-  };
-
   let toolbarApi: ToolbarApi | null = null;
+  let editorUiController: ReturnType<typeof createEditorUiController> | null = null;
+  const viewportController = createViewportController({
+    ui,
+    compactDesktopViewportWidth: 1280,
+    viewportPresetWidths: {
+      mobile: 375,
+      tablet: 768,
+    },
+    previewBadgeHideMs: 2200,
+    previewBadgeTransitionMs: 320,
+    minLeftWidth: 320,
+    minRightWidth: 360,
+    desktopMinPreviewWidth: 1024,
+    minEditorPaneHeight: 160,
+    getCompactEditorMode: () => editorUiController?.isCompactEditorMode() ?? false,
+    onViewportModeChange: (mode) => toolbarApi?.update({ viewportMode: mode }),
+    onEditorCollapsedChange: (collapsed) => toolbarApi?.update({ editorCollapsed: collapsed }),
+  });
   let setupResult: Awaited<ReturnType<typeof runSetupWizard>> | undefined;
 
   // REST nonce middleware
@@ -197,11 +146,8 @@ async function main() {
   let htmlEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let cssEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
   let jsEditor: import('monaco-editor').editor.IStandaloneCodeEditor;
-  let activeEditor = null as null | import('monaco-editor').editor.IStandaloneCodeEditor;
   let tailwindCss = initialState.importedGeneratedCss;
-  let editorCollapsed = false;
   let settingsOpen = false;
-  let viewportMode: ViewportMode = 'desktop';
   let activeSettingsTab: 'settings' | 'elements' = 'settings';
   const canEditJs = Boolean(cfg.canEditJs);
   let jsEnabled = true;
@@ -215,10 +161,6 @@ async function main() {
   let externalStyles = Array.isArray(initialState.settingsData?.externalStyles)
     ? [...initialState.settingsData.externalStyles]
     : [];
-  let activeCssTab: 'css' | 'js' = 'css';
-  let compactEditorMode = false;
-  let compactEditorTab: CompactEditorTab = 'html';
-  let editorsReady = false;
   let hasUnsavedChanges = false;
   let pendingSettingsUpdates: Record<string, unknown> = {};
   let hasUnsavedSettings = false;
@@ -297,7 +239,7 @@ async function main() {
     ui.app.classList.toggle('is-settings-open', open);
     toolbarApi?.update({ settingsOpen: open });
     syncElementsTabState();
-    applyViewportLayout();
+    viewportController.applyViewportLayout();
   };
 
   const applySavedSettings = (nextSettings: SettingsData, refreshPreview: boolean) => {
@@ -497,11 +439,11 @@ async function main() {
       listUrl: cfg.listUrl || '',
       canUndo: false,
       canRedo: false,
-      editorCollapsed,
-      compactEditorMode,
+      editorCollapsed: viewportController.isEditorCollapsed(),
+      compactEditorMode: editorUiController?.isCompactEditorMode() ?? false,
       settingsOpen,
       tailwindEnabled,
-      viewportMode,
+      viewportMode: viewportController.getViewportMode(),
       hasUnsavedChanges: false,
       viewPostUrl,
       postStatus,
@@ -509,13 +451,14 @@ async function main() {
       postSlug,
     },
     {
-      onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
-      onRedo: () => activeEditor?.trigger('toolbar', 'redo', null),
-      onToggleEditor: () => setEditorCollapsed(!editorCollapsed),
+      onUndo: () => editorUiController?.getActiveEditor()?.trigger('toolbar', 'undo', null),
+      onRedo: () => editorUiController?.getActiveEditor()?.trigger('toolbar', 'redo', null),
+      onToggleEditor: () =>
+        viewportController.setEditorCollapsed(!viewportController.isEditorCollapsed()),
       onSave: handleSave,
       onExport: handleExport,
       onToggleSettings: () => setSettingsOpen(!settingsOpen),
-      onViewportChange: (mode) => setViewportMode(mode),
+      onViewportChange: (mode) => viewportController.setViewportMode(mode),
       onUpdatePostIdentity: async ({ title, slug }) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
           return { ok: false, error: __( 'Settings unavailable.', 'codellia' ) };
@@ -733,8 +676,11 @@ async function main() {
         );
         return;
       }
-      setActiveEditor(htmlEditor, ui.htmlPane);
-      htmlEditor.focus();
+      if (editorUiController) {
+        editorUiController.focusHtmlEditor();
+      } else {
+        htmlEditor.focus();
+      }
       insertHtmlAtSelection(html);
     });
 
@@ -811,151 +757,41 @@ async function main() {
   };
 
   const updateUndoRedoState = () => {
-    const model = activeEditor?.getModel();
+    const model = editorUiController?.getActiveEditor()?.getModel();
     const canUndo = Boolean(model && model.canUndo());
     const canRedo = Boolean(model && model.canRedo());
     toolbarApi?.update({ canUndo, canRedo });
-  };
-
-  const getViewportWidth = () => Math.round(window.visualViewport?.width ?? window.innerWidth);
-
-  const syncCompactEditorUi = () => {
-    const isHtmlTab = compactEditorTab === 'html';
-    const isJsTab = compactEditorTab === 'js';
-    ui.compactHtmlTab.classList.toggle('is-active', compactEditorTab === 'html');
-    ui.compactCssTab.classList.toggle('is-active', compactEditorTab === 'css');
-    ui.compactJsTab.classList.toggle('is-active', compactEditorTab === 'js');
-    ui.htmlPane.classList.toggle('is-compact-visible', compactEditorTab === 'html');
-    ui.cssPane.classList.toggle('is-compact-visible', compactEditorTab !== 'html');
-    ui.compactAddMediaButton.style.display = isHtmlTab ? '' : 'none';
-    ui.compactRunButton.style.display = isJsTab && canEditJs ? '' : 'none';
-    ui.compactShadowHintButton.style.display = isJsTab && shadowDomEnabled && canEditJs ? '' : 'none';
-  };
-
-  const setActiveEditor = (
-    editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor,
-    pane: HTMLElement
-  ) => {
-    activeEditor = editorInstance;
-    ui.htmlPane.classList.toggle('is-active', pane === ui.htmlPane);
-    ui.cssPane.classList.toggle('is-active', pane === ui.cssPane);
-    if (compactEditorMode) {
-      compactEditorTab = pane === ui.htmlPane ? 'html' : activeCssTab === 'js' ? 'js' : 'css';
-      syncCompactEditorUi();
-    }
-    updateUndoRedoState();
-  };
-
-  const updateJsUi = () => {
-    const isCompactJsTab = compactEditorTab === 'js';
-    const isCompactHtmlTab = compactEditorTab === 'html';
-    ui.jsTab.style.display = canEditJs ? '' : 'none';
-    ui.jsTab.disabled = !canEditJs;
-    ui.compactJsTab.style.display = canEditJs ? '' : 'none';
-    ui.compactJsTab.disabled = !canEditJs;
-    ui.jsControls.style.display = canEditJs && activeCssTab === 'js' ? '' : 'none';
-    ui.runButton.disabled = !jsEnabled || !canEditJs;
-    ui.compactAddMediaButton.style.display = isCompactHtmlTab ? '' : 'none';
-    ui.compactRunButton.style.display = isCompactJsTab && canEditJs ? '' : 'none';
-    ui.compactRunButton.disabled = !jsEnabled || !canEditJs;
-    ui.shadowHintButton.style.display = shadowDomEnabled ? '' : 'none';
-    ui.shadowHintButton.disabled = !shadowDomEnabled || !canEditJs;
-    ui.compactShadowHintButton.style.display =
-      isCompactJsTab && shadowDomEnabled && canEditJs ? '' : 'none';
-    ui.compactShadowHintButton.disabled = !shadowDomEnabled || !canEditJs;
   };
 
   const openShadowHintModal = () => modalController?.openShadowHintModal();
   const closeShadowHintModal = () => modalController?.closeShadowHintModal();
   const handleMissingMarkers = () => modalController?.handleMissingMarkers();
 
-  const setCssTab = (
-    tab: 'css' | 'js',
-    options: { focus?: boolean; syncCompactTab?: boolean } = {}
-  ) => {
-    const nextTab = tab === 'js' && !canEditJs ? 'css' : tab;
-    activeCssTab = nextTab;
-    ui.cssTab.classList.toggle('is-active', nextTab === 'css');
-    ui.jsTab.classList.toggle('is-active', nextTab === 'js');
-    ui.cssEditorDiv.classList.toggle('is-active', nextTab === 'css');
-    ui.jsEditorDiv.classList.toggle('is-active', nextTab === 'js');
-    if (compactEditorMode && options.syncCompactTab !== false) {
-      compactEditorTab = nextTab;
-      syncCompactEditorUi();
-    }
-    updateJsUi();
-    if (!editorsReady) {
-      return;
-    }
-    if (nextTab === 'js') {
-      setActiveEditor(jsEditor, ui.cssPane);
-      if (options.focus !== false) {
-        jsEditor.focus();
-      }
-    } else {
-      setActiveEditor(cssEditor, ui.cssPane);
-      if (options.focus !== false) {
-        cssEditor.focus();
-      }
-    }
-  };
-
-  const setCompactEditorTab = (
-    tab: CompactEditorTab,
-    options: { focus?: boolean } = {}
-  ) => {
-    const nextTab = tab === 'js' && !canEditJs ? 'css' : tab;
-    compactEditorTab = nextTab;
-    syncCompactEditorUi();
-    if (!editorsReady) {
-      return;
-    }
-    if (nextTab === 'html') {
-      setActiveEditor(htmlEditor, ui.htmlPane);
-      if (options.focus !== false) {
-        htmlEditor.focus();
-      }
-      return;
-    }
-    setCssTab(nextTab, { focus: options.focus, syncCompactTab: false });
-  };
-
-  const updateCompactEditorMode = () => {
-    const nextCompact = getViewportWidth() < COMPACT_EDITOR_BREAKPOINT;
-    if (nextCompact === compactEditorMode) {
-      if (compactEditorMode) {
-        syncCompactEditorUi();
-      }
-      return;
-    }
-    compactEditorMode = nextCompact;
-    ui.app.classList.toggle('is-compact-editors', compactEditorMode);
-    toolbarApi?.update({ compactEditorMode });
-    if (compactEditorMode) {
-      ui.htmlPane.style.flex = '';
-      ui.htmlPane.style.height = '';
-      ui.cssPane.style.flex = '';
-      ui.cssPane.style.height = '';
-      const nextTab: CompactEditorTab =
-        activeEditor === htmlEditor ? 'html' : activeCssTab === 'js' ? 'js' : 'css';
-      setCompactEditorTab(nextTab, { focus: false });
-      return;
-    }
-    ui.htmlPane.classList.remove('is-compact-visible');
-    ui.cssPane.classList.remove('is-compact-visible');
-    if (activeEditor === htmlEditor) {
-      setActiveEditor(htmlEditor, ui.htmlPane);
-      return;
-    }
-    setCssTab(activeCssTab, { focus: false, syncCompactTab: false });
-  };
+  editorUiController = createEditorUiController({
+    ui,
+    canEditJs,
+    htmlEditor,
+    cssEditor,
+    jsEditor,
+    compactEditorBreakpoint: COMPACT_EDITOR_BREAKPOINT,
+    getViewportWidth: () => Math.round(window.visualViewport?.width ?? window.innerWidth),
+    getJsEnabled: () => jsEnabled,
+    getShadowDomEnabled: () => shadowDomEnabled,
+    onActiveEditorChange: () => {
+      updateUndoRedoState();
+    },
+    onCompactEditorModeChange: (isCompact) => {
+      toolbarApi?.update({ compactEditorMode: isCompact });
+      viewportController.applyViewportLayout();
+    },
+    onOpenMedia: openMediaModal,
+    onRunJs: () => preview?.requestRunJs(),
+    onOpenShadowHint: openShadowHintModal,
+  });
+  editorUiController.initialize();
 
   const focusHtmlEditor = () => {
-    if (compactEditorMode) {
-      setCompactEditorTab('html', { focus: false });
-    }
-    setActiveEditor(htmlEditor, ui.htmlPane);
-    htmlEditor.focus();
+    editorUiController?.focusHtmlEditor();
   };
 
   const getPreviewCss = () => (tailwindEnabled ? tailwindCss : cssModel.getValue());
@@ -1038,11 +874,7 @@ async function main() {
 
   const setJsEnabled = (enabled: boolean) => {
     jsEnabled = enabled;
-    if ((!jsEnabled || !canEditJs) && activeCssTab === 'js') {
-      setCssTab('css', { focus: false });
-    } else {
-      updateJsUi();
-    }
+    editorUiController?.syncJsState();
     if (!preview) {
       return;
     }
@@ -1057,7 +889,7 @@ async function main() {
 
   const setShadowDomEnabled = (enabled: boolean) => {
     shadowDomEnabled = enabled;
-    updateJsUi();
+    editorUiController?.syncShadowDomState();
     if (!shadowDomEnabled) {
       closeShadowHintModal();
     }
@@ -1084,41 +916,13 @@ async function main() {
       preview?.sendRender();
       tailwindCompiler?.compile();
     } else {
-      if (editorSplitActive && lastHtmlHeight > 0) {
-        setEditorSplitHeight(lastHtmlHeight);
+      const editorSplitState = viewportController.getEditorSplitState();
+      if (editorSplitState.active && editorSplitState.lastHtmlHeight > 0) {
+        viewportController.setEditorSplitHeight(editorSplitState.lastHtmlHeight);
       }
       preview?.sendRender();
     }
   };
-
-  setActiveEditor(htmlEditor, ui.htmlPane);
-  ui.htmlPane.addEventListener('click', () => htmlEditor.focus());
-  ui.cssPane.addEventListener('click', () => {
-    if (activeCssTab === 'js') {
-      jsEditor.focus();
-    } else {
-      cssEditor.focus();
-    }
-  });
-  htmlEditor.onDidFocusEditorText(() => {
-    if (compactEditorMode) {
-      setCompactEditorTab('html', { focus: false });
-      return;
-    }
-    setActiveEditor(htmlEditor, ui.htmlPane);
-  });
-  cssEditor.onDidFocusEditorText(() => setCssTab('css', { focus: false }));
-  jsEditor.onDidFocusEditorText(() => setCssTab('js', { focus: false }));
-  ui.addMediaButton.addEventListener('click', openMediaModal);
-  ui.compactAddMediaButton.addEventListener('click', openMediaModal);
-  ui.cssTab.addEventListener('click', () => setCssTab('css', { focus: true }));
-  ui.jsTab.addEventListener('click', () => setCssTab('js', { focus: true }));
-  ui.compactHtmlTab.addEventListener('click', () => setCompactEditorTab('html', { focus: true }));
-  ui.compactCssTab.addEventListener('click', () => setCompactEditorTab('css', { focus: true }));
-  ui.compactJsTab.addEventListener('click', () => setCompactEditorTab('js', { focus: true }));
-  editorsReady = true;
-  updateJsUi();
-  updateCompactEditorMode();
 
   settingsApi = initSettings({
     container: ui.settingsBody,
@@ -1163,267 +967,9 @@ async function main() {
     elementsApi,
   });
 
-  ui.runButton.addEventListener('click', () => {
-    if (!jsEnabled || !canEditJs) return;
-    preview?.requestRunJs();
-  });
-  ui.compactRunButton.addEventListener('click', () => {
-    if (!jsEnabled || !canEditJs) return;
-    preview?.requestRunJs();
-  });
-  ui.shadowHintButton.addEventListener('click', () => {
-    if (!shadowDomEnabled) return;
-    openShadowHintModal();
-  });
-  ui.compactShadowHintButton.addEventListener('click', () => {
-    if (!shadowDomEnabled || !canEditJs) return;
-    openShadowHintModal();
-  });
-
-  const minLeftWidth = 320;
-  const minRightWidth = 360;
-  const desktopMinPreviewWidth = 1024;
-  const minEditorPaneHeight = 160;
-  let isResizing = false;
-  let isEditorResizing = false;
-  let startX = 0;
-  let startY = 0;
-  let startWidth = 0;
-  let startHeight = 0;
-  let lastLeftWidth = ui.left.getBoundingClientRect().width || minLeftWidth;
-  let lastHtmlHeight = 0;
-  let editorSplitActive = false;
-
-  const getMainAvailableWidth = () => {
-    const mainRect = ui.main.getBoundingClientRect();
-    const settingsWidth = ui.settings.getBoundingClientRect().width;
-    const resizerWidth = ui.resizer.getBoundingClientRect().width;
-    return Math.max(0, mainRect.width - settingsWidth - resizerWidth);
-  };
-
-  const getPreviewAreaWidth = () => {
-    return Math.max(0, ui.right.getBoundingClientRect().width);
-  };
-
-  const isStackedLayout = () => {
-    return window.getComputedStyle(ui.main).flexDirection === 'column';
-  };
-
-  const ensurePreviewWidth = (minWidth: number) => {
-    if (editorCollapsed || isStackedLayout()) {
-      return;
-    }
-    const available = getMainAvailableWidth();
-    const minPreviewWidth = Math.max(minRightWidth, minWidth);
-    const maxLeftWidth = Math.max(minLeftWidth, available - minPreviewWidth);
-    const currentLeft = ui.left.getBoundingClientRect().width;
-    const nextLeft = Math.min(currentLeft, maxLeftWidth);
-    if (Math.abs(currentLeft - nextLeft) > 0.5) {
-      setLeftWidth(nextLeft);
-    }
-  };
-
-  function applyViewportLayout(forceFit = false) {
-    const clearScaledViewportStyles = () => {
-      ui.iframe.style.transform = '';
-      ui.iframe.style.transformOrigin = '';
-      ui.iframe.style.height = '100%';
-      ui.iframe.style.maxWidth = '';
-    };
-
-    if (compactEditorMode) {
-      const presetWidth =
-        viewportMode === 'desktop' ? compactDesktopViewportWidth : viewportPresetWidths[viewportMode];
-      const safePresetWidth = Math.max(1, presetWidth);
-      const previewAreaWidth = getPreviewAreaWidth();
-      const scale =
-        previewAreaWidth > 0 ? Math.min(1, previewAreaWidth / safePresetWidth) : 1;
-
-      ui.iframe.style.width = `${safePresetWidth}px`;
-      ui.iframe.style.margin = '0 auto';
-      ui.iframe.style.maxWidth = 'none';
-      ui.iframe.style.transformOrigin = 'left top';
-      if (scale < 0.999) {
-        ui.iframe.style.transform = `scale(${scale})`;
-        ui.iframe.style.height = `calc(100% / ${scale})`;
-      } else {
-        ui.iframe.style.transform = '';
-        ui.iframe.style.height = '100%';
-      }
-      return;
-    }
-
-    clearScaledViewportStyles();
-
-    if (viewportMode === 'desktop') {
-      ui.iframe.style.width = '100%';
-      ui.iframe.style.margin = '0';
-      if (forceFit) {
-        ensurePreviewWidth(desktopMinPreviewWidth);
-      }
-      return;
-    }
-
-    const presetWidth = viewportPresetWidths[viewportMode];
-    const previewAreaWidth = getPreviewAreaWidth();
-    const targetWidth = Math.min(presetWidth, previewAreaWidth || presetWidth);
-    ui.iframe.style.width = `${targetWidth}px`;
-    ui.iframe.style.margin = '0 auto';
-    if (forceFit) {
-      ensurePreviewWidth(presetWidth);
-    }
-  }
-
-  function setViewportMode(mode: ViewportMode) {
-    const isSameMode = viewportMode === mode;
-    viewportMode = mode;
-    if (!isSameMode) {
-      toolbarApi?.update({ viewportMode });
-    }
-    applyViewportLayout(true);
-    showPreviewBadgeAfterLayout();
-  }
-
-  const setLeftWidth = (width: number) => {
-    const clamped = Math.max(minLeftWidth, width);
-    lastLeftWidth = clamped;
-    ui.left.style.flex = `0 0 ${clamped}px`;
-    ui.left.style.width = `${clamped}px`;
-  };
-
-  const clearLeftWidth = () => {
-    ui.left.style.flex = '';
-    ui.left.style.width = '';
-  };
-
-  const clearEditorSplit = () => {
-    ui.htmlPane.style.flex = '';
-    ui.htmlPane.style.height = '';
-    ui.cssPane.style.flex = '';
-    ui.cssPane.style.height = '';
-  };
-
-  const setEditorSplitHeight = (height: number) => {
-    const leftRect = ui.left.getBoundingClientRect();
-    const resizerHeight = ui.editorResizer.getBoundingClientRect().height;
-    const available = Math.max(0, leftRect.height - resizerHeight);
-    if (available <= 0) return;
-    const maxHtmlHeight = Math.max(0, available - minEditorPaneHeight);
-    const minHtmlHeight = Math.min(minEditorPaneHeight, maxHtmlHeight);
-    const clamped = Math.min(maxHtmlHeight, Math.max(minHtmlHeight, height));
-    lastHtmlHeight = clamped;
-    editorSplitActive = true;
-    ui.htmlPane.style.flex = `0 0 ${clamped}px`;
-    ui.htmlPane.style.height = `${clamped}px`;
-    ui.cssPane.style.flex = '1 1 auto';
-    ui.cssPane.style.height = '';
-  };
-
-  const setEditorCollapsed = (collapsed: boolean) => {
-    editorCollapsed = collapsed;
-    ui.app.classList.toggle('is-editor-collapsed', collapsed);
-    toolbarApi?.update({ editorCollapsed: collapsed });
-    if (collapsed) {
-      const currentWidth = ui.left.getBoundingClientRect().width;
-      if (currentWidth > 0) {
-        lastLeftWidth = currentWidth;
-      }
-      ui.left.style.width = `${currentWidth}px`;
-      ui.left.style.flex = `0 0 ${currentWidth}px`;
-      ui.left.getBoundingClientRect();
-      ui.left.style.width = '0px';
-      ui.left.style.flex = '0 0 0';
-    } else {
-      clearLeftWidth();
-      setLeftWidth(lastLeftWidth || minLeftWidth);
-    }
-    applyViewportLayout();
-    showPreviewBadgeAfterLayout();
-  };
-
-  const onPointerMove = (event: PointerEvent) => {
-    if (!isResizing) return;
-    const mainRect = ui.main.getBoundingClientRect();
-    const settingsWidth = ui.settings.getBoundingClientRect().width;
-    const resizerWidth = ui.resizer.getBoundingClientRect().width;
-    const available = mainRect.width - settingsWidth - resizerWidth;
-    const maxLeftWidth = Math.max(minLeftWidth, available - minRightWidth);
-    const nextWidth = Math.min(maxLeftWidth, Math.max(minLeftWidth, startWidth + event.clientX - startX));
-    setLeftWidth(nextWidth);
-    if (viewportMode !== 'desktop') {
-      applyViewportLayout();
-    }
-    schedulePreviewBadge();
-  };
-
-  const stopResizing = (event?: PointerEvent) => {
-    if (!isResizing) return;
-    isResizing = false;
-    ui.app.classList.remove('is-resizing');
-    if (event) {
-      try {
-        ui.resizer.releasePointerCapture(event.pointerId);
-      } catch {
-        // Ignore if pointer capture isn't active.
-      }
-    }
-  };
-
-  ui.resizer.addEventListener('pointerdown', (event) => {
-    if (editorCollapsed) {
-      return;
-    }
-    isResizing = true;
-    startX = event.clientX;
-    startWidth = ui.left.getBoundingClientRect().width;
-    ui.app.classList.add('is-resizing');
-    ui.resizer.setPointerCapture(event.pointerId);
-    showPreviewBadge();
-  });
-
-  window.addEventListener('pointermove', onPointerMove);
-  window.addEventListener('pointerup', stopResizing);
-  ui.resizer.addEventListener('pointerup', stopResizing);
-  ui.resizer.addEventListener('pointercancel', stopResizing);
-
-  const onEditorPointerMove = (event: PointerEvent) => {
-    if (!isEditorResizing) return;
-    const nextHeight = startHeight + event.clientY - startY;
-    setEditorSplitHeight(nextHeight);
-  };
-
-  const stopEditorResizing = (event?: PointerEvent) => {
-    if (!isEditorResizing) return;
-    isEditorResizing = false;
-    ui.app.classList.remove('is-resizing');
-    if (event) {
-      try {
-        ui.editorResizer.releasePointerCapture(event.pointerId);
-      } catch {
-        // Ignore if pointer capture isn't active.
-      }
-    }
-  };
-
-  ui.editorResizer.addEventListener('pointerdown', (event) => {
-    if (editorCollapsed) {
-      return;
-    }
-    isEditorResizing = true;
-    startY = event.clientY;
-    startHeight = ui.htmlPane.getBoundingClientRect().height;
-    ui.app.classList.add('is-resizing');
-    ui.editorResizer.setPointerCapture(event.pointerId);
-  });
-
-  window.addEventListener('pointermove', onEditorPointerMove);
-  window.addEventListener('pointerup', stopEditorResizing);
-  ui.editorResizer.addEventListener('pointerup', stopEditorResizing);
-  ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
-
   const handleViewportResize = debounce(() => {
-    updateCompactEditorMode();
-    applyViewportLayout();
+    editorUiController?.updateCompactEditorMode();
+    viewportController.applyViewportLayout();
     syncNoticeOffset();
   }, 100);
   window.addEventListener('resize', handleViewportResize);
@@ -1432,7 +978,7 @@ async function main() {
   setTailwindEnabled(tailwindEnabled);
   setJsEnabled(jsEnabled);
   preview?.flushPendingJsAction();
-  applyViewportLayout(true);
+  viewportController.applyViewportLayout(true);
 
   htmlModel.onDidChangeContent(() => {
     preview?.resetCanonicalCache();
