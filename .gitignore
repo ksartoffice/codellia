@@ -7,3 +7,4 @@
 /languages/*.mo
 /languages/*.json
 .env
+.phpunit.result.cache

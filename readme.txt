@@ -30,6 +30,16 @@ External connections and privacy:
 * Added external resources are requested both in preview and on front-end output where the Codellia content is rendered.
 * Add only trusted URLs. Third-party resources may set cookies, log visitor IP addresses, or execute their own code according to their own privacy policies.
 
+Development repository and build:
+* Source repository: https://github.com/ksartoffice/codellia
+* Repository visibility note: currently private, planned to be public at review submission time.
+* Build steps:
+* 1) npm install
+* 2) composer install
+* 3) npm run build
+* 4) npm run plugin-zip
+* The production files used by WordPress are generated into assets/dist/.
+
 == Installation ==
 1. Upload the plugin folder to /wp-content/plugins/codellia/.
 2. Activate Codellia Editor through the Plugins screen.
@@ -65,6 +75,15 @@ By default, Codellia posts are kept when the plugin is uninstalled. You can enab
 
 = Where is the code stored? =
 HTML is stored in the post content. CSS/JS and other settings are stored in post meta.
+
+= Where is the development repository and how do I build the plugin? =
+Development repository: https://github.com/ksartoffice/codellia
+
+Build commands:
+1. npm install
+2. composer install
+3. npm run build
+4. npm run plugin-zip
 
 == Screenshots ==
 1. Codellia editor with live preview.
