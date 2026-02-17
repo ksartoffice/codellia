@@ -297,6 +297,18 @@ export function SettingsPanel({
         <div className="cd-settingsSectionTitle">
           {__( 'External resource settings', 'codellia' )}
         </div>
+        <div className="cd-settingsHelp">
+          {__(
+            'External resources are off by default. They are loaded only when you explicitly add HTTPS URLs below.',
+            'codellia'
+          )}
+        </div>
+        <div className="cd-settingsHelp">
+          {__(
+            'These files are requested from third-party servers in preview and front-end output. Add only trusted URLs and review each provider privacy policy.',
+            'codellia'
+          )}
+        </div>
         {canEditJs ? (
           <Fragment>
             <div className="cd-settingsItemLabel">{__( 'External scripts', 'codellia' )}</div>
