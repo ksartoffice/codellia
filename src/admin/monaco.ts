@@ -17,6 +17,7 @@ type MonacoInitOptions = {
   initialHtml: string;
   initialCss: string;
   initialJs: string;
+  htmlWordWrap: 'off' | 'on';
   tailwindEnabled: boolean;
   useTailwindDefault: boolean;
   canEditJs: boolean;
@@ -70,6 +71,7 @@ export async function initMonacoEditors(options: MonacoInitOptions): Promise<Mon
     automaticLayout: true,
     minimap: { enabled: false },
     fontSize: 13,
+    wordWrap: options.htmlWordWrap,
   });
 
   const cssEditor = monaco.editor.create(options.cssContainer, {

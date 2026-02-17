@@ -109,9 +109,27 @@ const NOTICE_IDS = {
 const NOTICE_SUCCESS_DURATION_MS = 3000;
 const NOTICE_ERROR_DURATION_MS = 5000;
 const NOTICE_OFFSET_GAP_PX = 8;
+const HTML_WORD_WRAP_STORAGE_KEY = 'codellia.html.wordWrap';
 
 type MediaKind = 'image' | 'video' | 'file';
 type CompactEditorTab = 'html' | 'css' | 'js';
+type HtmlWordWrapMode = 'off' | 'on';
+
+const readHtmlWordWrapMode = (): HtmlWordWrapMode => {
+  try {
+    return window.localStorage.getItem(HTML_WORD_WRAP_STORAGE_KEY) === 'on' ? 'on' : 'off';
+  } catch {
+    return 'off';
+  }
+};
+
+const saveHtmlWordWrapMode = (mode: HtmlWordWrapMode) => {
+  try {
+    window.localStorage.setItem(HTML_WORD_WRAP_STORAGE_KEY, mode);
+  } catch {
+    // Ignore storage errors and keep editing.
+  }
+};
 
 const readMediaString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
 
@@ -544,6 +562,7 @@ async function main() {
   let activeCssTab: 'css' | 'js' = 'css';
   let compactEditorMode = false;
   let compactEditorTab: CompactEditorTab = 'html';
+  let htmlWordWrapMode: HtmlWordWrapMode = readHtmlWordWrapMode();
   let editorsReady = false;
   let hasUnsavedChanges = false;
   let saveInFlight: Promise<{ ok: boolean; error?: string }> | null = null;
@@ -843,6 +862,22 @@ async function main() {
     });
   };
 
+  const registerHtmlWordWrapAction = (
+    editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor
+  ) => {
+    editorInstance.addAction({
+      id: 'codellia.html.toggleWordWrap',
+      label: __( 'Toggle Word Wrap', 'codellia' ),
+      contextMenuGroupId: '1_modification',
+      contextMenuOrder: 2.5,
+      run: () => {
+        htmlWordWrapMode = htmlWordWrapMode === 'on' ? 'off' : 'on';
+        editorInstance.updateOptions({ wordWrap: htmlWordWrapMode });
+        saveHtmlWordWrapMode(htmlWordWrapMode);
+      },
+    });
+  };
+
   const basePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
   const buildPreviewLayoutUrl = (url: string, layout: string) => {
     if (!url) {
@@ -993,6 +1028,7 @@ async function main() {
     initialHtml: cfg.initialHtml ?? '',
     initialCss: cfg.initialCss ?? '',
     initialJs: cfg.initialJs ?? '',
+    htmlWordWrap: htmlWordWrapMode,
     tailwindEnabled,
     useTailwindDefault: !importedState,
     canEditJs,
@@ -1006,6 +1042,7 @@ async function main() {
   registerSaveShortcut(htmlEditor);
   registerSaveShortcut(cssEditor);
   registerSaveShortcut(jsEditor);
+  registerHtmlWordWrapAction(htmlEditor);
 
   removeNotice(NOTICE_IDS.monaco);
   markSavedState();
