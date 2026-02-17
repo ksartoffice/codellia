@@ -377,11 +377,27 @@ async function main() {
 
   const PREVIEW_BADGE_HIDE_MS = 2200;
   const PREVIEW_BADGE_TRANSITION_MS = 320;
+  const compactDesktopViewportWidth = 1280;
+  const viewportPresetWidths = {
+    mobile: 375,
+    tablet: 768,
+  } as const;
   let previewBadgeTimer: number | undefined;
   let previewBadgeRaf = 0;
 
   const updatePreviewBadge = () => {
-    const width = Math.round(ui.iframe.getBoundingClientRect().width);
+    const width = compactEditorMode
+      ? viewportMode === 'desktop'
+        ? compactDesktopViewportWidth
+        : viewportPresetWidths[viewportMode]
+      : viewportMode === 'desktop'
+        ? Math.round(ui.iframe.getBoundingClientRect().width)
+        : Math.round(
+            Math.min(
+              viewportPresetWidths[viewportMode],
+              Math.max(0, ui.right.getBoundingClientRect().width) || viewportPresetWidths[viewportMode]
+            )
+          );
     if (width > 0) {
       ui.previewBadge.textContent = `${width}px`;
     }
@@ -1814,10 +1830,6 @@ async function main() {
   const minLeftWidth = 320;
   const minRightWidth = 360;
   const desktopMinPreviewWidth = 1024;
-  const viewportPresetWidths = {
-    mobile: 375,
-    tablet: 768,
-  } as const;
   const minEditorPaneHeight = 160;
   let isResizing = false;
   let isEditorResizing = false;
@@ -1859,6 +1871,37 @@ async function main() {
   };
 
   function applyViewportLayout(forceFit = false) {
+    const clearScaledViewportStyles = () => {
+      ui.iframe.style.transform = '';
+      ui.iframe.style.transformOrigin = '';
+      ui.iframe.style.height = '100%';
+      ui.iframe.style.maxWidth = '';
+    };
+
+    if (compactEditorMode) {
+      const presetWidth =
+        viewportMode === 'desktop' ? compactDesktopViewportWidth : viewportPresetWidths[viewportMode];
+      const safePresetWidth = Math.max(1, presetWidth);
+      const previewAreaWidth = getPreviewAreaWidth();
+      const scale =
+        previewAreaWidth > 0 ? Math.min(1, previewAreaWidth / safePresetWidth) : 1;
+
+      ui.iframe.style.width = `${safePresetWidth}px`;
+      ui.iframe.style.margin = '0 auto';
+      ui.iframe.style.maxWidth = 'none';
+      ui.iframe.style.transformOrigin = 'left top';
+      if (scale < 0.999) {
+        ui.iframe.style.transform = `scale(${scale})`;
+        ui.iframe.style.height = `calc(100% / ${scale})`;
+      } else {
+        ui.iframe.style.transform = '';
+        ui.iframe.style.height = '100%';
+      }
+      return;
+    }
+
+    clearScaledViewportStyles();
+
     if (viewportMode === 'desktop') {
       ui.iframe.style.width = '100%';
       ui.iframe.style.margin = '0';

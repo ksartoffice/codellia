@@ -852,6 +852,7 @@ body.admin_page_codellia #wpbody-content {
 
 .cd-app.is-compact-editors .cd-right {
   min-height: 0;
+  overflow: hidden;
 }
 
 .cd-iframe {
@@ -1617,6 +1618,8 @@ body.admin_page_codellia #wpbody-content {
     overflow-y: hidden;
     white-space: nowrap;
     padding-bottom: 2px;
+    padding-top: 2px;
+    padding-right: 2px;
   }
 
   .cd-toolbarCenter .cd-toolbarTitle {
