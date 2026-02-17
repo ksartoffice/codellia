@@ -778,6 +778,26 @@ msgid "Run"
 msgstr ""
 
 #: assets/dist/main.js:81
+msgid "Add Media"
+msgstr ""
+
+#: assets/dist/main.js:103
+msgid "Media library is unavailable."
+msgstr ""
+
+#: assets/dist/main.js:103
+msgid "Select media to insert into HTML."
+msgstr ""
+
+#: assets/dist/main.js:103
+msgid "Insert into HTML"
+msgstr ""
+
+#: assets/dist/main.js:103
+msgid "The selected media has no URL and was not inserted."
+msgstr ""
+
+#: assets/dist/main.js:81
 #: assets/dist/main.js:103
 msgid "Shadow DOM Hint"
 msgstr ""

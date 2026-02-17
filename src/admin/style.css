@@ -32,6 +32,12 @@ body.admin_page_codellia #wpbody-content {
   height: 100%;
 }
 
+@media screen and (max-width: 600px) {
+  body.admin_page_codellia #wpbody {
+    padding-top: 0 !important;
+  }
+}
+
 #codellia-app {
   height: 100vh;
 }
@@ -58,8 +64,9 @@ body.admin_page_codellia #wpbody-content {
 
 .cd-toolbarGroup {
   display: flex;
-  /* align-items: center; */
+  align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .cd-toolbarCluster {
@@ -82,7 +89,29 @@ body.admin_page_codellia #wpbody-content {
 }
 
 .cd-toolbarRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 8px;
   justify-self: end;
+  min-width: 0;
+}
+
+.cd-toolbarCluster-rightPrimary {
+  flex: 0 0 auto;
+  order: 2;
+}
+
+.cd-toolbarCluster-rightSecondary {
+  min-width: 0;
+  flex: 0 1 auto;
+  order: 1;
+}
+
+.cd-splitButton-save {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .cd-noticeHost {
@@ -504,10 +533,22 @@ body.admin_page_codellia #wpbody-content {
   gap: 0;
 }
 
+.cd-app.is-compact-editors .cd-main {
+  flex-direction: column;
+  position: relative;
+}
+
 .cd-left,
 .cd-right {
   min-height: 0;
   flex: 1;
+}
+
+.cd-app.is-compact-editors .cd-left,
+.cd-app.is-compact-editors .cd-right {
+  min-width: 0;
+  width: 100%;
+  flex: 1 1 50%;
 }
 
 .cd-left {
@@ -517,6 +558,12 @@ body.admin_page_codellia #wpbody-content {
   min-width: 360px;
   background: #181b22;
   transition: width 0.25s ease, flex-basis 0.25s ease, transform 0.25s ease, opacity 0.2s ease;
+}
+
+.cd-app.is-compact-editors .cd-left {
+  min-width: 0;
+  border-right: 0;
+  border-bottom: 1px solid #2b2f38;
 }
 
 .cd-app.is-editor-collapsed .cd-left {
@@ -532,6 +579,11 @@ body.admin_page_codellia #wpbody-content {
   background: #111318;
   position: relative;
   transition: width 0.25s ease, opacity 0.2s ease;
+}
+
+.cd-app.is-compact-editors .cd-resizer,
+.cd-app.is-compact-editors .cd-editorResizer {
+  display: none;
 }
 
 .cd-resizer::before {
@@ -603,6 +655,78 @@ body.admin_page_codellia #wpbody-content {
   flex-direction: column;
 }
 
+.cd-compactEditorTabs {
+  display: none;
+  border-bottom: 1px solid #2b2f38;
+  background: #1f232d;
+  padding: 6px 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cd-compactEditorTabsList {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.cd-compactEditorTab {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.cd-compactEditorActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.cd-compactEditorAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.cd-compactEditorActionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.cd-compactEditorActionIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cd-compactEditorActionLabel {
+  font-size: 11px;
+}
+
+.cd-app.is-compact-editors .cd-compactEditorTabs {
+  display: flex;
+}
+
+.cd-app.is-compact-editors .cd-editorPane {
+  display: none;
+}
+
+.cd-app.is-compact-editors .cd-editorPane.is-compact-visible {
+  display: flex;
+}
+
+.cd-app.is-compact-editors .cd-editorHeader {
+  display: none;
+}
+
 .cd-editorPane + .cd-editorPane {
   border-top: 1px solid #2b2f38;
 }
@@ -623,7 +747,12 @@ body.admin_page_codellia #wpbody-content {
   color: #a7adb8;
 }
 
-.cd-editorHeader.has-unsaved::after,
+.cd-editorTitle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.cd-editorTitle.has-unsaved::after,
 .cd-editorTab.has-unsaved::after {
   content: '\25CF';
   margin-left: 6px;
@@ -721,6 +850,11 @@ body.admin_page_codellia #wpbody-content {
   position: relative;
 }
 
+.cd-app.is-compact-editors .cd-right {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .cd-iframe {
   display: block;
   width: 100%;
@@ -773,6 +907,16 @@ body.admin_page_codellia #wpbody-content {
   opacity: 1;
   transform: translateX(0);
   pointer-events: auto;
+}
+
+.cd-app.is-compact-editors .cd-settings {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: auto;
+  z-index: 10;
+  box-shadow: -12px 0 24px rgba(0, 0, 0, 0.35);
 }
 
 .cd-settingsInner {
@@ -1443,36 +1587,97 @@ body.admin_page_codellia #wpbody-content {
   background-color: transparent;
 }
 
-/* @media (max-width: 1280px) {
-  .cd-app {
+@media (max-width: 1280px) {
+  .cd-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+    grid-template-areas:
+      'left right'
+      'center center';
+    row-gap: 8px;
+    overflow: visible;
     position: relative;
+    z-index: 20;
   }
 
-  .cd-main {
-    flex-direction: column;
+  .cd-toolbarLeft {
+    grid-area: left;
   }
 
-  .cd-left {
+  .cd-toolbarRight {
+    grid-area: right;
+    justify-self: end;
+  }
+
+  .cd-toolbarCenter {
+    grid-area: center;
+    justify-self: stretch;
     min-width: 0;
-    border-right: 0;
-    border-bottom: 1px solid #2b2f38;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    padding-right: 2px;
   }
 
-  .cd-resizer {
+  .cd-toolbarCenter .cd-toolbarTitle {
+    min-width: 0;
+  }
+
+  .cd-toolbarCenter .cd-toolbarTitleText {
+    max-width: min(23vw, 320px);
+  }
+
+  .cd-toolbarCenter .cd-toolbarCluster {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 1120px) {
+  .cd-tailwindBadge {
+    display: none;
+  }
+}
+
+@media (max-width: 1040px) {
+  .cd-btn-export {
+    padding: 6px;
+    min-width: 32px;
+    justify-content: center;
+  }
+
+  .cd-btn-export .cd-btnLabel {
     display: none;
   }
 
-  .cd-right {
-    min-height: 40vh;
+  .cd-splitButton-save .cd-splitButton-main {
+    padding: 6px;
+    min-width: 32px;
+    justify-content: center;
   }
 
-  .cd-settings {
-    position: absolute;
-    top: 52px;
-    right: 0;
-    height: calc(100vh - 52px);
-    z-index: 10;
-    box-shadow: -12px 0 24px rgba(0, 0, 0, 0.35);
+  .cd-splitButton-save .cd-splitButton-main .cd-btnLabel {
+    display: none;
   }
-} */
+}
+
+@media (max-width: 560px) {
+  .cd-compactEditorAction {
+    padding: 4px 6px;
+    min-width: 30px;
+    justify-content: center;
+  }
+
+  .cd-compactEditorActionLabel {
+    display: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .cd-btn-view {
+    display: none;
+  }
+}
 

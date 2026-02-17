@@ -119,4 +119,26 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 
 		$this->assertFalse( get_option( Admin::OPTION_FLUSH_REWRITE, false ) );
 	}
+
+	public function test_enqueue_assets_calls_wp_enqueue_media_for_editor_page(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+		$post_id = (int) self::factory()->post->create(
+			array(
+				'post_type'   => Post_Type::POST_TYPE,
+				'post_status' => 'draft',
+			)
+		);
+
+		$original_get    = $_GET;
+		$_GET['post_id'] = (string) $post_id;
+		$before          = did_action( 'wp_enqueue_media' );
+
+		Admin::enqueue_assets( 'admin_page_' . Admin::MENU_SLUG );
+
+		$_GET = $original_get;
+
+		$this->assertTrue( wp_script_is( 'codellia-admin', 'enqueued' ) );
+		$this->assertSame( $before + 1, did_action( 'wp_enqueue_media' ) );
+	}
 }

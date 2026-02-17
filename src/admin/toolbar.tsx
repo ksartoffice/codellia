@@ -13,6 +13,8 @@ import {
   Download,
   ExternalLink,
   Monitor,
+  PanelBottomClose,
+  PanelBottomOpen,
   PanelLeftClose,
   PanelLeftOpen,
   Redo2,
@@ -33,6 +35,7 @@ type ToolbarState = {
   canUndo: boolean;
   canRedo: boolean;
   editorCollapsed: boolean;
+  compactEditorMode: boolean;
   settingsOpen: boolean;
   tailwindEnabled: boolean;
   viewportMode: ViewportMode;
@@ -88,6 +91,12 @@ const ICONS = {
   panelOpen: renderLucideIcon(PanelLeftOpen, {
     class: 'lucide lucide-panel-left-open-icon lucide-panel-left-open',
   }),
+  panelBottomClose: renderLucideIcon(PanelBottomClose, {
+    class: 'lucide lucide-panel-bottom-close-icon lucide-panel-bottom-close',
+  }),
+  panelBottomOpen: renderLucideIcon(PanelBottomOpen, {
+    class: 'lucide lucide-panel-bottom-open-icon lucide-panel-bottom-open',
+  }),
   desktop: renderLucideIcon(Monitor, {
     class: 'lucide lucide-monitor-icon lucide-monitor',
   }),
@@ -123,6 +132,7 @@ function Toolbar({
   canUndo,
   canRedo,
   editorCollapsed,
+  compactEditorMode,
   settingsOpen,
   tailwindEnabled,
   hasUnsavedChanges,
@@ -149,7 +159,13 @@ function Toolbar({
   const toggleLabel = editorCollapsed
     ? __( 'Show code', 'codellia' )
     : __( 'Hide code', 'codellia' );
-  const toggleIcon = editorCollapsed ? ICONS.panelOpen : ICONS.panelClose;
+  const toggleIcon = compactEditorMode
+    ? editorCollapsed
+      ? ICONS.panelBottomClose
+      : ICONS.panelBottomOpen
+    : editorCollapsed
+      ? ICONS.panelOpen
+      : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
   const viewPostLabel = isPublished ? __( 'View post', 'codellia' ) : __( 'Preview', 'codellia' );
@@ -184,6 +200,7 @@ function Toolbar({
         : normalizedStatus === 'private'
           ? __( 'Update as private', 'codellia' )
           : __( 'Update', 'codellia' );
+  const exportLabel = __( 'Export', 'codellia' );
   const statusActions = [
     { value: 'publish' as const, label: __( 'Publish', 'codellia' ) },
     { value: 'pending' as const, label: __( 'Move to review', 'codellia' ) },
@@ -445,52 +462,13 @@ function Toolbar({
         </div>
       ) : null}
       <div className="cd-toolbarGroup cd-toolbarRight">
-        <div className="cd-toolbarCluster">
-          {tailwindEnabled ? (
-            <span
-              className="cd-tailwindBadge"
-              title={tailwindTooltip}
-              aria-label={tailwindTooltip}
-              data-tooltip={tailwindTooltip}
-            >
-              {tailwindBadgeLabel}
-            </span>
-          ) : null}
-          {showViewPost ? (
-            <a
-              className="cd-btn cd-btn-icon cd-btn-view"
-              href={targetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={viewPostLabel}
-              data-tooltip={viewPostLabel}
-            >
-              <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.viewPost }} />
-            </a>
-          ) : null}
-          <button
-            className={`cd-btn cd-btn-settings cd-btn-icon${settingsOpen ? ' is-active' : ''}`}
-            type="button"
-            onClick={onToggleSettings}
-            aria-label={settingsTitle}
-            aria-expanded={settingsOpen}
-            aria-controls="cd-settings"
-            data-tooltip={settingsTitle}
-          >
-            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.settings }} />
-          </button>
-          <button
-            className="cd-btn"
-            type="button"
-            onClick={onExport}
-          >
-            <IconLabel label={__( 'Export', 'codellia' )} svg={ICONS.export} />
-          </button>
-          <div className="cd-splitButton">
+        <div className="cd-toolbarCluster cd-toolbarCluster-rightPrimary">
+          <div className="cd-splitButton cd-splitButton-save">
             <button
               className={`cd-btn cd-btn-save cd-splitButton-main${hasUnsavedChanges ? ' is-unsaved' : ''}`}
               type="button"
               onClick={onSave}
+              aria-label={saveLabel}
             >
               <IconLabel label={saveLabel} svg={ICONS.save} />
             </button>
@@ -545,6 +523,50 @@ function Toolbar({
               </div>
             ) : null}
           </div>
+        </div>
+        <div className="cd-toolbarCluster cd-toolbarCluster-rightSecondary">
+          {tailwindEnabled ? (
+            <span
+              className="cd-tailwindBadge"
+              title={tailwindTooltip}
+              aria-label={tailwindTooltip}
+              data-tooltip={tailwindTooltip}
+            >
+              {tailwindBadgeLabel}
+            </span>
+          ) : null}
+          {showViewPost ? (
+            <a
+              className="cd-btn cd-btn-icon cd-btn-view"
+              href={targetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={viewPostLabel}
+              data-tooltip={viewPostLabel}
+            >
+              <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.viewPost }} />
+            </a>
+          ) : null}
+          <button
+            className={`cd-btn cd-btn-settings cd-btn-icon${settingsOpen ? ' is-active' : ''}`}
+            type="button"
+            onClick={onToggleSettings}
+            aria-label={settingsTitle}
+            aria-expanded={settingsOpen}
+            aria-controls="cd-settings"
+            data-tooltip={settingsTitle}
+          >
+            <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.settings }} />
+          </button>
+          <button
+            className="cd-btn cd-btn-export"
+            type="button"
+            onClick={onExport}
+            aria-label={exportLabel}
+            data-tooltip={exportLabel}
+          >
+            <IconLabel label={exportLabel} svg={ICONS.export} />
+          </button>
         </div>
       </div>
     </Fragment>

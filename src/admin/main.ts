@@ -56,9 +56,7 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
-const VIEWPORT_TARGET_WIDTH = 1280;
-const VIEWPORT_TRIGGER_WIDTH = 900;
-const VIEWPORT_ORIGINAL_ATTR = 'data-codellia-original-viewport';
+const COMPACT_EDITOR_BREAKPOINT = 900;
 const ADMIN_TITLE_SEPARATORS = [' \u2039 ', ' &lsaquo; '];
 
 const buildEditorDocumentTitleLabel = (postTitle: string) => {
@@ -85,38 +83,6 @@ const createDocumentTitleSync = (initialTitle: string) => {
   };
 };
 
-const applySmallScreenViewport = () => {
-  const meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
-  if (!meta) {
-    return;
-  }
-
-  if (!meta.hasAttribute(VIEWPORT_ORIGINAL_ATTR)) {
-    const original = meta.getAttribute('content') ?? '';
-    meta.setAttribute(VIEWPORT_ORIGINAL_ATTR, original);
-  }
-
-  const original = meta.getAttribute(VIEWPORT_ORIGINAL_ATTR) ?? '';
-  const isSmallScreen =
-    Math.min(window.screen.width, window.screen.height) <= VIEWPORT_TRIGGER_WIDTH;
-
-  if (isSmallScreen) {
-    const nextContent = `width=${VIEWPORT_TARGET_WIDTH}`;
-    if (meta.getAttribute('content') !== nextContent) {
-      meta.setAttribute('content', nextContent);
-    }
-  } else if (meta.getAttribute('content') !== original) {
-    meta.setAttribute('content', original);
-  }
-};
-
-const initSmallScreenViewport = () => {
-  applySmallScreenViewport();
-  const refresh = debounce(() => applySmallScreenViewport(), 150);
-  window.addEventListener('resize', refresh);
-  window.addEventListener('orientationchange', refresh);
-};
-
 const resolveLayout = (value?: string): 'default' | 'standalone' | 'frame' | 'theme' => {
   if (value === 'standalone' || value === 'frame' || value === 'theme' || value === 'default') {
     return value;
@@ -138,10 +104,174 @@ const NOTICE_IDS = {
   export: 'cd-export',
   tailwind: 'cd-tailwind',
   layoutFallback: 'cd-layout-fallback',
+  media: 'cd-media',
 };
 const NOTICE_SUCCESS_DURATION_MS = 3000;
 const NOTICE_ERROR_DURATION_MS = 5000;
 const NOTICE_OFFSET_GAP_PX = 8;
+
+type MediaKind = 'image' | 'video' | 'file';
+type CompactEditorTab = 'html' | 'css' | 'js';
+
+const readMediaString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+const readMediaTitle = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value.trim();
+  }
+  if (value && typeof value === 'object') {
+    const raw = readMediaString((value as Record<string, unknown>).raw);
+    if (raw) {
+      return raw;
+    }
+    return readMediaString((value as Record<string, unknown>).rendered);
+  }
+  return '';
+};
+
+const escapeHtmlAttribute = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+const escapeHtmlText = (value: string): string =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const readMediaNumber = (value: unknown): number | null => {
+  const next = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(next) || next <= 0) {
+    return null;
+  }
+  return Math.round(next);
+};
+
+const resolveMediaKind = (attachment: Record<string, unknown>): MediaKind => {
+  const type = readMediaString(attachment.type).toLowerCase();
+  const mime = readMediaString(attachment.mime).toLowerCase();
+  if (type === 'image' || mime.startsWith('image/')) {
+    return 'image';
+  }
+  if (type === 'video' || mime.startsWith('video/')) {
+    return 'video';
+  }
+  return 'file';
+};
+
+const resolveMediaProps = (
+  attachment: Record<string, unknown>,
+  display?: Record<string, unknown>
+): Record<string, unknown> => {
+  const input = display ? { ...display } : {};
+  const props = wp?.media?.string?.props;
+  if (typeof props !== 'function') {
+    return input;
+  }
+  try {
+    const resolved = props(input, attachment);
+    if (resolved && typeof resolved === 'object') {
+      return resolved as Record<string, unknown>;
+    }
+  } catch {
+    // Fall back to raw display values.
+  }
+  return input;
+};
+
+const resolveMediaLinkUrl = (
+  attachment: Record<string, unknown>,
+  props: Record<string, unknown>
+): string => {
+  const linkUrl = readMediaString(props.linkUrl);
+  if (linkUrl) {
+    return linkUrl;
+  }
+  const link = readMediaString(props.link);
+  if (link === 'none') {
+    return '';
+  }
+  if (link === 'post') {
+    return readMediaString(attachment.link);
+  }
+  if (link === 'file' || link === 'embed') {
+    return readMediaString(attachment.url);
+  }
+  return '';
+};
+
+const resolveImageUrl = (
+  attachment: Record<string, unknown>,
+  props: Record<string, unknown>
+): string => {
+  const src = readMediaString(props.src);
+  if (src) {
+    return src;
+  }
+
+  const sizeKey = readMediaString(props.size);
+  const sizes = attachment.sizes;
+  if (sizeKey && sizes && typeof sizes === 'object') {
+    const selected = (sizes as Record<string, unknown>)[sizeKey];
+    if (selected && typeof selected === 'object') {
+      const selectedUrl = readMediaString((selected as Record<string, unknown>).url);
+      if (selectedUrl) {
+        return selectedUrl;
+      }
+    }
+  }
+
+  return readMediaString(attachment.url);
+};
+
+const buildImageHtml = (
+  attachment: Record<string, unknown>,
+  props: Record<string, unknown>
+): string => {
+  const src = resolveImageUrl(attachment, props);
+  if (!src) {
+    return '';
+  }
+
+  const alt = readMediaString(props.alt) || readMediaString(attachment.alt);
+  const width = readMediaNumber(props.width);
+  const height = readMediaNumber(props.height);
+  const widthAttr = width ? ` width="${width}"` : '';
+  const heightAttr = height ? ` height="${height}"` : '';
+  const imageHtml = `<img src="${escapeHtmlAttribute(src)}" alt="${escapeHtmlAttribute(alt)}"${widthAttr}${heightAttr}>`;
+  const linkUrl = resolveMediaLinkUrl(attachment, props);
+  if (!linkUrl) {
+    return imageHtml;
+  }
+  return `<a href="${escapeHtmlAttribute(linkUrl)}">${imageHtml}</a>`;
+};
+
+const buildMediaHtml = (
+  attachment: Record<string, unknown>,
+  display?: Record<string, unknown>
+): string => {
+  const mediaProps = resolveMediaProps(attachment, display);
+  const mediaKind = resolveMediaKind(attachment);
+  if (mediaKind === 'image') {
+    return buildImageHtml(attachment, mediaProps);
+  }
+
+  const mediaUrl = readMediaString(attachment.url);
+  if (!mediaUrl) {
+    return '';
+  }
+  const url = escapeHtmlAttribute(mediaUrl);
+  if (mediaKind === 'video') {
+    return `<video controls src="${url}"></video>`;
+  }
+
+  const linkUrl = resolveMediaLinkUrl(attachment, mediaProps) || mediaUrl;
+  const title = readMediaTitle(mediaProps.title) || readMediaTitle(attachment.title);
+  const filename = readMediaString(attachment.filename);
+  const label = title || filename || linkUrl;
+  const href = escapeHtmlAttribute(linkUrl);
+  return `<a href="${href}">${escapeHtmlText(label)}</a>`;
+};
 
 const syncNoticeOffset = () => {
   const toolbar = document.querySelector('.cd-toolbar') as HTMLElement | null;
@@ -237,7 +367,6 @@ async function main() {
   const postId = cfg.post_id;
   const mount = document.getElementById('codellia-app');
   if (!mount) return;
-  initSmallScreenViewport();
   mountNotices();
 
   const ui = buildLayout(mount);
@@ -248,11 +377,27 @@ async function main() {
 
   const PREVIEW_BADGE_HIDE_MS = 2200;
   const PREVIEW_BADGE_TRANSITION_MS = 320;
+  const compactDesktopViewportWidth = 1280;
+  const viewportPresetWidths = {
+    mobile: 375,
+    tablet: 768,
+  } as const;
   let previewBadgeTimer: number | undefined;
   let previewBadgeRaf = 0;
 
   const updatePreviewBadge = () => {
-    const width = Math.round(ui.iframe.getBoundingClientRect().width);
+    const width = compactEditorMode
+      ? viewportMode === 'desktop'
+        ? compactDesktopViewportWidth
+        : viewportPresetWidths[viewportMode]
+      : viewportMode === 'desktop'
+        ? Math.round(ui.iframe.getBoundingClientRect().width)
+        : Math.round(
+            Math.min(
+              viewportPresetWidths[viewportMode],
+              Math.max(0, ui.right.getBoundingClientRect().width) || viewportPresetWidths[viewportMode]
+            )
+          );
     if (width > 0) {
       ui.previewBadge.textContent = `${width}px`;
     }
@@ -397,6 +542,8 @@ async function main() {
     ? [...cfg.settingsData.externalStyles]
     : [];
   let activeCssTab: 'css' | 'js' = 'css';
+  let compactEditorMode = false;
+  let compactEditorTab: CompactEditorTab = 'html';
   let editorsReady = false;
   let hasUnsavedChanges = false;
   let saveInFlight: Promise<{ ok: boolean; error?: string }> | null = null;
@@ -464,9 +611,12 @@ async function main() {
 
   const syncUnsavedUi = () => {
     const { html, css, js, hasAny } = getUnsavedFlags();
-    ui.htmlHeader.classList.toggle('has-unsaved', html);
+    ui.htmlTitle.classList.toggle('has-unsaved', html);
     ui.cssTab.classList.toggle('has-unsaved', css);
     ui.jsTab.classList.toggle('has-unsaved', js);
+    ui.compactHtmlTab.classList.toggle('has-unsaved', html);
+    ui.compactCssTab.classList.toggle('has-unsaved', css);
+    ui.compactJsTab.classList.toggle('has-unsaved', js);
     if (hasAny !== hasUnsavedChanges) {
       hasUnsavedChanges = hasAny;
       toolbarApi?.update({ hasUnsavedChanges });
@@ -738,6 +888,7 @@ async function main() {
       canUndo: false,
       canRedo: false,
       editorCollapsed,
+      compactEditorMode,
       settingsOpen,
       tailwindEnabled,
       viewportMode,
@@ -886,6 +1037,87 @@ async function main() {
     suppressSelectionClear = Math.max(0, suppressSelectionClear - 1);
   };
 
+  const insertHtmlAtSelection = (text: string) => {
+    const selection = htmlEditor.getSelection();
+    const cursor = htmlEditor.getPosition();
+    const range =
+      selection ||
+      new monaco.Range(
+        cursor?.lineNumber || 1,
+        cursor?.column || 1,
+        cursor?.lineNumber || 1,
+        cursor?.column || 1
+      );
+    htmlEditor.pushUndoStop();
+    htmlModel.pushEditOperations(
+      [],
+      [{ range, text }],
+      (inverseOperations) => {
+        const inverseRange = inverseOperations[0]?.range;
+        if (!inverseRange) {
+          return null;
+        }
+        const end = inverseRange.getEndPosition();
+        return [new monaco.Selection(end.lineNumber, end.column, end.lineNumber, end.column)];
+      }
+    );
+    htmlEditor.pushUndoStop();
+  };
+
+  const openMediaModal = () => {
+    if (typeof wp?.media !== 'function') {
+      createSnackbar(
+        'error',
+        __( 'Media library is unavailable.', 'codellia' ),
+        NOTICE_IDS.media,
+        NOTICE_ERROR_DURATION_MS
+      );
+      return;
+    }
+
+    const frame = wp.media({
+      frame: 'post',
+      state: 'insert',
+      title: __( 'Select media to insert into HTML.', 'codellia' ),
+      button: {
+        text: __( 'Insert into HTML', 'codellia' ),
+      },
+      multiple: false,
+    });
+
+    frame.on('insert', (selectionArg: any) => {
+      const state = frame.state?.();
+      const selection = selectionArg || state?.get?.('selection');
+      const selectedModel = selection?.first?.();
+      const attachment = selectedModel?.toJSON?.();
+      if (!attachment || typeof attachment !== 'object') {
+        return;
+      }
+      const display =
+        typeof state?.display === 'function'
+          ? state.display(selectedModel)?.toJSON?.()
+          : undefined;
+      const html = buildMediaHtml(
+        attachment as Record<string, unknown>,
+        display && typeof display === 'object' ? (display as Record<string, unknown>) : undefined
+      );
+      if (!html) {
+        createSnackbar(
+          'warning',
+          __( 'The selected media has no URL and was not inserted.', 'codellia' ),
+          NOTICE_IDS.media,
+          NOTICE_ERROR_DURATION_MS
+        );
+        return;
+      }
+      setActiveEditor(htmlEditor, ui.htmlPane);
+      htmlEditor.focus();
+      insertHtmlAtSelection(html);
+    });
+
+    frame.open();
+  };
+
   const isValidAttributeName = (name: string) => /^[A-Za-z0-9:_.-]+$/.test(name);
 
   const escapeAttributeValue = (value: string) =>
@@ -962,6 +1194,21 @@ async function main() {
     toolbarApi?.update({ canUndo, canRedo });
   };
 
+  const getViewportWidth = () => Math.round(window.visualViewport?.width ?? window.innerWidth);
+
+  const syncCompactEditorUi = () => {
+    const isHtmlTab = compactEditorTab === 'html';
+    const isJsTab = compactEditorTab === 'js';
+    ui.compactHtmlTab.classList.toggle('is-active', compactEditorTab === 'html');
+    ui.compactCssTab.classList.toggle('is-active', compactEditorTab === 'css');
+    ui.compactJsTab.classList.toggle('is-active', compactEditorTab === 'js');
+    ui.htmlPane.classList.toggle('is-compact-visible', compactEditorTab === 'html');
+    ui.cssPane.classList.toggle('is-compact-visible', compactEditorTab !== 'html');
+    ui.compactAddMediaButton.style.display = isHtmlTab ? '' : 'none';
+    ui.compactRunButton.style.display = isJsTab && canEditJs ? '' : 'none';
+    ui.compactShadowHintButton.style.display = isJsTab && shadowDomEnabled && canEditJs ? '' : 'none';
+  };
+
   const setActiveEditor = (
     editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor,
     pane: HTMLElement
@@ -969,16 +1216,30 @@ async function main() {
     activeEditor = editorInstance;
     ui.htmlPane.classList.toggle('is-active', pane === ui.htmlPane);
     ui.cssPane.classList.toggle('is-active', pane === ui.cssPane);
+    if (compactEditorMode) {
+      compactEditorTab = pane === ui.htmlPane ? 'html' : activeCssTab === 'js' ? 'js' : 'css';
+      syncCompactEditorUi();
+    }
     updateUndoRedoState();
   };
 
   const updateJsUi = () => {
+    const isCompactJsTab = compactEditorTab === 'js';
+    const isCompactHtmlTab = compactEditorTab === 'html';
     ui.jsTab.style.display = canEditJs ? '' : 'none';
     ui.jsTab.disabled = !canEditJs;
+    ui.compactJsTab.style.display = canEditJs ? '' : 'none';
+    ui.compactJsTab.disabled = !canEditJs;
     ui.jsControls.style.display = canEditJs && activeCssTab === 'js' ? '' : 'none';
     ui.runButton.disabled = !jsEnabled || !canEditJs;
+    ui.compactAddMediaButton.style.display = isCompactHtmlTab ? '' : 'none';
+    ui.compactRunButton.style.display = isCompactJsTab && canEditJs ? '' : 'none';
+    ui.compactRunButton.disabled = !jsEnabled || !canEditJs;
     ui.shadowHintButton.style.display = shadowDomEnabled ? '' : 'none';
     ui.shadowHintButton.disabled = !shadowDomEnabled || !canEditJs;
+    ui.compactShadowHintButton.style.display =
+      isCompactJsTab && shadowDomEnabled && canEditJs ? '' : 'none';
+    ui.compactShadowHintButton.disabled = !shadowDomEnabled || !canEditJs;
   };
 
   const shadowHintTitle = __( 'Shadow DOM Hint', 'codellia' );
@@ -1255,29 +1516,93 @@ async function main() {
     openMissingMarkersModal();
   };
 
-  const setCssTab = (tab: 'css' | 'js') => {
+  const setCssTab = (
+    tab: 'css' | 'js',
+    options: { focus?: boolean; syncCompactTab?: boolean } = {}
+  ) => {
     const nextTab = tab === 'js' && !canEditJs ? 'css' : tab;
     activeCssTab = nextTab;
     ui.cssTab.classList.toggle('is-active', nextTab === 'css');
     ui.jsTab.classList.toggle('is-active', nextTab === 'js');
     ui.cssEditorDiv.classList.toggle('is-active', nextTab === 'css');
     ui.jsEditorDiv.classList.toggle('is-active', nextTab === 'js');
+    if (compactEditorMode && options.syncCompactTab !== false) {
+      compactEditorTab = nextTab;
+      syncCompactEditorUi();
+    }
     updateJsUi();
     if (!editorsReady) {
       return;
     }
     if (nextTab === 'js') {
       setActiveEditor(jsEditor, ui.cssPane);
-      jsEditor.focus();
+      if (options.focus !== false) {
+        jsEditor.focus();
+      }
     } else {
       setActiveEditor(cssEditor, ui.cssPane);
-      cssEditor.focus();
+      if (options.focus !== false) {
+        cssEditor.focus();
+      }
     }
   };
 
+  const setCompactEditorTab = (
+    tab: CompactEditorTab,
+    options: { focus?: boolean } = {}
+  ) => {
+    const nextTab = tab === 'js' && !canEditJs ? 'css' : tab;
+    compactEditorTab = nextTab;
+    syncCompactEditorUi();
+    if (!editorsReady) {
+      return;
+    }
+    if (nextTab === 'html') {
+      setActiveEditor(htmlEditor, ui.htmlPane);
+      if (options.focus !== false) {
+        htmlEditor.focus();
+      }
+      return;
+    }
+    setCssTab(nextTab, { focus: options.focus, syncCompactTab: false });
+  };
+
+  const updateCompactEditorMode = () => {
+    const nextCompact = getViewportWidth() < COMPACT_EDITOR_BREAKPOINT;
+    if (nextCompact === compactEditorMode) {
+      if (compactEditorMode) {
+        syncCompactEditorUi();
+      }
+      return;
+    }
+    compactEditorMode = nextCompact;
+    ui.app.classList.toggle('is-compact-editors', compactEditorMode);
+    toolbarApi?.update({ compactEditorMode });
+    if (compactEditorMode) {
+      ui.htmlPane.style.flex = '';
+      ui.htmlPane.style.height = '';
+      ui.cssPane.style.flex = '';
+      ui.cssPane.style.height = '';
+      const nextTab: CompactEditorTab =
+        activeEditor === htmlEditor ? 'html' : activeCssTab === 'js' ? 'js' : 'css';
+      setCompactEditorTab(nextTab, { focus: false });
+      return;
+    }
+    ui.htmlPane.classList.remove('is-compact-visible');
+    ui.cssPane.classList.remove('is-compact-visible');
+    if (activeEditor === htmlEditor) {
+      setActiveEditor(htmlEditor, ui.htmlPane);
+      return;
+    }
+    setCssTab(activeCssTab, { focus: false, syncCompactTab: false });
+  };
+
   const focusHtmlEditor = () => {
-    htmlEditor.focus();
+    if (compactEditorMode) {
+      setCompactEditorTab('html', { focus: false });
+    }
     setActiveEditor(htmlEditor, ui.htmlPane);
+    htmlEditor.focus();
   };
 
   const getPreviewCss = () => (tailwindEnabled ? tailwindCss : cssModel.getValue());
@@ -1361,7 +1686,7 @@ async function main() {
   const setJsEnabled = (enabled: boolean) => {
     jsEnabled = enabled;
     if ((!jsEnabled || !canEditJs) && activeCssTab === 'js') {
-      setCssTab('css');
+      setCssTab('css', { focus: false });
     } else {
       updateJsUi();
     }
@@ -1422,13 +1747,25 @@ async function main() {
       cssEditor.focus();
     }
   });
-  htmlEditor.onDidFocusEditorText(() => setActiveEditor(htmlEditor, ui.htmlPane));
-  cssEditor.onDidFocusEditorText(() => setCssTab('css'));
-  jsEditor.onDidFocusEditorText(() => setCssTab('js'));
-  ui.cssTab.addEventListener('click', () => setCssTab('css'));
-  ui.jsTab.addEventListener('click', () => setCssTab('js'));
+  htmlEditor.onDidFocusEditorText(() => {
+    if (compactEditorMode) {
+      setCompactEditorTab('html', { focus: false });
+      return;
+    }
+    setActiveEditor(htmlEditor, ui.htmlPane);
+  });
+  cssEditor.onDidFocusEditorText(() => setCssTab('css', { focus: false }));
+  jsEditor.onDidFocusEditorText(() => setCssTab('js', { focus: false }));
+  ui.addMediaButton.addEventListener('click', openMediaModal);
+  ui.compactAddMediaButton.addEventListener('click', openMediaModal);
+  ui.cssTab.addEventListener('click', () => setCssTab('css', { focus: true }));
+  ui.jsTab.addEventListener('click', () => setCssTab('js', { focus: true }));
+  ui.compactHtmlTab.addEventListener('click', () => setCompactEditorTab('html', { focus: true }));
+  ui.compactCssTab.addEventListener('click', () => setCompactEditorTab('css', { focus: true }));
+  ui.compactJsTab.addEventListener('click', () => setCompactEditorTab('js', { focus: true }));
   editorsReady = true;
   updateJsUi();
+  updateCompactEditorMode();
 
   initSettings({
     container: ui.settingsBody,
@@ -1477,18 +1814,22 @@ async function main() {
     if (!jsEnabled || !canEditJs) return;
     preview?.requestRunJs();
   });
+  ui.compactRunButton.addEventListener('click', () => {
+    if (!jsEnabled || !canEditJs) return;
+    preview?.requestRunJs();
+  });
   ui.shadowHintButton.addEventListener('click', () => {
     if (!shadowDomEnabled) return;
+    openShadowHintModal();
+  });
+  ui.compactShadowHintButton.addEventListener('click', () => {
+    if (!shadowDomEnabled || !canEditJs) return;
     openShadowHintModal();
   });
 
   const minLeftWidth = 320;
   const minRightWidth = 360;
   const desktopMinPreviewWidth = 1024;
-  const viewportPresetWidths = {
-    mobile: 375,
-    tablet: 768,
-  } as const;
   const minEditorPaneHeight = 160;
   let isResizing = false;
   let isEditorResizing = false;
@@ -1530,6 +1871,37 @@ async function main() {
   };
 
   function applyViewportLayout(forceFit = false) {
+    const clearScaledViewportStyles = () => {
+      ui.iframe.style.transform = '';
+      ui.iframe.style.transformOrigin = '';
+      ui.iframe.style.height = '100%';
+      ui.iframe.style.maxWidth = '';
+    };
+
+    if (compactEditorMode) {
+      const presetWidth =
+        viewportMode === 'desktop' ? compactDesktopViewportWidth : viewportPresetWidths[viewportMode];
+      const safePresetWidth = Math.max(1, presetWidth);
+      const previewAreaWidth = getPreviewAreaWidth();
+      const scale =
+        previewAreaWidth > 0 ? Math.min(1, previewAreaWidth / safePresetWidth) : 1;
+
+      ui.iframe.style.width = `${safePresetWidth}px`;
+      ui.iframe.style.margin = '0 auto';
+      ui.iframe.style.maxWidth = 'none';
+      ui.iframe.style.transformOrigin = 'left top';
+      if (scale < 0.999) {
+        ui.iframe.style.transform = `scale(${scale})`;
+        ui.iframe.style.height = `calc(100% / ${scale})`;
+      } else {
+        ui.iframe.style.transform = '';
+        ui.iframe.style.height = '100%';
+      }
+      return;
+    }
+
+    clearScaledViewportStyles();
+
     if (viewportMode === 'desktop') {
       ui.iframe.style.width = '100%';
       ui.iframe.style.margin = '0';
@@ -1696,13 +2068,13 @@ async function main() {
   ui.editorResizer.addEventListener('pointerup', stopEditorResizing);
   ui.editorResizer.addEventListener('pointercancel', stopEditorResizing);
 
-  window.addEventListener(
-    'resize',
-    debounce(() => {
-      applyViewportLayout();
-      syncNoticeOffset();
-    }, 100)
-  );
+  const handleViewportResize = debounce(() => {
+    updateCompactEditorMode();
+    applyViewportLayout();
+    syncNoticeOffset();
+  }, 100);
+  window.addEventListener('resize', handleViewportResize);
+  window.visualViewport?.addEventListener('resize', handleViewportResize);
 
   setTailwindEnabled(tailwindEnabled);
   setJsEnabled(jsEnabled);
