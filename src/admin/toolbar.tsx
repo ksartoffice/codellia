@@ -43,6 +43,7 @@ type ToolbarState = {
   viewPostUrl: string;
   postStatus: string;
   postTitle: string;
+  postSlug: string;
 };
 
 type ToolbarHandlers = {
@@ -53,7 +54,10 @@ type ToolbarHandlers = {
   onExport: () => void;
   onToggleSettings: () => void;
   onViewportChange: (mode: ViewportMode) => void;
-  onUpdateTitle: (title: string) => Promise<{ ok: boolean; error?: string }>;
+  onUpdatePostIdentity: (payload: {
+    title: string;
+    slug: string;
+  }) => Promise<{ ok: boolean; error?: string }>;
   onUpdateStatus: (status: 'draft' | 'pending' | 'private' | 'publish') => Promise<{
     ok: boolean;
     error?: string;
@@ -139,6 +143,7 @@ function Toolbar({
   viewPostUrl,
   postStatus,
   postTitle,
+  postSlug,
   viewportMode,
   onUndo,
   onRedo,
@@ -147,11 +152,12 @@ function Toolbar({
   onExport,
   onToggleSettings,
   onViewportChange,
-  onUpdateTitle,
+  onUpdatePostIdentity,
   onUpdateStatus,
 }: ToolbarState & ToolbarHandlers) {
   const [titleModalOpen, setTitleModalOpen] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
+  const [slugDraft, setSlugDraft] = useState('');
   const [titleError, setTitleError] = useState('');
   const [titleSaving, setTitleSaving] = useState(false);
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
@@ -210,12 +216,14 @@ function Toolbar({
   useEffect(() => {
     if (!titleModalOpen) {
       setTitleDraft(resolvedTitle);
+      setSlugDraft(postSlug);
       setTitleError('');
     }
-  }, [resolvedTitle, titleModalOpen]);
+  }, [resolvedTitle, postSlug, titleModalOpen]);
 
   const openTitleModal = () => {
     setTitleDraft(resolvedTitle);
+    setSlugDraft(postSlug);
     setTitleError('');
     setTitleModalOpen(true);
   };
@@ -233,7 +241,10 @@ function Toolbar({
     }
     setTitleSaving(true);
     setTitleError('');
-    const result = await onUpdateTitle(titleDraft.trim());
+    const result = await onUpdatePostIdentity({
+      title: titleDraft.trim(),
+      slug: slugDraft.trim(),
+    });
     if (result.ok) {
       setTitleModalOpen(false);
     } else {
@@ -441,6 +452,19 @@ function Toolbar({
                     onChange={(event) => setTitleDraft(event.target.value)}
                     onKeyDown={handleTitleInputKeyDown}
                     autoFocus
+                  />
+                </div>
+                <div className="cd-formGroup">
+                  <label className="cd-formLabel" htmlFor="cd-slug-modal-input">
+                    {__( 'Slug', 'codellia' )}
+                  </label>
+                  <input
+                    id="cd-slug-modal-input"
+                    className="cd-formInput"
+                    type="text"
+                    value={slugDraft}
+                    onChange={(event) => setSlugDraft(event.target.value)}
+                    onKeyDown={handleTitleInputKeyDown}
                   />
                 </div>
                 {titleError ? <div className="cd-modalError">{titleError}</div> : null}

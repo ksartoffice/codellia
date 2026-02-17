@@ -536,6 +536,10 @@ msgid "Title"
 msgstr "タイトル"
 
 #: assets/dist/main.js:81
+msgid "Slug"
+msgstr "スラッグ"
+
+#: assets/dist/main.js:81
 #: assets/dist/main.js:103
 msgid "Settings unavailable."
 msgstr "設定を取得できません。"

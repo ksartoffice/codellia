@@ -13,6 +13,7 @@ use Codellia\Rest_Settings;
 class Test_Rest_Success extends WP_UnitTestCase {
 	private const SETTINGS_PAYLOAD_KEYS = array(
 		'title',
+		'slug',
 		'status',
 		'viewUrl',
 		'layout',
@@ -33,7 +34,6 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		'password',
 		'dateLocal',
 		'dateLabel',
-		'slug',
 		'author',
 		'authors',
 		'commentStatus',
@@ -192,6 +192,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 		$updates = array(
 			'title'                => 'Updated Codellia',
+			'slug'                 => 'My Custom Slug!!',
 			'status'               => 'pending',
 			'visibility'           => 'public',
 			'shadowDomEnabled'     => true,
@@ -219,6 +220,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 		$this->assertInstanceOf( WP_Post::class, $post );
 		$this->assertSame( 'Updated Codellia', (string) $post->post_title );
+		$this->assertSame( 'my-custom-slug', (string) $post->post_name );
 		$this->assertSame( 'pending', (string) $post->post_status );
 		$this->assertSame( '', (string) $post->post_password );
 
@@ -240,6 +242,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertSame( true, $data['settings']['shortcodeEnabled'] ?? null );
 		$this->assertSame( false, $data['settings']['singlePageEnabled'] ?? null );
 		$this->assertSame( false, $data['settings']['liveHighlightEnabled'] ?? null );
+		$this->assertSame( 'my-custom-slug', $data['settings']['slug'] ?? null );
 		$this->assertSame( array( 'https://example.com/app.js' ), $data['settings']['externalScripts'] ?? null );
 		$this->assertSame( array( 'https://example.com/app.css' ), $data['settings']['externalStyles'] ?? null );
 	}

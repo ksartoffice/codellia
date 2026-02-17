@@ -330,6 +330,69 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertSame( 400, $response->get_status(), 'External styles should respect the max limit.' );
 	}
 
+	public function test_settings_slug_is_sanitized_before_save(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		$response = $this->dispatch_route(
+			'/codellia/v1/settings',
+			array(
+				'post_id' => $post_id,
+				'updates' => array(
+					'slug' => 'My Slug!!',
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Slug updates should be accepted.' );
+
+		$data = $response->get_data();
+		$this->assertSame( 'my-slug', $data['settings']['slug'] ?? null, 'Slug should be sanitized.' );
+
+		$post = get_post( $post_id );
+		$this->assertInstanceOf( WP_Post::class, $post );
+		$this->assertSame( 'my-slug', (string) $post->post_name, 'Stored post_name should match sanitized slug.' );
+	}
+
+	public function test_settings_slug_is_made_unique_by_wordpress(): void {
+		$admin_id         = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$existing_post_id = $this->create_codellia_post( $admin_id );
+		$target_post_id   = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		wp_update_post(
+			array(
+				'ID'          => $existing_post_id,
+				'post_name'   => 'duplicate-slug',
+				'post_status' => 'publish',
+			)
+		);
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/settings',
+			array(
+				'post_id' => $target_post_id,
+				'updates' => array(
+					'slug'   => 'duplicate-slug',
+					'status' => 'publish',
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Duplicate slug update should succeed.' );
+
+		$data          = $response->get_data();
+		$resolved_slug = (string) ( $data['settings']['slug'] ?? '' );
+		$this->assertNotSame( 'duplicate-slug', $resolved_slug, 'WordPress should resolve duplicate slugs.' );
+		$this->assertSame( 1, preg_match( '/^duplicate-slug(?:-\d+)?$/', $resolved_slug ) );
+
+		$post = get_post( $target_post_id );
+		$this->assertInstanceOf( WP_Post::class, $post );
+		$this->assertSame( $resolved_slug, (string) $post->post_name );
+	}
+
 	public function test_compile_tailwind_rejects_html_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );

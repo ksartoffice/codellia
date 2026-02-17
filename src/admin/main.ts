@@ -109,9 +109,27 @@ const NOTICE_IDS = {
 const NOTICE_SUCCESS_DURATION_MS = 3000;
 const NOTICE_ERROR_DURATION_MS = 5000;
 const NOTICE_OFFSET_GAP_PX = 8;
+const HTML_WORD_WRAP_STORAGE_KEY = 'codellia.html.wordWrap';
 
 type MediaKind = 'image' | 'video' | 'file';
 type CompactEditorTab = 'html' | 'css' | 'js';
+type HtmlWordWrapMode = 'off' | 'on';
+
+const readHtmlWordWrapMode = (): HtmlWordWrapMode => {
+  try {
+    return window.localStorage.getItem(HTML_WORD_WRAP_STORAGE_KEY) === 'on' ? 'on' : 'off';
+  } catch {
+    return 'off';
+  }
+};
+
+const saveHtmlWordWrapMode = (mode: HtmlWordWrapMode) => {
+  try {
+    window.localStorage.setItem(HTML_WORD_WRAP_STORAGE_KEY, mode);
+  } catch {
+    // Ignore storage errors and keep editing.
+  }
+};
 
 const readMediaString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
 
@@ -500,6 +518,7 @@ async function main() {
     cfg.settingsData =
       importedState.settingsData ?? {
         ...cfg.settingsData,
+        slug: cfg.settingsData?.slug || '',
         externalScripts: payload.externalScripts ?? [],
         externalStyles: payload.externalStyles ?? [],
         externalScriptsMax: cfg.settingsData.externalScriptsMax,
@@ -544,6 +563,7 @@ async function main() {
   let activeCssTab: 'css' | 'js' = 'css';
   let compactEditorMode = false;
   let compactEditorTab: CompactEditorTab = 'html';
+  let htmlWordWrapMode: HtmlWordWrapMode = readHtmlWordWrapMode();
   let editorsReady = false;
   let hasUnsavedChanges = false;
   let saveInFlight: Promise<{ ok: boolean; error?: string }> | null = null;
@@ -554,6 +574,7 @@ async function main() {
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
   let postTitle = cfg.settingsData?.title || '';
+  let postSlug = cfg.settingsData?.slug || '';
   let layoutMode = resolveLayout(cfg.settingsData?.layout);
   let defaultLayout = resolveDefaultLayout(cfg.settingsData?.defaultLayout);
   const syncDocumentTitle = createDocumentTitleSync(document.title);
@@ -657,6 +678,7 @@ async function main() {
     }
     postStatus = nextSettings.status || postStatus;
     postTitle = nextSettings.title || postTitle;
+    postSlug = typeof nextSettings.slug === 'string' ? nextSettings.slug : postSlug;
     shadowDomEnabled = Boolean(nextSettings.shadowDomEnabled);
     shortcodeEnabled = Boolean(nextSettings.shortcodeEnabled);
     singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
@@ -678,7 +700,7 @@ async function main() {
     layoutMode = nextLayout;
     setShadowDomEnabled(shadowDomEnabled);
     setLiveHighlightEnabled(liveHighlightEnabled);
-    toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
+    toolbarApi?.update({ viewPostUrl, postStatus, postTitle, postSlug });
     syncDocumentTitle(postTitle);
 
     const nextResolved = nextLayout === 'default' ? nextDefaultLayout : nextLayout;
@@ -843,6 +865,22 @@ async function main() {
     });
   };
 
+  const registerHtmlWordWrapAction = (
+    editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor
+  ) => {
+    editorInstance.addAction({
+      id: 'codellia.html.toggleWordWrap',
+      label: __( 'Toggle Word Wrap', 'codellia' ),
+      contextMenuGroupId: '1_modification',
+      contextMenuOrder: 2.5,
+      run: () => {
+        htmlWordWrapMode = htmlWordWrapMode === 'on' ? 'off' : 'on';
+        editorInstance.updateOptions({ wordWrap: htmlWordWrapMode });
+        saveHtmlWordWrapMode(htmlWordWrapMode);
+      },
+    });
+  };
+
   const basePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
   const buildPreviewLayoutUrl = (url: string, layout: string) => {
     if (!url) {
@@ -896,6 +934,7 @@ async function main() {
       viewPostUrl,
       postStatus,
       postTitle,
+      postSlug,
     },
     {
       onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
@@ -905,7 +944,7 @@ async function main() {
       onExport: handleExport,
       onToggleSettings: () => setSettingsOpen(!settingsOpen),
       onViewportChange: (mode) => setViewportMode(mode),
-      onUpdateTitle: async (nextTitle) => {
+      onUpdatePostIdentity: async ({ title: nextTitle, slug: nextSlug }) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
           return { ok: false, error: __( 'Settings unavailable.', 'codellia' ) };
         }
@@ -915,26 +954,29 @@ async function main() {
             method: 'POST',
             data: {
               post_id: postId,
-              updates: { title: nextTitle },
+              updates: { title: nextTitle, slug: nextSlug },
             },
           });
           if (!response?.ok) {
             return { ok: false, error: response?.error || __( 'Update failed.', 'codellia' ) };
           }
           const nextSettings = response.settings as SettingsData | undefined;
-          const resolvedTitle =
-            nextSettings && typeof nextSettings.title === 'string'
-              ? nextSettings.title
-              : nextTitle;
-          postTitle = resolvedTitle;
-          toolbarApi?.update({ postTitle });
-          syncDocumentTitle(postTitle);
-          window.dispatchEvent(
-            new CustomEvent('cd-title-updated', { detail: { title: resolvedTitle } })
-          );
-          if (basePreviewUrl) {
-            ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+          if (nextSettings) {
+            applySavedSettings(nextSettings, true);
+          } else {
+            postTitle = nextTitle;
+            postSlug = nextSlug;
+            toolbarApi?.update({ postTitle, postSlug });
+            syncDocumentTitle(postTitle);
+            if (basePreviewUrl) {
+              ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+            }
           }
+          window.dispatchEvent(
+            new CustomEvent('cd-title-updated', {
+              detail: { title: postTitle, slug: postSlug },
+            })
+          );
           return { ok: true };
         } catch (error: any) {
           return {
@@ -993,6 +1035,7 @@ async function main() {
     initialHtml: cfg.initialHtml ?? '',
     initialCss: cfg.initialCss ?? '',
     initialJs: cfg.initialJs ?? '',
+    htmlWordWrap: htmlWordWrapMode,
     tailwindEnabled,
     useTailwindDefault: !importedState,
     canEditJs,
@@ -1006,6 +1049,7 @@ async function main() {
   registerSaveShortcut(htmlEditor);
   registerSaveShortcut(cssEditor);
   registerSaveShortcut(jsEditor);
+  registerHtmlWordWrapAction(htmlEditor);
 
   removeNotice(NOTICE_IDS.monaco);
   markSavedState();
@@ -1970,6 +2014,19 @@ async function main() {
     editorCollapsed = collapsed;
     ui.app.classList.toggle('is-editor-collapsed', collapsed);
     toolbarApi?.update({ editorCollapsed: collapsed });
+
+    if (compactEditorMode) {
+      if (collapsed) {
+        ui.left.style.width = '';
+        ui.left.style.flex = '0 0 0';
+      } else {
+        clearLeftWidth();
+      }
+      applyViewportLayout();
+      showPreviewBadgeAfterLayout();
+      return;
+    }
+
     if (collapsed) {
       const currentWidth = ui.left.getBoundingClientRect().width;
       if (currentWidth > 0) {
