@@ -518,6 +518,7 @@ async function main() {
     cfg.settingsData =
       importedState.settingsData ?? {
         ...cfg.settingsData,
+        slug: cfg.settingsData?.slug || '',
         externalScripts: payload.externalScripts ?? [],
         externalStyles: payload.externalStyles ?? [],
         externalScriptsMax: cfg.settingsData.externalScriptsMax,
@@ -573,6 +574,7 @@ async function main() {
   let viewPostUrl = cfg.settingsData?.viewUrl || '';
   let postStatus = cfg.settingsData?.status || 'draft';
   let postTitle = cfg.settingsData?.title || '';
+  let postSlug = cfg.settingsData?.slug || '';
   let layoutMode = resolveLayout(cfg.settingsData?.layout);
   let defaultLayout = resolveDefaultLayout(cfg.settingsData?.defaultLayout);
   const syncDocumentTitle = createDocumentTitleSync(document.title);
@@ -676,6 +678,7 @@ async function main() {
     }
     postStatus = nextSettings.status || postStatus;
     postTitle = nextSettings.title || postTitle;
+    postSlug = typeof nextSettings.slug === 'string' ? nextSettings.slug : postSlug;
     shadowDomEnabled = Boolean(nextSettings.shadowDomEnabled);
     shortcodeEnabled = Boolean(nextSettings.shortcodeEnabled);
     singlePageEnabled = nextSettings.singlePageEnabled ?? singlePageEnabled;
@@ -697,7 +700,7 @@ async function main() {
     layoutMode = nextLayout;
     setShadowDomEnabled(shadowDomEnabled);
     setLiveHighlightEnabled(liveHighlightEnabled);
-    toolbarApi?.update({ viewPostUrl, postStatus, postTitle });
+    toolbarApi?.update({ viewPostUrl, postStatus, postTitle, postSlug });
     syncDocumentTitle(postTitle);
 
     const nextResolved = nextLayout === 'default' ? nextDefaultLayout : nextLayout;
@@ -931,6 +934,7 @@ async function main() {
       viewPostUrl,
       postStatus,
       postTitle,
+      postSlug,
     },
     {
       onUndo: () => activeEditor?.trigger('toolbar', 'undo', null),
@@ -940,7 +944,7 @@ async function main() {
       onExport: handleExport,
       onToggleSettings: () => setSettingsOpen(!settingsOpen),
       onViewportChange: (mode) => setViewportMode(mode),
-      onUpdateTitle: async (nextTitle) => {
+      onUpdatePostIdentity: async ({ title: nextTitle, slug: nextSlug }) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
           return { ok: false, error: __( 'Settings unavailable.', 'codellia' ) };
         }
@@ -950,26 +954,29 @@ async function main() {
             method: 'POST',
             data: {
               post_id: postId,
-              updates: { title: nextTitle },
+              updates: { title: nextTitle, slug: nextSlug },
             },
           });
           if (!response?.ok) {
             return { ok: false, error: response?.error || __( 'Update failed.', 'codellia' ) };
           }
           const nextSettings = response.settings as SettingsData | undefined;
-          const resolvedTitle =
-            nextSettings && typeof nextSettings.title === 'string'
-              ? nextSettings.title
-              : nextTitle;
-          postTitle = resolvedTitle;
-          toolbarApi?.update({ postTitle });
-          syncDocumentTitle(postTitle);
-          window.dispatchEvent(
-            new CustomEvent('cd-title-updated', { detail: { title: resolvedTitle } })
-          );
-          if (basePreviewUrl) {
-            ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+          if (nextSettings) {
+            applySavedSettings(nextSettings, true);
+          } else {
+            postTitle = nextTitle;
+            postSlug = nextSlug;
+            toolbarApi?.update({ postTitle, postSlug });
+            syncDocumentTitle(postTitle);
+            if (basePreviewUrl) {
+              ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
+            }
           }
+          window.dispatchEvent(
+            new CustomEvent('cd-title-updated', {
+              detail: { title: postTitle, slug: postSlug },
+            })
+          );
           return { ok: true };
         } catch (error: any) {
           return {

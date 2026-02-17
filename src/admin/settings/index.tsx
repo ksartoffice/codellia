@@ -17,6 +17,7 @@ import { ElementPanel, type ElementPanelApi } from './element-panel';
 
 export type SettingsData = {
   title: string;
+  slug: string;
   status: string;
   viewUrl?: string;
   layout?: 'default' | 'standalone' | 'frame' | 'theme';

@@ -63,6 +63,7 @@ class Rest_Settings {
 
 		return array(
 			'title'                => (string) $post->post_title,
+			'slug'                 => (string) $post->post_name,
 			'status'               => (string) $post->post_status,
 			'viewUrl'              => $single_page_enabled ? (string) get_permalink( $post_id ) : '',
 			'layout'               => $layout,
@@ -158,6 +159,10 @@ class Rest_Settings {
 
 		if ( isset( $updates['title'] ) ) {
 			$prepared['post_update']['post_title'] = sanitize_text_field( (string) $updates['title'] );
+		}
+
+		if ( array_key_exists( 'slug', $updates ) ) {
+			$prepared['post_update']['post_name'] = sanitize_title( (string) $updates['slug'] );
 		}
 
 		if ( 'private' === $visibility ) {
