@@ -1,0 +1,47 @@
+import { describe, expect, it } from 'vitest';
+import { validateImportPayload } from './validate-import-payload';
+
+describe('validateImportPayload', () => {
+  it('accepts valid payload', () => {
+    const result = validateImportPayload({
+      version: 1,
+      html: '<div>Hello</div>',
+      css: 'body{}',
+      tailwindEnabled: false,
+      js: 'console.log(1);',
+      externalScripts: ['https://example.com/a.js'],
+      externalStyles: ['https://example.com/a.css'],
+      shadowDomEnabled: true,
+      shortcodeEnabled: false,
+      singlePageEnabled: true,
+      liveHighlightEnabled: true,
+    });
+
+    expect(result.error).toBeUndefined();
+    expect(result.data).toBeTruthy();
+    expect(result.data?.version).toBe(1);
+  });
+
+  it('rejects unsupported version', () => {
+    const result = validateImportPayload({
+      version: 2,
+      html: '<div>Hello</div>',
+      css: 'body{}',
+      tailwindEnabled: false,
+    });
+
+    expect(result.error).toBe('Unsupported import version.');
+  });
+
+  it('rejects invalid externalScripts', () => {
+    const result = validateImportPayload({
+      version: 1,
+      html: '<div>Hello</div>',
+      css: 'body{}',
+      tailwindEnabled: false,
+      externalScripts: ['https://example.com/a.js', 1],
+    });
+
+    expect(result.error).toBe('Invalid externalScripts value.');
+  });
+});

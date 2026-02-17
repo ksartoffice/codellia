@@ -1,8 +1,8 @@
 import type { ExportPayload } from './types';
 import type { SettingsData } from './settings';
 import { __, sprintf } from '@wordpress/i18n';
-
-type ApiFetch = (args: any) => Promise<any>;
+import type { ApiFetch } from './types/api-fetch';
+import type { CompileTailwindResponse, SaveResponse } from './types/rest';
 
 type TailwindCompilerDeps = {
   apiFetch: ApiFetch;
@@ -37,7 +37,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
     const currentToken = ++tailwindCompileToken;
 
     try {
-      const res = await deps.apiFetch({
+      const res = await deps.apiFetch<CompileTailwindResponse>({
         url: deps.restCompileUrl,
         method: 'POST',
         data: {
@@ -60,12 +60,13 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
       } else {
         deps.onStatus(__( 'Tailwind compile failed.', 'codellia' ));
       }
-    } catch (e: any) {
+    } catch (error: unknown) {
       if (currentToken !== tailwindCompileToken) {
         return;
       }
+      const message = error instanceof Error ? error.message : String(error);
       /* translators: %s: error message. */
-      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'codellia' ), e?.message ?? e));
+      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'codellia' ), message));
     } finally {
       if (currentToken === tailwindCompileToken) {
         tailwindCompileInFlight = false;
@@ -92,14 +93,14 @@ type SaveParams = {
   tailwindEnabled: boolean;
   canEditJs: boolean;
   js: string;
-  settingsUpdates?: Record<string, any>;
+  settingsUpdates?: Record<string, unknown>;
 };
 
 export async function saveCodellia(
   params: SaveParams
 ): Promise<{ ok: boolean; error?: string; settings?: SettingsData }> {
   try {
-    const payload: Record<string, any> = {
+    const payload: Record<string, unknown> = {
       post_id: params.postId,
       html: params.html,
       css: params.css,
@@ -111,7 +112,7 @@ export async function saveCodellia(
     if (params.settingsUpdates && Object.keys(params.settingsUpdates).length > 0) {
       payload.settingsUpdates = params.settingsUpdates;
     }
-    const res = await params.apiFetch({
+    const res = await params.apiFetch<SaveResponse>({
       url: params.restUrl,
       method: 'POST',
       data: payload,
@@ -128,8 +129,11 @@ export async function saveCodellia(
       return { ok: false, error: res.error };
     }
     return { ok: false };
-  } catch (e: any) {
-    return { ok: false, error: e?.message ?? String(e) };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { ok: false, error: error.message };
+    }
+    return { ok: false, error: String(error) };
   }
 }
 
@@ -157,7 +161,7 @@ export async function exportCodellia(
     let generatedCss = '';
     if (params.tailwindEnabled) {
       try {
-        const res = await params.apiFetch({
+        const res = await params.apiFetch<CompileTailwindResponse>({
           url: params.restCompileUrl,
           method: 'POST',
           data: {
@@ -206,7 +210,10 @@ export async function exportCodellia(
     }, 500);
 
     return { ok: true };
-  } catch (e: any) {
-    return { ok: false, error: e?.message ?? e };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { ok: false, error: error.message };
+    }
+    return { ok: false, error: String(error) };
   }
 }

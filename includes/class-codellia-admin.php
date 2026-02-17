@@ -25,6 +25,10 @@ class Admin {
 	const OPTION_DEFAULT_LAYOUT      = 'codellia_default_layout';
 	const OPTION_FLUSH_REWRITE       = 'codellia_flush_rewrite';
 	const OPTION_DELETE_ON_UNINSTALL = 'codellia_delete_on_uninstall';
+	const ADMIN_TITLE_SEPARATORS     = array(
+		' ' . "\xE2\x80\xB9" . ' ',
+		' &lsaquo; ',
+	);
 	/**
 	 * Register admin hooks.
 	 */
@@ -138,11 +142,7 @@ class Admin {
 			return (string) substr( $admin_title, strlen( $title ) );
 		}
 
-		$separators = array(
-			' ' . "\xE2\x80\xB9" . ' ',
-			' &lsaquo; ',
-		);
-		foreach ( $separators as $separator ) {
+		foreach ( self::ADMIN_TITLE_SEPARATORS as $separator ) {
 			$position = strpos( $admin_title, $separator );
 			if ( false !== $position ) {
 				return (string) substr( $admin_title, $position );
@@ -710,6 +710,7 @@ class Admin {
 			'tailwindEnabled'     => (bool) get_post_meta( $post_id, '_codellia_tailwind', true ),
 			'setupRequired'       => get_post_meta( $post_id, '_codellia_setup_required', true ) === '1',
 			'restNonce'           => wp_create_nonce( 'wp_rest' ),
+			'adminTitleSeparators' => array_values( self::ADMIN_TITLE_SEPARATORS ),
 		);
 
 		wp_add_inline_script(

@@ -2,10 +2,12 @@
   "name": "codellia",
   "version": "1.0.0",
   "description": "Live HTML/CSS/JS editor with a custom Codellia post type, Monaco Editor, and live preview.",
-  "license": "GPL-2.0+",
+  "license": "GPL-2.0-or-later",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "plugin-zip": "npm run build && composer install --no-dev --optimize-autoloader && wp-scripts plugin-zip && composer install",
     "e2e": "playwright test",
     "e2e:install": "playwright install"
@@ -42,8 +44,10 @@
     "@types/react-dom": "^18.3.7",
     "@wordpress/scripts": "^31.3.0",
     "dotenv": "^16.6.1",
+    "jsdom": "^26.0.0",
     "typescript": "^5.9.3",
-    "vite": "^6.4.1"
+    "vite": "^6.4.1",
+    "vitest": "^3.2.4"
   }
 }
 
