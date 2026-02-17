@@ -452,6 +452,7 @@ function Toolbar({
               className={`cd-btn cd-btn-save cd-splitButton-main${hasUnsavedChanges ? ' is-unsaved' : ''}`}
               type="button"
               onClick={onSave}
+              aria-label={saveLabel}
             >
               <IconLabel label={saveLabel} svg={ICONS.save} />
             </button>

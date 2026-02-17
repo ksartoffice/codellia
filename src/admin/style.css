@@ -100,11 +100,13 @@ body.admin_page_codellia #wpbody-content {
 
 .cd-toolbarCluster-rightPrimary {
   flex: 0 0 auto;
+  order: 2;
 }
 
 .cd-toolbarCluster-rightSecondary {
   min-width: 0;
   flex: 0 1 auto;
+  order: 1;
 }
 
 .cd-splitButton-save {
@@ -1591,7 +1593,9 @@ body.admin_page_codellia #wpbody-content {
       'left right'
       'center center';
     row-gap: 8px;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+    z-index: 20;
   }
 
   .cd-toolbarLeft {
@@ -1607,6 +1611,8 @@ body.admin_page_codellia #wpbody-content {
     grid-area: center;
     justify-self: stretch;
     min-width: 0;
+    margin-left: auto;
+    margin-right: auto;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
@@ -1618,7 +1624,7 @@ body.admin_page_codellia #wpbody-content {
   }
 
   .cd-toolbarCenter .cd-toolbarTitleText {
-    max-width: min(52vw, 320px);
+    max-width: min(23vw, 320px);
   }
 
   .cd-toolbarCenter .cd-toolbarCluster {
@@ -1640,6 +1646,16 @@ body.admin_page_codellia #wpbody-content {
   }
 
   .cd-btn-export .cd-btnLabel {
+    display: none;
+  }
+
+  .cd-splitButton-save .cd-splitButton-main {
+    padding: 6px;
+    min-width: 32px;
+    justify-content: center;
+  }
+
+  .cd-splitButton-save .cd-splitButton-main .cd-btnLabel {
     display: none;
   }
 }
