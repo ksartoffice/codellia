@@ -18,8 +18,8 @@ Features:
 * Monaco Editor with HTML/CSS/JS tabs and live iframe preview
 * Setup wizard (Normal/Tailwind/Import JSON) with per-post mode lock
 * Tailwind mode with on-demand compilation
-* Import/export JSON projects (version 1)
-* Per-post layout control: Default/Standalone/Frame/Theme
+* Import/export JSON projects
+* Per-post template mode control: Default/Standalone/Frame/Theme
 * External scripts/styles (https only), live edit highlight, and optional Shadow DOM isolation
 * Shortcode embedding (enable in settings): [codellia post_id="123"]
 * Optional single-page disable for shortcode-based output
@@ -52,8 +52,8 @@ Users who can edit the post can use the editor. JavaScript, external scripts/sty
 = Does Codellia contact external servers by default? =
 No. External requests are disabled by default. Requests are made only when you explicitly configure external HTTPS script/style URLs in Codellia settings.
 
-= How do I embed a Codellia on a page? =
-Enable the shortcode in Codellia settings, then use: [codellia post_id="123"].
+= How do I embed a page created with Codellia? =
+Enable the shortcode in Codellia settings, then use [codellia post_id="123"] with the post ID of the page you created in Codellia.
 
 = Can I disable the single page view? =
 Yes. Enable the shortcode and turn on "Do not publish as single page." Disabled single pages are marked noindex and excluded from search/archives, and the single-page request is redirected (or can be forced to 404 via the codellia_single_page_redirect filter).
@@ -61,14 +61,14 @@ Yes. Enable the shortcode and turn on "Do not publish as single page." Disabled 
 = Can I switch between Normal and Tailwind modes? =
 The setup wizard lets you choose Normal or Tailwind. The choice is locked per Codellia post.
 
-= How do layouts work? =
-Each Codellia post can use Default, Standalone, Frame, or Theme layout. Default follows Codellia > Settings > Default layout. If Theme layout does not expose the_content in your theme, Codellia preview prompts to switch to Frame.
+= How does template mode work? =
+Each Codellia post can use Default, Standalone, Frame, or Theme template mode. Default follows Codellia > Settings > Default template mode. If Theme mode does not expose the_content in your theme, Codellia preview prompts to switch to Frame.
 
 = Can I change the Codellia URL slug? =
 Yes. Go to Codellia > Settings and update the Codellia slug.
 
-= Can I set a default layout for new previews? =
-Yes. Go to Codellia > Settings and set the Default layout (Standalone/Frame/Theme).
+= Can I set a default template mode for new previews? =
+Yes. Go to Codellia > Settings and set the Default template mode (Standalone/Frame/Theme).
 
 = Does the plugin delete data on uninstall? =
 By default, Codellia posts are kept when the plugin is uninstalled. You can enable data removal from the Codellia > Settings screen.
