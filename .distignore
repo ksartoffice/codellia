@@ -6,6 +6,7 @@
 /src
 /tests
 /bin
+/scripts
 /overview.md
 /tailwindphp.md
 /.vscode

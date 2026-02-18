@@ -4,6 +4,9 @@
   "description": "Live HTML/CSS/JS editor with a custom Codellia post type, Monaco Editor, and live preview.",
   "license": "GPL-2.0-or-later",
   "scripts": {
+    "prepare:monaco": "node scripts/prepare-monaco.mjs",
+    "predev": "npm run prepare:monaco",
+    "prebuild": "npm run prepare:monaco",
     "dev": "vite",
     "build": "vite build",
     "test:unit": "vitest run",
