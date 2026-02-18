@@ -83,6 +83,43 @@ test('preview postMessage handshake works', async ({ page }) => {
   expect(messages.some((message) => message.type === 'CODELLIA_READY')).toBe(true);
 });
 
+test('preview does not send READY before INIT', async ({ page }) => {
+  const previewUrl = await loginAndGetPreviewUrl(page);
+
+  await page.goto(new URL('./', baseUrl).toString(), { waitUntil: 'domcontentloaded' });
+  await page.evaluate(
+    ({ url }) => {
+      const iframe = document.createElement('iframe');
+      iframe.id = 'cd-preview-frame';
+      iframe.src = url;
+      iframe.style.width = '800px';
+      iframe.style.height = '600px';
+      document.body.appendChild(iframe);
+    },
+    { url: previewUrl }
+  );
+
+  await page.waitForSelector('#cd-preview-frame');
+
+  const outcome = await page.evaluate(() => {
+    return new Promise<'ready' | 'timeout'>((resolve) => {
+      const handler = (event: MessageEvent) => {
+        if (event.data && event.data.type === 'CODELLIA_READY') {
+          window.removeEventListener('message', handler as EventListener);
+          resolve('ready');
+        }
+      };
+      window.addEventListener('message', handler as EventListener);
+      window.setTimeout(() => {
+        window.removeEventListener('message', handler as EventListener);
+        resolve('timeout');
+      }, 400);
+    });
+  });
+
+  expect(outcome).toBe('timeout');
+});
+
 test('preview ignores postMessage when allowedOrigin mismatches', async ({ page }) => {
   const previewUrl = await loginAndGetPreviewUrl(page);
 

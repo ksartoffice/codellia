@@ -407,6 +407,24 @@ async function main() {
       return url.slice(0, hashIndex) + suffix + url.slice(hashIndex);
     }
   };
+  const targetOrigin = new URL(getPreviewUrl()).origin;
+  let pendingIframeLoad = false;
+
+  const handleIframeLoadEvent = () => {
+    if (!preview) {
+      pendingIframeLoad = true;
+      return;
+    }
+    preview.handleIframeLoad();
+  };
+
+  const handlePreviewMessage = (event: MessageEvent) => {
+    preview?.handleMessage(event);
+  };
+
+  // Register listeners before src assignment to avoid missing early handshake messages.
+  ui.iframe.addEventListener('load', handleIframeLoadEvent);
+  window.addEventListener('message', handlePreviewMessage);
 
   modalController = createModalController({
     apiFetch: wp.apiFetch,
@@ -548,7 +566,6 @@ async function main() {
 
   // iframe
   ui.iframe.src = getPreviewUrl();
-  const targetOrigin = new URL(getPreviewUrl()).origin;
 
   // Monaco
   const monacoSetup = await initMonacoEditors({
@@ -852,6 +869,10 @@ async function main() {
       handleMissingMarkers();
     },
   });
+  if (pendingIframeLoad) {
+    pendingIframeLoad = false;
+    preview.handleIframeLoad();
+  }
   syncElementsTabState();
 
   tailwindCompiler = createTailwindCompiler({
@@ -1013,15 +1034,6 @@ async function main() {
     syncUnsavedUi();
   });
 
-  // Handle iframe load event
-  ui.iframe.addEventListener('load', () => {
-    preview?.handleIframeLoad();
-  });
-
-  // Handle messages from iframe to parent for DOM selection and initialization
-  window.addEventListener('message', (event) => {
-    preview?.handleMessage(event);
-  });
 }
 
 main().catch((e) => {
