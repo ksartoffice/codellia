@@ -16,8 +16,8 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		'slug',
 		'status',
 		'viewUrl',
-		'layout',
-		'defaultLayout',
+		'templateMode',
+		'defaultTemplateMode',
 		'shadowDomEnabled',
 		'shortcodeEnabled',
 		'singlePageEnabled',
@@ -145,7 +145,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 				'css'             => 'body{color:#111;}',
 				'tailwindEnabled' => false,
 				'settingsUpdates' => array(
-					'layout'               => 'frame',
+					'templateMode'         => 'frame',
 					'shadowDomEnabled'     => true,
 					'shortcodeEnabled'     => true,
 					'singlePageEnabled'    => false,
@@ -162,7 +162,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertIsArray( $data['settings'] ?? null, 'Response should include settings payload.' );
 		$this->assert_settings_payload_keys( $data['settings'] );
 
-		$this->assertSame( 'frame', get_post_meta( $post_id, '_codellia_layout', true ) );
+		$this->assertSame( 'frame', get_post_meta( $post_id, '_codellia_template_mode', true ) );
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shadow_dom', true ) );
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shortcode_enabled', true ) );
 		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_single_page_enabled', true ) );
@@ -356,3 +356,4 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		}
 	}
 }
+

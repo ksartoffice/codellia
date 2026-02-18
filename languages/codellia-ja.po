@@ -884,3 +884,23 @@ msgstr ""
 #: assets/dist/main.js:81
 msgid "Frame uses the theme header and footer."
 msgstr "フレームはテーマのヘッダーとフッターを使用します。"
+
+#: assets/dist/main.js:81
+msgid "Page template"
+msgstr "ページテンプレート"
+
+#: assets/dist/main.js:81
+msgid "Template mode"
+msgstr "テンプレートモード"
+
+#: assets/dist/main.js:81
+msgid "Use default follows the default template mode from plugin settings."
+msgstr "「デフォルト」を選択すると、プラグイン設定のデフォルトテンプレートモードに従います。"
+
+#: assets/dist/main.js:81
+msgid "Use default (%s)"
+msgstr "デフォルト（%s）"
+
+#: assets/dist/main.js:81
+msgid "These files are requested from third-party servers in preview and front-end output. Add only trusted URLs."
+msgstr "これらのファイルはプレビューとフロントエンド表示時にサードパーティーサーバーから取得されます。信頼できる URL のみ追加してください。"

@@ -792,6 +792,5 @@
   });
 
   attachDomSelector();
-  reply('CODELLIA_READY', { post_id: postId });
 })();
 

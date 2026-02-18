@@ -1,4 +1,4 @@
-import {
+﻿import {
   createElement,
   Fragment,
   createPortal,
@@ -14,14 +14,15 @@ import { X } from 'lucide';
 import { renderLucideIcon } from '../lucide-icons';
 import { SettingsPanel } from './settings-panel';
 import { ElementPanel, type ElementPanelApi } from './element-panel';
+import { resolveDefaultTemplateMode, resolveTemplateMode } from '../logic/template-mode';
 
 export type SettingsData = {
   title: string;
   slug: string;
   status: string;
   viewUrl?: string;
-  layout?: 'default' | 'standalone' | 'frame' | 'theme';
-  defaultLayout?: 'standalone' | 'frame' | 'theme';
+  templateMode?: 'default' | 'standalone' | 'frame' | 'theme';
+  defaultTemplateMode?: 'standalone' | 'frame' | 'theme';
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   singlePageEnabled: boolean;
@@ -34,7 +35,7 @@ export type SettingsData = {
 };
 
 export type PendingSettingsState = {
-  updates: Record<string, any>;
+  updates: Record<string, unknown>;
   hasUnsavedSettings: boolean;
   hasValidationErrors: boolean;
 };
@@ -44,7 +45,7 @@ type SettingsConfig = {
   header?: HTMLElement;
   data: SettingsData;
   postId: number;
-  onLayoutChange?: (layout: 'default' | 'standalone' | 'frame' | 'theme') => void;
+  onTemplateModeChange?: (mode: 'default' | 'standalone' | 'frame' | 'theme') => void;
   onShadowDomToggle?: (enabled: boolean) => void;
   onShortcodeToggle?: (enabled: boolean) => void;
   onSinglePageToggle?: (enabled: boolean) => void;
@@ -52,13 +53,18 @@ type SettingsConfig = {
   onExternalScriptsChange?: (scripts: string[]) => void;
   onExternalStylesChange?: (styles: string[]) => void;
   onTabChange?: (tab: SettingsTab) => void;
-  onSettingsUpdate?: (settings: SettingsData) => void;
   onPendingUpdatesChange?: (state: PendingSettingsState) => void;
   onClosePanel?: () => void;
   elementsApi?: ElementPanelApi;
+  onApiReady?: (api: SettingsApi) => void;
 };
 
 type SettingsTab = 'settings' | 'elements';
+
+export type SettingsApi = {
+  applySettings: (next: Partial<SettingsData>) => void;
+  openTab: (tab: SettingsTab) => void;
+};
 
 const CLOSE_ICON = renderLucideIcon(X, {
   class: 'lucide lucide-x-icon lucide-x',
@@ -87,7 +93,7 @@ function SettingsSidebar({
   data,
   postId,
   header,
-  onLayoutChange,
+  onTemplateModeChange,
   onShadowDomToggle,
   onShortcodeToggle,
   onSinglePageToggle,
@@ -95,32 +101,22 @@ function SettingsSidebar({
   onExternalScriptsChange,
   onExternalStylesChange,
   onTabChange,
-  onSettingsUpdate,
   onPendingUpdatesChange,
   onClosePanel,
   elementsApi,
+  onApiReady,
 }: SettingsConfig) {
   const settingsRef = useRef<SettingsData>({ ...data });
   const [settings, setSettings] = useState<SettingsData>({ ...data });
   const [activeTab, setActiveTab] = useState<SettingsTab>('settings');
-  const resolveLayout = (value?: string): 'default' | 'standalone' | 'frame' | 'theme' => {
-    if (value === 'standalone' || value === 'frame' || value === 'theme' || value === 'default') {
-      return value;
-    }
-    return 'default';
-  };
-  const resolveDefaultLayout = (value?: string): 'standalone' | 'frame' | 'theme' => {
-    if (value === 'standalone' || value === 'frame' || value === 'theme') {
-      return value;
-    }
-    return 'theme';
-  };
   const resolveSinglePageEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
-  const [layout, setLayout] = useState(resolveLayout(data.layout));
-  const [defaultLayout, setDefaultLayout] = useState(resolveDefaultLayout(data.defaultLayout));
+  const [templateMode, setTemplateMode] = useState(resolveTemplateMode(data.templateMode));
+  const [defaultTemplateMode, setDefaultTemplateMode] = useState(
+    resolveDefaultTemplateMode(data.defaultTemplateMode)
+  );
   const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
   const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
   const [singlePageEnabled, setSinglePageEnabled] = useState(
@@ -141,8 +137,8 @@ function SettingsSidebar({
     settingsRef.current = nextSettings;
     setSettings(nextSettings);
     setShadowDomEnabled(Boolean(nextSettings.shadowDomEnabled));
-    setLayout(resolveLayout(nextSettings.layout));
-    setDefaultLayout(resolveDefaultLayout(nextSettings.defaultLayout));
+    setTemplateMode(resolveTemplateMode(nextSettings.templateMode));
+    setDefaultTemplateMode(resolveDefaultTemplateMode(nextSettings.defaultTemplateMode));
     setShortcodeEnabled(Boolean(nextSettings.shortcodeEnabled));
     setSinglePageEnabled(resolveSinglePageEnabled(nextSettings.singlePageEnabled));
     setLiveHighlightEnabled(resolveLiveHighlightEnabled(nextSettings.liveHighlightEnabled));
@@ -158,36 +154,22 @@ function SettingsSidebar({
   }, [activeTab, onTabChange]);
 
   useEffect(() => {
-    const handleOpenElementsTab = () => {
-      setActiveTab('elements');
-    };
-    window.addEventListener('cd-open-elements-tab', handleOpenElementsTab);
-    return () => {
-      window.removeEventListener('cd-open-elements-tab', handleOpenElementsTab);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleSettingsUpdated = (event: Event) => {
-      const detail = (event as CustomEvent).detail;
-      if (!detail || !detail.settings) {
-        return;
-      }
-      const nextSettings = { ...settingsRef.current, ...detail.settings } as SettingsData;
-      applySettingsSnapshot(nextSettings);
-      onSettingsUpdate?.(nextSettings);
-    };
-    window.addEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
-    return () => {
-      window.removeEventListener('cd-settings-updated', handleSettingsUpdated as EventListener);
-    };
-  }, [onSettingsUpdate]);
+    onApiReady?.({
+      applySettings: (nextSettings: Partial<SettingsData>) => {
+        const merged = { ...settingsRef.current, ...nextSettings } as SettingsData;
+        applySettingsSnapshot(merged);
+      },
+      openTab: (tab: SettingsTab) => {
+        setActiveTab(tab);
+      },
+    });
+  }, [onApiReady]);
 
   const canEditJs = Boolean(settings.canEditJs);
 
   useEffect(() => {
-    onLayoutChange?.(layout);
-  }, [layout, onLayoutChange]);
+    onTemplateModeChange?.(templateMode);
+  }, [templateMode, onTemplateModeChange]);
 
   useEffect(() => {
     onShadowDomToggle?.(shadowDomEnabled);
@@ -253,14 +235,14 @@ function SettingsSidebar({
     setShadowDomEnabled(enabled);
   };
 
-  const handleLayoutChange = (
+  const handleTemplateModeChange = (
     next: 'default' | 'standalone' | 'frame' | 'theme'
   ) => {
     if (!canEditJs) {
       return;
     }
     setDesignError('');
-    setLayout(next);
+    setTemplateMode(next);
   };
 
   const handleShortcodeToggle = (enabled: boolean) => {
@@ -317,8 +299,8 @@ function SettingsSidebar({
   };
 
   const pendingSettingsState = useMemo<PendingSettingsState>(() => {
-    const updates: Record<string, any> = {};
-    const savedLayout = resolveLayout(settings.layout);
+    const updates: Record<string, unknown> = {};
+    const savedTemplateMode = resolveTemplateMode(settings.templateMode);
     const savedShadowDomEnabled = Boolean(settings.shadowDomEnabled);
     const savedShortcodeEnabled = Boolean(settings.shortcodeEnabled);
     const savedSinglePageEnabled = resolveSinglePageEnabled(settings.singlePageEnabled);
@@ -328,7 +310,7 @@ function SettingsSidebar({
     const normalizedExternalStyles = normalizeList(externalStyles);
     const normalizedSavedExternalStyles = normalizeList(settings.externalStyles || []);
 
-    const layoutChanged = layout !== savedLayout;
+    const templateModeChanged = templateMode !== savedTemplateMode;
     const shadowDomChanged = canEditJs && shadowDomEnabled !== savedShadowDomEnabled;
     const shortcodeChanged = canEditJs && shortcodeEnabled !== savedShortcodeEnabled;
     const singlePageChanged = canEditJs && singlePageEnabled !== savedSinglePageEnabled;
@@ -338,8 +320,8 @@ function SettingsSidebar({
     const externalStylesChanged =
       canEditJs && !isSameList(normalizedExternalStyles, normalizedSavedExternalStyles);
 
-    if (layoutChanged) {
-      updates.layout = layout;
+    if (templateModeChanged) {
+      updates.templateMode = templateMode;
     }
     if (shadowDomChanged) {
       updates.shadowDomEnabled = shadowDomEnabled;
@@ -363,7 +345,7 @@ function SettingsSidebar({
     return {
       updates,
       hasUnsavedSettings:
-        layoutChanged ||
+        templateModeChanged ||
         shadowDomChanged ||
         shortcodeChanged ||
         singlePageChanged ||
@@ -379,11 +361,11 @@ function SettingsSidebar({
     externalScriptsError,
     externalStyles,
     externalStylesError,
-    layout,
+    templateMode,
     liveHighlightEnabled,
     settings.externalScripts,
     settings.externalStyles,
-    settings.layout,
+    settings.templateMode,
     settings.liveHighlightEnabled,
     settings.shadowDomEnabled,
     settings.shortcodeEnabled,
@@ -447,9 +429,9 @@ function SettingsSidebar({
         <SettingsPanel
           postId={postId}
           canEditJs={canEditJs}
-          layout={layout}
-          defaultLayout={defaultLayout}
-          onChangeLayout={handleLayoutChange}
+          templateMode={templateMode}
+          defaultTemplateMode={defaultTemplateMode}
+          onChangeTemplateMode={handleTemplateModeChange}
           shadowDomEnabled={shadowDomEnabled}
           onToggleShadowDom={handleShadowDomToggle}
           shortcodeEnabled={shortcodeEnabled}
@@ -480,12 +462,32 @@ function SettingsSidebar({
 
 export function initSettings(config: SettingsConfig) {
   const { container } = config;
+  let applySettingsImpl: (next: Partial<SettingsData>) => void = () => {};
+  let openTabImpl: (tab: SettingsTab) => void = () => {};
+  const api: SettingsApi = {
+    applySettings(next: Partial<SettingsData>) {
+      applySettingsImpl(next);
+    },
+    openTab(tab: SettingsTab) {
+      openTabImpl(tab);
+    },
+  };
 
   const root = typeof createRoot === 'function' ? createRoot(container) : null;
-  const node = <SettingsSidebar {...config} />;
+  const node = (
+    <SettingsSidebar
+      {...config}
+      onApiReady={(nextApi) => {
+        applySettingsImpl = nextApi.applySettings;
+        openTabImpl = nextApi.openTab;
+      }}
+    />
+  );
   if (root) {
     root.render(node);
   } else {
     render(node, container);
   }
+  return api;
 }
+

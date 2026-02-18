@@ -16,28 +16,28 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Rest_Settings {
 
-	private const LAYOUT_VALUES         = array( 'default', 'standalone', 'frame', 'theme' );
-	private const DEFAULT_LAYOUT_VALUES = array( 'standalone', 'frame', 'theme' );
+	private const TEMPLATE_MODE_VALUES         = array( 'default', 'standalone', 'frame', 'theme' );
+	private const DEFAULT_TEMPLATE_MODE_VALUES = array( 'standalone', 'frame', 'theme' );
 	/**
-	 * Normalize layout value stored in post meta.
+	 * Normalize template mode value stored in post meta.
 	 *
-	 * @param mixed $value Raw layout.
+	 * @param mixed $value Raw template mode.
 	 * @return string
 	 */
-	private static function normalize_layout( $value ): string {
-		$layout = is_string( $value ) ? $value : '';
-		return in_array( $layout, self::LAYOUT_VALUES, true ) ? $layout : 'default';
+	private static function normalize_template_mode( $value ): string {
+		$template_mode = is_string( $value ) ? $value : '';
+		return in_array( $template_mode, self::TEMPLATE_MODE_VALUES, true ) ? $template_mode : 'default';
 	}
 
 	/**
-	 * Normalize default layout value stored in options.
+	 * Normalize default template mode value stored in options.
 	 *
-	 * @param mixed $value Raw layout.
+	 * @param mixed $value Raw template mode.
 	 * @return string
 	 */
-	private static function normalize_default_layout( $value ): string {
-		$layout = is_string( $value ) ? $value : '';
-		return in_array( $layout, self::DEFAULT_LAYOUT_VALUES, true ) ? $layout : 'theme';
+	private static function normalize_default_template_mode( $value ): string {
+		$template_mode = is_string( $value ) ? $value : '';
+		return in_array( $template_mode, self::DEFAULT_TEMPLATE_MODE_VALUES, true ) ? $template_mode : 'theme';
 	}
 
 	/**
@@ -55,10 +55,10 @@ class Rest_Settings {
 		$highlight_meta         = get_post_meta( $post_id, '_codellia_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$single_page_enabled    = Post_Type::is_single_page_enabled( $post_id );
-		$layout_meta            = get_post_meta( $post_id, '_codellia_layout', true );
-		$layout                 = self::normalize_layout( $layout_meta );
-		$default_layout         = self::normalize_default_layout(
-			get_option( Admin::OPTION_DEFAULT_LAYOUT, 'theme' )
+		$template_mode_meta     = get_post_meta( $post_id, '_codellia_template_mode', true );
+		$template_mode          = self::normalize_template_mode( $template_mode_meta );
+		$default_template_mode  = self::normalize_default_template_mode(
+			get_option( Admin::OPTION_DEFAULT_TEMPLATE_MODE, 'theme' )
 		);
 
 		return array(
@@ -66,8 +66,8 @@ class Rest_Settings {
 			'slug'                 => (string) $post->post_name,
 			'status'               => (string) $post->post_status,
 			'viewUrl'              => $single_page_enabled ? (string) get_permalink( $post_id ) : '',
-			'layout'               => $layout,
-			'defaultLayout'        => $default_layout,
+			'templateMode'         => $template_mode,
+			'defaultTemplateMode'  => $default_template_mode,
 			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true ),
 			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shortcode_enabled', true ),
 			'singlePageEnabled'    => $single_page_enabled,
@@ -199,8 +199,8 @@ class Rest_Settings {
 			$prepared['meta_updates']['_codellia_shadow_dom'] = $shadow_dom_enabled ? '1' : '0';
 		}
 
-		if ( array_key_exists( 'layout', $updates ) ) {
-			$prepared['meta_updates']['_codellia_layout'] = self::normalize_layout( $updates['layout'] );
+		if ( array_key_exists( 'templateMode', $updates ) ) {
+			$prepared['meta_updates']['_codellia_template_mode'] = self::normalize_template_mode( $updates['templateMode'] );
 		}
 
 		if ( array_key_exists( 'shortcodeEnabled', $updates ) ) {
@@ -393,3 +393,4 @@ class Rest_Settings {
 		return 400;
 	}
 }
+

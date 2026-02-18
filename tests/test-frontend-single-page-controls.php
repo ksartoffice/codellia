@@ -185,17 +185,17 @@ class Test_Frontend_Single_Page_Controls extends WP_UnitTestCase {
 
 		$original_wp_query = $this->set_query_for_post( $post_id, $post );
 
-		update_post_meta( $post_id, '_codellia_layout', 'frame' );
+		update_post_meta( $post_id, '_codellia_template_mode', 'frame' );
 		$frame_template = Frontend::maybe_override_template( 'theme-template.php' );
 		$this->assertStringContainsString( 'templates/single-codellia-frame.php', str_replace( '\\', '/', $frame_template ) );
 
-		update_post_meta( $post_id, '_codellia_layout', 'theme' );
+		update_post_meta( $post_id, '_codellia_template_mode', 'theme' );
 		$theme_template = Frontend::maybe_override_template( 'theme-template.php' );
 		$this->assertSame( 'theme-template.php', $theme_template );
 
-		update_post_meta( $post_id, '_codellia_layout', 'default' );
+		update_post_meta( $post_id, '_codellia_template_mode', 'default' );
 		$GLOBALS['wp_query']->set( 'codellia_preview', '1' );
-		$GLOBALS['wp_query']->set( 'codellia_layout', 'standalone' );
+		$GLOBALS['wp_query']->set( 'codellia_template_mode', 'standalone' );
 		$preview_template = Frontend::maybe_override_template( 'theme-template.php' );
 		$this->assertStringContainsString( 'templates/single-codellia-standalone.php', str_replace( '\\', '/', $preview_template ) );
 
@@ -238,3 +238,4 @@ class Test_Frontend_Single_Page_Controls extends WP_UnitTestCase {
 		}
 	}
 }
+

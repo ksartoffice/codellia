@@ -22,9 +22,13 @@ class Admin {
 	const NEW_POST_ACTION            = 'codellia_new';
 	const NEW_POST_NONCE_ACTION      = 'codellia_new_post';
 	const OPTION_POST_SLUG           = 'codellia_post_slug';
-	const OPTION_DEFAULT_LAYOUT      = 'codellia_default_layout';
+	const OPTION_DEFAULT_TEMPLATE_MODE      = 'codellia_default_template_mode';
 	const OPTION_FLUSH_REWRITE       = 'codellia_flush_rewrite';
 	const OPTION_DELETE_ON_UNINSTALL = 'codellia_delete_on_uninstall';
+	const ADMIN_TITLE_SEPARATORS     = array(
+		' ' . "\xE2\x80\xB9" . ' ',
+		' &lsaquo; ',
+	);
 	/**
 	 * Register admin hooks.
 	 */
@@ -138,11 +142,7 @@ class Admin {
 			return (string) substr( $admin_title, strlen( $title ) );
 		}
 
-		$separators = array(
-			' ' . "\xE2\x80\xB9" . ' ',
-			' &lsaquo; ',
-		);
-		foreach ( $separators as $separator ) {
+		foreach ( self::ADMIN_TITLE_SEPARATORS as $separator ) {
 			$position = strpos( $admin_title, $separator );
 			if ( false !== $position ) {
 				return (string) substr( $admin_title, $position );
@@ -370,10 +370,10 @@ class Admin {
 
 		register_setting(
 			self::SETTINGS_GROUP,
-			self::OPTION_DEFAULT_LAYOUT,
+			self::OPTION_DEFAULT_TEMPLATE_MODE,
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => array( __CLASS__, 'sanitize_default_layout' ),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_default_template_mode' ),
 				'default'           => 'theme',
 			)
 		);
@@ -396,9 +396,9 @@ class Admin {
 		);
 
 		add_settings_section(
-			'codellia_layout',
-			__( 'Layout', 'codellia' ),
-			array( __CLASS__, 'render_layout_section' ),
+			'codellia_template_mode',
+			__( 'Page template', 'codellia' ),
+			array( __CLASS__, 'render_template_mode_section' ),
 			self::SETTINGS_SLUG
 		);
 
@@ -411,11 +411,11 @@ class Admin {
 		);
 
 		add_settings_field(
-			self::OPTION_DEFAULT_LAYOUT,
-			__( 'Default layout', 'codellia' ),
-			array( __CLASS__, 'render_default_layout_field' ),
+			self::OPTION_DEFAULT_TEMPLATE_MODE,
+			__( 'Default template mode', 'codellia' ),
+			array( __CLASS__, 'render_default_template_mode_field' ),
 			self::SETTINGS_SLUG,
-			'codellia_layout'
+			'codellia_template_mode'
 		);
 
 		add_settings_section(
@@ -457,15 +457,15 @@ class Admin {
 	}
 
 	/**
-	 * Sanitize default layout value.
+	 * Sanitize default template mode value.
 	 *
 	 * @param mixed $value Raw value.
 	 * @return string
 	 */
-	public static function sanitize_default_layout( $value ): string {
-		$layout = is_string( $value ) ? sanitize_key( $value ) : '';
+	public static function sanitize_default_template_mode( $value ): string {
+		$template_mode = is_string( $value ) ? sanitize_key( $value ) : '';
 		$valid  = array( 'standalone', 'frame', 'theme' );
-		return in_array( $layout, $valid, true ) ? $layout : 'theme';
+		return in_array( $template_mode, $valid, true ) ? $template_mode : 'theme';
 	}
 
 	/**
@@ -513,10 +513,10 @@ class Admin {
 	}
 
 	/**
-	 * Render layout section description.
+	 * Render page template section description.
 	 */
-	public static function render_layout_section(): void {
-		echo '<p>' . esc_html__( 'Choose the default layout used by Codellia previews.', 'codellia' ) . '</p>';
+	public static function render_template_mode_section(): void {
+		echo '<p>' . esc_html__( 'Choose the default page template mode used by Codellia previews.', 'codellia' ) . '</p>';
 	}
 
 	/**
@@ -529,22 +529,22 @@ class Admin {
 	}
 
 	/**
-	 * Render default layout select field.
+	 * Render default template mode select field.
 	 */
-	public static function render_default_layout_field(): void {
-		$value  = get_option( self::OPTION_DEFAULT_LAYOUT, 'theme' );
-		$value  = self::sanitize_default_layout( $value );
-		$layout = array(
+	public static function render_default_template_mode_field(): void {
+		$value  = get_option( self::OPTION_DEFAULT_TEMPLATE_MODE, 'theme' );
+		$value  = self::sanitize_default_template_mode( $value );
+		$template_modes = array(
 			'standalone' => __( 'Standalone', 'codellia' ),
 			'frame'      => __( 'Frame', 'codellia' ),
 			'theme'      => __( 'Theme', 'codellia' ),
 		);
-		echo '<select name="' . esc_attr( self::OPTION_DEFAULT_LAYOUT ) . '">';
-		foreach ( $layout as $key => $label ) {
+		echo '<select name="' . esc_attr( self::OPTION_DEFAULT_TEMPLATE_MODE ) . '">';
+		foreach ( $template_modes as $key => $label ) {
 			echo '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Applies when layout is set to Default.', 'codellia' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Applies when template mode is set to Use admin default.', 'codellia' ) . '</p>';
 	}
 
 	/**
@@ -710,6 +710,7 @@ class Admin {
 			'tailwindEnabled'     => (bool) get_post_meta( $post_id, '_codellia_tailwind', true ),
 			'setupRequired'       => get_post_meta( $post_id, '_codellia_setup_required', true ) === '1',
 			'restNonce'           => wp_create_nonce( 'wp_rest' ),
+			'adminTitleSeparators' => array_values( self::ADMIN_TITLE_SEPARATORS ),
 		);
 
 		wp_add_inline_script(
@@ -722,3 +723,4 @@ class Admin {
 		);
 	}
 }
+

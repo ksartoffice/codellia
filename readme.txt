@@ -2,7 +2,7 @@
 Contributors: codellia
 Tags: live preview, code editor, monaco, tailwind, shortcode
 Requires at least: 6.6
-Tested up to: 6.9
+Tested up to: 6.9.1
 Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPL-2.0+
@@ -24,6 +24,22 @@ Features:
 * Shortcode embedding (enable in settings): [codellia post_id="123"]
 * Optional single-page disable for shortcode-based output
 
+External connections and privacy:
+* By default, Codellia does not load external scripts or styles and does not send telemetry.
+* External requests happen only when an authorized user explicitly adds external HTTPS URLs in Codellia settings.
+* Added external resources are requested both in preview and on front-end output where the Codellia content is rendered.
+* Add only trusted URLs.
+
+Development repository and build:
+* Source repository: https://github.com/ksartoffice/codellia
+* Repository visibility note: currently private, planned to be public at review submission time.
+* Build steps:
+* 1) npm install
+* 2) composer install
+* 3) npm run build
+* 4) npm run plugin-zip
+* The production files used by WordPress are generated into assets/dist/.
+
 == Installation ==
 1. Upload the plugin folder to /wp-content/plugins/codellia/.
 2. Activate Codellia Editor through the Plugins screen.
@@ -32,6 +48,9 @@ Features:
 == Frequently Asked Questions ==
 = Who can edit Codellia posts? =
 Users who can edit the post can use the editor. JavaScript, external scripts/styles, shadow DOM, shortcode, and single-page settings require the unfiltered_html capability.
+
+= Does Codellia contact external servers by default? =
+No. External requests are disabled by default. Requests are made only when you explicitly configure external HTTPS script/style URLs in Codellia settings.
 
 = How do I embed a Codellia on a page? =
 Enable the shortcode in Codellia settings, then use: [codellia post_id="123"].
@@ -56,6 +75,15 @@ By default, Codellia posts are kept when the plugin is uninstalled. You can enab
 
 = Where is the code stored? =
 HTML is stored in the post content. CSS/JS and other settings are stored in post meta.
+
+= Where is the development repository and how do I build the plugin? =
+Development repository: https://github.com/ksartoffice/codellia
+
+Build commands:
+1. npm install
+2. composer install
+3. npm run build
+4. npm run plugin-zip
 
 == Screenshots ==
 1. Codellia editor with live preview.

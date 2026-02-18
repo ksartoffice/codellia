@@ -306,7 +306,7 @@ function applyShortcodeResults(
   return output;
 }
 
-// canonical HTML 繧堤函謌舌＠縺､縺､ data-codellia-id 縺ｨ繧ｽ繝ｼ繧ｹ菴咲ｽｮ縺ｮ繝槭ャ繝斐Φ繧ｰ繧剃ｿ晄戟
+// canonical HTML を生成しつつ data-codellia-id とソース位置のマッピングを保持
 function canonicalizeHtml(html: string): CanonicalResult {
   try {
     const fragment = parse5.parseFragment(html, { sourceCodeLocationInfo: true });

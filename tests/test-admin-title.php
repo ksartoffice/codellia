@@ -54,6 +54,20 @@ class Test_Admin_Title extends WP_UnitTestCase {
 		$this->assertSame( 'Codellia Editor: Untitled &lsaquo; Test Site - WordPress', $filtered );
 	}
 
+	public function test_filter_admin_title_supports_utf8_separator_suffix(): void {
+		$post_id = $this->create_codellia_post( 'Foo' );
+
+		$_GET['page']    = Admin::MENU_SLUG;
+		$_GET['post_id'] = (string) $post_id;
+
+		$filtered = Admin::filter_admin_title(
+			'Codellia ' . "\xE2\x80\xB9" . ' Test Site - WordPress',
+			'Codellia'
+		);
+
+		$this->assertSame( 'Codellia Editor: Foo ' . "\xE2\x80\xB9" . ' Test Site - WordPress', $filtered );
+	}
+
 	public function test_filter_admin_title_does_not_change_other_admin_pages(): void {
 		$_GET['page'] = Admin::SETTINGS_SLUG;
 

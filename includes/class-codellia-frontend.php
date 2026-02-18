@@ -44,9 +44,9 @@ class Frontend {
 	 * @var bool
 	 */
 	private static bool $shadow_runtime_enqueued = false;
-	private const LAYOUT_META_KEY                = '_codellia_layout';
-	private const LAYOUT_VALUES                  = array( 'default', 'standalone', 'frame', 'theme' );
-	private const DEFAULT_LAYOUT_VALUES          = array( 'standalone', 'frame', 'theme' );
+	private const TEMPLATE_MODE_META_KEY         = '_codellia_template_mode';
+	private const TEMPLATE_MODE_VALUES           = array( 'default', 'standalone', 'frame', 'theme' );
+	private const DEFAULT_TEMPLATE_MODE_VALUES   = array( 'standalone', 'frame', 'theme' );
 
 	/**
 	 * Register front-end hooks.
@@ -219,52 +219,52 @@ class Frontend {
 	}
 
 	/**
-	 * Normalize layout string.
+	 * Normalize template mode string.
 	 *
-	 * @param mixed $value Layout value.
+	 * @param mixed $value Template mode value.
 	 * @return string
 	 */
-	private static function normalize_layout( $value ): string {
-		$layout = is_string( $value ) ? $value : '';
-		return in_array( $layout, self::LAYOUT_VALUES, true ) ? $layout : 'default';
+	private static function normalize_template_mode( $value ): string {
+		$template_mode = is_string( $value ) ? $value : '';
+		return in_array( $template_mode, self::TEMPLATE_MODE_VALUES, true ) ? $template_mode : 'default';
 	}
 
 	/**
-	 * Resolve default layout from options.
+	 * Resolve default template mode from options.
 	 *
 	 * @return string
 	 */
-	private static function resolve_default_layout(): string {
-		$layout = get_option( Admin::OPTION_DEFAULT_LAYOUT, 'theme' );
-		$layout = Admin::sanitize_default_layout( $layout );
-		return in_array( $layout, self::DEFAULT_LAYOUT_VALUES, true ) ? $layout : 'theme';
+	private static function resolve_default_template_mode(): string {
+		$template_mode = get_option( Admin::OPTION_DEFAULT_TEMPLATE_MODE, 'theme' );
+		$template_mode = Admin::sanitize_default_template_mode( $template_mode );
+		return in_array( $template_mode, self::DEFAULT_TEMPLATE_MODE_VALUES, true ) ? $template_mode : 'theme';
 	}
 
 	/**
-	 * Resolve layout for the current request.
+	 * Resolve template mode for the current request.
 	 *
 	 * @param int $post_id Codellia post ID.
 	 * @return string
 	 */
-	private static function resolve_layout( int $post_id ): string {
-		$layout = self::normalize_layout( get_post_meta( $post_id, self::LAYOUT_META_KEY, true ) );
+	private static function resolve_template_mode( int $post_id ): string {
+		$template_mode = self::normalize_template_mode( get_post_meta( $post_id, self::TEMPLATE_MODE_META_KEY, true ) );
 
 		if ( get_query_var( 'codellia_preview' ) ) {
-			$override = self::normalize_layout( get_query_var( 'codellia_layout' ) );
+			$override = self::normalize_template_mode( get_query_var( 'codellia_template_mode' ) );
 			if ( 'default' !== $override ) {
-				$layout = $override;
+				$template_mode = $override;
 			}
 		}
 
-		if ( 'default' === $layout ) {
-			$layout = self::resolve_default_layout();
+		if ( 'default' === $template_mode ) {
+			$template_mode = self::resolve_default_template_mode();
 		}
 
-		return $layout;
+		return $template_mode;
 	}
 
 	/**
-	 * Override single template based on Codellia layout.
+	 * Override single template based on Codellia template mode.
 	 *
 	 * @param string $template Template path.
 	 * @return string
@@ -287,15 +287,15 @@ class Frontend {
 			return $template;
 		}
 
-		$layout = self::resolve_layout( $post_id );
-		if ( 'theme' === $layout ) {
+		$template_mode = self::resolve_template_mode( $post_id );
+		if ( 'theme' === $template_mode ) {
 			return $template;
 		}
 
 		$path = '';
-		if ( 'standalone' === $layout ) {
+		if ( 'standalone' === $template_mode ) {
 			$path = CODELLIA_PATH . 'templates/single-codellia-standalone.php';
-		} elseif ( 'frame' === $layout ) {
+		} elseif ( 'frame' === $template_mode ) {
 			$path = CODELLIA_PATH . 'templates/single-codellia-frame.php';
 		}
 
@@ -729,3 +729,4 @@ class Frontend {
 		}
 	}
 }
+

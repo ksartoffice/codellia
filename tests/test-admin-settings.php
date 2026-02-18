@@ -24,7 +24,7 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 	protected function tearDown(): void {
 		delete_option( Admin::OPTION_FLUSH_REWRITE );
 		delete_option( Admin::OPTION_POST_SLUG );
-		delete_option( Admin::OPTION_DEFAULT_LAYOUT );
+		delete_option( Admin::OPTION_DEFAULT_TEMPLATE_MODE );
 		delete_option( Admin::OPTION_DELETE_ON_UNINSTALL );
 		parent::tearDown();
 	}
@@ -34,10 +34,10 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$this->assertSame( Post_Type::SLUG, Admin::sanitize_post_slug( '' ) );
 	}
 
-	public function test_sanitize_default_layout_allows_known_values_only(): void {
-		$this->assertSame( 'standalone', Admin::sanitize_default_layout( 'standalone' ) );
-		$this->assertSame( 'frame', Admin::sanitize_default_layout( 'frame' ) );
-		$this->assertSame( 'theme', Admin::sanitize_default_layout( 'invalid' ) );
+	public function test_sanitize_default_template_mode_allows_known_values_only(): void {
+		$this->assertSame( 'standalone', Admin::sanitize_default_template_mode( 'standalone' ) );
+		$this->assertSame( 'frame', Admin::sanitize_default_template_mode( 'frame' ) );
+		$this->assertSame( 'theme', Admin::sanitize_default_template_mode( 'invalid' ) );
 	}
 
 	public function test_sanitize_delete_on_uninstall_accepts_only_string_one(): void {
@@ -142,3 +142,4 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$this->assertSame( $before + 1, did_action( 'wp_enqueue_media' ) );
 	}
 }
+
