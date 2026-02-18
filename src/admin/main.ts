@@ -15,9 +15,9 @@ import {
   createTailwindCompiler,
   type TailwindCompiler,
 } from './persistence';
-import { resolveDefaultLayout, resolveLayout } from './domain/layout';
-import { createDocumentTitleSync } from './domain/document-title';
-import { buildMediaHtml } from './domain/media-html';
+import { resolveDefaultLayout, resolveLayout } from './logic/layout';
+import { createDocumentTitleSync } from './logic/document-title';
+import { buildMediaHtml } from './logic/media-html';
 import { createSaveExportController } from './controllers/save-export-controller';
 import { createModalController } from './controllers/modal-controller';
 import { createEditorUiController } from './controllers/editor-ui-controller';

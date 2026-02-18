@@ -5,7 +5,7 @@ import {
   resolveLayout,
   type DefaultLayoutMode,
   type LayoutMode,
-} from '../domain/layout';
+} from '../logic/layout';
 import type { SettingsData } from '../settings';
 import type { ApiFetch } from '../types/api-fetch';
 
@@ -404,4 +404,3 @@ export function createModalController(deps: ModalControllerDeps) {
     handleMissingMarkers,
   };
 }
-

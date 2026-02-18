@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { resolveDefaultLayout, resolveLayout } from './layout';
+import { resolveDefaultLayout, resolveLayout } from '../../../../src/admin/logic/layout';
 
-describe('layout domain', () => {
+describe('layout logic', () => {
   it('resolves valid layout values', () => {
     expect(resolveLayout('default')).toBe('default');
     expect(resolveLayout('standalone')).toBe('standalone');

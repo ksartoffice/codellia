@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateImportPayload } from './validate-import-payload';
+import { validateImportPayload } from '../../../../src/admin/setup-wizard/validate-import-payload';
 
 describe('validateImportPayload', () => {
   it('accepts valid payload', () => {

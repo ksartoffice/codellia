@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { buildMediaHtml } from './media-html';
+import { buildMediaHtml } from '../../../../src/admin/logic/media-html';
 
-describe('media html domain', () => {
+describe('media html logic', () => {
   it('builds image html with escaped attributes', () => {
     const html = buildMediaHtml({
       type: 'image',

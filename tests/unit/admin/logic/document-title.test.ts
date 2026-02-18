@@ -3,9 +3,9 @@ import {
   buildEditorDocumentTitleLabel,
   createDocumentTitleSync,
   extractAdminTitleSuffix,
-} from './document-title';
+} from '../../../../src/admin/logic/document-title';
 
-describe('document title domain', () => {
+describe('document title logic', () => {
   beforeEach(() => {
     document.title = 'Codellia < Test Site - WordPress';
   });

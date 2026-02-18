@@ -14,7 +14,7 @@ import { X } from 'lucide';
 import { renderLucideIcon } from '../lucide-icons';
 import { SettingsPanel } from './settings-panel';
 import { ElementPanel, type ElementPanelApi } from './element-panel';
-import { resolveDefaultLayout, resolveLayout } from '../domain/layout';
+import { resolveDefaultLayout, resolveLayout } from '../logic/layout';
 
 export type SettingsData = {
   title: string;
