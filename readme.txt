@@ -1,4 +1,4 @@
-=== Codellia Editor ===
+=== Codellia ===
 Contributors: codellia
 Tags: live preview, code editor, monaco, tailwind, shortcode
 Requires at least: 6.6
