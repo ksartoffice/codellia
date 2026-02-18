@@ -1,5 +1,6 @@
 /.git
 /.gitignore
+/.distignore
 /AGENTS.md
 /STYLEGUIDE.md
 /node_modules
@@ -19,6 +20,13 @@
 /composer.lock
 /phpunit.xml.dist
 /phpunit.xml
+/phpcs.xml
+/playwright.config.ts
+/vitest.config.ts
+/test-results
+/.env
+/.env.example
+/.phpunit.result.cache
 /assets/dist/*.map
 /.wordpress-tests-lib
 /.wordpress
