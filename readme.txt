@@ -2,7 +2,7 @@
 Contributors: codellia
 Tags: live preview, code editor, monaco, tailwind, shortcode
 Requires at least: 6.6
-Tested up to: 6.9.1
+Tested up to: 6.9
 Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPL-2.0-or-later
