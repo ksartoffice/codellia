@@ -729,4 +729,3 @@ class Frontend {
 		}
 	}
 }
-

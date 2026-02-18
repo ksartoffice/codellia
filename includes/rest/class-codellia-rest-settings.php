@@ -393,4 +393,3 @@ class Rest_Settings {
 		return 400;
 	}
 }
-
