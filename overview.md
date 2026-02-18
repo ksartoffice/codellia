@@ -3,7 +3,6 @@
 
 概要
 ----
-- プラグイン正式名は「Codellia Editor」。内部名/各種識別子は「Codellia」。
 - Codellia専用のカスタム投稿タイプ `codellia` を登録し、通常の投稿/固定ページは対象外。
 - 新規作成時は専用エディタ (`admin.php?page=codellia`) へ自動遷移。既存投稿ではブロック/クラシックに「Edit with Codellia」ボタンを追加して遷移。
 - Monaco Editor で HTML/CSS/JavaScript を編集し、右側 iframe に実フロントを即時プレビュー。
