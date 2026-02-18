@@ -7,6 +7,8 @@
     "prepare:monaco": "node scripts/prepare-monaco.mjs",
     "predev": "npm run prepare:monaco",
     "prebuild": "npm run prepare:monaco",
+    "version:set": "node scripts/version-set.mjs",
+    "version:check": "node scripts/version-check.mjs",
     "dev": "vite",
     "build": "vite build",
     "test:unit": "vitest run",
@@ -42,5 +44,3 @@
     "vitest": "^3.2.4"
   }
 }
-
-
