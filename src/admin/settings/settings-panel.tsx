@@ -73,7 +73,7 @@ export function SettingsPanel({
     templateModeLabels[defaultTemplateMode] || templateModeLabels.theme;
   const templateHelp =
     templateMode === 'default'
-      ? __( 'Use admin default follows the default template mode from plugin settings.', 'codellia' )
+      ? __( 'Use default follows the default template mode from plugin settings.', 'codellia' )
       : templateMode === 'standalone'
         ? __( 'Standalone hides the theme header and footer.', 'codellia' )
         : templateMode === 'frame'
@@ -171,7 +171,6 @@ export function SettingsPanel({
       <div className="cd-settingsSection">
         <div className="cd-settingsSectionTitle">{__( 'Page template', 'codellia' )}</div>
         <div className="cd-settingsItem">
-          <div className="cd-settingsItemLabel">{__( 'Template mode', 'codellia' )}</div>
           <select
             className="cd-formSelect"
             value={templateMode}
@@ -184,7 +183,7 @@ export function SettingsPanel({
             disabled={disabled}
           >
             <option value="default">
-              {sprintf(__( 'Use admin default (%s)', 'codellia' ), resolvedDefaultTemplateMode)}
+              {sprintf(__( 'Use default (%s)', 'codellia' ), resolvedDefaultTemplateMode)}
             </option>
             <option value="standalone">{templateModeLabels.standalone}</option>
             <option value="frame">{templateModeLabels.frame}</option>
@@ -302,13 +301,7 @@ export function SettingsPanel({
         </div>
         <div className="cd-settingsHelp">
           {__(
-            'External resources are off by default. They are loaded only when you explicitly add HTTPS URLs below.',
-            'codellia'
-          )}
-        </div>
-        <div className="cd-settingsHelp">
-          {__(
-            'These files are requested from third-party servers in preview and front-end output. Add only trusted URLs and review each provider privacy policy.',
+            'These files are requested from third-party servers in preview and front-end output. Add only trusted URLs.',
             'codellia'
           )}
         </div>

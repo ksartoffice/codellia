@@ -28,7 +28,7 @@ External connections and privacy:
 * By default, Codellia does not load external scripts or styles and does not send telemetry.
 * External requests happen only when an authorized user explicitly adds external HTTPS URLs in Codellia settings.
 * Added external resources are requested both in preview and on front-end output where the Codellia content is rendered.
-* Add only trusted URLs. Third-party resources may set cookies, log visitor IP addresses, or execute their own code according to their own privacy policies.
+* Add only trusted URLs.
 
 Development repository and build:
 * Source repository: https://github.com/ksartoffice/codellia
