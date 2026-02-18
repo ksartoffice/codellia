@@ -1,8 +1,8 @@
-import type { LayoutRefs } from '../layout';
+﻿import type { EditorShellRefs } from '../editor-shell';
 import type { ViewportMode } from '../toolbar';
 
 type ViewportControllerDeps = {
-  ui: LayoutRefs;
+  ui: EditorShellRefs;
   compactDesktopViewportWidth: number;
   viewportPresetWidths: {
     mobile: number;
@@ -328,4 +328,5 @@ export function createViewportController(deps: ViewportControllerDeps) {
     getEditorSplitState: () => ({ active: editorSplitActive, lastHtmlHeight }),
   };
 }
+
 

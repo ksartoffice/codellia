@@ -3,7 +3,7 @@
 import { ImagePlus, Lightbulb, Play } from 'lucide';
 import { renderLucideIcon } from './lucide-icons';
 
-type LayoutRefs = {
+type EditorShellRefs = {
   app: HTMLDivElement;
   toolbar: HTMLDivElement;
   compactEditorTabs: HTMLDivElement;
@@ -67,7 +67,7 @@ function createCompactActionButton(
   return button;
 }
 
-export function buildLayout(root: HTMLElement): LayoutRefs {
+export function buildEditorShell(root: HTMLElement): EditorShellRefs {
   const app = el('div', 'cd-app');
 
   // Toolbar (React mount point)
@@ -234,5 +234,6 @@ export function buildLayout(root: HTMLElement): LayoutRefs {
   };
 }
 
-export type { LayoutRefs };
+export type { EditorShellRefs };
+
 

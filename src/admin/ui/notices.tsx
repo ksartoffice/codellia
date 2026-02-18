@@ -14,7 +14,7 @@ export const NOTICE_IDS = {
   save: 'cd-save',
   export: 'cd-export',
   tailwind: 'cd-tailwind',
-  layoutFallback: 'cd-layout-fallback',
+  templateFallback: 'cd-template-fallback',
   media: 'cd-media',
 } as const;
 

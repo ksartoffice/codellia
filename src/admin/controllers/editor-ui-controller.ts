@@ -1,11 +1,11 @@
-import type { LayoutRefs } from '../layout';
+﻿import type { EditorShellRefs } from '../editor-shell';
 
 type EditorInstance = import('monaco-editor').editor.IStandaloneCodeEditor;
 type CssTab = 'css' | 'js';
 type CompactEditorTab = 'html' | 'css' | 'js';
 
 type EditorUiControllerDeps = {
-  ui: LayoutRefs;
+  ui: EditorShellRefs;
   canEditJs: boolean;
   htmlEditor: EditorInstance;
   cssEditor: EditorInstance;
@@ -235,4 +235,5 @@ export function createEditorUiController(deps: EditorUiControllerDeps) {
     syncShadowDomState,
   };
 }
+
 

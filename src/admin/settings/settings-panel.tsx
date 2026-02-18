@@ -4,9 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 type SettingsPanelProps = {
   postId: number;
   canEditJs: boolean;
-  layout: 'default' | 'standalone' | 'frame' | 'theme';
-  defaultLayout: 'standalone' | 'frame' | 'theme';
-  onChangeLayout: (layout: 'default' | 'standalone' | 'frame' | 'theme') => void;
+  templateMode: 'default' | 'standalone' | 'frame' | 'theme';
+  defaultTemplateMode: 'standalone' | 'frame' | 'theme';
+  onChangeTemplateMode: (mode: 'default' | 'standalone' | 'frame' | 'theme') => void;
   shadowDomEnabled: boolean;
   onToggleShadowDom: (enabled: boolean) => void;
   shortcodeEnabled: boolean;
@@ -32,9 +32,9 @@ type SettingsPanelProps = {
 export function SettingsPanel({
   postId,
   canEditJs,
-  layout,
-  defaultLayout,
-  onChangeLayout,
+  templateMode,
+  defaultTemplateMode,
+  onChangeTemplateMode,
   shadowDomEnabled,
   onToggleShadowDom,
   shortcodeEnabled,
@@ -64,20 +64,21 @@ export function SettingsPanel({
   const canAddStyle = !disabled && externalStyles.length < externalStylesMax;
   const hasStyles = externalStyles.length > 0;
   const shortcodeText = `[codellia post_id="${postId}"]`;
-  const layoutLabels: Record<'standalone' | 'frame' | 'theme', string> = {
+  const templateModeLabels: Record<'standalone' | 'frame' | 'theme', string> = {
     standalone: __( 'Standalone', 'codellia' ),
     frame: __( 'Frame', 'codellia' ),
     theme: __( 'Theme', 'codellia' ),
   };
-  const resolvedDefaultLayout = layoutLabels[defaultLayout] || layoutLabels.theme;
-  const layoutHelp =
-    layout === 'default'
-      ? __( 'Default follows the admin layout setting.', 'codellia' )
-      : layout === 'standalone'
+  const resolvedDefaultTemplateMode =
+    templateModeLabels[defaultTemplateMode] || templateModeLabels.theme;
+  const templateHelp =
+    templateMode === 'default'
+      ? __( 'Use admin default follows the default template mode from plugin settings.', 'codellia' )
+      : templateMode === 'standalone'
         ? __( 'Standalone hides the theme header and footer.', 'codellia' )
-        : layout === 'frame'
+        : templateMode === 'frame'
           ? __( 'Frame uses the theme header and footer.', 'codellia' )
-          : __( 'Theme uses the active theme layout.', 'codellia' );
+          : __( 'Theme uses the active theme template.', 'codellia' );
 
   useEffect(() => {
     return () => {
@@ -168,27 +169,29 @@ export function SettingsPanel({
   return (
     <Fragment>
       <div className="cd-settingsSection">
-        <div className="cd-settingsSectionTitle">{__( 'Layout', 'codellia' )}</div>
+        <div className="cd-settingsSectionTitle">{__( 'Page template', 'codellia' )}</div>
         <div className="cd-settingsItem">
-          <div className="cd-settingsItemLabel">{__( 'Layout', 'codellia' )}</div>
+          <div className="cd-settingsItemLabel">{__( 'Template mode', 'codellia' )}</div>
           <select
             className="cd-formSelect"
-            value={layout}
+            value={templateMode}
             onChange={(event) =>
-              onChangeLayout(event.target.value as 'default' | 'standalone' | 'frame' | 'theme')
+              onChangeTemplateMode(
+                event.target.value as 'default' | 'standalone' | 'frame' | 'theme'
+              )
             }
-            aria-label={__( 'Layout', 'codellia' )}
+            aria-label={__( 'Template mode', 'codellia' )}
             disabled={disabled}
           >
             <option value="default">
-              {sprintf(__( 'Default (%s)', 'codellia' ), resolvedDefaultLayout)}
+              {sprintf(__( 'Use admin default (%s)', 'codellia' ), resolvedDefaultTemplateMode)}
             </option>
-            <option value="standalone">{layoutLabels.standalone}</option>
-            <option value="frame">{layoutLabels.frame}</option>
-            <option value="theme">{layoutLabels.theme}</option>
+            <option value="standalone">{templateModeLabels.standalone}</option>
+            <option value="frame">{templateModeLabels.frame}</option>
+            <option value="theme">{templateModeLabels.theme}</option>
           </select>
         </div>
-        {layoutHelp ? <div className="cd-settingsHelp">{layoutHelp}</div> : null}
+        {templateHelp ? <div className="cd-settingsHelp">{templateHelp}</div> : null}
       </div>
 
       <div className="cd-settingsSection">
@@ -462,4 +465,5 @@ export function SettingsPanel({
     </Fragment>
   );
 }
+
 

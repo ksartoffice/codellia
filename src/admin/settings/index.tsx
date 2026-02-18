@@ -1,4 +1,4 @@
-import {
+﻿import {
   createElement,
   Fragment,
   createPortal,
@@ -14,15 +14,15 @@ import { X } from 'lucide';
 import { renderLucideIcon } from '../lucide-icons';
 import { SettingsPanel } from './settings-panel';
 import { ElementPanel, type ElementPanelApi } from './element-panel';
-import { resolveDefaultLayout, resolveLayout } from '../logic/layout';
+import { resolveDefaultTemplateMode, resolveTemplateMode } from '../logic/template-mode';
 
 export type SettingsData = {
   title: string;
   slug: string;
   status: string;
   viewUrl?: string;
-  layout?: 'default' | 'standalone' | 'frame' | 'theme';
-  defaultLayout?: 'standalone' | 'frame' | 'theme';
+  templateMode?: 'default' | 'standalone' | 'frame' | 'theme';
+  defaultTemplateMode?: 'standalone' | 'frame' | 'theme';
   shadowDomEnabled: boolean;
   shortcodeEnabled: boolean;
   singlePageEnabled: boolean;
@@ -45,7 +45,7 @@ type SettingsConfig = {
   header?: HTMLElement;
   data: SettingsData;
   postId: number;
-  onLayoutChange?: (layout: 'default' | 'standalone' | 'frame' | 'theme') => void;
+  onTemplateModeChange?: (mode: 'default' | 'standalone' | 'frame' | 'theme') => void;
   onShadowDomToggle?: (enabled: boolean) => void;
   onShortcodeToggle?: (enabled: boolean) => void;
   onSinglePageToggle?: (enabled: boolean) => void;
@@ -93,7 +93,7 @@ function SettingsSidebar({
   data,
   postId,
   header,
-  onLayoutChange,
+  onTemplateModeChange,
   onShadowDomToggle,
   onShortcodeToggle,
   onSinglePageToggle,
@@ -113,8 +113,10 @@ function SettingsSidebar({
     value === undefined ? true : Boolean(value);
   const resolveLiveHighlightEnabled = (value?: boolean) =>
     value === undefined ? true : Boolean(value);
-  const [layout, setLayout] = useState(resolveLayout(data.layout));
-  const [defaultLayout, setDefaultLayout] = useState(resolveDefaultLayout(data.defaultLayout));
+  const [templateMode, setTemplateMode] = useState(resolveTemplateMode(data.templateMode));
+  const [defaultTemplateMode, setDefaultTemplateMode] = useState(
+    resolveDefaultTemplateMode(data.defaultTemplateMode)
+  );
   const [shadowDomEnabled, setShadowDomEnabled] = useState(Boolean(data.shadowDomEnabled));
   const [shortcodeEnabled, setShortcodeEnabled] = useState(Boolean(data.shortcodeEnabled));
   const [singlePageEnabled, setSinglePageEnabled] = useState(
@@ -135,8 +137,8 @@ function SettingsSidebar({
     settingsRef.current = nextSettings;
     setSettings(nextSettings);
     setShadowDomEnabled(Boolean(nextSettings.shadowDomEnabled));
-    setLayout(resolveLayout(nextSettings.layout));
-    setDefaultLayout(resolveDefaultLayout(nextSettings.defaultLayout));
+    setTemplateMode(resolveTemplateMode(nextSettings.templateMode));
+    setDefaultTemplateMode(resolveDefaultTemplateMode(nextSettings.defaultTemplateMode));
     setShortcodeEnabled(Boolean(nextSettings.shortcodeEnabled));
     setSinglePageEnabled(resolveSinglePageEnabled(nextSettings.singlePageEnabled));
     setLiveHighlightEnabled(resolveLiveHighlightEnabled(nextSettings.liveHighlightEnabled));
@@ -166,8 +168,8 @@ function SettingsSidebar({
   const canEditJs = Boolean(settings.canEditJs);
 
   useEffect(() => {
-    onLayoutChange?.(layout);
-  }, [layout, onLayoutChange]);
+    onTemplateModeChange?.(templateMode);
+  }, [templateMode, onTemplateModeChange]);
 
   useEffect(() => {
     onShadowDomToggle?.(shadowDomEnabled);
@@ -233,14 +235,14 @@ function SettingsSidebar({
     setShadowDomEnabled(enabled);
   };
 
-  const handleLayoutChange = (
+  const handleTemplateModeChange = (
     next: 'default' | 'standalone' | 'frame' | 'theme'
   ) => {
     if (!canEditJs) {
       return;
     }
     setDesignError('');
-    setLayout(next);
+    setTemplateMode(next);
   };
 
   const handleShortcodeToggle = (enabled: boolean) => {
@@ -298,7 +300,7 @@ function SettingsSidebar({
 
   const pendingSettingsState = useMemo<PendingSettingsState>(() => {
     const updates: Record<string, unknown> = {};
-    const savedLayout = resolveLayout(settings.layout);
+    const savedTemplateMode = resolveTemplateMode(settings.templateMode);
     const savedShadowDomEnabled = Boolean(settings.shadowDomEnabled);
     const savedShortcodeEnabled = Boolean(settings.shortcodeEnabled);
     const savedSinglePageEnabled = resolveSinglePageEnabled(settings.singlePageEnabled);
@@ -308,7 +310,7 @@ function SettingsSidebar({
     const normalizedExternalStyles = normalizeList(externalStyles);
     const normalizedSavedExternalStyles = normalizeList(settings.externalStyles || []);
 
-    const layoutChanged = layout !== savedLayout;
+    const templateModeChanged = templateMode !== savedTemplateMode;
     const shadowDomChanged = canEditJs && shadowDomEnabled !== savedShadowDomEnabled;
     const shortcodeChanged = canEditJs && shortcodeEnabled !== savedShortcodeEnabled;
     const singlePageChanged = canEditJs && singlePageEnabled !== savedSinglePageEnabled;
@@ -318,8 +320,8 @@ function SettingsSidebar({
     const externalStylesChanged =
       canEditJs && !isSameList(normalizedExternalStyles, normalizedSavedExternalStyles);
 
-    if (layoutChanged) {
-      updates.layout = layout;
+    if (templateModeChanged) {
+      updates.templateMode = templateMode;
     }
     if (shadowDomChanged) {
       updates.shadowDomEnabled = shadowDomEnabled;
@@ -343,7 +345,7 @@ function SettingsSidebar({
     return {
       updates,
       hasUnsavedSettings:
-        layoutChanged ||
+        templateModeChanged ||
         shadowDomChanged ||
         shortcodeChanged ||
         singlePageChanged ||
@@ -359,11 +361,11 @@ function SettingsSidebar({
     externalScriptsError,
     externalStyles,
     externalStylesError,
-    layout,
+    templateMode,
     liveHighlightEnabled,
     settings.externalScripts,
     settings.externalStyles,
-    settings.layout,
+    settings.templateMode,
     settings.liveHighlightEnabled,
     settings.shadowDomEnabled,
     settings.shortcodeEnabled,
@@ -427,9 +429,9 @@ function SettingsSidebar({
         <SettingsPanel
           postId={postId}
           canEditJs={canEditJs}
-          layout={layout}
-          defaultLayout={defaultLayout}
-          onChangeLayout={handleLayoutChange}
+          templateMode={templateMode}
+          defaultTemplateMode={defaultTemplateMode}
+          onChangeTemplateMode={handleTemplateModeChange}
           shadowDomEnabled={shadowDomEnabled}
           onToggleShadowDom={handleShadowDomToggle}
           shortcodeEnabled={shortcodeEnabled}
@@ -488,3 +490,4 @@ export function initSettings(config: SettingsConfig) {
   }
   return api;
 }
+

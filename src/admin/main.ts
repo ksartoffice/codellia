@@ -7,7 +7,7 @@ import {
 } from './settings';
 import { runSetupWizard } from './setup-wizard';
 import { mountToolbar, type ToolbarApi } from './toolbar';
-import { buildLayout } from './layout';
+import { buildEditorShell } from './editor-shell';
 import { initMonacoEditors, type MonacoType } from './monaco';
 import { createPreviewController, type PreviewController } from './preview';
 import { getEditableElementAttributes, getEditableElementText } from './element-text';
@@ -15,7 +15,7 @@ import {
   createTailwindCompiler,
   type TailwindCompiler,
 } from './persistence';
-import { resolveDefaultLayout, resolveLayout } from './logic/layout';
+import { resolveDefaultTemplateMode, resolveTemplateMode } from './logic/template-mode';
 import { createDocumentTitleSync } from './logic/document-title';
 import { buildMediaHtml } from './logic/media-html';
 import { createSaveExportController } from './controllers/save-export-controller';
@@ -73,7 +73,7 @@ async function main() {
   const { createSnackbar, mountNotices, removeNotice, syncNoticeOffset } = notices;
   mountNotices();
 
-  const ui = buildLayout(mount);
+  const ui = buildEditorShell(mount);
   ui.resizer.setAttribute('role', 'separator');
   ui.resizer.setAttribute('aria-orientation', 'vertical');
   ui.editorResizer.setAttribute('role', 'separator');
@@ -169,8 +169,8 @@ async function main() {
   let postStatus = initialState.settingsData?.status || 'draft';
   let postTitle = initialState.settingsData?.title || '';
   let postSlug = initialState.settingsData?.slug || '';
-  let layoutMode = resolveLayout(initialState.settingsData?.layout);
-  let defaultLayout = resolveDefaultLayout(initialState.settingsData?.defaultLayout);
+  let templateMode = resolveTemplateMode(initialState.settingsData?.templateMode);
+  let defaultTemplateMode = resolveDefaultTemplateMode(initialState.settingsData?.defaultTemplateMode);
   const syncDocumentTitle = createDocumentTitleSync(document.title, cfg.adminTitleSeparators);
   syncDocumentTitle(postTitle);
 
@@ -231,8 +231,8 @@ async function main() {
     preview?.sendElementsTabState(settingsOpen && activeSettingsTab === 'elements');
   };
 
-  const getResolvedLayout = () => (layoutMode === 'default' ? defaultLayout : layoutMode);
-  const isThemeLayoutActive = () => getResolvedLayout() === 'theme';
+  const getResolvedTemplateMode = () => (templateMode === 'default' ? defaultTemplateMode : templateMode);
+  const isThemeTemplateModeActive = () => getResolvedTemplateMode() === 'theme';
 
   const setSettingsOpen = (open: boolean) => {
     settingsOpen = open;
@@ -243,7 +243,7 @@ async function main() {
   };
 
   const applySavedSettings = (nextSettings: SettingsData, refreshPreview: boolean) => {
-    const currentResolved = getResolvedLayout();
+    const currentResolved = getResolvedTemplateMode();
     if (typeof nextSettings.viewUrl === 'string') {
       viewPostUrl = nextSettings.viewUrl;
     }
@@ -260,21 +260,22 @@ async function main() {
     externalStyles = Array.isArray(nextSettings.externalStyles)
       ? [...nextSettings.externalStyles]
       : [];
-    const nextLayout = resolveLayout(nextSettings.layout);
-    const nextDefaultLayout =
-      typeof nextSettings.defaultLayout === 'string'
-        ? resolveDefaultLayout(nextSettings.defaultLayout)
-        : defaultLayout;
-    if (typeof nextSettings.defaultLayout === 'string') {
-      defaultLayout = nextDefaultLayout;
+    const nextTemplateMode = resolveTemplateMode(nextSettings.templateMode);
+    const nextDefaultTemplateMode =
+      typeof nextSettings.defaultTemplateMode === 'string'
+        ? resolveDefaultTemplateMode(nextSettings.defaultTemplateMode)
+        : defaultTemplateMode;
+    if (typeof nextSettings.defaultTemplateMode === 'string') {
+      defaultTemplateMode = nextDefaultTemplateMode;
     }
-    layoutMode = nextLayout;
+    templateMode = nextTemplateMode;
     setShadowDomEnabled(shadowDomEnabled);
     setLiveHighlightEnabled(liveHighlightEnabled);
     toolbarApi?.update({ viewPostUrl, postStatus, postTitle, postSlug });
     syncDocumentTitle(postTitle);
 
-    const nextResolved = nextLayout === 'default' ? nextDefaultLayout : nextLayout;
+    const nextResolved =
+      nextTemplateMode === 'default' ? nextDefaultTemplateMode : nextTemplateMode;
     if ((refreshPreview || nextResolved !== currentResolved) && basePreviewUrl) {
       ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
     }
@@ -372,23 +373,23 @@ async function main() {
   };
 
   const basePreviewUrl = cfg.iframePreviewUrl || cfg.previewUrl;
-  const buildPreviewLayoutUrl = (url: string, layout: string) => {
+  const buildPreviewTemplateModeUrl = (url: string, templateModeValue: string) => {
     if (!url) {
       return url;
     }
     try {
       const previewUrl = new URL(url, window.location.origin);
-      if (layout && layout !== 'default') {
-        previewUrl.searchParams.set('codellia_layout', layout);
+      if (templateModeValue && templateModeValue !== 'default') {
+        previewUrl.searchParams.set('codellia_template_mode', templateModeValue);
       } else {
-        previewUrl.searchParams.delete('codellia_layout');
+        previewUrl.searchParams.delete('codellia_template_mode');
       }
       return previewUrl.toString();
     } catch {
       return url;
     }
   };
-  const getPreviewUrl = () => buildPreviewLayoutUrl(basePreviewUrl, layoutMode);
+  const getPreviewUrl = () => buildPreviewTemplateModeUrl(basePreviewUrl, templateMode);
   const buildPreviewRefreshUrl = (url: string) => {
     if (!url) {
       return url;
@@ -431,11 +432,11 @@ async function main() {
     settingsRestUrl: cfg.settingsRestUrl,
     postId,
     getShadowDomEnabled: () => shadowDomEnabled,
-    isThemeLayoutActive,
-    getDefaultLayout: () => defaultLayout,
-    setLayoutModes: (nextLayout, nextDefaultLayout) => {
-      layoutMode = nextLayout;
-      defaultLayout = nextDefaultLayout;
+    isThemeTemplateModeActive,
+    getDefaultTemplateMode: () => defaultTemplateMode,
+    setTemplateModes: (nextTemplateMode, nextDefaultTemplateMode) => {
+      templateMode = nextTemplateMode;
+      defaultTemplateMode = nextDefaultTemplateMode;
     },
     applySettingsToSidebar: (settings) => settingsApi?.applySettings(settings),
     refreshPreview: () => {
@@ -445,7 +446,7 @@ async function main() {
     },
     createSnackbar,
     noticeIds: {
-      layoutFallback: NOTICE_IDS.layoutFallback,
+      templateFallback: NOTICE_IDS.templateFallback,
     },
     noticeErrorMs: NOTICE_ERROR_DURATION_MS,
   });
@@ -950,10 +951,10 @@ async function main() {
     header: ui.settingsHeader,
     data: initialState.settingsData,
     postId,
-    onLayoutChange: (nextLayout) => {
-      const currentResolved = getResolvedLayout();
-      layoutMode = resolveLayout(nextLayout);
-      const nextResolved = getResolvedLayout();
+    onTemplateModeChange: (nextTemplateMode) => {
+      const currentResolved = getResolvedTemplateMode();
+      templateMode = resolveTemplateMode(nextTemplateMode);
+      const nextResolved = getResolvedTemplateMode();
       if (nextResolved !== currentResolved && basePreviewUrl) {
         ui.iframe.src = buildPreviewRefreshUrl(getPreviewUrl());
       }
@@ -1040,5 +1041,8 @@ main().catch((e) => {
   // eslint-disable-next-line no-console
   console.error(e);
 });
+
+
+
 
 

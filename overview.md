@@ -14,12 +14,12 @@
 - ツールバー: Back、Undo/Redo、タイトル編集、ステータス変更（下書き/レビュー/非公開/公開）、ビューポート切替（Desktop/Tablet/Mobile）、エディタ表示切替、Save、Export、Settings、プレビュー/表示リンク。未保存の変更を表示し、離脱時に警告。
 - エディタ: HTML と CSS/JS タブ、JS は Run ボタンでプレビューへ即時実行。
 - ペインは左右/上下リサイズ、設定パネルは「Settings」「Elements」タブで開閉。
-- Settings タブ: レイアウト/出力/レンダリング/外部リソース/表示の各設定を管理。
+- Settings タブ: ページテンプレート/出力/レンダリング/外部リソース/表示の各設定を管理。
 - 要素タブ: 選択した要素のテキスト/属性を編集（安全なテキストノードのみ）。
 
 プレビューと DOM セレクタ
 --------------------------
-- `?codellia_preview=1&post_id=...&token=...` で実フロントを表示し、`<!--codellia:start-->...<!--codellia:end-->` 内を差し替え。`codellia_layout` クエリでプレビュー時レイアウトを上書き可能。
+- `?codellia_preview=1&post_id=...&token=...` で実フロントを表示し、`<!--codellia:start-->...<!--codellia:end-->` 内を差し替え。`codellia_template_mode` クエリでプレビュー時テンプレートモードを上書き可能。
 - parse5 で `data-codellia-id` を付与し、ホバー/クリックで該当要素をハイライト。
 - 選択時に要素タブを開くアクションボタンを表示し、エディタ/設定と選択状態を同期。
 - `theme` レイアウトでテーマ側が `the_content` を出力しない場合、プレビューは検出して `frame` への切り替えを促す。
@@ -50,8 +50,8 @@ Shadow DOM
 - ショートコードは設定で有効化した場合のみ出力。`[codellia post_id="123"]` で埋め込み可能。公開状態/権限をチェックし、Shadow DOM 設定も尊重。
 - ショートコード有効時は「単一ページとして公開しない」を切り替え可能。
 
-レイアウト
-----------
+テンプレートモード
+------------------
 - 投稿ごとに `default` / `standalone` / `frame` / `theme` を選択可能（`default` は管理設定の既定値に追従）。
 - `standalone`: プラグイン同梱テンプレートで最小構成表示（テーマのヘッダー/フッターなし）。
 - `frame`: テーマのヘッダー/フッター付きで本文を表示。
@@ -77,14 +77,14 @@ REST API
 ----------------------
 - `_codellia_css`, `_codellia_js`
 - `_codellia_tailwind`, `_codellia_tailwind_locked`, `_codellia_generated_css`
-- `_codellia_layout`, `_codellia_shadow_dom`, `_codellia_shortcode_enabled`, `_codellia_single_page_enabled`
+- `_codellia_template_mode`, `_codellia_shadow_dom`, `_codellia_shortcode_enabled`, `_codellia_single_page_enabled`
 - `_codellia_external_scripts`, `_codellia_external_styles`
 - `_codellia_live_highlight`, `_codellia_setup_required`
 
 管理設定
 --------
 - `Codellia > Settings` で投稿スラッグ (`codellia_post_slug`) を変更可能。
-- 同画面で既定レイアウト (`codellia_default_layout`: Standalone / Frame / Theme) を設定可能。
+- 同画面で既定テンプレートモード (`codellia_default_template_mode`: Standalone / Frame / Theme) を設定可能。
 - 同画面でアンインストール時のデータ削除を設定（`codellia_delete_on_uninstall`）。
 
 postMessage プロトコル
@@ -98,6 +98,7 @@ postMessage プロトコル
 - Codellia 投稿かつ `edit_post` を満たす場合のみ編集可能。
 - JS/外部スクリプト/外部スタイル/Shadow DOM/ショートコード/単一ページ公開の更新は `unfiltered_html` が必要。
 - プレビューは nonce 付き token と `event.origin` を検証。
+
 
 
 

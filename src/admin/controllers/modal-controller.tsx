@@ -1,11 +1,11 @@
-import { createElement, Fragment, createRoot, render } from '@wordpress/element';
+﻿import { createElement, Fragment, createRoot, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
-  resolveDefaultLayout,
-  resolveLayout,
-  type DefaultLayoutMode,
-  type LayoutMode,
-} from '../logic/layout';
+  resolveDefaultTemplateMode,
+  resolveTemplateMode,
+  type DefaultTemplateMode,
+  type TemplateMode,
+} from '../logic/template-mode';
 import type { SettingsData } from '../settings';
 import type { ApiFetch } from '../types/api-fetch';
 
@@ -16,9 +16,9 @@ type ModalControllerDeps = {
   settingsRestUrl?: string;
   postId: number;
   getShadowDomEnabled: () => boolean;
-  isThemeLayoutActive: () => boolean;
-  getDefaultLayout: () => DefaultLayoutMode;
-  setLayoutModes: (layout: LayoutMode, defaultLayout: DefaultLayoutMode) => void;
+  isThemeTemplateModeActive: () => boolean;
+  getDefaultTemplateMode: () => DefaultTemplateMode;
+  setTemplateModes: (templateMode: TemplateMode, defaultTemplateMode: DefaultTemplateMode) => void;
   applySettingsToSidebar: (settings: Partial<SettingsData>) => void;
   refreshPreview: () => void;
   createSnackbar: (
@@ -28,7 +28,7 @@ type ModalControllerDeps = {
     autoDismissMs?: number
   ) => void;
   noticeIds: {
-    layoutFallback: string;
+    templateFallback: string;
   };
   noticeErrorMs: number;
 };
@@ -152,13 +152,13 @@ export function createModalController(deps: ModalControllerDeps) {
   const copyLabel = __('Copy', 'codellia');
   const copiedLabel = __('Copied', 'codellia');
 
-  const missingMarkersTitle = __('Theme layout unavailable', 'codellia');
+  const missingMarkersTitle = __('Theme template unavailable', 'codellia');
   const missingMarkersBody = __(
-    'This theme does not output "the_content", so the preview cannot be rendered. Codellia will switch the layout to Frame.',
+    'This theme does not output "the_content", so the preview cannot be rendered. Codellia will switch the template mode to Frame.',
     'codellia'
   );
   const missingMarkersActionLabel = __('OK', 'codellia');
-  const missingMarkersFallbackLayout: 'standalone' | 'frame' = 'frame';
+  const missingMarkersFallbackTemplateMode: 'standalone' | 'frame' = 'frame';
 
   let modalHost: HTMLDivElement | null = null;
   let modalRoot: ReturnType<typeof createRoot> | null = null;
@@ -317,7 +317,7 @@ export function createModalController(deps: ModalControllerDeps) {
     unmountIfIdle();
   };
 
-  const applyMissingMarkersLayout = async () => {
+  const applyMissingMarkersTemplateMode = async () => {
     if (missingMarkersInFlight) {
       return false;
     }
@@ -325,7 +325,7 @@ export function createModalController(deps: ModalControllerDeps) {
       deps.createSnackbar(
         'error',
         __('Settings unavailable.', 'codellia'),
-        deps.noticeIds.layoutFallback,
+        deps.noticeIds.templateFallback,
         deps.noticeErrorMs
       );
       return false;
@@ -338,26 +338,28 @@ export function createModalController(deps: ModalControllerDeps) {
         method: 'POST',
         data: {
           post_id: deps.postId,
-          updates: { layout: missingMarkersFallbackLayout },
+          updates: { templateMode: missingMarkersFallbackTemplateMode },
         },
       });
       if (!response?.ok) {
         deps.createSnackbar(
           'error',
           response?.error || __('Update failed.', 'codellia'),
-          deps.noticeIds.layoutFallback,
+          deps.noticeIds.templateFallback,
           deps.noticeErrorMs
         );
         return false;
       }
       const nextSettings = response.settings as SettingsData | undefined;
-      const nextLayout = resolveLayout(nextSettings?.layout ?? missingMarkersFallbackLayout);
-      const nextDefaultLayout =
-        nextSettings && typeof nextSettings.defaultLayout === 'string'
-          ? resolveDefaultLayout(nextSettings.defaultLayout)
-          : deps.getDefaultLayout();
-      deps.setLayoutModes(nextLayout, nextDefaultLayout);
-      deps.applySettingsToSidebar(nextSettings ?? { layout: nextLayout });
+      const nextTemplateMode = resolveTemplateMode(
+        nextSettings?.templateMode ?? missingMarkersFallbackTemplateMode
+      );
+      const nextDefaultTemplateMode =
+        nextSettings && typeof nextSettings.defaultTemplateMode === 'string'
+          ? resolveDefaultTemplateMode(nextSettings.defaultTemplateMode)
+          : deps.getDefaultTemplateMode();
+      deps.setTemplateModes(nextTemplateMode, nextDefaultTemplateMode);
+      deps.applySettingsToSidebar(nextSettings ?? { templateMode: nextTemplateMode });
       deps.refreshPreview();
       missingMarkersHandled = true;
       return true;
@@ -365,7 +367,7 @@ export function createModalController(deps: ModalControllerDeps) {
       deps.createSnackbar(
         'error',
         error?.message || __('Update failed.', 'codellia'),
-        deps.noticeIds.layoutFallback,
+        deps.noticeIds.templateFallback,
         deps.noticeErrorMs
       );
       return false;
@@ -379,7 +381,7 @@ export function createModalController(deps: ModalControllerDeps) {
     if (missingMarkersInFlight) {
       return;
     }
-    const ok = await applyMissingMarkersLayout();
+    const ok = await applyMissingMarkersTemplateMode();
     if (ok) {
       closeMissingMarkersModal();
     }
@@ -394,7 +396,7 @@ export function createModalController(deps: ModalControllerDeps) {
 
   const handleMissingMarkers = () => {
     if (missingMarkersHandled) return;
-    if (!deps.isThemeLayoutActive()) return;
+    if (!deps.isThemeTemplateModeActive()) return;
     openMissingMarkersModal();
   };
 
@@ -404,3 +406,4 @@ export function createModalController(deps: ModalControllerDeps) {
     handleMissingMarkers,
   };
 }
+
