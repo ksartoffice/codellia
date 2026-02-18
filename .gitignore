@@ -8,3 +8,7 @@
 /languages/*.json
 .env
 .phpunit.result.cache
+AGENTS.md
+tailwindphp.md
+/test-results/
+/codellia.zip
