@@ -120,7 +120,8 @@ install_wp() {
 
 install_test_suite() {
   local tests_marker="$WP_TESTS_DIR/includes/class-basic-object.php"
-  if [ -f "$tests_marker" ]; then
+  local tests_config="$WP_TESTS_DIR/wp-tests-config.php"
+  if [ -f "$tests_marker" ] && [ -f "$tests_config" ]; then
     return
   fi
 
@@ -186,8 +187,17 @@ install_test_suite() {
 
   cp -R "$root_dir/tests/phpunit/." "$WP_TESTS_DIR"
 
-  if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+  if [ ! -f "$WP_TESTS_DIR/wp-tests-config-sample.php" ] && [ -f "$root_dir/wp-tests-config-sample.php" ]; then
+    cp "$root_dir/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config-sample.php"
+  fi
+
+  if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ] && [ -f "$WP_TESTS_DIR/wp-tests-config-sample.php" ]; then
     cp "$WP_TESTS_DIR/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config.php"
+  fi
+
+  if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+    echo "wp-tests-config.php is missing after test suite install."
+    exit 1
   fi
 
   WP_CORE_DIR="${WP_CORE_DIR%/}/"

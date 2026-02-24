@@ -131,7 +131,8 @@ function Install-TestSuite {
 	)
 
 	$testsMarker = Join-Path $TestsDir "includes/class-basic-object.php"
-	if (Test-Path $testsMarker) {
+	$testsConfig = Join-Path $TestsDir "wp-tests-config.php"
+	if ((Test-Path $testsMarker) -and (Test-Path $testsConfig)) {
 		return
 	}
 
