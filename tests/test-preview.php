@@ -148,7 +148,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 		$actual = Preview::filter_content( '<p>Hello</p>' );
 
-		$this->assertSame( '<!--codellia:start--><p>Hello</p><!--codellia:end-->', $actual );
+		$this->assertSame( '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>Hello</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>', $actual );
 	}
 
 	public function test_filter_content_skips_non_main_query_loop(): void {
@@ -176,7 +176,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$inside_loop = Preview::filter_content( '<p>Inside</p>' );
 
 		$this->assertSame( '<p>Outside</p>', $outside_loop );
-		$this->assertSame( '<!--codellia:start--><p>Inside</p><!--codellia:end-->', $inside_loop );
+		$this->assertSame( '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>Inside</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>', $inside_loop );
 	}
 
 	public function test_filter_content_skips_non_target_post(): void {
@@ -204,7 +204,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$first  = Preview::filter_content( '<p>First</p>' );
 		$second = Preview::filter_content( '<p>Second</p>' );
 
-		$this->assertSame( '<!--codellia:start--><p>First</p><!--codellia:end-->', $first );
+		$this->assertSame( '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>First</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>', $first );
 		$this->assertSame( '<p>Second</p>', $second );
 	}
 
@@ -216,7 +216,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$this->set_global_post( $post_id );
 		$this->set_main_loop_context( true );
 
-		$already_marked = '<!--codellia:start--><p>Marked</p><!--codellia:end-->';
+		$already_marked = '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>Marked</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>';
 		$first          = Preview::filter_content( $already_marked );
 		$second         = Preview::filter_content( '<p>Later</p>' );
 

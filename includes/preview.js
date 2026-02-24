@@ -8,10 +8,10 @@
   const CODELLIA_ATTR_NAME = 'data-codellia-id';
   const config = window.CODELLIA_PREVIEW || {};
   const postId = config.post_id || null;
-  const markerStart =
-    config.markers && config.markers.start ? String(config.markers.start) : 'codellia:start';
-  const markerEnd =
-    config.markers && config.markers.end ? String(config.markers.end) : 'codellia:end';
+  const markerAttr =
+    config.markers && config.markers.attr ? String(config.markers.attr) : 'data-codellia-marker';
+  const markerStart = config.markers && config.markers.start ? String(config.markers.start) : 'start';
+  const markerEnd = config.markers && config.markers.end ? String(config.markers.end) : 'end';
   const allowedOrigin = getAllowedOrigin();
   let isReady = false;
   let hoverTarget = null;
@@ -618,21 +618,23 @@
 
   function findMarkers() {
     if (markerNodes) return markerNodes;
-    const walker = document.createTreeWalker(
-      document.body || document,
-      NodeFilter.SHOW_COMMENT,
-      null
-    );
+    const root = document.body || document.documentElement;
+    if (!root) return null;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, null);
     let start = null;
     let end = null;
     while (walker.nextNode()) {
-      const value = (walker.currentNode.textContent || '').trim();
+      const node = walker.currentNode;
+      if (!(node instanceof Element)) {
+        continue;
+      }
+      const value = node.getAttribute(markerAttr);
       if (!start && value === markerStart) {
-        start = walker.currentNode;
+        start = node;
         continue;
       }
       if (start && value === markerEnd) {
-        end = walker.currentNode;
+        end = node;
         break;
       }
     }

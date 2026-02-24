@@ -34,8 +34,9 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $marker_inserted = false;
-	private const MARKER_START           = 'codellia:start';
-	private const MARKER_END             = 'codellia:end';
+	private const MARKER_ATTR            = 'data-codellia-marker';
+	private const MARKER_START           = 'start';
+	private const MARKER_END             = 'end';
 
 	/**
 	 * Register preview hooks.
@@ -137,7 +138,7 @@ class Preview {
 	}
 
 	/**
-	 * Wrap preview content in marker comments.
+	 * Wrap preview content in marker elements.
 	 *
 	 * @param string $content Post content.
 	 * @return string
@@ -160,19 +161,14 @@ class Preview {
 			return $content;
 		}
 
-		if ( self::has_marker_comments( $content ) ) {
+		if ( self::has_marker_elements( $content ) ) {
 			self::$marker_inserted = true;
 			return $content;
 		}
 
 		self::$marker_inserted = true;
 
-		return sprintf(
-			'<!--%s-->%s<!--%s-->',
-			self::MARKER_START,
-			$content,
-			self::MARKER_END
-		);
+		return self::build_marker_element( self::MARKER_START ) . $content . self::build_marker_element( self::MARKER_END );
 	}
 
 	/**
@@ -212,16 +208,30 @@ class Preview {
 	}
 
 	/**
-	 * Check whether content already contains preview marker comments.
+	 * Check whether content already contains preview marker elements.
 	 *
 	 * @param string $content Post content.
 	 * @return bool
 	 */
-	private static function has_marker_comments( string $content ): bool {
-		$start_marker = '<!--' . self::MARKER_START . '-->';
-		$end_marker   = '<!--' . self::MARKER_END . '-->';
+	private static function has_marker_elements( string $content ): bool {
+		$start_pattern = '/<[^>]*\s' . preg_quote( self::MARKER_ATTR, '/' ) . '=(["\'])' . preg_quote( self::MARKER_START, '/' ) . '\1[^>]*>/i';
+		$end_pattern   = '/<[^>]*\s' . preg_quote( self::MARKER_ATTR, '/' ) . '=(["\'])' . preg_quote( self::MARKER_END, '/' ) . '\1[^>]*>/i';
 
-		return false !== strpos( $content, $start_marker ) && false !== strpos( $content, $end_marker );
+		return 1 === preg_match( $start_pattern, $content ) && 1 === preg_match( $end_pattern, $content );
+	}
+
+	/**
+	 * Build marker element HTML.
+	 *
+	 * @param string $type Marker type.
+	 * @return string
+	 */
+	private static function build_marker_element( string $type ): string {
+		return sprintf(
+			'<span %s="%s" aria-hidden="true" hidden></span>',
+			esc_attr( self::MARKER_ATTR ),
+			esc_attr( $type )
+		);
 	}
 
 	/**
@@ -248,6 +258,7 @@ class Preview {
 			'post_id'              => self::$post_id,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'markers'              => array(
+				'attr'  => self::MARKER_ATTR,
 				'start' => self::MARKER_START,
 				'end'   => self::MARKER_END,
 			),
