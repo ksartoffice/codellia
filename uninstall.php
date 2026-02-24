@@ -9,8 +9,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-$delete_data = get_option( 'codellia_delete_on_uninstall', '0' );
-if ( '1' !== $delete_data ) {
+$codellia_delete_data = get_option( 'codellia_delete_on_uninstall', '0' );
+if ( '1' !== $codellia_delete_data ) {
 	return;
 }
 
@@ -23,7 +23,6 @@ $posts = get_posts(
 		'no_found_rows'          => true,
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
-		'suppress_filters'       => true,
 	)
 );
 
@@ -34,5 +33,3 @@ foreach ( $posts as $post_id ) {
 delete_option( 'codellia_delete_on_uninstall' );
 delete_option( 'codellia_post_slug' );
 delete_option( 'codellia_flush_rewrite' );
-
-

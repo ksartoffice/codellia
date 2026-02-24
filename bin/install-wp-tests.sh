@@ -21,13 +21,52 @@ WP_CORE_DIR=${WP_CORE_DIR-$PROJECT_ROOT/.wordpress}
 
 download() {
   if command -v curl >/dev/null 2>&1; then
-    curl -sSL "$1" > "$2"
+    curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 "$1" -o "$2"
   elif command -v wget >/dev/null 2>&1; then
-    wget -q -O "$2" "$1"
+    wget -q --tries=5 --waitretry=2 --retry-connrefused -O "$2" "$1"
   else
     echo "curl or wget is required."
     exit 1
   fi
+}
+
+is_valid_zip() {
+  local zip_path=$1
+
+  if [ ! -f "$zip_path" ]; then
+    return 1
+  fi
+
+  if command -v unzip >/dev/null 2>&1; then
+    unzip -tq "$zip_path" >/dev/null 2>&1
+    return
+  fi
+
+  if command -v python >/dev/null 2>&1; then
+    python - <<PY
+import sys
+import zipfile
+path = r"$zip_path"
+if not zipfile.is_zipfile(path):
+    sys.exit(1)
+with zipfile.ZipFile(path, "r") as zf:
+    bad = zf.testzip()
+sys.exit(0 if bad is None else 1)
+PY
+    return
+  fi
+
+  return 1
+}
+
+print_download_preview() {
+  local path=$1
+  if [ ! -f "$path" ]; then
+    return
+  fi
+
+  echo "Download preview (first 5 lines):"
+  head -n 5 "$path" || true
 }
 
 extract_zip() {
@@ -81,7 +120,8 @@ install_wp() {
 
 install_test_suite() {
   local tests_marker="$WP_TESTS_DIR/includes/class-basic-object.php"
-  if [ -f "$tests_marker" ]; then
+  local tests_config="$WP_TESTS_DIR/wp-tests-config.php"
+  if [ -f "$tests_marker" ] && [ -f "$tests_config" ]; then
     return
   fi
 
@@ -104,9 +144,18 @@ install_test_suite() {
 
   local downloaded=false
   for url in "${urls[@]}"; do
+    echo "Downloading WordPress develop tests from: $url"
     if download "$url" "$tests_zip"; then
-      downloaded=true
-      break
+      if is_valid_zip "$tests_zip"; then
+        downloaded=true
+        break
+      fi
+
+      echo "Downloaded file is not a valid zip: $url"
+      print_download_preview "$tests_zip"
+      rm -f "$tests_zip"
+    else
+      echo "Download failed from: $url"
     fi
   done
 
@@ -119,8 +168,18 @@ install_test_suite() {
   mkdir -p "$extract_dir"
   extract_zip "$tests_zip" "$extract_dir"
 
-  local root_dir
-  root_dir=$(find "$extract_dir" -maxdepth 1 -type d -name "wordpress-develop*" | head -n 1)
+  local root_dir=""
+  for dir in "$extract_dir"/wordpress-develop*; do
+    if [ -d "$dir/tests/phpunit" ]; then
+      root_dir="$dir"
+      break
+    fi
+  done
+
+  if [ -z "$root_dir" ] && [ -d "$extract_dir/tests/phpunit" ]; then
+    root_dir="$extract_dir"
+  fi
+
   if [ -z "$root_dir" ] || [ ! -d "$root_dir/tests/phpunit" ]; then
     echo "tests/phpunit not found in tests archive."
     exit 1
@@ -128,8 +187,17 @@ install_test_suite() {
 
   cp -R "$root_dir/tests/phpunit/." "$WP_TESTS_DIR"
 
-  if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+  if [ ! -f "$WP_TESTS_DIR/wp-tests-config-sample.php" ] && [ -f "$root_dir/wp-tests-config-sample.php" ]; then
+    cp "$root_dir/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config-sample.php"
+  fi
+
+  if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ] && [ -f "$WP_TESTS_DIR/wp-tests-config-sample.php" ]; then
     cp "$WP_TESTS_DIR/wp-tests-config-sample.php" "$WP_TESTS_DIR/wp-tests-config.php"
+  fi
+
+  if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then
+    echo "wp-tests-config.php is missing after test suite install."
+    exit 1
   fi
 
   WP_CORE_DIR="${WP_CORE_DIR%/}/"

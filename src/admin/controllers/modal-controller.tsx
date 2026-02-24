@@ -158,6 +158,10 @@ export function createModalController(deps: ModalControllerDeps) {
     'codellia'
   );
   const missingMarkersActionLabel = __('OK', 'codellia');
+  const missingMarkersRetryNotice = __(
+    'Preview markers are still missing after switching template mode. The current template does not output "the_content".',
+    'codellia'
+  );
   const missingMarkersFallbackTemplateMode: 'standalone' | 'frame' = 'frame';
 
   let modalHost: HTMLDivElement | null = null;
@@ -167,7 +171,8 @@ export function createModalController(deps: ModalControllerDeps) {
   let shadowHintCopiedTimer: number | undefined;
   let missingMarkersOpen = false;
   let missingMarkersInFlight = false;
-  let missingMarkersHandled = false;
+  let lastMissingMarkersNoticeAt = 0;
+  const missingMarkersNoticeCooldownMs = 1500;
 
   const ensureMounted = () => {
     if (modalHost) {
@@ -361,7 +366,6 @@ export function createModalController(deps: ModalControllerDeps) {
       deps.setTemplateModes(nextTemplateMode, nextDefaultTemplateMode);
       deps.applySettingsToSidebar(nextSettings ?? { templateMode: nextTemplateMode });
       deps.refreshPreview();
-      missingMarkersHandled = true;
       return true;
     } catch (error: any) {
       deps.createSnackbar(
@@ -395,9 +399,22 @@ export function createModalController(deps: ModalControllerDeps) {
   };
 
   const handleMissingMarkers = () => {
-    if (missingMarkersHandled) return;
-    if (!deps.isThemeTemplateModeActive()) return;
-    openMissingMarkersModal();
+    if (deps.isThemeTemplateModeActive()) {
+      openMissingMarkersModal();
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastMissingMarkersNoticeAt < missingMarkersNoticeCooldownMs) {
+      return;
+    }
+    lastMissingMarkersNoticeAt = now;
+    deps.createSnackbar(
+      'error',
+      missingMarkersRetryNotice,
+      deps.noticeIds.templateFallback,
+      deps.noticeErrorMs
+    );
   };
 
   return {

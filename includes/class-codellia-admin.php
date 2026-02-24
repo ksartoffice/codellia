@@ -16,16 +16,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Admin {
 
-	const MENU_SLUG                  = 'codellia';
-	const SETTINGS_SLUG              = 'codellia-settings';
-	const SETTINGS_GROUP             = 'codellia_settings';
-	const NEW_POST_ACTION            = 'codellia_new';
-	const NEW_POST_NONCE_ACTION      = 'codellia_new_post';
-	const OPTION_POST_SLUG           = 'codellia_post_slug';
-	const OPTION_DEFAULT_TEMPLATE_MODE      = 'codellia_default_template_mode';
-	const OPTION_FLUSH_REWRITE       = 'codellia_flush_rewrite';
-	const OPTION_DELETE_ON_UNINSTALL = 'codellia_delete_on_uninstall';
-	const ADMIN_TITLE_SEPARATORS     = array(
+	const MENU_SLUG                    = 'codellia';
+	const SETTINGS_SLUG                = 'codellia-settings';
+	const SETTINGS_GROUP               = 'codellia_settings';
+	const NEW_POST_ACTION              = 'codellia_new';
+	const NEW_POST_NONCE_ACTION        = 'codellia_new_post';
+	const OPTION_POST_SLUG             = 'codellia_post_slug';
+	const OPTION_DEFAULT_TEMPLATE_MODE = 'codellia_default_template_mode';
+	const OPTION_FLUSH_REWRITE         = 'codellia_flush_rewrite';
+	const OPTION_DELETE_ON_UNINSTALL   = 'codellia_delete_on_uninstall';
+	const ADMIN_TITLE_SEPARATORS       = array(
 		' ' . "\xE2\x80\xB9" . ' ',
 		' &lsaquo; ',
 	);
@@ -464,7 +464,7 @@ class Admin {
 	 */
 	public static function sanitize_default_template_mode( $value ): string {
 		$template_mode = is_string( $value ) ? sanitize_key( $value ) : '';
-		$valid  = array( 'standalone', 'frame', 'theme' );
+		$valid         = array( 'standalone', 'frame', 'theme' );
 		return in_array( $template_mode, $valid, true ) ? $template_mode : 'theme';
 	}
 
@@ -532,8 +532,8 @@ class Admin {
 	 * Render default template mode select field.
 	 */
 	public static function render_default_template_mode_field(): void {
-		$value  = get_option( self::OPTION_DEFAULT_TEMPLATE_MODE, 'theme' );
-		$value  = self::sanitize_default_template_mode( $value );
+		$value          = get_option( self::OPTION_DEFAULT_TEMPLATE_MODE, 'theme' );
+		$value          = self::sanitize_default_template_mode( $value );
 		$template_modes = array(
 			'standalone' => __( 'Standalone', 'codellia' ),
 			'frame'      => __( 'Frame', 'codellia' ),
@@ -690,26 +690,26 @@ class Admin {
 			: $preview_url;
 
 		$data = array(
-			'post_id'             => $post_id,
-			'initialHtml'         => $html,
-			'initialCss'          => $css,
-			'initialJs'           => $js,
-			'canEditJs'           => current_user_can( 'unfiltered_html' ),
-			'previewUrl'          => $preview_url,
-			'iframePreviewUrl'    => $iframe_preview_url,
-			'monacoVsPath'        => CODELLIA_URL . 'assets/monaco/vs',
-			'restUrl'             => rest_url( 'codellia/v1/save' ),
-			'restCompileUrl'      => rest_url( 'codellia/v1/compile-tailwind' ),
-			'renderShortcodesUrl' => rest_url( 'codellia/v1/render-shortcodes' ),
-			'setupRestUrl'        => rest_url( 'codellia/v1/setup' ),
-			'importRestUrl'       => rest_url( 'codellia/v1/import' ),
-			'backUrl'             => $back_url,
-			'listUrl'             => $list_url,
-			'settingsRestUrl'     => rest_url( 'codellia/v1/settings' ),
-			'settingsData'        => Rest::build_settings_payload( $post_id ),
-			'tailwindEnabled'     => (bool) get_post_meta( $post_id, '_codellia_tailwind', true ),
-			'setupRequired'       => get_post_meta( $post_id, '_codellia_setup_required', true ) === '1',
-			'restNonce'           => wp_create_nonce( 'wp_rest' ),
+			'post_id'              => $post_id,
+			'initialHtml'          => $html,
+			'initialCss'           => $css,
+			'initialJs'            => $js,
+			'canEditJs'            => current_user_can( 'unfiltered_html' ),
+			'previewUrl'           => $preview_url,
+			'iframePreviewUrl'     => $iframe_preview_url,
+			'monacoVsPath'         => CODELLIA_URL . 'assets/monaco/vs',
+			'restUrl'              => rest_url( 'codellia/v1/save' ),
+			'restCompileUrl'       => rest_url( 'codellia/v1/compile-tailwind' ),
+			'renderShortcodesUrl'  => rest_url( 'codellia/v1/render-shortcodes' ),
+			'setupRestUrl'         => rest_url( 'codellia/v1/setup' ),
+			'importRestUrl'        => rest_url( 'codellia/v1/import' ),
+			'backUrl'              => $back_url,
+			'listUrl'              => $list_url,
+			'settingsRestUrl'      => rest_url( 'codellia/v1/settings' ),
+			'settingsData'         => Rest::build_settings_payload( $post_id ),
+			'tailwindEnabled'      => (bool) get_post_meta( $post_id, '_codellia_tailwind', true ),
+			'setupRequired'        => get_post_meta( $post_id, '_codellia_setup_required', true ) === '1',
+			'restNonce'            => wp_create_nonce( 'wp_rest' ),
 			'adminTitleSeparators' => array_values( self::ADMIN_TITLE_SEPARATORS ),
 		);
 
@@ -723,4 +723,3 @@ class Admin {
 		);
 	}
 }
-

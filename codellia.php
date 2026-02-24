@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: Codellia Editor
+ * Plugin Name: Codellia
  * Plugin URI: https://wordpress.org/plugins/codellia/
  * Description: Live HTML/CSS/JS editor with real-time preview and Tailwind CSS support for WordPress.
  * Version: 1.0.0
  * Requires at least: 6.6
- * Tested up to: 6.9.1
+ * Tested up to: 6.9
  * Requires PHP: 8.2
  * Author: Codellia
- * License: GPL-2.0+
+ * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: codellia
  * Domain Path: /languages

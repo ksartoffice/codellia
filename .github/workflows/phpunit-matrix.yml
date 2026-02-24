@@ -1,0 +1,161 @@
+name: PHPUnit Matrix
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit_core:
+    name: PHPUnit (WP ${{ matrix.wp }} / PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        wp: ["6.6", "6.7", "6.8", "6.9"]
+        php: ["8.2", "8.3", "8.4"]
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress_test
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ matrix.php }}-
+            composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Prepare WordPress test suite
+        run: |
+          for attempt in 1 2 3; do
+            bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} ${{ matrix.wp }} true && exit 0
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::install-wp-tests failed after 3 attempts."
+              exit 1
+            fi
+            echo "Retrying install-wp-tests ($attempt/3 failed)..."
+            sleep 5
+          done
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --configuration phpunit.xml.dist
+
+  phpunit_php85:
+    if: ${{ vars.ENABLE_PHP85 != 'false' }}
+    name: PHPUnit (WP ${{ matrix.wp }} / PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        wp: ["6.6", "6.7", "6.8", "6.9"]
+        php: ["8.5"]
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress_test
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ matrix.php }}-
+            composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Prepare WordPress test suite
+        run: |
+          for attempt in 1 2 3; do
+            bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} ${{ matrix.wp }} true && exit 0
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::install-wp-tests failed after 3 attempts."
+              exit 1
+            fi
+            echo "Retrying install-wp-tests ($attempt/3 failed)..."
+            sleep 5
+          done
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --configuration phpunit.xml.dist
+
+  phpunit_gate:
+    name: phpunit_gate
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs:
+      - phpunit_core
+      - phpunit_php85
+    steps:
+      - name: Evaluate matrix results
+        run: |
+          echo "phpunit_core: ${{ needs.phpunit_core.result }}"
+          echo "phpunit_php85: ${{ needs.phpunit_php85.result }}"
+
+          if [ "${{ needs.phpunit_core.result }}" != "success" ]; then
+            echo "::error::phpunit_core must succeed."
+            exit 1
+          fi
+
+          if [ "${{ needs.phpunit_php85.result }}" != "success" ] && [ "${{ needs.phpunit_php85.result }}" != "skipped" ]; then
+            echo "::error::phpunit_php85 must be success or skipped."
+            exit 1
+          fi

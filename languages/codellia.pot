@@ -1,5 +1,5 @@
 # Copyright (C) 2026 Codellia
-# This file is distributed under the GPL-2.0+.
+# This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
 "Project-Id-Version: Codellia Editor 1.0.0\n"

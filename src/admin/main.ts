@@ -363,6 +363,8 @@ async function main() {
     editorInstance.addAction({
       id: 'codellia.toggleHtmlWordWrap',
       label: __( 'Toggle HTML word wrap', 'codellia' ),
+      contextMenuGroupId: '1_modification',
+      contextMenuOrder: 2.5,
       keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
       run: () => {
         htmlWordWrapMode = htmlWordWrapMode === 'on' ? 'off' : 'on';

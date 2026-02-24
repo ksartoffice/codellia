@@ -770,6 +770,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     }
 
     if (data?.type === 'CODELLIA_MISSING_MARKERS') {
+      console.warn('[Codellia] Preview markers are missing in the iframe document.');
       deps.onMissingMarkers?.();
     }
   };
