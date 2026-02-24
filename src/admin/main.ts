@@ -329,6 +329,10 @@ async function main() {
       hasUnsavedChanges = nextHasUnsavedChanges;
       toolbarApi?.update({ hasUnsavedChanges });
     },
+    onSaveSuccess: () => {
+      preview?.resetCanonicalCache();
+      preview?.sendRender();
+    },
   });
 
   async function handleExport() {

@@ -343,8 +343,6 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   let canonicalDomRoot: HTMLElement | null = null;
   let lcSourceMap: Record<string, SourceRange> = {};
   let lastCanonicalError: string | null = null;
-  let lastShortcodeSourceHtml = '';
-  let lastShortcodeRenderedHtml = '';
   let renderToken = 0;
   let selectionDecorations: string[] = [];
   let cssSelectionDecorations: string[] = [];
@@ -367,21 +365,14 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     canonicalCacheHtml = '';
     canonicalDomCacheHtml = '';
     canonicalDomRoot = null;
-    lastShortcodeSourceHtml = '';
-    lastShortcodeRenderedHtml = '';
   };
 
   const renderShortcodesIfNeeded = async (html: string, token: number) => {
     if (!deps.renderShortcodes) {
       return html;
     }
-    if (html === lastShortcodeSourceHtml) {
-      return lastShortcodeRenderedHtml || html;
-    }
     const { htmlWithPlaceholders, shortcodes } = replaceShortcodesWithPlaceholders(html);
     if (!shortcodes.length) {
-      lastShortcodeSourceHtml = html;
-      lastShortcodeRenderedHtml = htmlWithPlaceholders;
       return htmlWithPlaceholders;
     }
     try {
@@ -390,8 +381,6 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
         return html;
       }
       const resolved = applyShortcodeResults(htmlWithPlaceholders, shortcodes, results || {});
-      lastShortcodeSourceHtml = html;
-      lastShortcodeRenderedHtml = resolved;
       return resolved;
     } catch (error) {
       // eslint-disable-next-line no-console

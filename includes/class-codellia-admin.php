@@ -619,6 +619,8 @@ class Admin {
 		if ( ! $post_id || ! Post_Type::is_codellia_post( $post_id ) ) {
 			return;
 		}
+		$admin_script_version = self::resolve_asset_version( CODELLIA_PATH . 'assets/dist/main.js' );
+		$admin_style_version  = self::resolve_asset_version( CODELLIA_PATH . 'assets/dist/style.css' );
 
 		// Monaco AMD loader lives in assets/monaco/vs/loader.js.
 		wp_register_script(
@@ -639,7 +641,7 @@ class Admin {
 			'codellia-admin',
 			CODELLIA_URL . 'assets/dist/main.js',
 			array( 'codellia-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n', 'wp-data', 'wp-components', 'wp-notices' ),
-			CODELLIA_VERSION,
+			$admin_script_version,
 			true
 		);
 
@@ -647,7 +649,7 @@ class Admin {
 			'codellia-admin',
 			CODELLIA_URL . 'assets/dist/style.css',
 			array(),
-			CODELLIA_VERSION
+			$admin_style_version
 		);
 
 		wp_enqueue_script( 'codellia-admin' );
@@ -721,5 +723,19 @@ class Admin {
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Resolve asset version with filemtime fallback.
+	 *
+	 * @param string $path Absolute file path.
+	 * @return string
+	 */
+	private static function resolve_asset_version( string $path ): string {
+		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
+		if ( false === $mtime ) {
+			return CODELLIA_VERSION;
+		}
+		return (string) $mtime;
 	}
 }
