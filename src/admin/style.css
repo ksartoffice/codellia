@@ -1681,3 +1681,6 @@ body.admin_page_codellia #wpbody-content {
   }
 }
 
+.monaco-editor .rename-box .rename-input{
+  color: #e6e8ea;
+}
