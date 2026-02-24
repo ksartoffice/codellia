@@ -63,7 +63,10 @@ type PreviewControllerDeps = {
   getExternalScripts: () => string[];
   getExternalStyles: () => string[];
   isTailwindEnabled: () => boolean;
-  renderShortcodes?: (items: ShortcodePlaceholder[]) => Promise<Record<string, string>>;
+  renderShortcodes?: (
+    items: ShortcodePlaceholder[],
+    contextHtml: string
+  ) => Promise<Record<string, string>>;
   onSelect?: (lcId: string) => void;
   onOpenElementsTab?: () => void;
   onMissingMarkers?: () => void;
@@ -382,7 +385,7 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
       return htmlWithPlaceholders;
     }
     try {
-      const results = await deps.renderShortcodes(shortcodes);
+      const results = await deps.renderShortcodes(shortcodes, html);
       if (token !== renderToken) {
         return html;
       }

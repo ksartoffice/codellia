@@ -263,7 +263,7 @@ class Preview {
 			'codellia-preview',
 			CODELLIA_URL . 'includes/preview.js',
 			array(),
-			CODELLIA_VERSION,
+			self::preview_script_version(),
 			true
 		);
 
@@ -307,5 +307,19 @@ class Preview {
 			$origin .= ':' . $parts['port'];
 		}
 		return $origin;
+	}
+
+	/**
+	 * Resolve preview script version for cache busting in development.
+	 *
+	 * @return string
+	 */
+	private static function preview_script_version(): string {
+		$path = CODELLIA_PATH . 'includes/preview.js';
+		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
+		if ( false === $mtime ) {
+			return CODELLIA_VERSION;
+		}
+		return (string) $mtime;
 	}
 }

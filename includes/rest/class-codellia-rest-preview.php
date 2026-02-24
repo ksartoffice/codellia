@@ -22,8 +22,9 @@ class Rest_Preview {
 	 * @return \WP_REST_Response
 	 */
 	public static function render_shortcodes( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'post_id' ) );
-		$items   = $request->get_param( 'shortcodes' );
+		$post_id      = absint( $request->get_param( 'post_id' ) );
+		$context_html = $request->get_param( 'context_html' );
+		$items        = $request->get_param( 'shortcodes' );
 
 		if ( ! $post_id || ! Post_Type::is_codellia_post( $post_id ) || ! $items || ! is_array( $items ) ) {
 			return new \WP_REST_Response(
@@ -56,10 +57,18 @@ class Rest_Preview {
 			);
 		}
 
-		$results   = array();
-		$cache_map = array();
+		$results              = array();
+		$cache_map            = array();
+		$render_post          = $post;
+		$original_global_post = isset( $GLOBALS['post'] ) && $GLOBALS['post'] instanceof \WP_Post ? $GLOBALS['post'] : null;
 
-		setup_postdata( $post );
+		if ( is_string( $context_html ) && '' !== $context_html ) {
+			$render_post               = clone $post;
+			$render_post->post_content = $context_html;
+		}
+
+		$GLOBALS['post'] = $render_post;
+		setup_postdata( $render_post );
 
 		foreach ( $items as $entry ) {
 			if ( ! is_array( $entry ) ) {
@@ -90,6 +99,11 @@ class Rest_Preview {
 		}
 
 		wp_reset_postdata();
+		if ( $original_global_post instanceof \WP_Post ) {
+			$GLOBALS['post'] = $original_global_post;
+		} else {
+			unset( $GLOBALS['post'] );
+		}
 
 		return new \WP_REST_Response(
 			array(

@@ -48,6 +48,11 @@ class Rest {
 						'type'     => 'integer',
 						'required' => true,
 					),
+					'context_html' => array(
+						'type'      => 'string',
+						'required'  => false,
+						'maxLength' => Limits::MAX_TAILWIND_HTML_BYTES,
+					),
 					'shortcodes' => array(
 						'type'     => 'array',
 						'required' => true,

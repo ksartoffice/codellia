@@ -834,7 +834,7 @@ async function main() {
     getExternalScripts: () => externalScripts,
     getExternalStyles: () => externalStyles,
     isTailwindEnabled: () => tailwindEnabled,
-    renderShortcodes: async (items) => {
+    renderShortcodes: async (items, contextHtml) => {
       if (!cfg.renderShortcodesUrl || !wp?.apiFetch) {
         return {};
       }
@@ -844,6 +844,7 @@ async function main() {
           method: 'POST',
           data: {
             post_id: postId,
+            context_html: contextHtml,
             shortcodes: items.map((item) => ({ id: item.id, shortcode: item.shortcode })),
           },
         });

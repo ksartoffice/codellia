@@ -184,6 +184,53 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_render_shortcodes_uses_context_html_when_provided(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => '<p>Stored content without probe.</p>',
+			)
+		);
+
+		add_shortcode(
+			'cd_context_probe',
+			static function (): string {
+				global $post;
+				if ( ! $post instanceof WP_Post ) {
+					return '';
+				}
+				return false !== strpos( (string) $post->post_content, 'Probe Heading' ) ? '<div class="cd-probe-ok">ok</div>' : '';
+			}
+		);
+
+		try {
+			$response = $this->dispatch_route(
+				'/codellia/v1/render-shortcodes',
+				array(
+					'post_id'      => $post_id,
+					'context_html' => '<h2>Probe Heading</h2>[cd_context_probe]',
+					'shortcodes'   => array(
+						array(
+							'id'        => 'item-1',
+							'shortcode' => '[cd_context_probe]',
+						),
+					),
+				)
+			);
+		} finally {
+			remove_shortcode( 'cd_context_probe' );
+		}
+
+		$this->assertSame( 200, $response->get_status(), 'Shortcode rendering should succeed.' );
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false );
+		$this->assertStringContainsString( 'cd-probe-ok', (string) ( $data['results']['item-1'] ?? '' ) );
+	}
+
 	public function test_settings_update_persists_metadata_and_post_fields(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );
