@@ -61,7 +61,16 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Prepare WordPress test suite
-        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} ${{ matrix.wp }} true
+        run: |
+          for attempt in 1 2 3; do
+            bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} ${{ matrix.wp }} true && exit 0
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::install-wp-tests failed after 3 attempts."
+              exit 1
+            fi
+            echo "Retrying install-wp-tests ($attempt/3 failed)..."
+            sleep 5
+          done
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit --configuration phpunit.xml.dist
@@ -114,7 +123,16 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Prepare WordPress test suite
-        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} ${{ matrix.wp }} true
+        run: |
+          for attempt in 1 2 3; do
+            bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} ${{ matrix.wp }} true && exit 0
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::install-wp-tests failed after 3 attempts."
+              exit 1
+            fi
+            echo "Retrying install-wp-tests ($attempt/3 failed)..."
+            sleep 5
+          done
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit --configuration phpunit.xml.dist

@@ -31,7 +31,8 @@ function Get-TempDir {
 function Download-File {
 	param(
 		[Parameter(Mandatory = $true)][string]$Url,
-		[Parameter(Mandatory = $true)][string]$Destination
+		[Parameter(Mandatory = $true)][string]$Destination,
+		[int]$MaxRetries = 5
 	)
 
 	$destDir = Split-Path -Parent $Destination
@@ -39,17 +40,67 @@ function Download-File {
 		New-Item -ItemType Directory -Path $destDir | Out-Null
 	}
 
-	if (Get-Command Invoke-WebRequest -ErrorAction SilentlyContinue) {
-		Invoke-WebRequest -Uri $Url -OutFile $Destination -ErrorAction Stop
+	$hasInvokeWebRequest = [bool](Get-Command Invoke-WebRequest -ErrorAction SilentlyContinue)
+	$hasBitsTransfer = [bool](Get-Command Start-BitsTransfer -ErrorAction SilentlyContinue)
+	if (-not $hasInvokeWebRequest -and -not $hasBitsTransfer) {
+		throw "No download tool available (Invoke-WebRequest / Start-BitsTransfer)."
+	}
+
+	for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
+		try {
+			if ($hasInvokeWebRequest) {
+				Invoke-WebRequest -Uri $Url -OutFile $Destination -ErrorAction Stop
+			} elseif ($hasBitsTransfer) {
+				Start-BitsTransfer -Source $Url -Destination $Destination -ErrorAction Stop
+			}
+			return
+		} catch {
+			if (Test-Path $Destination) {
+				Remove-Item -Force $Destination -ErrorAction SilentlyContinue
+			}
+
+			if ($attempt -eq $MaxRetries) {
+				throw "Download failed from $Url after $MaxRetries attempts. $($_.Exception.Message)"
+			}
+
+			Write-Warning "Download failed from $Url (attempt $attempt/$MaxRetries): $($_.Exception.Message)"
+			Start-Sleep -Seconds ([Math]::Min(10, $attempt * 2))
+		}
+	}
+}
+
+function Test-ZipArchive {
+	param(
+		[Parameter(Mandatory = $true)][string]$Path
+	)
+
+	if (-not (Test-Path $Path)) {
+		return $false
+	}
+
+	Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue
+	try {
+		$archive = [System.IO.Compression.ZipFile]::OpenRead($Path)
+		$archive.Dispose()
+		return $true
+	} catch {
+		return $false
+	}
+}
+
+function Show-DownloadPreview {
+	param(
+		[Parameter(Mandatory = $true)][string]$Path
+	)
+
+	if (-not (Test-Path $Path)) {
 		return
 	}
 
-	if (Get-Command Start-BitsTransfer -ErrorAction SilentlyContinue) {
-		Start-BitsTransfer -Source $Url -Destination $Destination -ErrorAction Stop
-		return
+	Write-Warning "Download preview (first 5 lines):"
+	Get-Content -Path $Path -TotalCount 5 -ErrorAction SilentlyContinue | ForEach-Object {
+		Write-Warning $_
 	}
-
-	throw "No download tool available (Invoke-WebRequest / Start-BitsTransfer)."
 }
 
 function Get-TestsArchiveUrls {
@@ -92,11 +143,19 @@ function Install-TestSuite {
 	$testsZip = Join-Path $TempDir "wordpress-develop-tests.zip"
 	$downloaded = $false
 	foreach ($url in (Get-TestsArchiveUrls -Version $Version)) {
+		Write-Host "Downloading WordPress develop tests from: $url"
 		try {
 			Download-File -Url $url -Destination $testsZip
-			$downloaded = $true
-			break
+			if (Test-ZipArchive -Path $testsZip) {
+				$downloaded = $true
+				break
+			}
+
+			Write-Warning "Downloaded file is not a valid zip: $url"
+			Show-DownloadPreview -Path $testsZip
+			Remove-Item -Force $testsZip -ErrorAction SilentlyContinue
 		} catch {
+			Write-Warning "Download failed from $url: $($_.Exception.Message)"
 			$downloaded = $false
 		}
 	}
