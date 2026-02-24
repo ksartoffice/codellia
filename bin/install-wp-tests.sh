@@ -167,8 +167,18 @@ install_test_suite() {
   mkdir -p "$extract_dir"
   extract_zip "$tests_zip" "$extract_dir"
 
-  local root_dir
-  root_dir=$(find "$extract_dir" -maxdepth 1 -type d -name "wordpress-develop*" | head -n 1)
+  local root_dir=""
+  for dir in "$extract_dir"/wordpress-develop*; do
+    if [ -d "$dir/tests/phpunit" ]; then
+      root_dir="$dir"
+      break
+    fi
+  done
+
+  if [ -z "$root_dir" ] && [ -d "$extract_dir/tests/phpunit" ]; then
+    root_dir="$extract_dir"
+  fi
+
   if [ -z "$root_dir" ] || [ ! -d "$root_dir/tests/phpunit" ]; then
     echo "tests/phpunit not found in tests archive."
     exit 1

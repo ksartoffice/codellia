@@ -170,7 +170,12 @@ function Install-TestSuite {
 	}
 	Expand-Archive -Path $testsZip -DestinationPath $extractDir -Force
 
-	$rootDir = Get-ChildItem -Path $extractDir -Directory | Select-Object -First 1
+	$rootDir = Get-ChildItem -Path $extractDir -Directory | Where-Object {
+		Test-Path (Join-Path $_.FullName "tests/phpunit")
+	} | Select-Object -First 1
+	if (-not $rootDir -and (Test-Path (Join-Path $extractDir "tests/phpunit"))) {
+		$rootDir = Get-Item -Path $extractDir
+	}
 	if (-not $rootDir) {
 		throw "Could not locate wordpress-develop directory in tests archive."
 	}
