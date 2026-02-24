@@ -28,13 +28,8 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $is_preview = false;
-	/**
-	 * Whether preview markers have already been inserted in this request.
-	 *
-	 * @var bool
-	 */
-	private static bool $marker_inserted = false;
 	private const MARKER_ATTR            = 'data-codellia-marker';
+	private const MARKER_POST_ATTR       = 'data-codellia-post-id';
 	private const MARKER_START           = 'start';
 	private const MARKER_END             = 'end';
 
@@ -104,7 +99,6 @@ class Preview {
 
 		self::$post_id         = $post_id;
 		self::$is_preview      = true;
-		self::$marker_inserted = false;
 		add_filter( 'show_admin_bar', '__return_false' );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'disable_admin_bar_assets' ), 100 );
 		remove_action( 'wp_head', '_admin_bar_bump_cb' );
@@ -148,11 +142,11 @@ class Preview {
 			return $content;
 		}
 
-		if ( ! self::is_main_content_context() ) {
+		if ( ! self::is_root_the_content_call() ) {
 			return $content;
 		}
 
-		if ( self::$marker_inserted ) {
+		if ( ! self::is_main_content_context() ) {
 			return $content;
 		}
 
@@ -161,14 +155,33 @@ class Preview {
 			return $content;
 		}
 
-		if ( self::has_marker_elements( $content ) ) {
-			self::$marker_inserted = true;
+		if ( self::has_marker_elements( $content, self::$post_id ) ) {
 			return $content;
 		}
 
-		self::$marker_inserted = true;
+		return self::build_marker_element( self::MARKER_START, self::$post_id ) . $content . self::build_marker_element( self::MARKER_END, self::$post_id );
+	}
 
-		return self::build_marker_element( self::MARKER_START ) . $content . self::build_marker_element( self::MARKER_END );
+	/**
+	 * Check whether current filter context is the root the_content call.
+	 *
+	 * @return bool
+	 */
+	private static function is_root_the_content_call(): bool {
+		global $wp_current_filter;
+		if ( ! is_array( $wp_current_filter ) ) {
+			return true;
+		}
+
+		$depth = 0;
+		foreach ( $wp_current_filter as $hook_name ) {
+			if ( 'the_content' === (string) $hook_name ) {
+				++$depth;
+			}
+		}
+
+		// Direct method calls in tests may have depth 0.
+		return $depth <= 1;
 	}
 
 	/**
@@ -211,26 +224,30 @@ class Preview {
 	 * Check whether content already contains preview marker elements.
 	 *
 	 * @param string $content Post content.
+	 * @param int    $post_id Preview post ID.
 	 * @return bool
 	 */
-	private static function has_marker_elements( string $content ): bool {
-		$start_pattern = '/<[^>]*\s' . preg_quote( self::MARKER_ATTR, '/' ) . '=(["\'])' . preg_quote( self::MARKER_START, '/' ) . '\1[^>]*>/i';
-		$end_pattern   = '/<[^>]*\s' . preg_quote( self::MARKER_ATTR, '/' ) . '=(["\'])' . preg_quote( self::MARKER_END, '/' ) . '\1[^>]*>/i';
+	private static function has_marker_elements( string $content, int $post_id ): bool {
+		$start_marker = self::build_marker_element( self::MARKER_START, $post_id );
+		$end_marker   = self::build_marker_element( self::MARKER_END, $post_id );
 
-		return 1 === preg_match( $start_pattern, $content ) && 1 === preg_match( $end_pattern, $content );
+		return false !== strpos( $content, $start_marker ) && false !== strpos( $content, $end_marker );
 	}
 
 	/**
 	 * Build marker element HTML.
 	 *
-	 * @param string $type Marker type.
+	 * @param string $type    Marker type.
+	 * @param int    $post_id Preview post ID.
 	 * @return string
 	 */
-	private static function build_marker_element( string $type ): string {
+	private static function build_marker_element( string $type, int $post_id ): string {
 		return sprintf(
-			'<span %s="%s" aria-hidden="true" hidden></span>',
+			'<span %s="%s" %s="%s" aria-hidden="true" hidden></span>',
 			esc_attr( self::MARKER_ATTR ),
-			esc_attr( $type )
+			esc_attr( $type ),
+			esc_attr( self::MARKER_POST_ATTR ),
+			esc_attr( (string) $post_id )
 		);
 	}
 
@@ -258,9 +275,10 @@ class Preview {
 			'post_id'              => self::$post_id,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'markers'              => array(
-				'attr'  => self::MARKER_ATTR,
-				'start' => self::MARKER_START,
-				'end'   => self::MARKER_END,
+				'attr'     => self::MARKER_ATTR,
+				'postAttr' => self::MARKER_POST_ATTR,
+				'start'    => self::MARKER_START,
+				'end'      => self::MARKER_END,
 			),
 			'renderRestUrl'        => rest_url( 'codellia/v1/render-shortcodes' ),
 			'restNonce'            => wp_create_nonce( 'wp_rest' ),

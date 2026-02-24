@@ -10,6 +10,11 @@
   const postId = config.post_id || null;
   const markerAttr =
     config.markers && config.markers.attr ? String(config.markers.attr) : 'data-codellia-marker';
+  const markerPostAttr =
+    config.markers && config.markers.postAttr
+      ? String(config.markers.postAttr)
+      : 'data-codellia-post-id';
+  const markerPostId = postId === null ? '' : String(postId);
   const markerStart = config.markers && config.markers.start ? String(config.markers.start) : 'start';
   const markerEnd = config.markers && config.markers.end ? String(config.markers.end) : 'end';
   const allowedOrigin = getAllowedOrigin();
@@ -621,19 +626,29 @@
     const root = document.body || document.documentElement;
     if (!root) return null;
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, null);
+
+    const matchesMarker = (node, type) => {
+      if (!(node instanceof Element)) {
+        return false;
+      }
+      if (node.getAttribute(markerAttr) !== type) {
+        return false;
+      }
+      if (!markerPostId) {
+        return true;
+      }
+      return node.getAttribute(markerPostAttr) === markerPostId;
+    };
+
     let start = null;
     let end = null;
     while (walker.nextNode()) {
       const node = walker.currentNode;
-      if (!(node instanceof Element)) {
-        continue;
-      }
-      const value = node.getAttribute(markerAttr);
-      if (!start && value === markerStart) {
+      if (!start && matchesMarker(node, markerStart)) {
         start = node;
         continue;
       }
-      if (start && value === markerEnd) {
+      if (start && matchesMarker(node, markerEnd)) {
         end = node;
         break;
       }

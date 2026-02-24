@@ -148,7 +148,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 		$actual = Preview::filter_content( '<p>Hello</p>' );
 
-		$this->assertSame( '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>Hello</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>', $actual );
+		$this->assertSame( $this->wrap_with_markers( '<p>Hello</p>', $post_id ), $actual );
 	}
 
 	public function test_filter_content_skips_non_main_query_loop(): void {
@@ -176,7 +176,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$inside_loop = Preview::filter_content( '<p>Inside</p>' );
 
 		$this->assertSame( '<p>Outside</p>', $outside_loop );
-		$this->assertSame( '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>Inside</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>', $inside_loop );
+		$this->assertSame( $this->wrap_with_markers( '<p>Inside</p>', $post_id ), $inside_loop );
 	}
 
 	public function test_filter_content_skips_non_target_post(): void {
@@ -193,7 +193,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$this->assertSame( '<p>Other</p>', $actual );
 	}
 
-	public function test_filter_content_inserts_markers_once_per_request(): void {
+	public function test_filter_content_wraps_each_main_loop_call_without_shared_state(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );
 
@@ -204,8 +204,8 @@ class Test_Preview extends WP_UnitTestCase {
 		$first  = Preview::filter_content( '<p>First</p>' );
 		$second = Preview::filter_content( '<p>Second</p>' );
 
-		$this->assertSame( '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>First</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>', $first );
-		$this->assertSame( '<p>Second</p>', $second );
+		$this->assertSame( $this->wrap_with_markers( '<p>First</p>', $post_id ), $first );
+		$this->assertSame( $this->wrap_with_markers( '<p>Second</p>', $post_id ), $second );
 	}
 
 	public function test_filter_content_respects_existing_markers(): void {
@@ -216,12 +216,73 @@ class Test_Preview extends WP_UnitTestCase {
 		$this->set_global_post( $post_id );
 		$this->set_main_loop_context( true );
 
-		$already_marked = '<span data-codellia-marker="start" aria-hidden="true" hidden></span><p>Marked</p><span data-codellia-marker="end" aria-hidden="true" hidden></span>';
+		$already_marked = $this->wrap_with_markers( '<p>Marked</p>', $post_id );
 		$first          = Preview::filter_content( $already_marked );
 		$second         = Preview::filter_content( '<p>Later</p>' );
 
 		$this->assertSame( $already_marked, $first );
-		$this->assertSame( '<p>Later</p>', $second );
+		$this->assertSame( $this->wrap_with_markers( '<p>Later</p>', $post_id ), $second );
+	}
+
+	public function test_filter_content_skips_nested_the_content_calls(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		$this->start_preview_request( $post_id, $admin_id );
+		$this->set_global_post( $post_id );
+		$this->set_main_loop_context( true );
+
+		$inner_had_markers = null;
+		$nested_filter     = static function ( string $content ): string {
+			if ( false === strpos( $content, '[cd-nested]' ) ) {
+				return $content;
+			}
+
+			apply_filters( 'the_content', '<p>Inner</p>' );
+			return str_replace( '[cd-nested]', '', $content );
+		};
+		$probe_filter      = static function ( string $content ) use ( &$inner_had_markers ): string {
+			global $wp_current_filter;
+			$depth = 0;
+			foreach ( (array) $wp_current_filter as $hook_name ) {
+				if ( 'the_content' === (string) $hook_name ) {
+					++$depth;
+				}
+			}
+
+			if ( 2 === $depth ) {
+				$inner_had_markers = false !== strpos( $content, 'data-codellia-marker="start"' );
+			}
+
+			return $content;
+		};
+
+		add_filter( 'the_content', $nested_filter, 12 );
+		add_filter( 'the_content', $probe_filter, 1000000 );
+		try {
+			$actual = apply_filters( 'the_content', '[cd-nested]<p>Outer</p>' );
+		} finally {
+			remove_filter( 'the_content', $nested_filter, 12 );
+			remove_filter( 'the_content', $probe_filter, 1000000 );
+		}
+
+		$this->assertFalse( $inner_had_markers ?? true );
+		$this->assertSame( $this->wrap_with_markers( '<p>Outer</p>', $post_id ), $actual );
+	}
+
+	public function test_filter_content_wraps_when_markers_belong_to_different_post(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		$this->start_preview_request( $post_id, $admin_id );
+		$this->set_global_post( $post_id );
+		$this->set_main_loop_context( true );
+
+		$other_post_marked = $this->wrap_with_markers( '<p>Marked</p>', $post_id + 1 );
+
+		$actual = Preview::filter_content( $other_post_marked );
+
+		$this->assertSame( $this->wrap_with_markers( $other_post_marked, $post_id ), $actual );
 	}
 
 	private function create_codellia_post( int $author_id ): int {
@@ -277,9 +338,8 @@ class Test_Preview extends WP_UnitTestCase {
 
 	private function reset_preview_state(): void {
 		$state = array(
-			'post_id'         => null,
-			'is_preview'      => false,
-			'marker_inserted' => false,
+			'post_id'    => null,
+			'is_preview' => false,
 		);
 
 		foreach ( $state as $property_name => $value ) {
@@ -331,6 +391,12 @@ class Test_Preview extends WP_UnitTestCase {
 		}
 
 		return $this->wp_die_message;
+	}
+
+	private function wrap_with_markers( string $content, int $post_id ): string {
+		return '<span data-codellia-marker="start" data-codellia-post-id="' . $post_id . '" aria-hidden="true" hidden></span>'
+			. $content
+			. '<span data-codellia-marker="end" data-codellia-post-id="' . $post_id . '" aria-hidden="true" hidden></span>';
 	}
 }
 
