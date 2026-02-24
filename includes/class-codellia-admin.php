@@ -320,6 +320,40 @@ class Admin {
 	}
 
 	/**
+	 * Replace the default Codellia "Add New" submenu URL with the custom action URL.
+	 */
+	public static function override_new_submenu_link(): void {
+		global $submenu;
+
+		$parent_slug = 'edit.php?post_type=' . Post_Type::POST_TYPE;
+		if ( empty( $submenu[ $parent_slug ] ) || ! is_array( $submenu[ $parent_slug ] ) ) {
+			return;
+		}
+
+		foreach ( $submenu[ $parent_slug ] as $index => $item ) {
+			$item_slug = isset( $item[2] ) ? (string) $item[2] : '';
+			if ( '' === $item_slug ) {
+				continue;
+			}
+
+			$parts     = wp_parse_url( str_replace( '&amp;', '&', $item_slug ) );
+			$route     = isset( $parts['path'] ) ? basename( (string) $parts['path'] ) : '';
+			$query     = array();
+			$post_type = 'post';
+			if ( ! empty( $parts['query'] ) ) {
+				parse_str( (string) $parts['query'], $query );
+				$post_type = isset( $query['post_type'] ) ? sanitize_key( (string) $query['post_type'] ) : 'post';
+			}
+
+			if ( 'post-new.php' !== $route || Post_Type::POST_TYPE !== $post_type ) {
+				continue;
+			}
+
+			$submenu[ $parent_slug ][ $index ][2] = self::get_new_post_action_url();
+		}
+	}
+
+	/**
 	 * Register settings for the plugin.
 	 */
 	public static function register_settings(): void {
