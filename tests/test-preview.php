@@ -13,11 +13,21 @@ class Codellia_Die_Exception extends Exception {
 
 class Test_Preview extends WP_UnitTestCase {
 	private string $wp_die_message = '';
+	private ?WP_Query $original_wp_query = null;
+	private ?WP_Query $original_wp_the_query = null;
+
+	protected function setUp(): void {
+		parent::setUp();
+		global $wp_query, $wp_the_query;
+		$this->original_wp_query     = $wp_query ?? null;
+		$this->original_wp_the_query = $wp_the_query ?? null;
+	}
 
 	protected function tearDown(): void {
 		wp_set_current_user( 0 );
 		$this->reset_preview_state();
 		unset( $GLOBALS['post'] );
+		$this->restore_query_globals();
 		parent::tearDown();
 	}
 
@@ -116,7 +126,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$this->assertSame( 999999, $priority );
 	}
 
-	public function test_filter_content_wraps_target_post_outside_loop(): void {
+	public function test_filter_content_skips_target_post_outside_loop(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );
 
@@ -125,7 +135,48 @@ class Test_Preview extends WP_UnitTestCase {
 
 		$actual = Preview::filter_content( '<p>Hello</p>' );
 
+		$this->assertSame( '<p>Hello</p>', $actual );
+	}
+
+	public function test_filter_content_wraps_target_post_in_main_loop(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		$this->start_preview_request( $post_id, $admin_id );
+		$this->set_global_post( $post_id );
+		$this->set_main_loop_context( true );
+
+		$actual = Preview::filter_content( '<p>Hello</p>' );
+
 		$this->assertSame( '<!--codellia:start--><p>Hello</p><!--codellia:end-->', $actual );
+	}
+
+	public function test_filter_content_skips_non_main_query_loop(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		$this->start_preview_request( $post_id, $admin_id );
+		$this->set_global_post( $post_id );
+		$this->set_secondary_loop_context();
+
+		$actual = Preview::filter_content( '<p>Hello</p>' );
+
+		$this->assertSame( '<p>Hello</p>', $actual );
+	}
+
+	public function test_filter_content_waits_for_main_loop_when_called_outside_loop_first(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		$this->start_preview_request( $post_id, $admin_id );
+		$this->set_global_post( $post_id );
+
+		$outside_loop = Preview::filter_content( '<p>Outside</p>' );
+		$this->set_main_loop_context( true );
+		$inside_loop = Preview::filter_content( '<p>Inside</p>' );
+
+		$this->assertSame( '<p>Outside</p>', $outside_loop );
+		$this->assertSame( '<!--codellia:start--><p>Inside</p><!--codellia:end-->', $inside_loop );
 	}
 
 	public function test_filter_content_skips_non_target_post(): void {
@@ -135,6 +186,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 		$this->start_preview_request( $target_post_id, $admin_id );
 		$this->set_global_post( $another_post_id );
+		$this->set_main_loop_context( true );
 
 		$actual = Preview::filter_content( '<p>Other</p>' );
 
@@ -147,6 +199,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
+		$this->set_main_loop_context( true );
 
 		$first  = Preview::filter_content( '<p>First</p>' );
 		$second = Preview::filter_content( '<p>Second</p>' );
@@ -161,6 +214,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
+		$this->set_main_loop_context( true );
 
 		$already_marked = '<!--codellia:start--><p>Marked</p><!--codellia:end-->';
 		$first          = Preview::filter_content( $already_marked );
@@ -181,10 +235,11 @@ class Test_Preview extends WP_UnitTestCase {
 	}
 
 	private function set_preview_query_vars( ?int $post_id, ?string $token ): void {
-		global $wp_query;
+		global $wp_query, $wp_the_query;
 		if ( ! $wp_query ) {
 			$wp_query = new WP_Query();
 		}
+		$wp_the_query = $wp_query;
 
 		$wp_query->set( 'codellia_preview', '1' );
 		$wp_query->set( 'post_id', $post_id ? (string) $post_id : '' );
@@ -204,6 +259,22 @@ class Test_Preview extends WP_UnitTestCase {
 		$GLOBALS['post'] = $post;
 	}
 
+	private function set_main_loop_context( bool $in_loop ): void {
+		global $wp_query, $wp_the_query;
+		if ( ! $wp_query ) {
+			$wp_query = new WP_Query();
+		}
+		$wp_the_query          = $wp_query;
+		$wp_query->in_the_loop = $in_loop;
+	}
+
+	private function set_secondary_loop_context(): void {
+		global $wp_query, $wp_the_query;
+		$wp_the_query          = new WP_Query();
+		$wp_query              = new WP_Query();
+		$wp_query->in_the_loop = true;
+	}
+
 	private function reset_preview_state(): void {
 		$state = array(
 			'post_id'         => null,
@@ -215,6 +286,21 @@ class Test_Preview extends WP_UnitTestCase {
 			$property = new ReflectionProperty( Preview::class, $property_name );
 			$property->setAccessible( true );
 			$property->setValue( null, $value );
+		}
+	}
+
+	private function restore_query_globals(): void {
+		global $wp_query, $wp_the_query;
+		if ( null !== $this->original_wp_query ) {
+			$wp_query = $this->original_wp_query;
+		} else {
+			unset( $wp_query );
+		}
+
+		if ( null !== $this->original_wp_the_query ) {
+			$wp_the_query = $this->original_wp_the_query;
+		} else {
+			unset( $wp_the_query );
 		}
 	}
 

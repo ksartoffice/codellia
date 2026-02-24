@@ -147,6 +147,10 @@ class Preview {
 			return $content;
 		}
 
+		if ( ! self::is_main_content_context() ) {
+			return $content;
+		}
+
 		if ( self::$marker_inserted ) {
 			return $content;
 		}
@@ -169,6 +173,23 @@ class Preview {
 			$content,
 			self::MARKER_END
 		);
+	}
+
+	/**
+	 * Check whether current the_content call is for the main loop content.
+	 *
+	 * @return bool
+	 */
+	private static function is_main_content_context(): bool {
+		if ( ! in_the_loop() ) {
+			return false;
+		}
+
+		if ( ! is_main_query() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
