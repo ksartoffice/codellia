@@ -24,15 +24,36 @@ class Rest_Save {
 	 */
 	private const TAILWIND_SHADOW_FALLBACK_CSS = <<<'CSS'
 @layer base {
-  :host{
+  :host,
+  :host *,
+  :host *::before,
+  :host *::after,
+  :host ::backdrop{
+    --tw-border-style: solid;
+    --tw-gradient-position: initial;
+    --tw-gradient-from: #0000;
+    --tw-gradient-via: #0000;
+    --tw-gradient-to: #0000;
+    --tw-gradient-stops: initial;
+    --tw-gradient-via-stops: initial;
     --tw-gradient-from-position: 0%;
     --tw-gradient-via-position: 50%;
     --tw-gradient-to-position: 100%;
-    --tw-inset-shadow: 0 0 #0000;
-    --tw-inset-ring-shadow: 0 0 #0000;
-    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-font-weight: initial;
     --tw-shadow: 0 0 #0000;
+    --tw-shadow-color: initial;
+    --tw-shadow-alpha: 100%;
+    --tw-inset-shadow: 0 0 #0000;
+    --tw-inset-shadow-color: initial;
+    --tw-inset-shadow-alpha: 100%;
+    --tw-ring-color: initial;
     --tw-ring-shadow: 0 0 #0000;
+    --tw-inset-ring-color: initial;
+    --tw-inset-ring-shadow: 0 0 #0000;
+    --tw-ring-inset: initial;
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-offset-shadow: 0 0 #0000;
     --radius: 0.25rem;
   }
 }
@@ -227,9 +248,33 @@ CSS;
 			return '';
 		}
 
-		$already_injected = false !== strpos( $css, ':host{' )
+		$already_injected = false !== strpos( $css, ':host,' )
+			&& false !== strpos( $css, ':host ::backdrop{' )
+			&& false !== strpos( $css, '--tw-border-style: solid;' )
+			&& false !== strpos( $css, '--tw-gradient-position: initial;' )
+			&& false !== strpos( $css, '--tw-gradient-from: #0000;' )
+			&& false !== strpos( $css, '--tw-gradient-via: #0000;' )
+			&& false !== strpos( $css, '--tw-gradient-to: #0000;' )
+			&& false !== strpos( $css, '--tw-gradient-stops: initial;' )
+			&& false !== strpos( $css, '--tw-gradient-via-stops: initial;' )
 			&& false !== strpos( $css, '--tw-gradient-from-position: 0%;' )
+			&& false !== strpos( $css, '--tw-gradient-via-position: 50%;' )
+			&& false !== strpos( $css, '--tw-gradient-to-position: 100%;' )
+			&& false !== strpos( $css, '--tw-font-weight: initial;' )
+			&& false !== strpos( $css, '--tw-shadow: 0 0 #0000;' )
+			&& false !== strpos( $css, '--tw-shadow-color: initial;' )
+			&& false !== strpos( $css, '--tw-shadow-alpha: 100%;' )
+			&& false !== strpos( $css, '--tw-inset-shadow: 0 0 #0000;' )
+			&& false !== strpos( $css, '--tw-inset-shadow-color: initial;' )
+			&& false !== strpos( $css, '--tw-inset-shadow-alpha: 100%;' )
+			&& false !== strpos( $css, '--tw-ring-color: initial;' )
 			&& false !== strpos( $css, '--tw-ring-shadow: 0 0 #0000;' )
+			&& false !== strpos( $css, '--tw-inset-ring-color: initial;' )
+			&& false !== strpos( $css, '--tw-inset-ring-shadow: 0 0 #0000;' )
+			&& false !== strpos( $css, '--tw-ring-inset: initial;' )
+			&& false !== strpos( $css, '--tw-ring-offset-width: 0px;' )
+			&& false !== strpos( $css, '--tw-ring-offset-color: #fff;' )
+			&& false !== strpos( $css, '--tw-ring-offset-shadow: 0 0 #0000;' )
 			&& false !== strpos( $css, '--radius: 0.25rem;' );
 
 		if ( $already_injected ) {

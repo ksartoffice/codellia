@@ -8,6 +8,7 @@
 use Codellia\External_Scripts;
 use Codellia\External_Styles;
 use Codellia\Post_Type;
+use Codellia\Rest_Save;
 use Codellia\Rest_Settings;
 
 class Test_Rest_Success extends WP_UnitTestCase {
@@ -360,8 +361,13 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertNotSame( '', $generated_css, 'Generated CSS should not be empty.' );
 		$this->assertStringContainsString( '.text-sm', $generated_css, 'Generated CSS should include the expected utility.' );
 		$this->assertStringContainsString( '@layer base {', $generated_css );
-		$this->assertStringContainsString( ':host{', $generated_css );
+		$this->assertStringContainsString( ':host,', $generated_css );
+		$this->assertStringContainsString( ':host ::backdrop{', $generated_css );
+		$this->assertStringContainsString( '--tw-border-style: solid;', $generated_css );
+		$this->assertStringContainsString( '--tw-gradient-position: initial;', $generated_css );
 		$this->assertStringContainsString( '--tw-gradient-from-position: 0%;', $generated_css );
+		$this->assertStringContainsString( '--tw-shadow-color: initial;', $generated_css );
+		$this->assertStringContainsString( '--tw-ring-offset-color: #fff;', $generated_css );
 		$this->assertStringContainsString( '--radius: 0.25rem;', $generated_css );
 
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind', true ) );
@@ -386,12 +392,34 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status(), 'Tailwind compile should succeed for admins.' );
 		$data = $response->get_data();
 		$this->assertSame( true, $data['ok'] ?? false );
-		$this->assertStringContainsString( ':host{', (string) ( $data['css'] ?? '' ) );
+		$this->assertStringContainsString( ':host,', (string) ( $data['css'] ?? '' ) );
+		$this->assertStringContainsString( ':host ::backdrop{', (string) ( $data['css'] ?? '' ) );
 		$this->assertStringContainsString(
 			'--tw-gradient-from-position: 0%;',
 			(string) ( $data['css'] ?? '' )
 		);
+		$this->assertStringContainsString(
+			'--tw-ring-offset-color: #fff;',
+			(string) ( $data['css'] ?? '' )
+		);
 		$this->assertStringContainsString( '--radius: 0.25rem;', (string) ( $data['css'] ?? '' ) );
+	}
+
+	public function test_append_tailwind_shadow_fallbacks_is_idempotent(): void {
+		$base_css = '.text-sm{font-size:.875rem;}';
+		$once     = Rest_Save::append_tailwind_shadow_fallbacks( $base_css );
+		$twice    = Rest_Save::append_tailwind_shadow_fallbacks( $once );
+
+		$this->assertSame(
+			1,
+			substr_count( $twice, '@layer base {' ),
+			'Fallback block should be injected only once.'
+		);
+		$this->assertSame(
+			1,
+			substr_count( $twice, '--tw-gradient-from-position: 0%;' ),
+			'Fallback declarations should not be duplicated.'
+		);
 	}
 
 	private function create_codellia_post( int $author_id ): int {
