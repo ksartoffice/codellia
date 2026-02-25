@@ -87,11 +87,6 @@ Build commands:
 3. npm run build
 4. npm run plugin-zip
 
-== Screenshots ==
-1. Codellia editor with live preview.
-2. Settings panel and Tailwind mode.
-3. Embedded Codellia via shortcode.
-
 == Changelog ==
 = 1.0.0 =
 * Initial release.
