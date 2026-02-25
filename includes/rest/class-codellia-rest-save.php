@@ -22,8 +22,7 @@ class Rest_Save {
 	 *
 	 * @var string
 	 */
-	private const TAILWIND_SHADOW_FALLBACK_CSS = <<<'CSS'
-@layer base {
+	private const TAILWIND_SHADOW_FALLBACK_CSS = '@layer base {
   :host,
   :host *,
   :host *::before,
@@ -56,8 +55,7 @@ class Rest_Save {
     --tw-ring-offset-shadow: 0 0 #0000;
     --radius: 0.25rem;
   }
-}
-CSS;
+}';
 
 	/**
 	 * Save Codellia post content and metadata.
