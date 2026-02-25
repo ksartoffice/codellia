@@ -313,6 +313,7 @@ class Frontend {
 	 * @return string
 	 */
 	private static function get_css_for_post( int $post_id ): string {
+
 		$is_tailwind   = '1' === get_post_meta( $post_id, '_codellia_tailwind', true );
 		$stored_css    = (string) get_post_meta( $post_id, '_codellia_css', true );
 		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );

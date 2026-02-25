@@ -651,7 +651,6 @@ class Admin {
 			array(),
 			$admin_style_version
 		);
-
 		wp_enqueue_script( 'codellia-admin' );
 		wp_enqueue_style( 'codellia-admin' );
 		wp_enqueue_style( 'wp-components' );
@@ -732,6 +731,7 @@ class Admin {
 	 * @return string
 	 */
 	private static function resolve_asset_version( string $path ): string {
+
 		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
 		if ( false === $mtime ) {
 			return CODELLIA_VERSION;

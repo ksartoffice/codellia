@@ -28,11 +28,10 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $is_preview = false;
-	private const MARKER_ATTR            = 'data-codellia-marker';
-	private const MARKER_POST_ATTR       = 'data-codellia-post-id';
-	private const MARKER_START           = 'start';
-	private const MARKER_END             = 'end';
-
+	private const MARKER_ATTR       = 'data-codellia-marker';
+	private const MARKER_POST_ATTR  = 'data-codellia-post-id';
+	private const MARKER_START      = 'start';
+	private const MARKER_END        = 'end';
 	/**
 	 * Register preview hooks.
 	 */
@@ -97,8 +96,8 @@ class Preview {
 			wp_die( esc_html__( 'Post not found.', 'codellia' ) );
 		}
 
-		self::$post_id         = $post_id;
-		self::$is_preview      = true;
+		self::$post_id    = $post_id;
+		self::$is_preview = true;
 		add_filter( 'show_admin_bar', '__return_false' );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'disable_admin_bar_assets' ), 100 );
 		remove_action( 'wp_head', '_admin_bar_bump_cb' );
@@ -138,8 +137,9 @@ class Preview {
 	 * @return string
 	 */
 	public static function filter_content( string $content ): string {
+
 		if ( ! self::$is_preview ) {
-			return $content;
+				return $content;
 		}
 
 		if ( ! self::is_root_the_content_call() ) {
@@ -168,6 +168,7 @@ class Preview {
 	 * @return bool
 	 */
 	private static function is_root_the_content_call(): bool {
+
 		global $wp_current_filter;
 		if ( ! is_array( $wp_current_filter ) ) {
 			return true;
@@ -183,7 +184,6 @@ class Preview {
 		// Direct method calls in tests may have depth 0.
 		return $depth <= 1;
 	}
-
 	/**
 	 * Check whether current the_content call is for the main loop content.
 	 *
@@ -228,6 +228,7 @@ class Preview {
 	 * @return bool
 	 */
 	private static function has_marker_elements( string $content, int $post_id ): bool {
+
 		$start_marker = self::build_marker_element( self::MARKER_START, $post_id );
 		$end_marker   = self::build_marker_element( self::MARKER_END, $post_id );
 
@@ -242,6 +243,7 @@ class Preview {
 	 * @return string
 	 */
 	private static function build_marker_element( string $type, int $post_id ): string {
+
 		return sprintf(
 			'<span %s="%s" %s="%s" aria-hidden="true" hidden></span>',
 			esc_attr( self::MARKER_ATTR ),
@@ -250,7 +252,6 @@ class Preview {
 			esc_attr( (string) $post_id )
 		);
 	}
-
 	/**
 	 * Enqueue preview assets and payload.
 	 */
@@ -266,7 +267,6 @@ class Preview {
 			self::preview_script_version(),
 			true
 		);
-
 		$admin_origin           = self::build_admin_origin();
 		$highlight_meta         = get_post_meta( self::$post_id, '_codellia_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
@@ -297,6 +297,7 @@ class Preview {
 	 * @return string
 	 */
 	private static function build_admin_origin(): string {
+
 		$admin_url = admin_url();
 		$parts     = wp_parse_url( $admin_url );
 		if ( empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
@@ -315,7 +316,8 @@ class Preview {
 	 * @return string
 	 */
 	private static function preview_script_version(): string {
-		$path = CODELLIA_PATH . 'includes/preview.js';
+
+		$path  = CODELLIA_PATH . 'includes/preview.js';
 		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
 		if ( false === $mtime ) {
 			return CODELLIA_VERSION;

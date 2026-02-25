@@ -44,7 +44,7 @@ class Rest {
 				'callback'            => array( Rest_Preview::class, 'render_shortcodes' ),
 				'permission_callback' => array( __CLASS__, 'permission_check' ),
 				'args'                => array(
-					'post_id'    => array(
+					'post_id'      => array(
 						'type'     => 'integer',
 						'required' => true,
 					),
@@ -53,7 +53,7 @@ class Rest {
 						'required'  => false,
 						'maxLength' => Limits::MAX_TAILWIND_HTML_BYTES,
 					),
-					'shortcodes' => array(
+					'shortcodes'   => array(
 						'type'     => 'array',
 						'required' => true,
 						'maxItems' => Limits::MAX_RENDER_SHORTCODES,
