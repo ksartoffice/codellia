@@ -18,6 +18,27 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Rest_Save {
 	/**
+	 * Shadow DOM Tailwind custom property fallbacks.
+	 *
+	 * @var string
+	 */
+	private const TAILWIND_SHADOW_FALLBACK_CSS = <<<'CSS'
+@layer base {
+  :host{
+    --tw-gradient-from-position: 0%;
+    --tw-gradient-via-position: 50%;
+    --tw-gradient-to-position: 100%;
+    --tw-inset-shadow: 0 0 #0000;
+    --tw-inset-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --radius: 0.25rem;
+  }
+}
+CSS;
+
+	/**
 	 * Save Codellia post content and metadata.
 	 *
 	 * @param \WP_REST_Request $request REST request.
@@ -128,6 +149,7 @@ class Rest_Save {
 						'css'     => $css_input,
 					)
 				);
+				$compiled_css = self::append_tailwind_shadow_fallbacks( $compiled_css );
 			} catch ( \Throwable $e ) {
 				return new \WP_REST_Response(
 					array(
@@ -192,6 +214,29 @@ class Rest_Save {
 			return '';
 		}
 		return str_ireplace( '</style', '&lt;/style', $css );
+	}
+
+	/**
+	 * Append Shadow DOM Tailwind fallback custom properties once.
+	 *
+	 * @param string $css Tailwind generated CSS.
+	 * @return string
+	 */
+	public static function append_tailwind_shadow_fallbacks( string $css ): string {
+		if ( '' === $css ) {
+			return '';
+		}
+
+		$already_injected = false !== strpos( $css, ':host{' )
+			&& false !== strpos( $css, '--tw-gradient-from-position: 0%;' )
+			&& false !== strpos( $css, '--tw-ring-shadow: 0 0 #0000;' )
+			&& false !== strpos( $css, '--radius: 0.25rem;' );
+
+		if ( $already_injected ) {
+			return $css;
+		}
+
+		return rtrim( $css ) . "\n\n" . self::TAILWIND_SHADOW_FALLBACK_CSS . "\n";
 	}
 
 	/**
@@ -260,6 +305,7 @@ class Rest_Save {
 					'css'     => $css_input,
 				)
 			);
+			$css = self::append_tailwind_shadow_fallbacks( $css );
 		} catch ( \Throwable $e ) {
 			return new \WP_REST_Response(
 				array(

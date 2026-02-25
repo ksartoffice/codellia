@@ -318,6 +318,10 @@ class Frontend {
 		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );
 		$css           = $is_tailwind ? $generated_css : $stored_css;
 
+		if ( $is_tailwind ) {
+			$css = Rest_Save::append_tailwind_shadow_fallbacks( $css );
+		}
+
 		$has_unescaped_arbitrary = ! $is_tailwind
 			&& '' !== $stored_css
 			&& false !== strpos( $stored_css, '-[' )

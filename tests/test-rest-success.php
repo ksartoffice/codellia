@@ -359,9 +359,39 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );
 		$this->assertNotSame( '', $generated_css, 'Generated CSS should not be empty.' );
 		$this->assertStringContainsString( '.text-sm', $generated_css, 'Generated CSS should include the expected utility.' );
+		$this->assertStringContainsString( '@layer base {', $generated_css );
+		$this->assertStringContainsString( ':host{', $generated_css );
+		$this->assertStringContainsString( '--tw-gradient-from-position: 0%;', $generated_css );
+		$this->assertStringContainsString( '--radius: 0.25rem;', $generated_css );
 
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind', true ) );
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
+	}
+
+	public function test_compile_tailwind_response_includes_shadow_fallbacks(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/compile-tailwind',
+			array(
+				'post_id' => $post_id,
+				'html'    => '<div class="text-sm">Tailwind</div>',
+				'css'     => "@tailwind base;\n@tailwind components;\n@tailwind utilities;",
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Tailwind compile should succeed for admins.' );
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false );
+		$this->assertStringContainsString( ':host{', (string) ( $data['css'] ?? '' ) );
+		$this->assertStringContainsString(
+			'--tw-gradient-from-position: 0%;',
+			(string) ( $data['css'] ?? '' )
+		);
+		$this->assertStringContainsString( '--radius: 0.25rem;', (string) ( $data['css'] ?? '' ) );
 	}
 
 	private function create_codellia_post( int $author_id ): int {
