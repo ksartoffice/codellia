@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b97d9ef8f6334c7fdadfc2f1a9f3daca",
+    "content-hash": "7b318fd097f0aa1eea3cf26d8fa39e41",
     "packages": [
         {
             "name": "tailwindphp/tailwindphp",
-            "version": "v1.2.2",
+            "version": "v1.2.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/dnnsjsk/tailwindphp.git",
-                "reference": "03f66b3c575cff109ffda494becedcb7f3e150c5"
+                "url": "https://github.com/ksartoffice/tailwindphp.git",
+                "reference": "f2481de536465fdc3ebc70e64b892638103ffda4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dnnsjsk/tailwindphp/zipball/03f66b3c575cff109ffda494becedcb7f3e150c5",
-                "reference": "03f66b3c575cff109ffda494becedcb7f3e150c5",
+                "url": "https://api.github.com/repos/ksartoffice/tailwindphp/zipball/f2481de536465fdc3ebc70e64b892638103ffda4",
+                "reference": "f2481de536465fdc3ebc70e64b892638103ffda4",
                 "shasum": ""
             },
             "require": {
@@ -34,6 +34,9 @@
             ],
             "type": "library",
             "autoload": {
+                "psr-4": {
+                    "TailwindPHP\\": "src/"
+                },
                 "files": [
                     "src/_tailwindphp/LightningCss.php",
                     "src/_tailwindphp/CssMinifier.php",
@@ -74,12 +77,104 @@
                     "src/plugin/plugins/typography-plugin.php",
                     "src/plugin/plugins/forms-plugin.php",
                     "src/index.php"
-                ],
-                "psr-4": {
-                    "TailwindPHP\\": "src/"
-                }
+                ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "TailwindPHP\\": "src/",
+                    "TailwindPHP\\Tests\\": "tests/"
+                },
+                "classmap": [
+                    "src/"
+                ],
+                "exclude-from-classmap": [
+                    "src/*.php",
+                    "src/**/*.php",
+                    "!src/*.test.php",
+                    "!src/**/*.test.php"
+                ]
+            },
+            "scripts": {
+                "extract": [
+                    "php test-coverage/extract-run-tests.php",
+                    "php test-coverage/extract-index-tests.php",
+                    "php test-coverage/extract-css-functions-tests.php",
+                    "php test-coverage/extract-candidate-tests.php",
+                    "php test-coverage/extract-ui-spec-tests.php"
+                ],
+                "extract-libs": [
+                    "php test-coverage/lib/extract-clsx-tests.php",
+                    "php test-coverage/lib/extract-tailwind-merge-tests.php",
+                    "php test-coverage/lib/extract-cva-tests.php"
+                ],
+                "extract-plugins": [
+                    "php test-coverage/plugins/extract-typography-tests.php"
+                ],
+                "extract-all": [
+                    "@extract",
+                    "@extract-libs",
+                    "@extract-plugins"
+                ],
+                "test": [
+                    "paratest --processes 8"
+                ],
+                "test-serial": [
+                    "phpunit"
+                ],
+                "test-libs": [
+                    "phpunit src/_tailwindphp/lib/"
+                ],
+                "test-plugins": [
+                    "phpunit src/plugin/"
+                ],
+                "extract-and-test": [
+                    "@extract-all",
+                    "phpunit"
+                ],
+                "update-and-test": [
+                    "@update-all",
+                    "@extract-all",
+                    "@test"
+                ],
+                "update-all": [
+                    "@update-tailwind",
+                    "@update-libs",
+                    "@update-plugins"
+                ],
+                "update-tailwind": [
+                    "php scripts/update-tailwind.php"
+                ],
+                "update-libs": [
+                    "php scripts/update-libs.php"
+                ],
+                "update-plugins": [
+                    "php scripts/update-plugins.php"
+                ],
+                "versions": [
+                    "php scripts/update-tailwind.php --check",
+                    "php scripts/update-libs.php --check",
+                    "php scripts/update-plugins.php --check"
+                ],
+                "bench": [
+                    "php scripts/benchmark.php"
+                ],
+                "bench:save": [
+                    "php scripts/benchmark.php --save"
+                ],
+                "lint": [
+                    "pint --test"
+                ],
+                "format": [
+                    "pint"
+                ],
+                "analyse": [
+                    "phpstan analyse --memory-limit=512M"
+                ],
+                "quality": [
+                    "@lint",
+                    "@analyse"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -101,7 +196,7 @@
                 "issues": "https://github.com/dnnsjsk/tailwindphp/issues",
                 "source": "https://github.com/dnnsjsk/tailwindphp"
             },
-            "time": "2025-12-06T09:08:03+00:00"
+            "time": "2026-02-25T05:23:52+00:00"
         }
     ],
     "packages-dev": [

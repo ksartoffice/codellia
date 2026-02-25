@@ -59,25 +59,40 @@ test('preview postMessage handshake works', async ({ page }) => {
   );
 
   await page.waitForSelector('#cd-preview-frame');
+  await page.waitForFunction(() => {
+    const iframe = document.getElementById('cd-preview-frame') as HTMLIFrameElement | null;
+    if (!iframe || !iframe.contentWindow) {
+      return false;
+    }
+    const href = iframe.contentWindow.location.href || '';
+    const readyState = iframe.contentDocument?.readyState;
+    return href.includes('codellia_preview=1') && readyState === 'complete';
+  });
 
-  const readyPromise = page.evaluate(() => {
-    return new Promise<{ type?: string }>((resolve) => {
+  const ready = await page.evaluate(() => {
+    return new Promise<{ type?: string }>((resolve, reject) => {
+      const iframe = document.getElementById('cd-preview-frame') as HTMLIFrameElement | null;
+      if (!iframe) {
+        reject(new Error('Preview iframe not found'));
+        return;
+      }
+
       const handler = (event: MessageEvent) => {
         if (event.data && event.data.type === 'CODELLIA_READY') {
           window.removeEventListener('message', handler as EventListener);
           resolve(event.data);
         }
       };
+
       window.addEventListener('message', handler as EventListener);
+      iframe.contentWindow?.postMessage({ type: 'CODELLIA_INIT' }, '*');
+
+      window.setTimeout(() => {
+        window.removeEventListener('message', handler as EventListener);
+        reject(new Error('Timed out waiting for CODELLIA_READY'));
+      }, 5_000);
     });
   });
-
-  await page.evaluate(() => {
-    const iframe = document.getElementById('cd-preview-frame') as HTMLIFrameElement | null;
-    iframe?.contentWindow?.postMessage({ type: 'CODELLIA_INIT' }, '*');
-  });
-
-  const ready = await readyPromise;
   messages.push(ready);
 
   expect(messages.some((message) => message.type === 'CODELLIA_READY')).toBe(true);

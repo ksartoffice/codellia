@@ -53,7 +53,8 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$url    = admin_url( 'post-new.php?post_type=' . Post_Type::POST_TYPE );
 		$result = Admin::filter_admin_url( $url, 'post-new.php?post_type=' . Post_Type::POST_TYPE, get_current_blog_id() );
 
-		$parts = wp_parse_url( str_replace( '&amp;', '&', $result ) );
+		$this->assertStringNotContainsString( '&amp;', $result );
+		$parts = wp_parse_url( $result );
 		$query = array();
 		if ( ! empty( $parts['query'] ) ) {
 			parse_str( (string) $parts['query'], $query );
@@ -88,6 +89,7 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$node = $admin_bar->get_node( 'new-' . Post_Type::POST_TYPE );
 
 		$this->assertNotNull( $node );
+		$this->assertStringNotContainsString( '&amp;', (string) $node->href );
 		$this->assertStringContainsString( 'action=' . Admin::NEW_POST_ACTION, $node->href );
 		$this->assertStringContainsString( '_wpnonce=', $node->href );
 	}

@@ -16,6 +16,7 @@ type ModalControllerDeps = {
   settingsRestUrl?: string;
   postId: number;
   getShadowDomEnabled: () => boolean;
+  getTailwindEnabled: () => boolean;
   isThemeTemplateModeActive: () => boolean;
   getDefaultTemplateMode: () => DefaultTemplateMode;
   setTemplateModes: (templateMode: TemplateMode, defaultTemplateMode: DefaultTemplateMode) => void;
@@ -82,9 +83,9 @@ function ShadowHintModal({
         <div className="cd-modalBody">
           <div className="cd-hintBody">
             <p className="cd-hintText">{lead}</p>
-            <p className="cd-hintText">{detail}</p>
+            {detail ? <p className="cd-hintText">{detail}</p> : null}
             <pre className="cd-hintCode">{code}</pre>
-            <p className="cd-hintText">{note}</p>
+            {note ? <p className="cd-hintText">{note}</p> : null}
           </div>
         </div>
         <div className="cd-modalActions">
@@ -148,6 +149,15 @@ export function createModalController(deps: ModalControllerDeps) {
     'Note: root can be Document or ShadowRoot; create* APIs are only on Document.',
     'codellia'
   );
+  const tailwindHintTitle = __('Tailwind CSS Hint', 'codellia');
+  const tailwindHintLead = __(
+    'To disable Tailwind CSS preflight (reset CSS), replace `@import "tailwindcss";` with the imports below.',
+    'codellia'
+  );
+  const tailwindHintCode =
+    '@layer theme, base, components, utilities;\n' +
+    '@import "tailwindcss/theme.css" layer(theme);\n' +
+    '@import "tailwindcss/utilities.css" layer(utilities);';
   const closeLabel = __('Close', 'codellia');
   const copyLabel = __('Copy', 'codellia');
   const copiedLabel = __('Copied', 'codellia');
@@ -169,6 +179,9 @@ export function createModalController(deps: ModalControllerDeps) {
   let shadowHintOpen = false;
   let shadowHintCopied = false;
   let shadowHintCopiedTimer: number | undefined;
+  let tailwindHintOpen = false;
+  let tailwindHintCopied = false;
+  let tailwindHintCopiedTimer: number | undefined;
   let missingMarkersOpen = false;
   let missingMarkersInFlight = false;
   let lastMissingMarkersNoticeAt = 0;
@@ -188,13 +201,16 @@ export function createModalController(deps: ModalControllerDeps) {
   };
 
   const unmountIfIdle = () => {
-    if (shadowHintOpen || missingMarkersOpen) {
+    if (shadowHintOpen || tailwindHintOpen || missingMarkersOpen) {
       return;
     }
     window.removeEventListener('keydown', handleKeydown);
     window.clearTimeout(shadowHintCopiedTimer);
     shadowHintCopiedTimer = undefined;
     shadowHintCopied = false;
+    window.clearTimeout(tailwindHintCopiedTimer);
+    tailwindHintCopiedTimer = undefined;
+    tailwindHintCopied = false;
     if (modalRoot?.unmount) {
       modalRoot.unmount();
     } else if (modalHost) {
@@ -226,6 +242,21 @@ export function createModalController(deps: ModalControllerDeps) {
             }}
           />
         ) : null}
+        {tailwindHintOpen ? (
+          <ShadowHintModal
+            title={tailwindHintTitle}
+            lead={tailwindHintLead}
+            detail=""
+            note=""
+            code={tailwindHintCode}
+            closeLabel={closeLabel}
+            copyLabel={tailwindHintCopied ? copiedLabel : copyLabel}
+            onClose={closeTailwindHintModal}
+            onCopy={() => {
+              void copyTailwindHintCode();
+            }}
+          />
+        ) : null}
         {missingMarkersOpen ? (
           <MissingMarkersModal
             title={missingMarkersTitle}
@@ -252,6 +283,10 @@ export function createModalController(deps: ModalControllerDeps) {
     }
     if (shadowHintOpen) {
       closeShadowHintModal();
+      return;
+    }
+    if (tailwindHintOpen) {
+      closeTailwindHintModal();
     }
   };
 
@@ -297,6 +332,22 @@ export function createModalController(deps: ModalControllerDeps) {
     }, 1400);
   };
 
+  const copyTailwindHintCode = async () => {
+    const ok = await copyToClipboard(tailwindHintCode);
+    if (!ok || !tailwindHintOpen) {
+      return;
+    }
+    tailwindHintCopied = true;
+    renderModals();
+    window.clearTimeout(tailwindHintCopiedTimer);
+    tailwindHintCopiedTimer = window.setTimeout(() => {
+      tailwindHintCopied = false;
+      if (tailwindHintOpen) {
+        renderModals();
+      }
+    }, 1400);
+  };
+
   const closeShadowHintModal = () => {
     if (!shadowHintOpen) return;
     shadowHintOpen = false;
@@ -308,10 +359,28 @@ export function createModalController(deps: ModalControllerDeps) {
   };
 
   const openShadowHintModal = () => {
-    if (shadowHintOpen || !deps.getShadowDomEnabled()) return;
+    if (shadowHintOpen || tailwindHintOpen || !deps.getShadowDomEnabled()) return;
     ensureMounted();
     shadowHintOpen = true;
     shadowHintCopied = false;
+    renderModals();
+  };
+
+  const closeTailwindHintModal = () => {
+    if (!tailwindHintOpen) return;
+    tailwindHintOpen = false;
+    tailwindHintCopied = false;
+    window.clearTimeout(tailwindHintCopiedTimer);
+    tailwindHintCopiedTimer = undefined;
+    renderModals();
+    unmountIfIdle();
+  };
+
+  const openTailwindHintModal = () => {
+    if (tailwindHintOpen || shadowHintOpen || !deps.getTailwindEnabled()) return;
+    ensureMounted();
+    tailwindHintOpen = true;
+    tailwindHintCopied = false;
     renderModals();
   };
 
@@ -420,6 +489,8 @@ export function createModalController(deps: ModalControllerDeps) {
   return {
     openShadowHintModal,
     closeShadowHintModal,
+    openTailwindHintModal,
+    closeTailwindHintModal,
     handleMissingMarkers,
   };
 }

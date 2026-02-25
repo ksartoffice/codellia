@@ -1,7 +1,13 @@
 {
     "require": {
-        "tailwindphp/tailwindphp": "^1.2"
+        "tailwindphp/tailwindphp": "1.2.4.1"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ksartoffice/tailwindphp"
+        }
+    ],
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true

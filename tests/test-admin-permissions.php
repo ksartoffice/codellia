@@ -76,7 +76,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		$this->assertStringContainsString( __( 'Permission denied.', 'codellia' ), $message );
 	}
 
-	public function test_maybe_redirect_new_post_requires_valid_nonce(): void {
+	public function test_maybe_redirect_new_post_without_nonce_redirects_to_action_without_creating_post(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 
 		wp_set_current_user( $admin_id );
@@ -85,6 +85,40 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		$original_get = $_GET;
 		$_GET         = array(
 			'post_type' => Post_Type::POST_TYPE,
+		);
+
+		$location = $this->capture_redirect(
+			function () {
+				Admin::maybe_redirect_new_post();
+			}
+		);
+
+		$_GET = $original_get;
+		$after = $this->get_codellia_post_ids();
+
+		$this->assertStringNotContainsString( '&amp;', $location );
+		$parts = wp_parse_url( $location );
+		$query = array();
+		if ( ! empty( $parts['query'] ) ) {
+			parse_str( (string) $parts['query'], $query );
+		}
+
+		$this->assertSame( $before, $after, 'load-post-new should not create drafts directly.' );
+		$this->assertSame( Admin::NEW_POST_ACTION, $query['action'] ?? '' );
+		$this->assertSame( Post_Type::POST_TYPE, $query['post_type'] ?? '' );
+		$this->assertNotEmpty( $query['_wpnonce'] ?? '' );
+	}
+
+	public function test_maybe_redirect_new_post_rejects_invalid_nonce(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+
+		wp_set_current_user( $admin_id );
+
+		$before       = $this->get_codellia_post_ids();
+		$original_get = $_GET;
+		$_GET         = array(
+			'post_type' => Post_Type::POST_TYPE,
+			'_wpnonce'  => 'invalid-nonce',
 		);
 
 		$message = $this->capture_wp_die(
@@ -97,7 +131,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		$after = $this->get_codellia_post_ids();
 
 		$this->assertStringContainsString( __( 'Permission denied.', 'codellia' ), $message );
-		$this->assertSame( $before, $after, 'Nonce-less access must not create drafts.' );
+		$this->assertSame( $before, $after, 'Invalid nonce access must not create drafts.' );
 	}
 
 	public function test_maybe_redirect_new_post_valid_nonce_redirects_to_action_without_creating_post(): void {
@@ -121,7 +155,8 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		$_GET = $original_get;
 		$after = $this->get_codellia_post_ids();
 
-		$parts = wp_parse_url( str_replace( '&amp;', '&', $location ) );
+		$this->assertStringNotContainsString( '&amp;', $location );
+		$parts = wp_parse_url( $location );
 		$query = array();
 		if ( ! empty( $parts['query'] ) ) {
 			parse_str( (string) $parts['query'], $query );

@@ -63,7 +63,10 @@ type PreviewControllerDeps = {
   getExternalScripts: () => string[];
   getExternalStyles: () => string[];
   isTailwindEnabled: () => boolean;
-  renderShortcodes?: (items: ShortcodePlaceholder[]) => Promise<Record<string, string>>;
+  renderShortcodes?: (
+    items: ShortcodePlaceholder[],
+    contextHtml: string
+  ) => Promise<Record<string, string>>;
   onSelect?: (lcId: string) => void;
   onOpenElementsTab?: () => void;
   onMissingMarkers?: () => void;
@@ -340,8 +343,6 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
   let canonicalDomRoot: HTMLElement | null = null;
   let lcSourceMap: Record<string, SourceRange> = {};
   let lastCanonicalError: string | null = null;
-  let lastShortcodeSourceHtml = '';
-  let lastShortcodeRenderedHtml = '';
   let renderToken = 0;
   let selectionDecorations: string[] = [];
   let cssSelectionDecorations: string[] = [];
@@ -364,31 +365,22 @@ export function createPreviewController(deps: PreviewControllerDeps): PreviewCon
     canonicalCacheHtml = '';
     canonicalDomCacheHtml = '';
     canonicalDomRoot = null;
-    lastShortcodeSourceHtml = '';
-    lastShortcodeRenderedHtml = '';
   };
 
   const renderShortcodesIfNeeded = async (html: string, token: number) => {
     if (!deps.renderShortcodes) {
       return html;
     }
-    if (html === lastShortcodeSourceHtml) {
-      return lastShortcodeRenderedHtml || html;
-    }
     const { htmlWithPlaceholders, shortcodes } = replaceShortcodesWithPlaceholders(html);
     if (!shortcodes.length) {
-      lastShortcodeSourceHtml = html;
-      lastShortcodeRenderedHtml = htmlWithPlaceholders;
       return htmlWithPlaceholders;
     }
     try {
-      const results = await deps.renderShortcodes(shortcodes);
+      const results = await deps.renderShortcodes(shortcodes, html);
       if (token !== renderToken) {
         return html;
       }
       const resolved = applyShortcodeResults(htmlWithPlaceholders, shortcodes, results || {});
-      lastShortcodeSourceHtml = html;
-      lastShortcodeRenderedHtml = resolved;
       return resolved;
     } catch (error) {
       // eslint-disable-next-line no-console

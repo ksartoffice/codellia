@@ -8,6 +8,7 @@
 use Codellia\External_Scripts;
 use Codellia\External_Styles;
 use Codellia\Post_Type;
+use Codellia\Rest_Save;
 use Codellia\Rest_Settings;
 
 class Test_Rest_Success extends WP_UnitTestCase {
@@ -184,6 +185,107 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_render_shortcodes_uses_context_html_when_provided(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => '<p>Stored content without probe.</p>',
+			)
+		);
+
+		add_shortcode(
+			'cd_context_probe',
+			static function (): string {
+				global $post;
+				if ( ! $post instanceof WP_Post ) {
+					return '';
+				}
+				return false !== strpos( (string) $post->post_content, 'Probe Heading' ) ? '<div class="cd-probe-ok">ok</div>' : '';
+			}
+		);
+
+		try {
+			$response = $this->dispatch_route(
+				'/codellia/v1/render-shortcodes',
+				array(
+					'post_id'      => $post_id,
+					'context_html' => '<h2>Probe Heading</h2>[cd_context_probe]',
+					'shortcodes'   => array(
+						array(
+							'id'        => 'item-1',
+							'shortcode' => '[cd_context_probe]',
+						),
+					),
+				)
+			);
+		} finally {
+			remove_shortcode( 'cd_context_probe' );
+		}
+
+		$this->assertSame( 200, $response->get_status(), 'Shortcode rendering should succeed.' );
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false );
+		$this->assertStringContainsString( 'cd-probe-ok', (string) ( $data['results']['item-1'] ?? '' ) );
+	}
+
+	public function test_render_shortcodes_restores_global_post_after_render(): void {
+		$admin_id         = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$codellia_post_id = $this->create_codellia_post( $admin_id );
+		$global_post_id   = (int) self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Global Post',
+			)
+		);
+		$global_post      = get_post( $global_post_id );
+
+		wp_set_current_user( $admin_id );
+		$this->assertInstanceOf( WP_Post::class, $global_post );
+
+		$had_original_global_post = array_key_exists( 'post', $GLOBALS );
+		$original_global_post     = $had_original_global_post ? $GLOBALS['post'] : null;
+		$GLOBALS['post']          = $global_post;
+
+		add_shortcode(
+			'cd_restore_probe',
+			static function (): string {
+				return '<span class="cd-restore-probe">ok</span>';
+			}
+		);
+
+		try {
+			$response = $this->dispatch_route(
+				'/codellia/v1/render-shortcodes',
+				array(
+					'post_id'      => $codellia_post_id,
+					'context_html' => '<p>Probe context</p>[cd_restore_probe]',
+					'shortcodes'   => array(
+						array(
+							'id'        => 'item-1',
+							'shortcode' => '[cd_restore_probe]',
+						),
+					),
+				)
+			);
+
+			$this->assertSame( 200, $response->get_status(), 'Shortcode rendering should succeed.' );
+			$this->assertArrayHasKey( 'post', $GLOBALS, 'Global post should still be set after rendering.' );
+			$this->assertSame( $global_post, $GLOBALS['post'], 'Global post should be restored to its previous object.' );
+		} finally {
+			remove_shortcode( 'cd_restore_probe' );
+			if ( $had_original_global_post ) {
+				$GLOBALS['post'] = $original_global_post;
+			} else {
+				unset( $GLOBALS['post'] );
+			}
+		}
+	}
+
 	public function test_settings_update_persists_metadata_and_post_fields(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );
@@ -312,9 +414,66 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );
 		$this->assertNotSame( '', $generated_css, 'Generated CSS should not be empty.' );
 		$this->assertStringContainsString( '.text-sm', $generated_css, 'Generated CSS should include the expected utility.' );
+		$this->assertStringContainsString( '@layer base {', $generated_css );
+		$this->assertStringContainsString( ':host,', $generated_css );
+		$this->assertStringContainsString( ':host ::backdrop{', $generated_css );
+		$this->assertStringContainsString( '--tw-border-style: solid;', $generated_css );
+		$this->assertStringContainsString( '--tw-gradient-position: initial;', $generated_css );
+		$this->assertStringContainsString( '--tw-gradient-from-position: 0%;', $generated_css );
+		$this->assertStringContainsString( '--tw-shadow-color: initial;', $generated_css );
+		$this->assertStringContainsString( '--tw-ring-offset-color: #fff;', $generated_css );
+		$this->assertStringContainsString( '--radius: 0.25rem;', $generated_css );
 
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind', true ) );
 		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
+	}
+
+	public function test_compile_tailwind_response_includes_shadow_fallbacks(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_codellia_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch_route(
+			'/codellia/v1/compile-tailwind',
+			array(
+				'post_id' => $post_id,
+				'html'    => '<div class="text-sm">Tailwind</div>',
+				'css'     => "@tailwind base;\n@tailwind components;\n@tailwind utilities;",
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status(), 'Tailwind compile should succeed for admins.' );
+		$data = $response->get_data();
+		$this->assertSame( true, $data['ok'] ?? false );
+		$this->assertStringContainsString( ':host,', (string) ( $data['css'] ?? '' ) );
+		$this->assertStringContainsString( ':host ::backdrop{', (string) ( $data['css'] ?? '' ) );
+		$this->assertStringContainsString(
+			'--tw-gradient-from-position: 0%;',
+			(string) ( $data['css'] ?? '' )
+		);
+		$this->assertStringContainsString(
+			'--tw-ring-offset-color: #fff;',
+			(string) ( $data['css'] ?? '' )
+		);
+		$this->assertStringContainsString( '--radius: 0.25rem;', (string) ( $data['css'] ?? '' ) );
+	}
+
+	public function test_append_tailwind_shadow_fallbacks_is_idempotent(): void {
+		$base_css = '.text-sm{font-size:.875rem;}';
+		$once     = Rest_Save::append_tailwind_shadow_fallbacks( $base_css );
+		$twice    = Rest_Save::append_tailwind_shadow_fallbacks( $once );
+
+		$this->assertSame(
+			1,
+			substr_count( $twice, '@layer base {' ),
+			'Fallback block should be injected only once.'
+		);
+		$this->assertSame(
+			1,
+			substr_count( $twice, '--tw-gradient-from-position: 0%;' ),
+			'Fallback declarations should not be duplicated.'
+		);
 	}
 
 	private function create_codellia_post( int $author_id ): int {

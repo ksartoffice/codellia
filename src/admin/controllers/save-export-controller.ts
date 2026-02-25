@@ -59,6 +59,7 @@ type SaveExportControllerDeps = {
     compactJsTab: HTMLElement;
   };
   onUnsavedChange: (hasUnsavedChanges: boolean) => void;
+  onSaveSuccess?: () => void;
 };
 
 export function createSaveExportController(deps: SaveExportControllerDeps) {
@@ -230,6 +231,7 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
         }
         deps.clearPendingSettingsState();
         markSavedState();
+        deps.onSaveSuccess?.();
         deps.createSnackbar(
           'success',
           __('Saved.', 'codellia'),

@@ -264,7 +264,7 @@ class Rest_Import {
 		$compiled_css = '';
 		if ( $tailwind_enabled ) {
 			if ( '' !== $generated_css_input ) {
-				$compiled_css = $generated_css_input;
+				$compiled_css = Rest_Save::append_tailwind_shadow_fallbacks( $generated_css_input );
 			} else {
 				try {
 					$compiled_css = tw::generate(
@@ -273,6 +273,7 @@ class Rest_Import {
 							'css'     => $css_input,
 						)
 					);
+					$compiled_css = Rest_Save::append_tailwind_shadow_fallbacks( $compiled_css );
 				} catch ( \Throwable $e ) {
 					return new \WP_REST_Response(
 						array(

@@ -14,6 +14,7 @@ type EditorShellRefs = {
   compactAddMediaButton: HTMLButtonElement;
   compactRunButton: HTMLButtonElement;
   compactShadowHintButton: HTMLButtonElement;
+  compactTailwindHintButton: HTMLButtonElement;
   htmlHeader: HTMLDivElement;
   htmlTitle: HTMLSpanElement;
   addMediaButton: HTMLButtonElement;
@@ -27,6 +28,7 @@ type EditorShellRefs = {
   jsControls: HTMLDivElement;
   runButton: HTMLButtonElement;
   shadowHintButton: HTMLButtonElement;
+  tailwindHintButton: HTMLButtonElement;
   editorResizer: HTMLDivElement;
   main: HTMLDivElement;
   left: HTMLDivElement;
@@ -129,7 +131,17 @@ export function buildEditorShell(root: HTMLElement): EditorShellRefs {
     __( 'Shadow DOM Hint', 'codellia' ),
     compactIcons.hint
   );
-  compactEditorActions.append(compactAddMediaButton, compactRunButton, compactShadowHintButton);
+  const compactTailwindHintButton = createCompactActionButton(
+    'cd-editorAction cd-compactEditorAction cd-compactEditorAction-hint',
+    __( 'Tailwind CSS Hint', 'codellia' ),
+    compactIcons.hint
+  );
+  compactEditorActions.append(
+    compactAddMediaButton,
+    compactRunButton,
+    compactTailwindHintButton,
+    compactShadowHintButton
+  );
   compactEditorTabs.append(compactEditorTabsList, compactEditorActions);
 
   const htmlPane = el('div', 'cd-editorPane cd-editorPane-html is-active');
@@ -170,7 +182,11 @@ export function buildEditorShell(root: HTMLElement): EditorShellRefs {
   shadowHintButton.type = 'button';
   shadowHintButton.className = 'cd-editorAction cd-editorAction-hint';
   shadowHintButton.textContent = __( 'Shadow DOM Hint', 'codellia' );
-  jsControls.append(shadowHintButton, runButton);
+  const tailwindHintButton = document.createElement('button');
+  tailwindHintButton.type = 'button';
+  tailwindHintButton.className = 'cd-editorAction cd-editorAction-hint';
+  tailwindHintButton.textContent = __( 'Tailwind CSS Hint', 'codellia' );
+  jsControls.append(tailwindHintButton, shadowHintButton, runButton);
 
   cssHeader.append(cssTabs, jsControls);
   const cssWrap = el('div', 'cd-editorWrap cd-editorWrap-tabs');
@@ -208,6 +224,7 @@ export function buildEditorShell(root: HTMLElement): EditorShellRefs {
     compactAddMediaButton,
     compactRunButton,
     compactShadowHintButton,
+    compactTailwindHintButton,
     htmlHeader,
     htmlTitle,
     addMediaButton,
@@ -221,6 +238,7 @@ export function buildEditorShell(root: HTMLElement): EditorShellRefs {
     jsControls,
     runButton,
     shadowHintButton,
+    tailwindHintButton,
     editorResizer,
     main,
     left,

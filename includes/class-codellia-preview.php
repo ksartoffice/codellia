@@ -28,15 +28,10 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $is_preview = false;
-	/**
-	 * Whether preview markers have already been inserted in this request.
-	 *
-	 * @var bool
-	 */
-	private static bool $marker_inserted = false;
-	private const MARKER_START           = 'codellia:start';
-	private const MARKER_END             = 'codellia:end';
-
+	private const MARKER_ATTR       = 'data-codellia-marker';
+	private const MARKER_POST_ATTR  = 'data-codellia-post-id';
+	private const MARKER_START      = 'start';
+	private const MARKER_END        = 'end';
 	/**
 	 * Register preview hooks.
 	 */
@@ -101,9 +96,8 @@ class Preview {
 			wp_die( esc_html__( 'Post not found.', 'codellia' ) );
 		}
 
-		self::$post_id         = $post_id;
-		self::$is_preview      = true;
-		self::$marker_inserted = false;
+		self::$post_id    = $post_id;
+		self::$is_preview = true;
 		add_filter( 'show_admin_bar', '__return_false' );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'disable_admin_bar_assets' ), 100 );
 		remove_action( 'wp_head', '_admin_bar_bump_cb' );
@@ -137,21 +131,22 @@ class Preview {
 	}
 
 	/**
-	 * Wrap preview content in marker comments.
+	 * Wrap preview content in marker elements.
 	 *
 	 * @param string $content Post content.
 	 * @return string
 	 */
 	public static function filter_content( string $content ): string {
+
 		if ( ! self::$is_preview ) {
+				return $content;
+		}
+
+		if ( ! self::is_root_the_content_call() ) {
 			return $content;
 		}
 
 		if ( ! self::is_main_content_context() ) {
-			return $content;
-		}
-
-		if ( self::$marker_inserted ) {
 			return $content;
 		}
 
@@ -160,21 +155,35 @@ class Preview {
 			return $content;
 		}
 
-		if ( self::has_marker_comments( $content ) ) {
-			self::$marker_inserted = true;
+		if ( self::has_marker_elements( $content, self::$post_id ) ) {
 			return $content;
 		}
 
-		self::$marker_inserted = true;
-
-		return sprintf(
-			'<!--%s-->%s<!--%s-->',
-			self::MARKER_START,
-			$content,
-			self::MARKER_END
-		);
+		return self::build_marker_element( self::MARKER_START, self::$post_id ) . $content . self::build_marker_element( self::MARKER_END, self::$post_id );
 	}
 
+	/**
+	 * Check whether current filter context is the root the_content call.
+	 *
+	 * @return bool
+	 */
+	private static function is_root_the_content_call(): bool {
+
+		global $wp_current_filter;
+		if ( ! is_array( $wp_current_filter ) ) {
+			return true;
+		}
+
+		$depth = 0;
+		foreach ( $wp_current_filter as $hook_name ) {
+			if ( 'the_content' === (string) $hook_name ) {
+				++$depth;
+			}
+		}
+
+		// Direct method calls in tests may have depth 0.
+		return $depth <= 1;
+	}
 	/**
 	 * Check whether current the_content call is for the main loop content.
 	 *
@@ -212,18 +221,37 @@ class Preview {
 	}
 
 	/**
-	 * Check whether content already contains preview marker comments.
+	 * Check whether content already contains preview marker elements.
 	 *
 	 * @param string $content Post content.
+	 * @param int    $post_id Preview post ID.
 	 * @return bool
 	 */
-	private static function has_marker_comments( string $content ): bool {
-		$start_marker = '<!--' . self::MARKER_START . '-->';
-		$end_marker   = '<!--' . self::MARKER_END . '-->';
+	private static function has_marker_elements( string $content, int $post_id ): bool {
+
+		$start_marker = self::build_marker_element( self::MARKER_START, $post_id );
+		$end_marker   = self::build_marker_element( self::MARKER_END, $post_id );
 
 		return false !== strpos( $content, $start_marker ) && false !== strpos( $content, $end_marker );
 	}
 
+	/**
+	 * Build marker element HTML.
+	 *
+	 * @param string $type    Marker type.
+	 * @param int    $post_id Preview post ID.
+	 * @return string
+	 */
+	private static function build_marker_element( string $type, int $post_id ): string {
+
+		return sprintf(
+			'<span %s="%s" %s="%s" aria-hidden="true" hidden></span>',
+			esc_attr( self::MARKER_ATTR ),
+			esc_attr( $type ),
+			esc_attr( self::MARKER_POST_ATTR ),
+			esc_attr( (string) $post_id )
+		);
+	}
 	/**
 	 * Enqueue preview assets and payload.
 	 */
@@ -236,10 +264,9 @@ class Preview {
 			'codellia-preview',
 			CODELLIA_URL . 'includes/preview.js',
 			array(),
-			CODELLIA_VERSION,
+			self::preview_script_version(),
 			true
 		);
-
 		$admin_origin           = self::build_admin_origin();
 		$highlight_meta         = get_post_meta( self::$post_id, '_codellia_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
@@ -248,8 +275,10 @@ class Preview {
 			'post_id'              => self::$post_id,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'markers'              => array(
-				'start' => self::MARKER_START,
-				'end'   => self::MARKER_END,
+				'attr'     => self::MARKER_ATTR,
+				'postAttr' => self::MARKER_POST_ATTR,
+				'start'    => self::MARKER_START,
+				'end'      => self::MARKER_END,
 			),
 			'renderRestUrl'        => rest_url( 'codellia/v1/render-shortcodes' ),
 			'restNonce'            => wp_create_nonce( 'wp_rest' ),
@@ -268,6 +297,7 @@ class Preview {
 	 * @return string
 	 */
 	private static function build_admin_origin(): string {
+
 		$admin_url = admin_url();
 		$parts     = wp_parse_url( $admin_url );
 		if ( empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
@@ -278,5 +308,20 @@ class Preview {
 			$origin .= ':' . $parts['port'];
 		}
 		return $origin;
+	}
+
+	/**
+	 * Resolve preview script version for cache busting in development.
+	 *
+	 * @return string
+	 */
+	private static function preview_script_version(): string {
+
+		$path  = CODELLIA_PATH . 'includes/preview.js';
+		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
+		if ( false === $mtime ) {
+			return CODELLIA_VERSION;
+		}
+		return (string) $mtime;
 	}
 }

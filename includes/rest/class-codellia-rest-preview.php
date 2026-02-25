@@ -22,8 +22,9 @@ class Rest_Preview {
 	 * @return \WP_REST_Response
 	 */
 	public static function render_shortcodes( \WP_REST_Request $request ): \WP_REST_Response {
-		$post_id = absint( $request->get_param( 'post_id' ) );
-		$items   = $request->get_param( 'shortcodes' );
+		$post_id      = absint( $request->get_param( 'post_id' ) );
+		$context_html = $request->get_param( 'context_html' );
+		$items        = $request->get_param( 'shortcodes' );
 
 		if ( ! $post_id || ! Post_Type::is_codellia_post( $post_id ) || ! $items || ! is_array( $items ) ) {
 			return new \WP_REST_Response(
@@ -56,40 +57,58 @@ class Rest_Preview {
 			);
 		}
 
-		$results   = array();
-		$cache_map = array();
+		$results                  = array();
+		$cache_map                = array();
+		$render_post              = $post;
+		$had_original_global_post = array_key_exists( 'post', $GLOBALS );
+		$original_global_post     = $had_original_global_post ? $GLOBALS['post'] : null;
 
-		setup_postdata( $post );
-
-		foreach ( $items as $entry ) {
-			if ( ! is_array( $entry ) ) {
-				continue;
-			}
-			$id        = isset( $entry['id'] ) ? sanitize_key( (string) $entry['id'] ) : '';
-			$shortcode = isset( $entry['shortcode'] ) ? (string) $entry['shortcode'] : '';
-
-			if ( '' === $id ) {
-				continue;
-			}
-
-			if ( '' === $shortcode ) {
-				$results[ $id ] = '';
-				continue;
-			}
-
-			$cache_key = md5( $shortcode );
-			if ( isset( $cache_map[ $cache_key ] ) ) {
-				$results[ $id ] = $cache_map[ $cache_key ];
-				continue;
-			}
-
-			$rendered = do_shortcode( $shortcode );
-
-			$results[ $id ]          = $rendered;
-			$cache_map[ $cache_key ] = $rendered;
+		if ( is_string( $context_html ) && '' !== $context_html ) {
+			$render_post               = clone $post;
+			$render_post->post_content = $context_html;
 		}
 
-		wp_reset_postdata();
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Shortcode callbacks may read global $post; this temporary swap is restored in finally.
+		$GLOBALS['post'] = $render_post;
+		setup_postdata( $render_post );
+
+		try {
+			foreach ( $items as $entry ) {
+				if ( ! is_array( $entry ) ) {
+					continue;
+				}
+				$id        = isset( $entry['id'] ) ? sanitize_key( (string) $entry['id'] ) : '';
+				$shortcode = isset( $entry['shortcode'] ) ? (string) $entry['shortcode'] : '';
+
+				if ( '' === $id ) {
+					continue;
+				}
+
+				if ( '' === $shortcode ) {
+					$results[ $id ] = '';
+					continue;
+				}
+
+				$cache_key = md5( $shortcode );
+				if ( isset( $cache_map[ $cache_key ] ) ) {
+					$results[ $id ] = $cache_map[ $cache_key ];
+					continue;
+				}
+
+				$rendered = do_shortcode( $shortcode );
+
+				$results[ $id ]          = $rendered;
+				$cache_map[ $cache_key ] = $rendered;
+			}
+		} finally {
+			wp_reset_postdata();
+			if ( $had_original_global_post ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the exact pre-render global state to avoid leaking context.
+				$GLOBALS['post'] = $original_global_post;
+			} else {
+				unset( $GLOBALS['post'] );
+			}
+		}
 
 		return new \WP_REST_Response(
 			array(

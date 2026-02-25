@@ -8,10 +8,15 @@
   const CODELLIA_ATTR_NAME = 'data-codellia-id';
   const config = window.CODELLIA_PREVIEW || {};
   const postId = config.post_id || null;
-  const markerStart =
-    config.markers && config.markers.start ? String(config.markers.start) : 'codellia:start';
-  const markerEnd =
-    config.markers && config.markers.end ? String(config.markers.end) : 'codellia:end';
+  const markerAttr =
+    config.markers && config.markers.attr ? String(config.markers.attr) : 'data-codellia-marker';
+  const markerPostAttr =
+    config.markers && config.markers.postAttr
+      ? String(config.markers.postAttr)
+      : 'data-codellia-post-id';
+  const markerPostId = postId === null ? '' : String(postId);
+  const markerStart = config.markers && config.markers.start ? String(config.markers.start) : 'start';
+  const markerEnd = config.markers && config.markers.end ? String(config.markers.end) : 'end';
   const allowedOrigin = getAllowedOrigin();
   let isReady = false;
   let hoverTarget = null;
@@ -31,6 +36,11 @@
   let lastJsText = '';
   let jsEnabled = false;
   let missingMarkersNotified = false;
+  let pendingRenderPayload = null;
+  let markerRetryTimer = 0;
+  let markerRetryStartedAt = 0;
+  const markerRetryDelayMs = 50;
+  const markerRetryMaxWaitMs = 10000;
   let domSelectorEnabled =
     config.liveHighlightEnabled === undefined ? true : Boolean(config.liveHighlightEnabled);
 
@@ -617,29 +627,83 @@
   }
 
   function findMarkers() {
-    if (markerNodes) return markerNodes;
-    const walker = document.createTreeWalker(
-      document.body || document,
-      NodeFilter.SHOW_COMMENT,
-      null
-    );
-    let start = null;
-    let end = null;
-    while (walker.nextNode()) {
-      const value = (walker.currentNode.textContent || '').trim();
-      if (!start && value === markerStart) {
-        start = walker.currentNode;
-        continue;
-      }
-      if (start && value === markerEnd) {
-        end = walker.currentNode;
-        break;
-      }
-    }
-    if (start && end) {
-      markerNodes = { start: start, end: end };
+    if (
+      markerNodes &&
+      markerNodes.start &&
+      markerNodes.end &&
+      markerNodes.start.isConnected &&
+      markerNodes.end.isConnected
+    ) {
       return markerNodes;
     }
+    markerNodes = null;
+
+    const root = document.documentElement || document.body;
+    if (!root) return null;
+
+    const matchesMarker = (node, type) => {
+      if (node.getAttribute(markerAttr) !== type) {
+        return false;
+      }
+      if (!markerPostId) {
+        return true;
+      }
+      return node.getAttribute(markerPostAttr) === markerPostId;
+    };
+
+    const markers = [];
+    const candidates = root.querySelectorAll('[' + markerAttr + ']');
+    candidates.forEach((node) => {
+      if (!(node instanceof Element)) {
+        return;
+      }
+      const type = node.getAttribute(markerAttr);
+      if (type !== markerStart && type !== markerEnd) {
+        return;
+      }
+      if (markerPostId && node.getAttribute(markerPostAttr) !== markerPostId) {
+        return;
+      }
+      markers.push(node);
+    });
+
+    if (!markers.length) {
+      return null;
+    }
+
+    const body = document.body;
+    const bodyMarkers = body ? markers.filter((node) => body.contains(node)) : [];
+
+    const resolvePair = (list) => {
+      if (!list.length) return null;
+
+      // Normal case: start marker followed by end marker in document order.
+      for (let i = 0; i < list.length; i += 1) {
+        const start = list[i];
+        if (!matchesMarker(start, markerStart)) continue;
+        for (let j = i + 1; j < list.length; j += 1) {
+          const end = list[j];
+          if (!matchesMarker(end, markerEnd)) continue;
+          return { start: start, end: end };
+        }
+      }
+
+      // Fallback: parser recovery may reorder invalid HTML differently by browser.
+      // Use first/last marker as a boundary pair when typed pair isn't available.
+      if (list.length >= 2) {
+        return { start: list[0], end: list[list.length - 1] };
+      }
+
+      return null;
+    };
+
+    // Prefer markers placed inside <body>; fallback to the whole document.
+    const pair = resolvePair(bodyMarkers) || resolvePair(markers);
+    if (pair) {
+      markerNodes = pair;
+      return markerNodes;
+    }
+
     return null;
   }
 
@@ -677,11 +741,51 @@
     clearSelection();
   }
 
+  function clearMarkerRetryTimer() {
+    if (markerRetryTimer) {
+      window.clearTimeout(markerRetryTimer);
+      markerRetryTimer = 0;
+    }
+    markerRetryStartedAt = 0;
+  }
+
+  function queueMarkerRetry() {
+    if (markerRetryTimer) return;
+    if (!markerRetryStartedAt) {
+      markerRetryStartedAt = Date.now();
+    }
+    markerRetryTimer = window.setTimeout(() => {
+      markerRetryTimer = 0;
+      const next = pendingRenderPayload;
+      if (!next) return;
+      if (findMarkers()) {
+        pendingRenderPayload = null;
+        clearMarkerRetryTimer();
+        render(next.html, next.css);
+        return;
+      }
+      if (Date.now() - markerRetryStartedAt >= markerRetryMaxWaitMs) {
+        pendingRenderPayload = null;
+        clearMarkerRetryTimer();
+        notifyMissingMarkers();
+        return;
+      }
+      queueMarkerRetry();
+    }, markerRetryDelayMs);
+  }
+
   function render(html, css) {
     if (!findMarkers()) {
-      notifyMissingMarkers();
+      pendingRenderPayload = {
+        html: html || '',
+        css: css || '',
+      }
+      queueMarkerRetry();
       return;
     }
+    pendingRenderPayload = null;
+    clearMarkerRetryTimer();
+
     if (shadowEnabled) {
       renderShadow(html, css);
       reply('CODELLIA_RENDERED');
