@@ -232,6 +232,60 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'cd-probe-ok', (string) ( $data['results']['item-1'] ?? '' ) );
 	}
 
+	public function test_render_shortcodes_restores_global_post_after_render(): void {
+		$admin_id         = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$codellia_post_id = $this->create_codellia_post( $admin_id );
+		$global_post_id   = (int) self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'Global Post',
+			)
+		);
+		$global_post      = get_post( $global_post_id );
+
+		wp_set_current_user( $admin_id );
+		$this->assertInstanceOf( WP_Post::class, $global_post );
+
+		$had_original_global_post = array_key_exists( 'post', $GLOBALS );
+		$original_global_post     = $had_original_global_post ? $GLOBALS['post'] : null;
+		$GLOBALS['post']          = $global_post;
+
+		add_shortcode(
+			'cd_restore_probe',
+			static function (): string {
+				return '<span class="cd-restore-probe">ok</span>';
+			}
+		);
+
+		try {
+			$response = $this->dispatch_route(
+				'/codellia/v1/render-shortcodes',
+				array(
+					'post_id'      => $codellia_post_id,
+					'context_html' => '<p>Probe context</p>[cd_restore_probe]',
+					'shortcodes'   => array(
+						array(
+							'id'        => 'item-1',
+							'shortcode' => '[cd_restore_probe]',
+						),
+					),
+				)
+			);
+
+			$this->assertSame( 200, $response->get_status(), 'Shortcode rendering should succeed.' );
+			$this->assertArrayHasKey( 'post', $GLOBALS, 'Global post should still be set after rendering.' );
+			$this->assertSame( $global_post, $GLOBALS['post'], 'Global post should be restored to its previous object.' );
+		} finally {
+			remove_shortcode( 'cd_restore_probe' );
+			if ( $had_original_global_post ) {
+				$GLOBALS['post'] = $original_global_post;
+			} else {
+				unset( $GLOBALS['post'] );
+			}
+		}
+	}
+
 	public function test_settings_update_persists_metadata_and_post_fields(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = $this->create_codellia_post( $admin_id );

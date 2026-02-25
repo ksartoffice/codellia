@@ -57,52 +57,57 @@ class Rest_Preview {
 			);
 		}
 
-		$results              = array();
-		$cache_map            = array();
-		$render_post          = $post;
-		$original_global_post = isset( $GLOBALS['post'] ) && $GLOBALS['post'] instanceof \WP_Post ? $GLOBALS['post'] : null;
+		$results                  = array();
+		$cache_map                = array();
+		$render_post              = $post;
+		$had_original_global_post = array_key_exists( 'post', $GLOBALS );
+		$original_global_post     = $had_original_global_post ? $GLOBALS['post'] : null;
 
 		if ( is_string( $context_html ) && '' !== $context_html ) {
 			$render_post               = clone $post;
 			$render_post->post_content = $context_html;
 		}
 
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Shortcode callbacks may read global $post; this temporary swap is restored in finally.
 		$GLOBALS['post'] = $render_post;
 		setup_postdata( $render_post );
 
-		foreach ( $items as $entry ) {
-			if ( ! is_array( $entry ) ) {
-				continue;
+		try {
+			foreach ( $items as $entry ) {
+				if ( ! is_array( $entry ) ) {
+					continue;
+				}
+				$id        = isset( $entry['id'] ) ? sanitize_key( (string) $entry['id'] ) : '';
+				$shortcode = isset( $entry['shortcode'] ) ? (string) $entry['shortcode'] : '';
+
+				if ( '' === $id ) {
+					continue;
+				}
+
+				if ( '' === $shortcode ) {
+					$results[ $id ] = '';
+					continue;
+				}
+
+				$cache_key = md5( $shortcode );
+				if ( isset( $cache_map[ $cache_key ] ) ) {
+					$results[ $id ] = $cache_map[ $cache_key ];
+					continue;
+				}
+
+				$rendered = do_shortcode( $shortcode );
+
+				$results[ $id ]          = $rendered;
+				$cache_map[ $cache_key ] = $rendered;
 			}
-			$id        = isset( $entry['id'] ) ? sanitize_key( (string) $entry['id'] ) : '';
-			$shortcode = isset( $entry['shortcode'] ) ? (string) $entry['shortcode'] : '';
-
-			if ( '' === $id ) {
-				continue;
+		} finally {
+			wp_reset_postdata();
+			if ( $had_original_global_post ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the exact pre-render global state to avoid leaking context.
+				$GLOBALS['post'] = $original_global_post;
+			} else {
+				unset( $GLOBALS['post'] );
 			}
-
-			if ( '' === $shortcode ) {
-				$results[ $id ] = '';
-				continue;
-			}
-
-			$cache_key = md5( $shortcode );
-			if ( isset( $cache_map[ $cache_key ] ) ) {
-				$results[ $id ] = $cache_map[ $cache_key ];
-				continue;
-			}
-
-			$rendered = do_shortcode( $shortcode );
-
-			$results[ $id ]          = $rendered;
-			$cache_map[ $cache_key ] = $rendered;
-		}
-
-		wp_reset_postdata();
-		if ( $original_global_post instanceof \WP_Post ) {
-			$GLOBALS['post'] = $original_global_post;
-		} else {
-			unset( $GLOBALS['post'] );
 		}
 
 		return new \WP_REST_Response(
