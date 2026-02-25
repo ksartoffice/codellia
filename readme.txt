@@ -32,7 +32,6 @@ External connections and privacy:
 
 Development repository and build:
 * Source repository: https://github.com/ksartoffice/codellia
-* Repository visibility note: currently private, planned to be public at review submission time.
 * Build steps:
 * 1) npm install
 * 2) composer install
