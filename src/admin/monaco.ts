@@ -27,10 +27,7 @@ type MonacoInitOptions = {
 };
 
 const DEFAULT_TAILWIND_CSS =
-  '@layer theme, base, components, utilities;\n' +
-  '@import "tailwindcss/theme.css" layer(theme);\n' +
-  '@import "tailwindcss/preflight.css" layer(base);\n' +
-  '@import "tailwindcss/utilities.css" layer(utilities);\n' +
+  '@import "tailwindcss";\n' +
   '\n' +
   '@theme {\n' +
   '  /* ... */\n' +

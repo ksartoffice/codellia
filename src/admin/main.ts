@@ -438,6 +438,7 @@ async function main() {
     settingsRestUrl: cfg.settingsRestUrl,
     postId,
     getShadowDomEnabled: () => shadowDomEnabled,
+    getTailwindEnabled: () => tailwindEnabled,
     isThemeTemplateModeActive,
     getDefaultTemplateMode: () => defaultTemplateMode,
     setTemplateModes: (nextTemplateMode, nextDefaultTemplateMode) => {
@@ -789,6 +790,8 @@ async function main() {
 
   const openShadowHintModal = () => modalController?.openShadowHintModal();
   const closeShadowHintModal = () => modalController?.closeShadowHintModal();
+  const openTailwindHintModal = () => modalController?.openTailwindHintModal();
+  const closeTailwindHintModal = () => modalController?.closeTailwindHintModal();
   const handleMissingMarkers = () => modalController?.handleMissingMarkers();
 
   editorUiController = createEditorUiController({
@@ -801,6 +804,7 @@ async function main() {
     getViewportWidth: () => Math.round(window.visualViewport?.width ?? window.innerWidth),
     getJsEnabled: () => jsEnabled,
     getShadowDomEnabled: () => shadowDomEnabled,
+    getTailwindEnabled: () => tailwindEnabled,
     onActiveEditorChange: () => {
       updateUndoRedoState();
     },
@@ -811,6 +815,7 @@ async function main() {
     onOpenMedia: openMediaModal,
     onRunJs: () => preview?.requestRunJs(),
     onOpenShadowHint: openShadowHintModal,
+    onOpenTailwindHint: openTailwindHintModal,
   });
   editorUiController.initialize();
 
@@ -940,7 +945,11 @@ async function main() {
   const setTailwindEnabled = (enabled: boolean) => {
     tailwindEnabled = enabled;
     ui.app.classList.toggle('is-tailwind', enabled);
+    editorUiController?.syncTailwindState();
     toolbarApi?.update({ tailwindEnabled: enabled });
+    if (!enabled) {
+      closeTailwindHintModal();
+    }
     if (enabled) {
       preview?.sendRender();
       tailwindCompiler?.compile();

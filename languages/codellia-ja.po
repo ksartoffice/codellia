@@ -904,3 +904,11 @@ msgstr "デフォルト（%s）"
 #: assets/dist/main.js:81
 msgid "These files are requested from third-party servers in preview and front-end output. Add only trusted URLs."
 msgstr "これらのファイルはプレビューとフロントエンド表示時にサードパーティーサーバーから取得されます。信頼できる URL のみ追加してください。"
+
+#: assets/dist/main.js:103
+msgid "Tailwind CSS Hint"
+msgstr "Tailwind CSS ヒント"
+
+#: assets/dist/main.js:103
+msgid "To disable Tailwind CSS preflight (reset CSS), replace `@import \"tailwindcss\";` with the imports below."
+msgstr "Tailwind CSS の preflight（リセットCSS）を無効にするには、`@import \"tailwindcss\";` を以下の import に置き換えてください。"
