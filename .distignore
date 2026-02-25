@@ -17,7 +17,6 @@
 /package-lock.json
 /tsconfig.json
 /vite.config.ts
-/composer.json
 /composer.lock
 /phpunit.xml.dist
 /phpunit.xml
