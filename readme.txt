@@ -1,5 +1,5 @@
 === Codellia ===
-Contributors: codellia
+Contributors: ksartoffice
 Tags: live preview, code editor, monaco, tailwind, shortcode
 Requires at least: 6.6
 Tested up to: 6.9
@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Codellia Editor - Live HTML/CSS/JS Editor with Tailwind CSS.
+Codellia Editor - Live HTML/CSS/JS Editor with Tailwind CSS v4 support.
 
 == Description ==
 Codellia Editor provides a dedicated editor for building HTML, CSS, and JavaScript snippets with a live preview. It adds a "Codellia" custom post type, opens new Codellia posts in the editor, and adds an "Edit with Codellia" button to the standard editor.
@@ -17,10 +17,10 @@ Features:
 * Custom Codellia post type and dedicated editor
 * Monaco Editor with HTML/CSS/JS tabs and live iframe preview
 * Setup wizard (Normal/Tailwind/Import JSON) with per-post mode lock
-* Tailwind mode with on-demand compilation
+* Tailwind mode with on-demand Tailwind CSS v4 compilation
 * Import/export JSON projects
 * Per-post template mode control: Default/Standalone/Frame/Theme
-* External scripts/styles (https only), live edit highlight, and optional Shadow DOM isolation
+* External scripts/styles (https only), live edit highlight, real-time DOM selection, and optional Shadow DOM isolation
 * Shortcode embedding (enable in settings): [codellia post_id="123"]
 * Optional single-page disable for shortcode-based output
 
@@ -61,6 +61,9 @@ Yes. Enable the shortcode and turn on "Do not publish as single page." Disabled 
 = Can I switch between Normal and Tailwind modes? =
 The setup wizard lets you choose Normal or Tailwind. The choice is locked per Codellia post.
 
+= Which Tailwind CSS version is supported? =
+Tailwind mode supports Tailwind CSS v4.
+
 = How does template mode work? =
 Each Codellia post can use Default, Standalone, Frame, or Theme template mode. Default follows Codellia > Settings > Default template mode. If Theme mode does not expose the_content in your theme, Codellia preview prompts to switch to Frame.
 
@@ -97,4 +100,4 @@ Build commands:
 == Credits ==
 This plugin bundles third-party libraries:
 * Monaco Editor - MIT License (see assets/monaco/LICENSE) - https://github.com/microsoft/monaco-editor
-* TailwindPHP - MIT License - https://github.com/dnnsjsk/tailwindphp
+* TailwindPHP (fork) - MIT License - https://github.com/ksartoffice/tailwindphp (upstream: https://github.com/dnnsjsk/tailwindphp)
