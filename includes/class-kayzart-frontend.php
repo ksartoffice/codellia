@@ -413,7 +413,7 @@ class Frontend {
 				'post_id' => 0,
 			),
 			(array) $atts,
-			'kayzart-live-code-editor'
+			'kayzart'
 		);
 		$post_id = absint( $atts['post_id'] ?? 0 );
 		if ( ! $post_id ) {
