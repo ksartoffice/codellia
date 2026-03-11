@@ -86,7 +86,7 @@ class Editor_Bridge {
 		$data = array(
 			'postId'    => self::resolve_post_id(),
 			'postType'  => Post_Type::POST_TYPE,
-			'actionUrl' => admin_url( 'admin.php?action=kayzart' ),
+			'actionUrl' => Admin::get_action_redirect_url(),
 		);
 
 		wp_add_inline_script(

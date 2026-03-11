@@ -45,6 +45,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		$original_get       = $_GET;
 		$_GET['post_id']    = (string) $post_id;
+		$_GET['_wpnonce']   = wp_create_nonce( Admin::REDIRECT_NONCE_ACTION );
 
 		$message = $this->capture_wp_die(
 			function () {
@@ -55,6 +56,49 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		$_GET = $original_get;
 
 		$this->assertStringContainsString( __( 'Permission denied.', 'kayzart-live-code-editor'), $message );
+	}
+
+	public function test_action_redirect_requires_valid_nonce(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_kayzart_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$original_get    = $_GET;
+		$_GET['post_id'] = (string) $post_id;
+
+		$message = $this->capture_wp_die(
+			function () {
+				Admin::action_redirect();
+			}
+		);
+
+		$_GET = $original_get;
+
+		$this->assertStringContainsString( __( 'Permission denied.', 'kayzart-live-code-editor' ), $message );
+	}
+
+	public function test_action_redirect_redirects_with_valid_nonce(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$post_id  = $this->create_kayzart_post( $admin_id );
+
+		wp_set_current_user( $admin_id );
+
+		$original_get = $_GET;
+		$_GET         = array(
+			'post_id'  => (string) $post_id,
+			'_wpnonce' => wp_create_nonce( Admin::REDIRECT_NONCE_ACTION ),
+		);
+
+		$location = $this->capture_redirect(
+			function () {
+				Admin::action_redirect();
+			}
+		);
+
+		$_GET = $original_get;
+
+		$this->assertSame( Post_Type::get_editor_url( $post_id ), $location );
 	}
 
 	public function test_maybe_redirect_new_post_denies_user_without_create_posts(): void {
