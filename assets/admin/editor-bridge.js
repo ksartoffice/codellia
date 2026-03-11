@@ -1,4 +1,4 @@
-﻿(function (wp) {
+(function (wp) {
   var wpRef = wp || {};
   var __ = wpRef.i18n && wpRef.i18n.__ ? wpRef.i18n.__ : function (text) {
     return text;
@@ -13,7 +13,7 @@
         }
       };
 
-  var data = window.CODELLIA_EDITOR || {};
+  var data = window.CAZEART_EDITOR || {};
   var actionUrl = data.actionUrl || '';
 
   var getPostIdFromBlock = function () {
@@ -35,7 +35,7 @@
     return Number(input.value) || 0;
   };
 
-  var redirectToCodellia = function (postId) {
+  var redirectToCazeArt = function (postId) {
     if (!actionUrl || !postId) {
       return;
     }
@@ -53,7 +53,7 @@
     }
 
     button.classList.add('is-busy');
-    button.textContent = __( 'Saving...', 'codellia' );
+    button.textContent = __( 'Saving...', 'cazeart-live-code-editor');
 
     dispatch.savePost();
     var unsubscribe = wpRef.data.subscribe(function () {
@@ -64,7 +64,7 @@
       var id = getPostId();
       if (!isSaving && id) {
         unsubscribe();
-        redirectToCodellia(id);
+        redirectToCazeArt(id);
       }
     });
   };
@@ -74,23 +74,23 @@
     if (!toolbar) {
       return;
     }
-    if (document.querySelector('.codellia-editor-toolbar')) {
+    if (document.querySelector('.cazeart-editor-toolbar')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'codellia-editor-toolbar';
+    container.className = 'cazeart-editor-toolbar';
 
     var button = document.createElement('a');
-    button.className = 'components-button is-primary codellia-editor-toolbar__button';
+    button.className = 'components-button is-primary cazeart-editor-toolbar__button';
     button.href = '#';
-    button.textContent = __( 'Edit with Codellia', 'codellia' );
+    button.textContent = __( 'Edit with CazeArt', 'cazeart-live-code-editor');
 
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromBlock() || Number(data.postId) || 0;
       if (postId) {
-        redirectToCodellia(postId);
+        redirectToCazeArt(postId);
         return;
       }
 
@@ -123,16 +123,16 @@
   };
 
   var setupClassicEditor = function () {
-    if (document.querySelector('.codellia-editor-bridge')) {
+    if (document.querySelector('.cazeart-editor-bridge')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'codellia-editor-bridge';
+    container.className = 'cazeart-editor-bridge';
 
     var button = document.createElement('a');
-    button.className = 'button button-primary codellia-editor-bridge__button';
-    button.textContent = __( 'Edit with Codellia', 'codellia' );
+    button.className = 'button button-primary cazeart-editor-bridge__button';
+    button.textContent = __( 'Edit with CazeArt', 'cazeart-live-code-editor');
     button.href = '#';
 
     container.appendChild(button);
@@ -150,12 +150,12 @@
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromClassic() || Number(data.postId) || 0;
-      redirectToCodellia(postId);
+      redirectToCazeArt(postId);
     });
   };
 
   domReady(function () {
-    if (!document.body.classList.contains('post-type-codellia')) {
+    if (!document.body.classList.contains('post-type-cazeart')) {
       return;
     }
 

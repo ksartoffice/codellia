@@ -3,7 +3,7 @@ import path from 'node:path';
 import ignore from 'ignore';
 import AdmZip from 'adm-zip';
 
-const ZIP_FILE = 'codellia.zip';
+const ZIP_FILE = 'cazeart-live-code-editor.zip';
 const DISTIGNORE_FILE = '.distignore';
 
 async function loadDistignoreRules() {

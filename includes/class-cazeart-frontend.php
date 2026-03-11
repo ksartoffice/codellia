@@ -1,11 +1,11 @@
 <?php
 /**
- * Front-end rendering for Codellia posts and shortcodes.
+ * Front-end rendering for CazeArt posts and shortcodes.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-namespace Codellia;
+namespace CazeArt;
 
 use TailwindPHP\tw;
 
@@ -44,7 +44,7 @@ class Frontend {
 	 * @var bool
 	 */
 	private static bool $shadow_runtime_enqueued = false;
-	private const TEMPLATE_MODE_META_KEY         = '_codellia_template_mode';
+	private const TEMPLATE_MODE_META_KEY         = '_cazeart_template_mode';
 	private const TEMPLATE_MODE_VALUES           = array( 'default', 'standalone', 'frame', 'theme' );
 	private const DEFAULT_TEMPLATE_MODE_VALUES   = array( 'standalone', 'frame', 'theme' );
 
@@ -56,18 +56,18 @@ class Frontend {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_redirect_single_page' ) );
 		add_action( 'wp_head', array( __CLASS__, 'maybe_add_noindex' ), 1 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'exclude_single_page_from_query' ) );
-		// Enqueue late so Codellia styles can override theme styles on the front-end.
+		// Enqueue late so CazeArt styles can override theme styles on the front-end.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_css' ), 999 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_js' ) );
 		add_filter( 'the_content', array( __CLASS__, 'filter_content' ), 20 );
 		add_filter( 'template_include', array( __CLASS__, 'maybe_override_template' ), 20 );
-		add_shortcode( 'codellia', array( __CLASS__, 'shortcode' ) );
+		add_shortcode( 'cazeart', array( __CLASS__, 'shortcode' ) );
 	}
 
 	/**
 	 * Check whether single page view is disabled for a post.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return bool
 	 */
 	private static function is_single_page_disabled( int $post_id ): bool {
@@ -78,7 +78,7 @@ class Frontend {
 	 * Redirect single page requests when disabled.
 	 */
 	public static function maybe_redirect_single_page(): void {
-		if ( is_admin() || get_query_var( 'codellia_preview' ) ) {
+		if ( is_admin() || get_query_var( 'cazeart_preview' ) ) {
 			return;
 		}
 
@@ -95,7 +95,7 @@ class Frontend {
 			return;
 		}
 
-		$target = apply_filters( 'codellia_single_page_redirect', home_url( '/' ), $post_id );
+		$target = apply_filters( 'cazeart_single_page_redirect', home_url( '/' ), $post_id );
 		if ( '404' === $target ) {
 			global $wp_query;
 			$wp_query->set_404();
@@ -115,7 +115,7 @@ class Frontend {
 	 * Output noindex meta when single page is disabled.
 	 */
 	public static function maybe_add_noindex(): void {
-		if ( is_admin() || get_query_var( 'codellia_preview' ) ) {
+		if ( is_admin() || get_query_var( 'cazeart_preview' ) ) {
 			return;
 		}
 
@@ -170,11 +170,11 @@ class Frontend {
 		$meta_query[] = array(
 			'relation' => 'OR',
 			array(
-				'key'     => '_codellia_single_page_enabled',
+				'key'     => '_cazeart_single_page_enabled',
 				'compare' => 'NOT EXISTS',
 			),
 			array(
-				'key'     => '_codellia_single_page_enabled',
+				'key'     => '_cazeart_single_page_enabled',
 				'value'   => '1',
 				'compare' => '=',
 			),
@@ -196,7 +196,7 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
 			return;
 		}
 
@@ -211,11 +211,11 @@ class Frontend {
 	/**
 	 * Check whether Shadow DOM rendering is enabled for a post.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return bool
 	 */
 	private static function is_shadow_dom_enabled( int $post_id ): bool {
-		return '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true );
+		return '1' === get_post_meta( $post_id, '_cazeart_shadow_dom', true );
 	}
 
 	/**
@@ -243,14 +243,14 @@ class Frontend {
 	/**
 	 * Resolve template mode for the current request.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return string
 	 */
 	private static function resolve_template_mode( int $post_id ): string {
 		$template_mode = self::normalize_template_mode( get_post_meta( $post_id, self::TEMPLATE_MODE_META_KEY, true ) );
 
-		if ( get_query_var( 'codellia_preview' ) ) {
-			$override = self::normalize_template_mode( get_query_var( 'codellia_template_mode' ) );
+		if ( get_query_var( 'cazeart_preview' ) ) {
+			$override = self::normalize_template_mode( get_query_var( 'cazeart_template_mode' ) );
 			if ( 'default' !== $override ) {
 				$template_mode = $override;
 			}
@@ -264,7 +264,7 @@ class Frontend {
 	}
 
 	/**
-	 * Override single template based on Codellia template mode.
+	 * Override single template based on CazeArt template mode.
 	 *
 	 * @param string $template Template path.
 	 * @return string
@@ -283,7 +283,7 @@ class Frontend {
 			return $template;
 		}
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
 			return $template;
 		}
 
@@ -294,9 +294,9 @@ class Frontend {
 
 		$path = '';
 		if ( 'standalone' === $template_mode ) {
-			$path = CODELLIA_PATH . 'templates/single-codellia-standalone.php';
+			$path = CAZEART_PATH . 'templates/single-cazeart-standalone.php';
 		} elseif ( 'frame' === $template_mode ) {
-			$path = CODELLIA_PATH . 'templates/single-codellia-frame.php';
+			$path = CAZEART_PATH . 'templates/single-cazeart-frame.php';
 		}
 
 		if ( $path && file_exists( $path ) ) {
@@ -309,14 +309,14 @@ class Frontend {
 	/**
 	 * Resolve CSS for a post, handling Tailwind compilation where needed.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return string
 	 */
 	private static function get_css_for_post( int $post_id ): string {
 
-		$is_tailwind   = '1' === get_post_meta( $post_id, '_codellia_tailwind', true );
-		$stored_css    = (string) get_post_meta( $post_id, '_codellia_css', true );
-		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );
+		$is_tailwind   = '1' === get_post_meta( $post_id, '_cazeart_tailwind', true );
+		$stored_css    = (string) get_post_meta( $post_id, '_cazeart_css', true );
+		$generated_css = (string) get_post_meta( $post_id, '_cazeart_generated_css', true );
 		$css           = $is_tailwind ? $generated_css : $stored_css;
 
 		if ( $is_tailwind ) {
@@ -363,7 +363,7 @@ class Frontend {
 	}
 
 	/**
-	 * Filter Codellia post content for Shadow DOM preview.
+	 * Filter CazeArt post content for Shadow DOM preview.
 	 *
 	 * @param string $content Post content.
 	 * @return string
@@ -372,7 +372,7 @@ class Frontend {
 		if ( is_admin() ) {
 			return $content;
 		}
-		if ( get_query_var( 'codellia_preview' ) ) {
+		if ( get_query_var( 'cazeart_preview' ) ) {
 			return $content;
 		}
 
@@ -381,7 +381,7 @@ class Frontend {
 			return $content;
 		}
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
 			return $content;
 		}
 
@@ -395,11 +395,11 @@ class Frontend {
 			$style_html .= '<style id="cd-style">' . $css . '</style>';
 		}
 		$script_html = self::build_inline_shadow_script( $post_id );
-		return '<codellia-output data-post-id="' . esc_attr( $post_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template>' . $script_html . '</codellia-output>';
+		return '<cazeart-output data-post-id="' . esc_attr( $post_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template>' . $script_html . '</cazeart-output>';
 	}
 
 	/**
-	 * Render the [codellia] shortcode.
+	 * Render the [cazeart] shortcode.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string
@@ -410,18 +410,18 @@ class Frontend {
 				'post_id' => 0,
 			),
 			(array) $atts,
-			'codellia'
+			'cazeart-live-code-editor'
 		);
 		$post_id = absint( $atts['post_id'] ?? 0 );
 		if ( ! $post_id ) {
 			return '';
 		}
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
 			return '';
 		}
 
-		if ( '1' !== get_post_meta( $post_id, '_codellia_shortcode_enabled', true ) ) {
+		if ( '1' !== get_post_meta( $post_id, '_cazeart_shortcode_enabled', true ) ) {
 			return '';
 		}
 
@@ -442,7 +442,7 @@ class Frontend {
 			$style_html  = self::build_inline_style( $post_id, $instance );
 			$script_html = self::build_inline_shadow_script( $post_id, $instance );
 			self::enqueue_shortcode_scripts( $post_id );
-			return '<codellia-output data-post-id="' . esc_attr( $post_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template>' . $script_html . '</codellia-output>';
+			return '<cazeart-output data-post-id="' . esc_attr( $post_id ) . '"><template shadowrootmode="open">' . $style_html . $content . '</template>' . $script_html . '</cazeart-output>';
 		}
 
 		$assets = self::get_non_shadow_assets_html( $post_id );
@@ -452,7 +452,7 @@ class Frontend {
 	/**
 	 * Build inline style HTML for Shadow DOM rendering.
 	 *
-	 * @param int $post_id  Codellia post ID.
+	 * @param int $post_id  CazeArt post ID.
 	 * @param int $instance Instance number.
 	 * @return string
 	 */
@@ -470,7 +470,7 @@ class Frontend {
 	/**
 	 * Build external stylesheet tags for Shadow DOM rendering.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return string
 	 */
 	private static function build_external_styles_html( int $post_id ): string {
@@ -491,33 +491,33 @@ class Frontend {
 	/**
 	 * Build inline script payload for Shadow DOM rendering.
 	 *
-	 * @param int $post_id  Codellia post ID.
+	 * @param int $post_id  CazeArt post ID.
 	 * @param int $instance Instance number.
 	 * @return string
 	 */
 	private static function build_inline_shadow_script( int $post_id, int $instance = 0 ): string {
-		$js = (string) get_post_meta( $post_id, '_codellia_js', true );
+		$js = (string) get_post_meta( $post_id, '_cazeart_js', true );
 		if ( '' === $js ) {
 			return '';
 		}
 
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
-		$wait_attr        = empty( $external_scripts ) ? '' : ' data-codellia-js-wait="load"';
+		$wait_attr        = empty( $external_scripts ) ? '' : ' data-cazeart-js-wait="load"';
 		$suffix           = 0 < $instance ? '-' . $post_id . '-' . $instance : '-' . $post_id;
 		$encoded          = rawurlencode( $js );
 		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		return '<script type="application/json" id="cd-script-data' . esc_attr( $suffix ) . '" data-codellia-js="1"' . $wait_attr . '>' . esc_html( $encoded ) . '</script>';
+		return '<script type="application/json" id="cd-script-data' . esc_attr( $suffix ) . '" data-cazeart-js="1"' . $wait_attr . '>' . esc_html( $encoded ) . '</script>';
 	}
 
 	/**
 	 * Build inline script tags for non-shadow rendering.
 	 *
-	 * @param int $post_id  Codellia post ID.
+	 * @param int $post_id  CazeArt post ID.
 	 * @param int $instance Instance number.
 	 * @return string
 	 */
 	private static function build_inline_scripts( int $post_id, int $instance = 0 ): string {
-		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
+		$js               = (string) get_post_meta( $post_id, '_cazeart_js', true );
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 		if ( '' === $js && empty( $external_scripts ) ) {
 			return '';
@@ -540,7 +540,7 @@ class Frontend {
 	/**
 	 * Fetch inline assets for non-shadow shortcode rendering.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return array{style:string,scripts:string}
 	 */
 	private static function get_non_shadow_assets_html( int $post_id ): array {
@@ -561,7 +561,7 @@ class Frontend {
 	/**
 	 * Enqueue external scripts for shadow-dom shortcode rendering.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 */
 	private static function enqueue_shortcode_scripts( int $post_id ): void {
 		if ( isset( self::$shortcode_assets_loaded[ $post_id ] ) ) {
@@ -569,7 +569,7 @@ class Frontend {
 		}
 		self::$shortcode_assets_loaded[ $post_id ] = true;
 
-		$js = (string) get_post_meta( $post_id, '_codellia_js', true );
+		$js = (string) get_post_meta( $post_id, '_cazeart_js', true );
 		if ( '' !== $js ) {
 			self::enqueue_shadow_runtime();
 		}
@@ -585,7 +585,7 @@ class Frontend {
 	/**
 	 * Enqueue external script URLs once per page.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return string Last dependency handle.
 	 */
 	private static function enqueue_external_scripts( int $post_id ): string {
@@ -600,10 +600,10 @@ class Frontend {
 				$dependency = self::$external_script_handles[ $script_url ];
 				continue;
 			}
-			$ext_handle = 'codellia-ext-' . $post_id . '-' . $index;
+			$ext_handle = 'cazeart-ext-' . $post_id . '-' . $index;
 			$ext_deps   = $dependency ? array( $dependency ) : array();
 			if ( ! wp_script_is( $ext_handle, 'registered' ) ) {
-				wp_register_script( $ext_handle, $script_url, $ext_deps, CODELLIA_VERSION, true );
+				wp_register_script( $ext_handle, $script_url, $ext_deps, CAZEART_VERSION, true );
 			}
 			wp_enqueue_script( $ext_handle );
 			self::$external_script_handles[ $script_url ] = $ext_handle;
@@ -622,13 +622,13 @@ class Frontend {
 		}
 		self::$shadow_runtime_enqueued = true;
 
-		$handle = 'codellia-shadow-runtime';
+		$handle = 'cazeart-shadow-runtime';
 		if ( ! wp_script_is( $handle, 'registered' ) ) {
 			wp_register_script(
 				$handle,
-				CODELLIA_URL . 'includes/shadow-runtime.js',
+				CAZEART_URL . 'includes/shadow-runtime.js',
 				array(),
-				CODELLIA_VERSION,
+				CAZEART_VERSION,
 				true
 			);
 		}
@@ -648,7 +648,7 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
 			return;
 		}
 
@@ -664,10 +664,10 @@ class Frontend {
 
 		$dependency = '';
 		foreach ( $external_styles as $index => $style_url ) {
-			$ext_handle = 'codellia-ext-style-' . $post_id . '-' . $index;
+			$ext_handle = 'cazeart-ext-style-' . $post_id . '-' . $index;
 			$ext_deps   = $dependency ? array( $dependency ) : array();
 			if ( ! wp_style_is( $ext_handle, 'registered' ) ) {
-				wp_register_style( $ext_handle, $style_url, $ext_deps, CODELLIA_VERSION );
+				wp_register_style( $ext_handle, $style_url, $ext_deps, CAZEART_VERSION );
 			}
 			wp_enqueue_style( $ext_handle );
 			$dependency = $ext_handle;
@@ -677,11 +677,11 @@ class Frontend {
 			return;
 		}
 
-		$handle = 'codellia';
+		$handle = 'cazeart';
 		$deps   = $dependency ? array( $dependency ) : array();
 
 		if ( ! wp_style_is( $handle, 'registered' ) ) {
-			wp_register_style( $handle, false, $deps, CODELLIA_VERSION );
+			wp_register_style( $handle, false, $deps, CAZEART_VERSION );
 		}
 
 		wp_enqueue_style( $handle );
@@ -695,7 +695,7 @@ class Frontend {
 		if ( is_admin() ) {
 			return;
 		}
-		if ( get_query_var( 'codellia_preview' ) ) {
+		if ( get_query_var( 'cazeart_preview' ) ) {
 			return;
 		}
 
@@ -704,11 +704,11 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
 			return;
 		}
 
-		$js               = (string) get_post_meta( $post_id, '_codellia_js', true );
+		$js               = (string) get_post_meta( $post_id, '_cazeart_js', true );
 		$external_scripts = External_Scripts::get_external_scripts( $post_id );
 		if ( '' === $js && empty( $external_scripts ) ) {
 			return;
@@ -723,10 +723,10 @@ class Frontend {
 			return;
 		}
 
-		$handle = 'codellia-js';
+		$handle = 'cazeart-js';
 		if ( ! wp_script_is( $handle, 'registered' ) ) {
 			$js_deps = $dependency ? array( $dependency ) : array();
-			wp_register_script( $handle, false, $js_deps, CODELLIA_VERSION, true );
+			wp_register_script( $handle, false, $js_deps, CAZEART_VERSION, true );
 		}
 		wp_enqueue_script( $handle );
 		if ( '' !== $js ) {

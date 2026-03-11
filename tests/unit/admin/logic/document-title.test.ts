@@ -7,24 +7,24 @@ import {
 
 describe('document title logic', () => {
   beforeEach(() => {
-    document.title = 'Codellia < Test Site - WordPress';
+    document.title = 'CazeArt < Test Site - WordPress';
   });
 
   it('builds editor title label with fallback', () => {
-    expect(buildEditorDocumentTitleLabel('My Page')).toBe('Codellia Editor: My Page');
-    expect(buildEditorDocumentTitleLabel('')).toBe('Codellia Editor: Untitled');
+    expect(buildEditorDocumentTitleLabel('My Page')).toBe('CazeArt Live Code Editor: My Page');
+    expect(buildEditorDocumentTitleLabel('')).toBe('CazeArt Live Code Editor: Untitled');
   });
 
   it('extracts admin suffix using configured separators', () => {
-    expect(extractAdminTitleSuffix('Codellia < Test Site', [' < '])).toBe(' < Test Site');
-    expect(extractAdminTitleSuffix('Codellia &lsaquo; Test Site', [' &lsaquo; '])).toBe(
+    expect(extractAdminTitleSuffix('CazeArt < Test Site', [' < '])).toBe(' < Test Site');
+    expect(extractAdminTitleSuffix('CazeArt &lsaquo; Test Site', [' &lsaquo; '])).toBe(
       ' &lsaquo; Test Site'
     );
   });
 
   it('syncs document title while preserving suffix', () => {
-    const sync = createDocumentTitleSync('Codellia < Test Site - WordPress', [' < ']);
+    const sync = createDocumentTitleSync('CazeArt < Test Site - WordPress', [' < ']);
     sync('Landing');
-    expect(document.title).toBe('Codellia Editor: Landing < Test Site - WordPress');
+    expect(document.title).toBe('CazeArt Live Code Editor: Landing < Test Site - WordPress');
   });
 });

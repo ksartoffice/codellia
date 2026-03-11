@@ -1,15 +1,15 @@
 <?php
 /**
- * REST success path tests for Codellia.
+ * REST success path tests for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-use Codellia\External_Scripts;
-use Codellia\External_Styles;
-use Codellia\Post_Type;
-use Codellia\Rest_Save;
-use Codellia\Rest_Settings;
+use CazeArt\External_Scripts;
+use CazeArt\External_Styles;
+use CazeArt\Post_Type;
+use CazeArt\Rest_Save;
+use CazeArt\Rest_Settings;
 
 class Test_Rest_Success extends WP_UnitTestCase {
 	private const SETTINGS_PAYLOAD_KEYS = array(
@@ -67,16 +67,16 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 	public function test_save_updates_content_and_meta_for_admin_with_js(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
-		$html = '<p>Hello Codellia</p>';
+		$html = '<p>Hello CazeArt</p>';
 		$css  = '</style>body{color:red;}';
 		$js   = 'console.log("hello");';
 
 		$response = $this->dispatch_route(
-			'/codellia/v1/save',
+			'/cazeart/v1/save',
 			array(
 				'post_id'         => $post_id,
 				'html'            => $html,
@@ -94,17 +94,17 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertSame( $html, (string) $post->post_content, 'Post content should be saved.' );
 
 		$expected_css = str_ireplace( '</style', '&lt;/style', $css );
-		$this->assertSame( $expected_css, get_post_meta( $post_id, '_codellia_css', true ) );
-		$this->assertSame( $js, get_post_meta( $post_id, '_codellia_js', true ) );
+		$this->assertSame( $expected_css, get_post_meta( $post_id, '_cazeart_css', true ) );
+		$this->assertSame( $js, get_post_meta( $post_id, '_cazeart_js', true ) );
 
-		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_tailwind', true ) );
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
-		$this->assertSame( '', get_post_meta( $post_id, '_codellia_generated_css', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_cazeart_tailwind', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_tailwind_locked', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_cazeart_generated_css', true ) );
 	}
 
 	public function test_save_allows_author_without_js(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_codellia_post( $author_id );
+		$post_id   = $this->create_cazeart_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
@@ -112,7 +112,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$css  = 'body{background:#fff;}';
 
 		$response = $this->dispatch_route(
-			'/codellia/v1/save',
+			'/cazeart/v1/save',
 			array(
 				'post_id'         => $post_id,
 				'html'            => $html,
@@ -126,20 +126,20 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$post = get_post( $post_id );
 		$this->assertInstanceOf( WP_Post::class, $post );
 		$this->assertSame( $html, (string) $post->post_content, 'Post content should be saved.' );
-		$this->assertSame( $css, get_post_meta( $post_id, '_codellia_css', true ) );
-		$this->assertSame( '', get_post_meta( $post_id, '_codellia_js', true ) );
-		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_tailwind', true ) );
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
+		$this->assertSame( $css, get_post_meta( $post_id, '_cazeart_css', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_cazeart_js', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_cazeart_tailwind', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_tailwind_locked', true ) );
 	}
 
 	public function test_save_applies_settings_updates_and_returns_settings_payload(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/codellia/v1/save',
+			'/cazeart/v1/save',
 			array(
 				'post_id'         => $post_id,
 				'html'            => '<p>Save with settings updates</p>',
@@ -163,11 +163,11 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertIsArray( $data['settings'] ?? null, 'Response should include settings payload.' );
 		$this->assert_settings_payload_keys( $data['settings'] );
 
-		$this->assertSame( 'frame', get_post_meta( $post_id, '_codellia_template_mode', true ) );
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shadow_dom', true ) );
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shortcode_enabled', true ) );
-		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_single_page_enabled', true ) );
-		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_live_highlight', true ) );
+		$this->assertSame( 'frame', get_post_meta( $post_id, '_cazeart_template_mode', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_shadow_dom', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_shortcode_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_cazeart_single_page_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_cazeart_live_highlight', true ) );
 		$this->assertSame(
 			array( 'https://example.com/runtime.js' ),
 			External_Scripts::get_external_scripts( $post_id )
@@ -187,7 +187,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 	public function test_render_shortcodes_uses_context_html_when_provided(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		wp_update_post(
@@ -210,7 +210,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 		try {
 			$response = $this->dispatch_route(
-				'/codellia/v1/render-shortcodes',
+				'/cazeart/v1/render-shortcodes',
 				array(
 					'post_id'      => $post_id,
 					'context_html' => '<h2>Probe Heading</h2>[cd_context_probe]',
@@ -234,7 +234,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 	public function test_render_shortcodes_restores_global_post_after_render(): void {
 		$admin_id         = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$codellia_post_id = $this->create_codellia_post( $admin_id );
+		$cazeart_post_id = $this->create_cazeart_post( $admin_id );
 		$global_post_id   = (int) self::factory()->post->create(
 			array(
 				'post_type'   => 'post',
@@ -260,9 +260,9 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 		try {
 			$response = $this->dispatch_route(
-				'/codellia/v1/render-shortcodes',
+				'/cazeart/v1/render-shortcodes',
 				array(
-					'post_id'      => $codellia_post_id,
+					'post_id'      => $cazeart_post_id,
 					'context_html' => '<p>Probe context</p>[cd_restore_probe]',
 					'shortcodes'   => array(
 						array(
@@ -288,12 +288,12 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 	public function test_settings_update_persists_metadata_and_post_fields(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$updates = array(
-			'title'                => 'Updated Codellia',
+			'title'                => 'Updated CazeArt',
 			'slug'                 => 'My Custom Slug!!',
 			'status'               => 'pending',
 			'visibility'           => 'public',
@@ -306,7 +306,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		);
 
 		$response = $this->dispatch_route(
-			'/codellia/v1/settings',
+			'/cazeart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => $updates,
@@ -321,15 +321,15 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 		$post = get_post( $post_id );
 		$this->assertInstanceOf( WP_Post::class, $post );
-		$this->assertSame( 'Updated Codellia', (string) $post->post_title );
+		$this->assertSame( 'Updated CazeArt', (string) $post->post_title );
 		$this->assertSame( 'my-custom-slug', (string) $post->post_name );
 		$this->assertSame( 'pending', (string) $post->post_status );
 		$this->assertSame( '', (string) $post->post_password );
 
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shadow_dom', true ) );
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_shortcode_enabled', true ) );
-		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_single_page_enabled', true ) );
-		$this->assertSame( '0', get_post_meta( $post_id, '_codellia_live_highlight', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_shadow_dom', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_shortcode_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_cazeart_single_page_enabled', true ) );
+		$this->assertSame( '0', get_post_meta( $post_id, '_cazeart_live_highlight', true ) );
 
 		$this->assertSame(
 			array( 'https://example.com/app.js' ),
@@ -351,7 +351,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 	public function test_build_settings_payload_returns_minimal_keys_only(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
@@ -364,12 +364,12 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 	public function test_import_returns_minimal_settings_payload(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/codellia/v1/import',
+			'/cazeart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => array(
@@ -392,7 +392,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 	public function test_save_compiles_tailwind_and_stores_generated_css(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
@@ -400,7 +400,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$html         = '<div class="text-sm">Tailwind</div>';
 
 		$response = $this->dispatch_route(
-			'/codellia/v1/save',
+			'/cazeart/v1/save',
 			array(
 				'post_id'         => $post_id,
 				'html'            => $html,
@@ -411,7 +411,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 
 		$this->assertSame( 200, $response->get_status(), 'Tailwind save should succeed for admins.' );
 
-		$generated_css = (string) get_post_meta( $post_id, '_codellia_generated_css', true );
+		$generated_css = (string) get_post_meta( $post_id, '_cazeart_generated_css', true );
 		$this->assertNotSame( '', $generated_css, 'Generated CSS should not be empty.' );
 		$this->assertStringContainsString( '.text-sm', $generated_css, 'Generated CSS should include the expected utility.' );
 		$this->assertStringContainsString( '@layer base {', $generated_css );
@@ -424,18 +424,18 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		$this->assertStringContainsString( '--tw-ring-offset-color: #fff;', $generated_css );
 		$this->assertStringContainsString( '--radius: 0.25rem;', $generated_css );
 
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind', true ) );
-		$this->assertSame( '1', get_post_meta( $post_id, '_codellia_tailwind_locked', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_tailwind', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_tailwind_locked', true ) );
 	}
 
 	public function test_compile_tailwind_response_includes_shadow_fallbacks(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/codellia/v1/compile-tailwind',
+			'/cazeart/v1/compile-tailwind',
 			array(
 				'post_id' => $post_id,
 				'html'    => '<div class="text-sm">Tailwind</div>',
@@ -476,7 +476,7 @@ class Test_Rest_Success extends WP_UnitTestCase {
 		);
 	}
 
-	private function create_codellia_post( int $author_id ): int {
+	private function create_cazeart_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,

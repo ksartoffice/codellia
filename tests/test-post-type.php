@@ -1,11 +1,11 @@
 <?php
 /**
- * Tests for the Codellia post type.
+ * Tests for the CazeArt post type.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-use Codellia\Post_Type;
+use CazeArt\Post_Type;
 
 class Test_Post_Type extends WP_UnitTestCase {
 	public function test_post_type_is_registered() {

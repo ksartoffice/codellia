@@ -80,23 +80,23 @@ function updateReadmeChangelog(readmeText, version) {
 }
 
 async function updatePhpAndReadme(version) {
-  const [codelliaPhpRaw, readmeRaw] = await Promise.all([
-    readFile('codellia.php', 'utf8'),
+  const [cazeartPhpRaw, readmeRaw] = await Promise.all([
+    readFile('cazeart-live-code-editor.php', 'utf8'),
     readFile('readme.txt', 'utf8'),
   ]);
 
-  let codelliaPhp = codelliaPhpRaw;
-  codelliaPhp = replaceExactlyOne(
-    codelliaPhp,
+  let cazeartPhp = cazeartPhpRaw;
+  cazeartPhp = replaceExactlyOne(
+    cazeartPhp,
     /^(\s*\*\s+Version:\s*)\d+\.\d+\.\d+\s*$/m,
     `$1${version}`,
     'plugin header Version'
   );
-  codelliaPhp = replaceExactlyOne(
-    codelliaPhp,
-    /(define\(\s*'CODELLIA_VERSION',\s*')\d+\.\d+\.\d+('\s*\);)/,
+  cazeartPhp = replaceExactlyOne(
+    cazeartPhp,
+    /(define\(\s*'CAZEART_VERSION',\s*')\d+\.\d+\.\d+('\s*\);)/,
     `$1${version}$2`,
-    'CODELLIA_VERSION'
+    'CAZEART_VERSION'
   );
 
   let readme = readmeRaw;
@@ -109,8 +109,8 @@ async function updatePhpAndReadme(version) {
   readme = updateReadmeChangelog(readme, version);
 
   const writeTasks = [];
-  if (codelliaPhp !== codelliaPhpRaw) {
-    writeTasks.push(writeFile('codellia.php', codelliaPhp, 'utf8'));
+  if (cazeartPhp !== cazeartPhpRaw) {
+    writeTasks.push(writeFile('cazeart-live-code-editor.php', cazeartPhp, 'utf8'));
   }
   if (readme !== readmeRaw) {
     writeTasks.push(writeFile('readme.txt', readme, 'utf8'));

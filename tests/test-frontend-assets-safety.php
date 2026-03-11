@@ -1,12 +1,12 @@
 <?php
 /**
- * Front-end external asset safety tests for Codellia.
+ * Front-end external asset safety tests for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-use Codellia\Frontend;
-use Codellia\Post_Type;
+use CazeArt\Frontend;
+use CazeArt\Post_Type;
 
 class Test_Frontend_Assets_Safety extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -19,16 +19,16 @@ class Test_Frontend_Assets_Safety extends WP_UnitTestCase {
 
 	public function test_frontend_filters_invalid_external_assets(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_codellia_post( $admin_id );
+		$post_id  = $this->create_cazeart_post( $admin_id );
 		$post     = get_post( $post_id );
 
 		$this->assertInstanceOf( WP_Post::class, $post );
 
-		update_post_meta( $post_id, '_codellia_shadow_dom', '1' );
+		update_post_meta( $post_id, '_cazeart_shadow_dom', '1' );
 
 		update_post_meta(
 			$post_id,
-			'_codellia_external_scripts',
+			'_cazeart_external_scripts',
 			wp_json_encode(
 				array(
 					'http://example.com/bad.js',
@@ -41,7 +41,7 @@ class Test_Frontend_Assets_Safety extends WP_UnitTestCase {
 
 		update_post_meta(
 			$post_id,
-			'_codellia_external_styles',
+			'_cazeart_external_styles',
 			wp_json_encode(
 				array(
 					'http://example.com/bad.css',
@@ -72,7 +72,7 @@ class Test_Frontend_Assets_Safety extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'http://example.com/bad.css', $output, 'Invalid style URLs should be filtered.' );
 		$this->assertStringNotContainsString( 'javascript:', $output, 'javascript: URLs should be filtered.' );
 
-		$good_handle = 'codellia-ext-' . $post_id . '-0';
+		$good_handle = 'cazeart-ext-' . $post_id . '-0';
 		$this->assertTrue( wp_script_is( $good_handle, 'enqueued' ), 'Valid https scripts should enqueue.' );
 		$this->assertSame( 'https://example.com/good.js', $scripts->registered[ $good_handle ]->src );
 		foreach ( $scripts->registered as $script ) {
@@ -84,13 +84,13 @@ class Test_Frontend_Assets_Safety extends WP_UnitTestCase {
 		}
 	}
 
-	private function create_codellia_post( int $author_id ): int {
+	private function create_cazeart_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'    => Post_Type::POST_TYPE,
 				'post_status'  => 'publish',
 				'post_author'  => $author_id,
-				'post_content' => '<p>Codellia content</p>',
+				'post_content' => '<p>CazeArt content</p>',
 			)
 		);
 	}

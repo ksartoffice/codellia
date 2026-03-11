@@ -1,4 +1,4 @@
-﻿import {
+import {
   createElement,
   Fragment,
   createPortal,
@@ -188,11 +188,11 @@ function SettingsSidebar({
     () => [
       {
         id: 'settings',
-        label: __( 'Settings', 'codellia' ),
+        label: __( 'Settings', 'cazeart-live-code-editor'),
       },
       {
         id: 'elements',
-        label: __( 'Elements', 'codellia' ),
+        label: __( 'Elements', 'cazeart-live-code-editor'),
       },
       ...externalTabs.map((tab) => ({
         id: tab.id,
@@ -234,7 +234,7 @@ function SettingsSidebar({
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(
-        `[Codellia] Failed to mount external settings tab "${activeExternalTab.id}".`,
+        `[CazeArt] Failed to mount external settings tab "${activeExternalTab.id}".`,
         error
       );
     }
@@ -282,12 +282,12 @@ function SettingsSidebar({
     if (list.length > externalScriptsMax) {
       /* translators: %d: maximum number of items. */
       return sprintf(
-        __( 'You can add up to %d external scripts.', 'codellia' ),
+        __( 'You can add up to %d external scripts.', 'cazeart-live-code-editor'),
         externalScriptsMax
       );
     }
     if (list.some((entry) => !isValidHttpsUrl(entry))) {
-      return __( 'External scripts must be valid https:// URLs.', 'codellia' );
+      return __( 'External scripts must be valid https:// URLs.', 'cazeart-live-code-editor');
     }
     return '';
   };
@@ -296,12 +296,12 @@ function SettingsSidebar({
     if (list.length > externalStylesMax) {
       /* translators: %d: maximum number of items. */
       return sprintf(
-        __( 'You can add up to %d external styles.', 'codellia' ),
+        __( 'You can add up to %d external styles.', 'cazeart-live-code-editor'),
         externalStylesMax
       );
     }
     if (list.some((entry) => !isValidHttpsUrl(entry))) {
-      return __( 'External styles must be valid https:// URLs.', 'codellia' );
+      return __( 'External styles must be valid https:// URLs.', 'cazeart-live-code-editor');
     }
     return '';
   };
@@ -467,7 +467,7 @@ function SettingsSidebar({
       <div
         className="cd-settingsTabs"
         role="tablist"
-        aria-label={__( 'Settings tabs', 'codellia' )}
+        aria-label={__( 'Settings tabs', 'cazeart-live-code-editor')}
       >
         {tabItems.map((tab) => (
           <button
@@ -485,7 +485,7 @@ function SettingsSidebar({
       <button
         className="cd-settingsClose"
         type="button"
-        aria-label={__( 'Close settings panel', 'codellia' )}
+        aria-label={__( 'Close settings panel', 'cazeart-live-code-editor')}
         onClick={() => onClosePanel?.()}
       >
         <span

@@ -1,8 +1,8 @@
 <?php
 /**
- * Frame layout template for Codellia.
+ * Frame layout template for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_filter(
 	'body_class',
 	static function ( $classes ) {
-		$classes[] = 'codellia-layout-frame';
+		$classes[] = 'cazeart-layout-frame';
 		return $classes;
 	}
 );

@@ -1,11 +1,11 @@
 <?php
 /**
- * Admin screen integration for Codellia.
+ * Admin screen integration for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-namespace Codellia;
+namespace CazeArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,15 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Admin {
 
-	const MENU_SLUG                    = 'codellia';
-	const SETTINGS_SLUG                = 'codellia-settings';
-	const SETTINGS_GROUP               = 'codellia_settings';
-	const NEW_POST_ACTION              = 'codellia_new';
-	const NEW_POST_NONCE_ACTION        = 'codellia_new_post';
-	const OPTION_POST_SLUG             = 'codellia_post_slug';
-	const OPTION_DEFAULT_TEMPLATE_MODE = 'codellia_default_template_mode';
-	const OPTION_FLUSH_REWRITE         = 'codellia_flush_rewrite';
-	const OPTION_DELETE_ON_UNINSTALL   = 'codellia_delete_on_uninstall';
+	const MENU_SLUG                    = 'cazeart';
+	const SETTINGS_SLUG                = 'cazeart-settings';
+	const SETTINGS_GROUP               = 'cazeart_settings';
+	const NEW_POST_ACTION              = 'cazeart_new';
+	const NEW_POST_NONCE_ACTION        = 'cazeart_new_post';
+	const OPTION_POST_SLUG             = 'cazeart_post_slug';
+	const OPTION_DEFAULT_TEMPLATE_MODE = 'cazeart_default_template_mode';
+	const OPTION_FLUSH_REWRITE         = 'cazeart_flush_rewrite';
+	const OPTION_DELETE_ON_UNINSTALL   = 'cazeart_delete_on_uninstall';
 	const ADMIN_TITLE_SEPARATORS       = array(
 		' ' . "\xE2\x80\xB9" . ' ',
 		' &lsaquo; ',
@@ -39,7 +39,7 @@ class Admin {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 		add_filter( 'admin_title', array( __CLASS__, 'filter_admin_title' ), 10, 2 );
 		add_action( 'current_screen', array( __CLASS__, 'maybe_suppress_editor_notices' ) );
-		add_action( 'admin_action_codellia', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=codellia.
+		add_action( 'admin_action_cazeart', array( __CLASS__, 'action_redirect' ) ); // admin.php?action=cazeart.
 		add_action( 'admin_action_' . self::NEW_POST_ACTION, array( __CLASS__, 'action_create_new_post' ) );
 		add_action( 'load-post-new.php', array( __CLASS__, 'maybe_redirect_new_post' ) );
 		add_filter( 'admin_url', array( __CLASS__, 'filter_admin_url' ), 10, 3 );
@@ -50,7 +50,7 @@ class Admin {
 	}
 
 	/**
-	 * Suppress all admin notices on the full-screen Codellia editor page.
+	 * Suppress all admin notices on the full-screen CazeArt editor page.
 	 *
 	 * @param \WP_Screen $screen Current admin screen.
 	 */
@@ -70,7 +70,7 @@ class Admin {
 	}
 
 	/**
-	 * Build the browser title for the Codellia editor screen.
+	 * Build the browser title for the CazeArt editor screen.
 	 *
 	 * @param string $admin_title Current admin title.
 	 * @param string $title       Current admin page title (left side).
@@ -85,7 +85,7 @@ class Admin {
 		$suffix     = self::extract_admin_title_suffix( $admin_title, $title );
 
 		/* translators: %s: post title. */
-		$editor_title = sprintf( __( 'Codellia Editor: %s', 'codellia' ), $post_title );
+		$editor_title = sprintf( __( 'CazeArt Live Code Editor: %s', 'cazeart-live-code-editor' ), $post_title );
 
 		if ( '' === $suffix ) {
 			return $editor_title;
@@ -95,7 +95,7 @@ class Admin {
 	}
 
 	/**
-	 * Check whether the current request targets the Codellia editor page.
+	 * Check whether the current request targets the CazeArt editor page.
 	 *
 	 * @return bool
 	 */
@@ -110,7 +110,7 @@ class Admin {
 	 * @return string
 	 */
 	private static function resolve_editor_post_title(): string {
-		$fallback_title = __( 'Untitled', 'codellia' );
+		$fallback_title = __( 'Untitled', 'cazeart-live-code-editor' );
 		$post_id        = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
 			return $fallback_title;
@@ -151,25 +151,25 @@ class Admin {
 		return '';
 	}
 	/**
-	 * Redirect from admin.php?action=codellia to the custom editor page.
+	 * Redirect from admin.php?action=cazeart to the custom editor page.
 	 */
 	public static function action_redirect(): void {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
-			wp_die( esc_html__( 'post_id is required.', 'codellia' ) );
+			wp_die( esc_html__( 'post_id is required.', 'cazeart-live-code-editor' ) );
 		}
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
-			wp_die( esc_html__( 'This editor is only available for Codellia posts.', 'codellia' ) );
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
+			wp_die( esc_html__( 'This editor is only available for CazeArt posts.', 'cazeart-live-code-editor' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 		wp_safe_redirect( Post_Type::get_editor_url( $post_id ) );
 		exit;
 	}
 
 	/**
-	 * Redirect new Codellia posts directly to the custom editor.
+	 * Redirect new CazeArt posts directly to the custom editor.
 	 */
 	public static function maybe_redirect_new_post(): void {
 		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : 'post'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -179,12 +179,12 @@ class Admin {
 
 		$post_type_object = get_post_type_object( $post_type );
 		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->create_posts ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 
 		$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( '' !== $nonce && ! wp_verify_nonce( $nonce, self::NEW_POST_NONCE_ACTION ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 
 		wp_safe_redirect( self::get_new_post_action_url() );
@@ -192,29 +192,29 @@ class Admin {
 	}
 
 	/**
-	 * Create a new Codellia draft post from a nonce-protected admin action.
+	 * Create a new CazeArt draft post from a nonce-protected admin action.
 	 */
 	public static function action_create_new_post(): void {
 		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : Post_Type::POST_TYPE; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( Post_Type::POST_TYPE !== $post_type ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 
 		$post_type_object = get_post_type_object( $post_type );
 		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->create_posts ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 
 		$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! wp_verify_nonce( $nonce, self::NEW_POST_NONCE_ACTION ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => $post_type,
 				'post_status' => 'draft',
-				'post_title'  => __( 'Untitled Codellia Page', 'codellia' ),
+				'post_title'  => __( 'Untitled CazeArt Page', 'cazeart-live-code-editor' ),
 			),
 			true
 		);
@@ -227,7 +227,7 @@ class Admin {
 	}
 
 	/**
-	 * Replace Codellia add-new admin links with a nonce-protected action URL.
+	 * Replace CazeArt add-new admin links with a nonce-protected action URL.
 	 *
 	 * @param string $url     Generated admin URL.
 	 * @param string $path    Requested admin path.
@@ -261,7 +261,7 @@ class Admin {
 	}
 
 	/**
-	 * Update admin bar "New Codellia" link to use nonce-protected action URL.
+	 * Update admin bar "New CazeArt" link to use nonce-protected action URL.
 	 *
 	 * @param \WP_Admin_Bar $admin_bar Admin bar instance.
 	 */
@@ -276,7 +276,7 @@ class Admin {
 	}
 
 	/**
-	 * Build nonce-protected URL for creating a new Codellia draft.
+	 * Build nonce-protected URL for creating a new CazeArt draft.
 	 *
 	 * @return string
 	 */
@@ -299,8 +299,8 @@ class Admin {
 		// Hidden admin page (no menu entry). Accessed via redirects only.
 		add_submenu_page(
 			null,
-			__( 'Codellia', 'codellia' ),
-			__( 'Codellia', 'codellia' ),
+			__( 'CazeArt', 'cazeart-live-code-editor' ),
+			__( 'CazeArt', 'cazeart-live-code-editor' ),
 			'edit_posts',
 			self::MENU_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -308,8 +308,8 @@ class Admin {
 
 		add_submenu_page(
 			'edit.php?post_type=' . Post_Type::POST_TYPE,
-			__( 'Settings', 'codellia' ),
-			__( 'Settings', 'codellia' ),
+			__( 'Settings', 'cazeart-live-code-editor' ),
+			__( 'Settings', 'cazeart-live-code-editor' ),
 			'manage_options',
 			self::SETTINGS_SLUG,
 			array( __CLASS__, 'render_settings_page' )
@@ -352,48 +352,48 @@ class Admin {
 		);
 
 		add_settings_section(
-			'codellia_permalink',
-			__( 'Permalink', 'codellia' ),
+			'cazeart_permalink',
+			__( 'Permalink', 'cazeart-live-code-editor' ),
 			array( __CLASS__, 'render_permalink_section' ),
 			self::SETTINGS_SLUG
 		);
 
 		add_settings_section(
-			'codellia_template_mode',
-			__( 'Page template', 'codellia' ),
+			'cazeart_template_mode',
+			__( 'Page template', 'cazeart-live-code-editor' ),
 			array( __CLASS__, 'render_template_mode_section' ),
 			self::SETTINGS_SLUG
 		);
 
 		add_settings_field(
 			self::OPTION_POST_SLUG,
-			__( 'Codellia slug', 'codellia' ),
+			__( 'CazeArt slug', 'cazeart-live-code-editor' ),
 			array( __CLASS__, 'render_post_slug_field' ),
 			self::SETTINGS_SLUG,
-			'codellia_permalink'
+			'cazeart_permalink'
 		);
 
 		add_settings_field(
 			self::OPTION_DEFAULT_TEMPLATE_MODE,
-			__( 'Default template mode', 'codellia' ),
+			__( 'Default template mode', 'cazeart-live-code-editor' ),
 			array( __CLASS__, 'render_default_template_mode_field' ),
 			self::SETTINGS_SLUG,
-			'codellia_template_mode'
+			'cazeart_template_mode'
 		);
 
 		add_settings_section(
-			'codellia_cleanup',
-			__( 'Cleanup', 'codellia' ),
+			'cazeart_cleanup',
+			__( 'Cleanup', 'cazeart-live-code-editor' ),
 			array( __CLASS__, 'render_cleanup_section' ),
 			self::SETTINGS_SLUG
 		);
 
 		add_settings_field(
 			self::OPTION_DELETE_ON_UNINSTALL,
-			__( 'Delete data on uninstall', 'codellia' ),
+			__( 'Delete data on uninstall', 'cazeart-live-code-editor' ),
 			array( __CLASS__, 'render_delete_on_uninstall_field' ),
 			self::SETTINGS_SLUG,
-			'codellia_cleanup'
+			'cazeart_cleanup'
 		);
 	}
 
@@ -472,14 +472,14 @@ class Admin {
 	 * Render permalink section description.
 	 */
 	public static function render_permalink_section(): void {
-		echo '<p>' . esc_html__( 'Change the URL slug for Codellia posts. Existing URLs will change after saving.', 'codellia' ) . '</p>';
+		echo '<p>' . esc_html__( 'Change the URL slug for CazeArt posts. Existing URLs will change after saving.', 'cazeart-live-code-editor' ) . '</p>';
 	}
 
 	/**
 	 * Render page template section description.
 	 */
 	public static function render_template_mode_section(): void {
-		echo '<p>' . esc_html__( 'Choose the default page template mode used by Codellia previews.', 'codellia' ) . '</p>';
+		echo '<p>' . esc_html__( 'Choose the default page template mode used by CazeArt previews.', 'cazeart-live-code-editor' ) . '</p>';
 	}
 
 	/**
@@ -488,7 +488,7 @@ class Admin {
 	public static function render_post_slug_field(): void {
 		$value = get_option( self::OPTION_POST_SLUG, Post_Type::SLUG );
 		echo '<input type="text" class="regular-text" name="' . esc_attr( self::OPTION_POST_SLUG ) . '" value="' . esc_attr( $value ) . '" />';
-		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: codellia.', 'codellia' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Allowed: lowercase letters, numbers, and hyphens. Default: cazeart.', 'cazeart-live-code-editor' ) . '</p>';
 	}
 
 	/**
@@ -498,16 +498,16 @@ class Admin {
 		$value          = get_option( self::OPTION_DEFAULT_TEMPLATE_MODE, 'theme' );
 		$value          = self::sanitize_default_template_mode( $value );
 		$template_modes = array(
-			'standalone' => __( 'Standalone', 'codellia' ),
-			'frame'      => __( 'Frame', 'codellia' ),
-			'theme'      => __( 'Theme', 'codellia' ),
+			'standalone' => __( 'Standalone', 'cazeart-live-code-editor' ),
+			'frame'      => __( 'Frame', 'cazeart-live-code-editor' ),
+			'theme'      => __( 'Theme', 'cazeart-live-code-editor' ),
 		);
 		echo '<select name="' . esc_attr( self::OPTION_DEFAULT_TEMPLATE_MODE ) . '">';
 		foreach ( $template_modes as $key => $label ) {
 			echo '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Applies when template mode is set to Use admin default.', 'codellia' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Applies when template mode is set to Use admin default.', 'cazeart-live-code-editor' ) . '</p>';
 	}
 
 	/**
@@ -515,7 +515,7 @@ class Admin {
 	 */
 	public static function render_cleanup_section(): void {
 
-		echo '<p>' . esc_html__( 'Choose whether Codellia posts should be deleted when the plugin is uninstalled.', 'codellia' ) . '</p>';
+		echo '<p>' . esc_html__( 'Choose whether CazeArt posts should be deleted when the plugin is uninstalled.', 'cazeart-live-code-editor' ) . '</p>';
 	}
 
 	/**
@@ -526,7 +526,7 @@ class Admin {
 		$value = get_option( self::OPTION_DELETE_ON_UNINSTALL, '0' );
 		echo '<label>';
 		echo '<input type="checkbox" name="' . esc_attr( self::OPTION_DELETE_ON_UNINSTALL ) . '" value="1" ' . checked( '1', $value, false ) . ' />';
-		echo ' ' . esc_html__( 'Delete all Codellia posts on uninstall (imported media is kept).', 'codellia' );
+		echo ' ' . esc_html__( 'Delete all CazeArt posts on uninstall (imported media is kept).', 'cazeart-live-code-editor' );
 		echo '</label>';
 	}
 
@@ -536,17 +536,17 @@ class Admin {
 	public static function render_page(): void {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $post_id ) {
-			echo '<div class="wrap"><h1>' . esc_html__( 'Codellia', 'codellia' ) . '</h1><p>' . esc_html__( 'post_id is required.', 'codellia' ) . '</p></div>';
+			echo '<div class="wrap"><h1>' . esc_html__( 'CazeArt', 'cazeart-live-code-editor' ) . '</h1><p>' . esc_html__( 'post_id is required.', 'cazeart-live-code-editor' ) . '</p></div>';
 			return;
 		}
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
-			wp_die( esc_html__( 'This editor is only available for Codellia posts.', 'codellia' ) );
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
+			wp_die( esc_html__( 'This editor is only available for CazeArt posts.', 'cazeart-live-code-editor' ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 
-		echo '<div id="codellia-app" data-post-id="' . esc_attr( $post_id ) . '"></div>';
+		echo '<div id="cazeart-app" data-post-id="' . esc_attr( $post_id ) . '"></div>';
 	}
 
 	/**
@@ -559,7 +559,7 @@ class Admin {
 		}
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'Codellia Editor Settings', 'codellia' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'CazeArt Live Code Editor Settings', 'cazeart-live-code-editor' ) . '</h1>';
 		echo '<form action="options.php" method="post">';
 		settings_fields( self::SETTINGS_GROUP );
 		do_settings_sections( self::SETTINGS_SLUG );
@@ -568,7 +568,7 @@ class Admin {
 		echo '</div>';
 	}
 	/**
-	 * Enqueue admin assets for the Codellia editor.
+	 * Enqueue admin assets for the CazeArt editor.
 	 *
 	 * @param string $hook_suffix Current admin page hook.
 	 */
@@ -579,75 +579,75 @@ class Admin {
 		}
 
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $post_id || ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! $post_id || ! Post_Type::is_cazeart_post( $post_id ) ) {
 			return;
 		}
-		$admin_script_version = self::resolve_asset_version( CODELLIA_PATH . 'assets/dist/main.js' );
-		$admin_style_version  = self::resolve_asset_version( CODELLIA_PATH . 'assets/dist/style.css' );
+		$admin_script_version = self::resolve_asset_version( CAZEART_PATH . 'assets/dist/main.js' );
+		$admin_style_version  = self::resolve_asset_version( CAZEART_PATH . 'assets/dist/style.css' );
 
 		// Monaco AMD loader lives in assets/monaco/vs/loader.js.
 		wp_register_script(
-			'codellia-monaco-loader',
-			CODELLIA_URL . 'assets/monaco/vs/loader.js',
+			'cazeart-monaco-loader',
+			CAZEART_URL . 'assets/monaco/vs/loader.js',
 			array(),
-			CODELLIA_VERSION,
+			CAZEART_VERSION,
 			true
 		);
 		wp_add_inline_script(
-			'codellia-monaco-loader',
-			'if (typeof window.define === "function" && window.define.amd) { window.__codelliaDefineAmd = window.define.amd; window.define.amd = undefined; }',
+			'cazeart-monaco-loader',
+			'if (typeof window.define === "function" && window.define.amd) { window.__cazeartDefineAmd = window.define.amd; window.define.amd = undefined; }',
 			'after'
 		);
 
 		// Admin app bundle (Vite output).
 		wp_register_script(
-			'codellia-admin',
-			CODELLIA_URL . 'assets/dist/main.js',
-			array( 'codellia-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n', 'wp-data', 'wp-components', 'wp-notices' ),
+			'cazeart-admin',
+			CAZEART_URL . 'assets/dist/main.js',
+			array( 'cazeart-monaco-loader', 'wp-api-fetch', 'wp-element', 'wp-i18n', 'wp-data', 'wp-components', 'wp-notices' ),
 			$admin_script_version,
 			true
 		);
 
 		wp_register_style(
-			'codellia-admin',
-			CODELLIA_URL . 'assets/dist/style.css',
+			'cazeart-admin',
+			CAZEART_URL . 'assets/dist/style.css',
 			array(),
 			$admin_style_version
 		);
-		wp_enqueue_script( 'codellia-admin' );
-		wp_enqueue_style( 'codellia-admin' );
+		wp_enqueue_script( 'cazeart-admin' );
+		wp_enqueue_style( 'cazeart-admin' );
 		wp_enqueue_style( 'wp-components' );
 		wp_add_inline_style(
-			'codellia-admin',
-			'body.admin_page_codellia #wpbody-content > .notice,'
-			. 'body.admin_page_codellia #wpbody-content > .update-nag,'
-			. 'body.admin_page_codellia #wpbody-content > .updated,'
-			. 'body.admin_page_codellia #wpbody-content > .error{display:none !important;}'
+			'cazeart-admin',
+			'body.admin_page_cazeart #wpbody-content > .notice,'
+			. 'body.admin_page_cazeart #wpbody-content > .update-nag,'
+			. 'body.admin_page_cazeart #wpbody-content > .updated,'
+			. 'body.admin_page_cazeart #wpbody-content > .error{display:none !important;}'
 		);
 		wp_enqueue_media();
 
 		wp_set_script_translations(
-			'codellia-admin',
-			'codellia',
-			CODELLIA_PATH . 'languages'
+			'cazeart-admin',
+			'cazeart-live-code-editor',
+			CAZEART_PATH . 'languages'
 		);
 
 		// Inject initial data for the admin app.
 		$post     = $post_id ? get_post( $post_id ) : null;
 		$html     = $post ? (string) $post->post_content : '';
-		$css      = $post_id ? (string) get_post_meta( $post_id, '_codellia_css', true ) : '';
-		$js       = $post_id ? (string) get_post_meta( $post_id, '_codellia_js', true ) : '';
+		$css      = $post_id ? (string) get_post_meta( $post_id, '_cazeart_css', true ) : '';
+		$js       = $post_id ? (string) get_post_meta( $post_id, '_cazeart_js', true ) : '';
 		$back_url = $post_id ? get_edit_post_link( $post_id, 'raw' ) : admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 		$list_url = admin_url( 'edit.php?post_type=' . Post_Type::POST_TYPE );
 
-		$preview_token      = $post_id ? wp_create_nonce( 'codellia_preview_' . $post_id ) : '';
+		$preview_token      = $post_id ? wp_create_nonce( 'cazeart_preview_' . $post_id ) : '';
 		$preview_url        = $post_id ? add_query_arg( 'preview', 'true', get_permalink( $post_id ) ) : home_url( '/' );
 		$iframe_preview_url = $post_id
 			? add_query_arg(
 				array(
-					'codellia_preview' => 1,
-					'post_id'          => $post_id,
-					'token'            => $preview_token,
+					'cazeart_preview' => 1,
+					'post_id'         => $post_id,
+					'token'           => $preview_token,
 				),
 				get_permalink( $post_id )
 			)
@@ -661,25 +661,25 @@ class Admin {
 			'canEditJs'            => current_user_can( 'unfiltered_html' ),
 			'previewUrl'           => $preview_url,
 			'iframePreviewUrl'     => $iframe_preview_url,
-			'monacoVsPath'         => CODELLIA_URL . 'assets/monaco/vs',
-			'restUrl'              => rest_url( 'codellia/v1/save' ),
-			'restCompileUrl'       => rest_url( 'codellia/v1/compile-tailwind' ),
-			'renderShortcodesUrl'  => rest_url( 'codellia/v1/render-shortcodes' ),
-			'setupRestUrl'         => rest_url( 'codellia/v1/setup' ),
-			'importRestUrl'        => rest_url( 'codellia/v1/import' ),
+			'monacoVsPath'         => CAZEART_URL . 'assets/monaco/vs',
+			'restUrl'              => rest_url( 'cazeart/v1/save' ),
+			'restCompileUrl'       => rest_url( 'cazeart/v1/compile-tailwind' ),
+			'renderShortcodesUrl'  => rest_url( 'cazeart/v1/render-shortcodes' ),
+			'setupRestUrl'         => rest_url( 'cazeart/v1/setup' ),
+			'importRestUrl'        => rest_url( 'cazeart/v1/import' ),
 			'backUrl'              => $back_url,
 			'listUrl'              => $list_url,
-			'settingsRestUrl'      => rest_url( 'codellia/v1/settings' ),
+			'settingsRestUrl'      => rest_url( 'cazeart/v1/settings' ),
 			'settingsData'         => Rest::build_settings_payload( $post_id ),
-			'tailwindEnabled'      => (bool) get_post_meta( $post_id, '_codellia_tailwind', true ),
-			'setupRequired'        => get_post_meta( $post_id, '_codellia_setup_required', true ) === '1',
+			'tailwindEnabled'      => (bool) get_post_meta( $post_id, '_cazeart_tailwind', true ),
+			'setupRequired'        => get_post_meta( $post_id, '_cazeart_setup_required', true ) === '1',
 			'restNonce'            => wp_create_nonce( 'wp_rest' ),
 			'adminTitleSeparators' => array_values( self::ADMIN_TITLE_SEPARATORS ),
 		);
 
 		wp_add_inline_script(
-			'codellia-admin',
-			'window.CODELLIA = ' . wp_json_encode(
+			'cazeart-admin',
+			'window.CAZEART = ' . wp_json_encode(
 				$data,
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			) . ';',
@@ -692,12 +692,12 @@ class Admin {
 	 * @param array $context Editor asset context.
 	 */
 		do_action(
-			'codellia_editor_enqueue_assets',
+			'cazeart_editor_enqueue_assets',
 			array(
 				'post_id'             => $post_id,
 				'hook_suffix'         => $hook_suffix,
-				'admin_script_handle' => 'codellia-admin',
-				'admin_style_handle'  => 'codellia-admin',
+				'admin_script_handle' => 'cazeart-admin',
+				'admin_style_handle'  => 'cazeart-admin',
 			)
 		);
 	}
@@ -711,7 +711,7 @@ class Admin {
 
 		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
 		if ( false === $mtime ) {
-			return CODELLIA_VERSION;
+			return CAZEART_VERSION;
 		}
 		return (string) $mtime;
 	}

@@ -1,11 +1,11 @@
 <?php
 /**
- * Front-end preview handling for Codellia.
+ * Front-end preview handling for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-namespace Codellia;
+namespace CazeArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,8 +28,8 @@ class Preview {
 	 * @var bool
 	 */
 	private static bool $is_preview = false;
-	private const MARKER_ATTR       = 'data-codellia-marker';
-	private const MARKER_POST_ATTR  = 'data-codellia-post-id';
+	private const MARKER_ATTR       = 'data-cazeart-marker';
+	private const MARKER_POST_ATTR  = 'data-cazeart-post-id';
 	private const MARKER_START      = 'start';
 	private const MARKER_END        = 'end';
 	/**
@@ -49,8 +49,8 @@ class Preview {
 	 * @return array
 	 */
 	public static function register_query_vars( array $vars ): array {
-		$vars[] = 'codellia_preview';
-		$vars[] = 'codellia_template_mode';
+		$vars[] = 'cazeart_preview';
+		$vars[] = 'cazeart_template_mode';
 		$vars[] = 'post_id';
 		$vars[] = 'token';
 		return $vars;
@@ -62,7 +62,7 @@ class Preview {
 	 * @return bool
 	 */
 	private static function is_preview_request(): bool {
-		return (bool) get_query_var( 'codellia_preview' );
+		return (bool) get_query_var( 'cazeart_preview' );
 	}
 
 	/**
@@ -77,23 +77,23 @@ class Preview {
 		$token   = (string) get_query_var( 'token' );
 
 		if ( ! $post_id ) {
-			wp_die( esc_html__( 'post_id is required.', 'codellia' ) );
+			wp_die( esc_html__( 'post_id is required.', 'cazeart-live-code-editor' ) );
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'Permission denied.', 'codellia' ) );
+			wp_die( esc_html__( 'Permission denied.', 'cazeart-live-code-editor' ) );
 		}
 
-		if ( ! wp_verify_nonce( $token, 'codellia_preview_' . $post_id ) ) {
-			wp_die( esc_html__( 'Invalid preview token.', 'codellia' ) );
+		if ( ! wp_verify_nonce( $token, 'cazeart_preview_' . $post_id ) ) {
+			wp_die( esc_html__( 'Invalid preview token.', 'cazeart-live-code-editor' ) );
 		}
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
-			wp_die( esc_html__( 'Invalid post type.', 'codellia' ) );
+		if ( ! Post_Type::is_cazeart_post( $post_id ) ) {
+			wp_die( esc_html__( 'Invalid post type.', 'cazeart-live-code-editor' ) );
 		}
 
 		if ( ! get_post( $post_id ) ) {
-			wp_die( esc_html__( 'Post not found.', 'codellia' ) );
+			wp_die( esc_html__( 'Post not found.', 'cazeart-live-code-editor' ) );
 		}
 
 		self::$post_id    = $post_id;
@@ -261,14 +261,14 @@ class Preview {
 		}
 
 		wp_enqueue_script(
-			'codellia-preview',
-			CODELLIA_URL . 'includes/preview.js',
+			'cazeart-preview',
+			CAZEART_URL . 'includes/preview.js',
 			array(),
 			self::preview_script_version(),
 			true
 		);
 		$admin_origin           = self::build_admin_origin();
-		$highlight_meta         = get_post_meta( self::$post_id, '_codellia_live_highlight', true );
+		$highlight_meta         = get_post_meta( self::$post_id, '_cazeart_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$payload                = array(
 			'allowedOrigin'        => $admin_origin,
@@ -280,13 +280,13 @@ class Preview {
 				'start'    => self::MARKER_START,
 				'end'      => self::MARKER_END,
 			),
-			'renderRestUrl'        => rest_url( 'codellia/v1/render-shortcodes' ),
+			'renderRestUrl'        => rest_url( 'cazeart/v1/render-shortcodes' ),
 			'restNonce'            => wp_create_nonce( 'wp_rest' ),
 		);
 
 		wp_add_inline_script(
-			'codellia-preview',
-			'window.CODELLIA_PREVIEW = ' . wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
+			'cazeart-preview',
+			'window.CAZEART_PREVIEW = ' . wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
 			'before'
 		);
 	}
@@ -317,10 +317,10 @@ class Preview {
 	 */
 	private static function preview_script_version(): string {
 
-		$path  = CODELLIA_PATH . 'includes/preview.js';
+		$path  = CAZEART_PATH . 'includes/preview.js';
 		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
 		if ( false === $mtime ) {
-			return CODELLIA_VERSION;
+			return CAZEART_VERSION;
 		}
 		return (string) $mtime;
 	}

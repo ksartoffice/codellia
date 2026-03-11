@@ -1,8 +1,8 @@
-﻿import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 const adminUser = process.env.WP_ADMIN_USER ?? '';
 const adminPass = process.env.WP_ADMIN_PASS ?? '';
-const postId = process.env.CODELLIA_POST_ID ?? '';
+const postId = process.env.CAZEART_POST_ID ?? '';
 const baseUrlRaw = process.env.WP_BASE_URL ?? 'http://localhost';
 const baseUrl = (() => {
   const url = new URL(baseUrlRaw);
@@ -14,7 +14,7 @@ const baseUrl = (() => {
 
 test.skip(
   !adminUser || !adminPass || !postId,
-  'Set WP_ADMIN_USER, WP_ADMIN_PASS, and CODELLIA_POST_ID.'
+  'Set WP_ADMIN_USER, WP_ADMIN_PASS, and CAZEART_POST_ID.'
 );
 
 const loginAndGetPreviewUrl = async (page: import('@playwright/test').Page): Promise<string> => {
@@ -26,16 +26,16 @@ const loginAndGetPreviewUrl = async (page: import('@playwright/test').Page): Pro
   await page.waitForLoadState('networkidle');
 
   const adminUrl = new URL('wp-admin/admin.php', baseUrl);
-  adminUrl.searchParams.set('page', 'codellia');
+  adminUrl.searchParams.set('page', 'cazeart');
   adminUrl.searchParams.set('post_id', postId);
   await page.goto(adminUrl.toString(), { waitUntil: 'domcontentloaded' });
 
   const handle = await page.waitForFunction(() => {
-    return (window as any).CODELLIA?.iframePreviewUrl || null;
+    return (window as any).CAZEART?.iframePreviewUrl || null;
   });
   const previewUrl = await handle.jsonValue();
   if (typeof previewUrl !== 'string' || previewUrl.length === 0) {
-    throw new Error('iframePreviewUrl not found. Check CODELLIA_POST_ID and login.');
+    throw new Error('iframePreviewUrl not found. Check CAZEART_POST_ID and login.');
   }
   return previewUrl;
 };
@@ -66,7 +66,7 @@ test('preview postMessage handshake works', async ({ page }) => {
     }
     const href = iframe.contentWindow.location.href || '';
     const readyState = iframe.contentDocument?.readyState;
-    return href.includes('codellia_preview=1') && readyState === 'complete';
+    return href.includes('cazeart_preview=1') && readyState === 'complete';
   });
 
   const ready = await page.evaluate(() => {
@@ -78,24 +78,24 @@ test('preview postMessage handshake works', async ({ page }) => {
       }
 
       const handler = (event: MessageEvent) => {
-        if (event.data && event.data.type === 'CODELLIA_READY') {
+        if (event.data && event.data.type === 'CAZEART_READY') {
           window.removeEventListener('message', handler as EventListener);
           resolve(event.data);
         }
       };
 
       window.addEventListener('message', handler as EventListener);
-      iframe.contentWindow?.postMessage({ type: 'CODELLIA_INIT' }, '*');
+      iframe.contentWindow?.postMessage({ type: 'CAZEART_INIT' }, '*');
 
       window.setTimeout(() => {
         window.removeEventListener('message', handler as EventListener);
-        reject(new Error('Timed out waiting for CODELLIA_READY'));
+        reject(new Error('Timed out waiting for CAZEART_READY'));
       }, 5_000);
     });
   });
   messages.push(ready);
 
-  expect(messages.some((message) => message.type === 'CODELLIA_READY')).toBe(true);
+  expect(messages.some((message) => message.type === 'CAZEART_READY')).toBe(true);
 });
 
 test('preview does not send READY before INIT', async ({ page }) => {
@@ -119,7 +119,7 @@ test('preview does not send READY before INIT', async ({ page }) => {
   const outcome = await page.evaluate(() => {
     return new Promise<'ready' | 'timeout'>((resolve) => {
       const handler = (event: MessageEvent) => {
-        if (event.data && event.data.type === 'CODELLIA_READY') {
+        if (event.data && event.data.type === 'CAZEART_READY') {
           window.removeEventListener('message', handler as EventListener);
           resolve('ready');
         }
@@ -156,14 +156,14 @@ test('preview ignores postMessage when allowedOrigin mismatches', async ({ page 
   const outcome = await page.evaluate(() => {
     return new Promise<'ready' | 'timeout'>((resolve) => {
       const handler = (event: MessageEvent) => {
-        if (event.data && event.data.type === 'CODELLIA_READY') {
+        if (event.data && event.data.type === 'CAZEART_READY') {
           window.removeEventListener('message', handler as EventListener);
           resolve('ready');
         }
       };
       window.addEventListener('message', handler as EventListener);
       const iframe = document.getElementById('cd-preview-frame') as HTMLIFrameElement | null;
-      iframe?.contentWindow?.postMessage({ type: 'CODELLIA_INIT' }, '*');
+      iframe?.contentWindow?.postMessage({ type: 'CAZEART_INIT' }, '*');
       window.setTimeout(() => {
         window.removeEventListener('message', handler as EventListener);
         resolve('timeout');

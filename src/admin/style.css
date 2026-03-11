@@ -1,44 +1,44 @@
-﻿/* filepath: src/admin/style.css */
-body.admin_page_codellia #wpadminbar,
-body.admin_page_codellia #adminmenumain,
-body.admin_page_codellia #adminmenuwrap,
-body.admin_page_codellia #wpfooter,
-body.admin_page_codellia #screen-meta,
-body.admin_page_codellia #screen-meta-links {
+/* filepath: src/admin/style.css */
+body.admin_page_cazeart #wpadminbar,
+body.admin_page_cazeart #adminmenumain,
+body.admin_page_cazeart #adminmenuwrap,
+body.admin_page_cazeart #wpfooter,
+body.admin_page_cazeart #screen-meta,
+body.admin_page_cazeart #screen-meta-links {
   display: none;
 }
 
-body.admin_page_codellia #wpcontent,
-body.admin_page_codellia #wpbody-content {
+body.admin_page_cazeart #wpcontent,
+body.admin_page_cazeart #wpbody-content {
   margin: 0;
   padding: 0;
 }
 
-body.admin_page_codellia #wpcontent {
+body.admin_page_cazeart #wpcontent {
   margin-left: 0;
 }
 
 html.wp-toolbar,
-body.admin_page_codellia {
+body.admin_page_cazeart {
   padding-top: 0;
   margin-top: 0;
   background: #111318;
 }
 
-body.admin_page_codellia #wpwrap,
-body.admin_page_codellia #wpcontent,
-body.admin_page_codellia #wpbody,
-body.admin_page_codellia #wpbody-content {
+body.admin_page_cazeart #wpwrap,
+body.admin_page_cazeart #wpcontent,
+body.admin_page_cazeart #wpbody,
+body.admin_page_cazeart #wpbody-content {
   height: 100%;
 }
 
 @media screen and (max-width: 600px) {
-  body.admin_page_codellia #wpbody {
+  body.admin_page_cazeart #wpbody {
     padding-top: 0 !important;
   }
 }
 
-#codellia-app {
+#cazeart-app {
   height: 100vh;
 }
 

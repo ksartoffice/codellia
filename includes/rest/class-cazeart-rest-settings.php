@@ -1,18 +1,18 @@
 <?php
 /**
- * REST settings handlers for Codellia.
+ * REST settings handlers for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-namespace Codellia;
+namespace CazeArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * REST callbacks for updating Codellia settings.
+ * REST callbacks for updating CazeArt settings.
  */
 class Rest_Settings {
 
@@ -43,7 +43,7 @@ class Rest_Settings {
 	/**
 	 * Build settings payload for the admin UI.
 	 *
-	 * @param int $post_id Codellia post ID.
+	 * @param int $post_id CazeArt post ID.
 	 * @return array
 	 */
 	public static function build_settings_payload( int $post_id ): array {
@@ -52,10 +52,10 @@ class Rest_Settings {
 			return array();
 		}
 
-		$highlight_meta         = get_post_meta( $post_id, '_codellia_live_highlight', true );
+		$highlight_meta         = get_post_meta( $post_id, '_cazeart_live_highlight', true );
 		$live_highlight_enabled = '' === $highlight_meta ? true : rest_sanitize_boolean( $highlight_meta );
 		$single_page_enabled    = Post_Type::is_single_page_enabled( $post_id );
-		$template_mode_meta     = get_post_meta( $post_id, '_codellia_template_mode', true );
+		$template_mode_meta     = get_post_meta( $post_id, '_cazeart_template_mode', true );
 		$template_mode          = self::normalize_template_mode( $template_mode_meta );
 		$default_template_mode  = self::normalize_default_template_mode(
 			get_option( Admin::OPTION_DEFAULT_TEMPLATE_MODE, 'theme' )
@@ -68,8 +68,8 @@ class Rest_Settings {
 			'viewUrl'              => $single_page_enabled ? (string) get_permalink( $post_id ) : '',
 			'templateMode'         => $template_mode,
 			'defaultTemplateMode'  => $default_template_mode,
-			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shadow_dom', true ),
-			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_codellia_shortcode_enabled', true ),
+			'shadowDomEnabled'     => '1' === get_post_meta( $post_id, '_cazeart_shadow_dom', true ),
+			'shortcodeEnabled'     => '1' === get_post_meta( $post_id, '_cazeart_shortcode_enabled', true ),
 			'singlePageEnabled'    => $single_page_enabled,
 			'liveHighlightEnabled' => $live_highlight_enabled,
 			'canEditJs'            => current_user_can( 'unfiltered_html' ),
@@ -81,7 +81,7 @@ class Rest_Settings {
 	}
 
 	/**
-	 * Update Codellia settings from the admin UI.
+	 * Update CazeArt settings from the admin UI.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -95,7 +95,7 @@ class Rest_Settings {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid payload.', 'codellia' ),
+					'error' => __( 'Invalid payload.', 'cazeart-live-code-editor' ),
 				),
 				400
 			);
@@ -132,8 +132,8 @@ class Rest_Settings {
 		$post = get_post( $post_id );
 		if ( ! $post ) {
 			return new \WP_Error(
-				'codellia_post_not_found',
-				__( 'Post not found.', 'codellia' ),
+				'cazeart_post_not_found',
+				__( 'Post not found.', 'cazeart-live-code-editor' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -180,8 +180,8 @@ class Rest_Settings {
 		if ( isset( $prepared['post_update']['post_status'] ) && 'publish' === $prepared['post_update']['post_status'] ) {
 			if ( ! current_user_can( 'publish_post', $post_id ) ) {
 				return new \WP_Error(
-					'codellia_permission_denied',
-					__( 'Permission denied.', 'codellia' ),
+					'cazeart_permission_denied',
+					__( 'Permission denied.', 'cazeart-live-code-editor' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -190,60 +190,60 @@ class Rest_Settings {
 		if ( array_key_exists( 'shadowDomEnabled', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 				return new \WP_Error(
-					'codellia_permission_denied',
-					__( 'Permission denied.', 'codellia' ),
+					'cazeart_permission_denied',
+					__( 'Permission denied.', 'cazeart-live-code-editor' ),
 					array( 'status' => 403 )
 				);
 			}
-			$shadow_dom_enabled                               = rest_sanitize_boolean( $updates['shadowDomEnabled'] );
-			$prepared['meta_updates']['_codellia_shadow_dom'] = $shadow_dom_enabled ? '1' : '0';
+			$shadow_dom_enabled                              = rest_sanitize_boolean( $updates['shadowDomEnabled'] );
+			$prepared['meta_updates']['_cazeart_shadow_dom'] = $shadow_dom_enabled ? '1' : '0';
 		}
 
 		if ( array_key_exists( 'templateMode', $updates ) ) {
-			$prepared['meta_updates']['_codellia_template_mode'] = self::normalize_template_mode( $updates['templateMode'] );
+			$prepared['meta_updates']['_cazeart_template_mode'] = self::normalize_template_mode( $updates['templateMode'] );
 		}
 
 		if ( array_key_exists( 'shortcodeEnabled', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 				return new \WP_Error(
-					'codellia_permission_denied',
-					__( 'Permission denied.', 'codellia' ),
+					'cazeart_permission_denied',
+					__( 'Permission denied.', 'cazeart-live-code-editor' ),
 					array( 'status' => 403 )
 				);
 			}
-			$shortcode_enabled                                       = rest_sanitize_boolean( $updates['shortcodeEnabled'] );
-			$prepared['meta_updates']['_codellia_shortcode_enabled'] = $shortcode_enabled ? '1' : '0';
+			$shortcode_enabled                                      = rest_sanitize_boolean( $updates['shortcodeEnabled'] );
+			$prepared['meta_updates']['_cazeart_shortcode_enabled'] = $shortcode_enabled ? '1' : '0';
 		}
 
 		if ( array_key_exists( 'singlePageEnabled', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 					return new \WP_Error(
-						'codellia_permission_denied',
-						__( 'Permission denied.', 'codellia' ),
+						'cazeart_permission_denied',
+						__( 'Permission denied.', 'cazeart-live-code-editor' ),
 						array( 'status' => 403 )
 					);
 			}
-			$single_page_enabled                                       = rest_sanitize_boolean( $updates['singlePageEnabled'] );
-			$prepared['meta_updates']['_codellia_single_page_enabled'] = $single_page_enabled ? '1' : '0';
+			$single_page_enabled                                      = rest_sanitize_boolean( $updates['singlePageEnabled'] );
+			$prepared['meta_updates']['_cazeart_single_page_enabled'] = $single_page_enabled ? '1' : '0';
 		}
 
 		if ( array_key_exists( 'liveHighlightEnabled', $updates ) ) {
-			$live_highlight_enabled                                   = rest_sanitize_boolean( $updates['liveHighlightEnabled'] );
-				$prepared['meta_updates']['_codellia_live_highlight'] = $live_highlight_enabled ? '1' : '0';
+			$live_highlight_enabled                                  = rest_sanitize_boolean( $updates['liveHighlightEnabled'] );
+				$prepared['meta_updates']['_cazeart_live_highlight'] = $live_highlight_enabled ? '1' : '0';
 		}
 
 		if ( array_key_exists( 'externalScripts', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 				return new \WP_Error(
-					'codellia_permission_denied',
-					__( 'Permission denied.', 'codellia' ),
+					'cazeart_permission_denied',
+					__( 'Permission denied.', 'cazeart-live-code-editor' ),
 					array( 'status' => 403 )
 				);
 			}
 			if ( ! is_array( $updates['externalScripts'] ) ) {
 				return new \WP_Error(
-					'codellia_invalid_external_scripts',
-					__( 'Invalid external scripts payload.', 'codellia' ),
+					'cazeart_invalid_external_scripts',
+					__( 'Invalid external scripts payload.', 'cazeart-live-code-editor' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -258,16 +258,16 @@ class Rest_Settings {
 			);
 			if ( null === $sanitized ) {
 					return new \WP_Error(
-						'codellia_invalid_external_scripts',
-						null !== $error ? $error : __( 'External scripts must be valid https:// URLs.', 'codellia' ),
+						'cazeart_invalid_external_scripts',
+						null !== $error ? $error : __( 'External scripts must be valid https:// URLs.', 'cazeart-live-code-editor' ),
 						array( 'status' => 400 )
 					);
 			}
 
 			if ( empty( $sanitized ) ) {
-					$prepared['meta_deletes'][] = '_codellia_external_scripts';
+					$prepared['meta_deletes'][] = '_cazeart_external_scripts';
 			} else {
-				$prepared['meta_updates']['_codellia_external_scripts'] = wp_json_encode(
+				$prepared['meta_updates']['_cazeart_external_scripts'] = wp_json_encode(
 					$sanitized,
 					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 				);
@@ -277,15 +277,15 @@ class Rest_Settings {
 		if ( array_key_exists( 'externalStyles', $updates ) ) {
 			if ( ! current_user_can( 'unfiltered_html' ) ) {
 				return new \WP_Error(
-					'codellia_permission_denied',
-					__( 'Permission denied.', 'codellia' ),
+					'cazeart_permission_denied',
+					__( 'Permission denied.', 'cazeart-live-code-editor' ),
 					array( 'status' => 403 )
 				);
 			}
 			if ( ! is_array( $updates['externalStyles'] ) ) {
 				return new \WP_Error(
-					'codellia_invalid_external_styles',
-					__( 'Invalid external styles payload.', 'codellia' ),
+					'cazeart_invalid_external_styles',
+					__( 'Invalid external styles payload.', 'cazeart-live-code-editor' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -300,16 +300,16 @@ class Rest_Settings {
 			);
 			if ( null === $sanitized ) {
 					return new \WP_Error(
-						'codellia_invalid_external_styles',
-						null !== $error ? $error : __( 'External styles must be valid https:// URLs.', 'codellia' ),
+						'cazeart_invalid_external_styles',
+						null !== $error ? $error : __( 'External styles must be valid https:// URLs.', 'cazeart-live-code-editor' ),
 						array( 'status' => 400 )
 					);
 			}
 
 			if ( empty( $sanitized ) ) {
-					$prepared['meta_deletes'][] = '_codellia_external_styles';
+					$prepared['meta_deletes'][] = '_cazeart_external_styles';
 			} else {
-					$prepared['meta_updates']['_codellia_external_styles'] = wp_json_encode(
+					$prepared['meta_updates']['_cazeart_external_styles'] = wp_json_encode(
 						$sanitized,
 						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 					);
@@ -336,7 +336,7 @@ class Rest_Settings {
 			$result = wp_update_post( $post_update, true );
 			if ( is_wp_error( $result ) ) {
 				return new \WP_Error(
-					'codellia_update_failed',
+					'cazeart_update_failed',
 					$result->get_error_message(),
 					array( 'status' => 400 )
 				);

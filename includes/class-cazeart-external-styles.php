@@ -1,30 +1,30 @@
 <?php
 /**
- * External script helpers for Codellia.
+ * External style helpers for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
-namespace Codellia;
+namespace CazeArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Validates and sanitizes external script URLs.
+ * Validates and sanitizes external stylesheet URLs.
  */
-class External_Scripts {
+class External_Styles {
 	/**
-	 * Fetch external scripts list for a Codellia post.
+	 * Fetch external styles list for a CazeArt post.
 	 *
-	 * @param int      $post_id Codellia post ID.
+	 * @param int      $post_id CazeArt post ID.
 	 * @param int|null $max     Optional max items.
 	 * @return array
 	 */
-	public static function get_external_scripts( int $post_id, ?int $max = null ): array {
+	public static function get_external_styles( int $post_id, ?int $max = null ): array {
 
-		$raw  = get_post_meta( $post_id, '_codellia_external_scripts', true );
+		$raw  = get_post_meta( $post_id, '_cazeart_external_styles', true );
 		$list = array();
 		if ( is_array( $raw ) ) {
 			$list = $raw;
@@ -36,13 +36,13 @@ class External_Scripts {
 		}
 
 		if ( null === $max ) {
-			$max = Limits::MAX_EXTERNAL_SCRIPTS;
+			$max = Limits::MAX_EXTERNAL_STYLES;
 		}
 
 		return self::sanitize_list( $list, $max );
 	}
 	/**
-	 * Validate a list of external script URLs.
+	 * Validate a list of external stylesheet URLs.
 	 *
 	 * @param array       $raw   Raw list of URLs.
 	 * @param int|null    $max   Optional max items.
@@ -51,18 +51,18 @@ class External_Scripts {
 	 */
 	public static function validate_list( array $raw, ?int $max = null, ?string &$error = null ): ?array {
 		$sanitized = array();
-		foreach ( array_values( $raw ) as $script_url ) {
-			if ( ! is_string( $script_url ) ) {
-				$error = __( 'Invalid externalScripts value.', 'codellia' );
+		foreach ( array_values( $raw ) as $style_url ) {
+			if ( ! is_string( $style_url ) ) {
+				$error = __( 'Invalid externalStyles value.', 'cazeart-live-code-editor' );
 				return null;
 			}
-			$script_url = trim( $script_url );
-			if ( '' === $script_url ) {
+			$style_url = trim( $style_url );
+			if ( '' === $style_url ) {
 				continue;
 			}
-			$clean_url = self::sanitize_url( $script_url );
+			$clean_url = self::sanitize_url( $style_url );
 			if ( ! $clean_url ) {
-				$error = __( 'External scripts must be valid https:// URLs.', 'codellia' );
+				$error = __( 'External styles must be valid https:// URLs.', 'cazeart-live-code-editor' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -70,7 +70,7 @@ class External_Scripts {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = __( 'External scripts exceed the maximum allowed.', 'codellia' );
+			$error = __( 'External styles exceed the maximum allowed.', 'cazeart-live-code-editor' );
 			return null;
 		}
 
@@ -78,7 +78,7 @@ class External_Scripts {
 	}
 
 	/**
-	 * Sanitize a list of external script URLs.
+	 * Sanitize a list of external stylesheet URLs.
 	 *
 	 * @param array    $raw Raw list of URLs.
 	 * @param int|null $max Optional max items.
@@ -86,15 +86,15 @@ class External_Scripts {
 	 */
 	public static function sanitize_list( array $raw, ?int $max = null ): array {
 		$sanitized = array();
-		foreach ( array_values( $raw ) as $script_url ) {
-			if ( ! is_string( $script_url ) ) {
+		foreach ( array_values( $raw ) as $style_url ) {
+			if ( ! is_string( $style_url ) ) {
 				continue;
 			}
-			$script_url = trim( $script_url );
-			if ( '' === $script_url ) {
+			$style_url = trim( $style_url );
+			if ( '' === $style_url ) {
 				continue;
 			}
-			$clean_url = self::sanitize_url( $script_url );
+			$clean_url = self::sanitize_url( $style_url );
 			if ( $clean_url ) {
 				$sanitized[] = $clean_url;
 			}

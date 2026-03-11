@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 const adminUser = process.env.WP_ADMIN_USER ?? '';
 const adminPass = process.env.WP_ADMIN_PASS ?? '';
-const postIdRaw = process.env.CODELLIA_POST_ID ?? '';
+const postIdRaw = process.env.CAZEART_POST_ID ?? '';
 const baseUrlRaw = process.env.WP_BASE_URL ?? 'http://localhost';
 const baseUrl = (() => {
   const url = new URL(baseUrlRaw);
@@ -14,7 +14,7 @@ const baseUrl = (() => {
 
 test.skip(
   !adminUser || !adminPass || !postIdRaw,
-  'Set WP_ADMIN_USER, WP_ADMIN_PASS, and CODELLIA_POST_ID.'
+  'Set WP_ADMIN_USER, WP_ADMIN_PASS, and CAZEART_POST_ID.'
 );
 
 const login = async (
@@ -36,12 +36,12 @@ const openEditorAndGetNonce = async (
   postId: number
 ): Promise<string> => {
   const adminUrl = new URL('wp-admin/admin.php', baseUrl);
-  adminUrl.searchParams.set('page', 'codellia');
+  adminUrl.searchParams.set('page', 'cazeart');
   adminUrl.searchParams.set('post_id', String(postId));
   await page.goto(adminUrl.toString(), { waitUntil: 'domcontentloaded' });
 
   const handle = await page.waitForFunction(() => {
-    const cfg = (window as any).CODELLIA;
+    const cfg = (window as any).CAZEART;
     if (!cfg || typeof cfg.restNonce !== 'string' || !cfg.restNonce) {
       return null;
     }
@@ -50,7 +50,7 @@ const openEditorAndGetNonce = async (
 
   const nonce = await handle.jsonValue();
   if (typeof nonce !== 'string' || nonce.length === 0) {
-    throw new Error('Failed to read CODELLIA.restNonce from editor page.');
+    throw new Error('Failed to read CAZEART.restNonce from editor page.');
   }
 
   return nonce;
@@ -67,7 +67,7 @@ const saveRequest = async (
     headers['X-WP-Nonce'] = nonce;
   }
 
-  return page.request.post(new URL('wp-json/codellia/v1/save', baseUrl).toString(), {
+  return page.request.post(new URL('wp-json/cazeart/v1/save', baseUrl).toString(), {
     headers,
     data: {
       post_id: postId,
@@ -106,7 +106,7 @@ const createAuthorAndPost = async (
   expect(Number.isFinite(userId)).toBe(true);
 
   const postResponse = await page.request.post(
-    new URL('wp-json/wp/v2/codellia', baseUrl).toString(),
+    new URL('wp-json/wp/v2/cazeart', baseUrl).toString(),
     {
       headers: {
         'X-WP-Nonce': adminNonce,

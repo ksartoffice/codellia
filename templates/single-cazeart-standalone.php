@@ -1,8 +1,8 @@
 <?php
 /**
- * Standalone layout template for Codellia.
+ * Standalone layout template for CazeArt.
  *
- * @package Codellia
+ * @package CazeArt
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php wp_head(); ?>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body <?php body_class( 'codellia-layout-standalone' ); ?>>
+<body <?php body_class( 'cazeart-layout-standalone' ); ?>>
 	<?php wp_body_open(); ?>
 	<?php
 	while ( have_posts() ) :

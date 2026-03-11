@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { exportCodellia, saveCodellia } from '../persistence';
+import { exportCazeArt, saveCazeArt } from '../persistence';
 import type { SettingsData } from '../settings';
 import type { ApiFetch } from '../types/api-fetch';
 
@@ -129,16 +129,16 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
     if (!htmlModel || !cssModel || !jsModel) {
       deps.createSnackbar(
         'error',
-        __('Export unavailable.', 'codellia'),
+        __('Export unavailable.', 'cazeart-live-code-editor'),
         deps.noticeIds.export,
         deps.noticeErrorMs
       );
       return;
     }
 
-    deps.createSnackbar('info', __('Exporting...', 'codellia'), deps.noticeIds.export);
+    deps.createSnackbar('info', __('Exporting...', 'cazeart-live-code-editor'), deps.noticeIds.export);
 
-    const result = await exportCodellia({
+    const result = await exportCazeArt({
       apiFetch: deps.apiFetch,
       restCompileUrl: deps.restCompileUrl,
       postId: deps.postId,
@@ -158,7 +158,7 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
     if (result.ok) {
       deps.createSnackbar(
         'success',
-        __('Exported.', 'codellia'),
+        __('Exported.', 'cazeart-live-code-editor'),
         deps.noticeIds.export,
         deps.noticeSuccessMs
       );
@@ -169,14 +169,14 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
       /* translators: %s: error message. */
       deps.createSnackbar(
         'error',
-        sprintf(__('Export error: %s', 'codellia'), result.error),
+        sprintf(__('Export error: %s', 'cazeart-live-code-editor'), result.error),
         deps.noticeIds.export,
         deps.noticeErrorMs
       );
     } else {
       deps.createSnackbar(
         'error',
-        __('Export failed.', 'codellia'),
+        __('Export failed.', 'cazeart-live-code-editor'),
         deps.noticeIds.export,
         deps.noticeErrorMs
       );
@@ -188,7 +188,7 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
     const cssModel = deps.getCssModel();
     const jsModel = deps.getJsModel();
     if (!htmlModel || !cssModel || !jsModel) {
-      return { ok: false, error: __('Save failed.', 'codellia') };
+      return { ok: false, error: __('Save failed.', 'cazeart-live-code-editor') };
     }
     if (!getUnsavedFlags().hasAny) {
       return { ok: true };
@@ -196,7 +196,7 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
     const { pendingSettingsUpdates, hasUnsavedSettings, hasSettingsValidationErrors } =
       deps.getPendingSettingsState();
     if (hasSettingsValidationErrors) {
-      const validationErrorMessage = __('Fix settings errors before saving.', 'codellia');
+      const validationErrorMessage = __('Fix settings errors before saving.', 'cazeart-live-code-editor');
       deps.createSnackbar(
         'error',
         validationErrorMessage,
@@ -210,9 +210,9 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
     }
     const settingsUpdates = hasUnsavedSettings ? { ...pendingSettingsUpdates } : undefined;
     saveInFlight = (async () => {
-      deps.createSnackbar('info', __('Saving...', 'codellia'), deps.noticeIds.save);
+      deps.createSnackbar('info', __('Saving...', 'cazeart-live-code-editor'), deps.noticeIds.save);
 
-      const result = await saveCodellia({
+      const result = await saveCazeArt({
         apiFetch: deps.apiFetch,
         restUrl: deps.restUrl,
         postId: deps.postId,
@@ -234,7 +234,7 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
         deps.onSaveSuccess?.();
         deps.createSnackbar(
           'success',
-          __('Saved.', 'codellia'),
+          __('Saved.', 'cazeart-live-code-editor'),
           deps.noticeIds.save,
           deps.noticeSuccessMs
         );
@@ -245,7 +245,7 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
         /* translators: %s: error message. */
         deps.createSnackbar(
           'error',
-          sprintf(__('Save error: %s', 'codellia'), result.error),
+          sprintf(__('Save error: %s', 'cazeart-live-code-editor'), result.error),
           deps.noticeIds.save,
           deps.noticeErrorMs
         );
@@ -254,11 +254,11 @@ export function createSaveExportController(deps: SaveExportControllerDeps) {
 
       deps.createSnackbar(
         'error',
-        __('Save failed.', 'codellia'),
+        __('Save failed.', 'cazeart-live-code-editor'),
         deps.noticeIds.save,
         deps.noticeErrorMs
       );
-      return { ok: false, error: __('Save failed.', 'codellia') };
+      return { ok: false, error: __('Save failed.', 'cazeart-live-code-editor') };
     })();
 
     try {

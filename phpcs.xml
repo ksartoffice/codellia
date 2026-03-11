@@ -1,11 +1,11 @@
-﻿<?xml version="1.0"?>
-<ruleset name="Codellia">
-  <description>WordPress Coding Standards for Codellia.</description>
+<?xml version="1.0"?>
+<ruleset name="CazeArt">
+  <description>WordPress Coding Standards for CazeArt.</description>
 
   <config name="testVersion" value="8.2-"/>
   <arg name="extensions" value="php"/>
 
-  <file>codellia.php</file>
+  <file>cazeart-live-code-editor.php</file>
   <file>includes</file>
 
   <exclude-pattern>vendor/*</exclude-pattern>
