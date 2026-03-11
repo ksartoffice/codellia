@@ -44,7 +44,7 @@ describe('preview shortcode rendering', () => {
 
     controller.handleMessage({
       origin: 'https://example.com',
-      data: { type: 'CODELLIA_READY' },
+      data: { type: 'KAYZART_READY' },
     } as MessageEvent);
     await flushAsync();
     renderShortcodes.mockClear();

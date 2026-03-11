@@ -1,11 +1,11 @@
 <?php
 /**
- * REST handlers for saving Codellia content.
+ * REST handlers for saving KayzArt content.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
-namespace Codellia;
+namespace KayzArt;
 
 use TailwindPHP\tw;
 
@@ -58,7 +58,7 @@ class Rest_Save {
 }';
 
 	/**
-	 * Save Codellia post content and metadata.
+	 * Save KayzArt post content and metadata.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -75,11 +75,11 @@ class Rest_Save {
 		$has_settings     = $request->has_param( 'settingsUpdates' );
 		$prepared_updates = null;
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_kayzart_post( $post_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid post type.', 'codellia' ),
+					'error' => __( 'Invalid post type.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -89,7 +89,7 @@ class Rest_Save {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Permission denied.', 'codellia' ),
+					'error' => __( 'Permission denied.', 'kayzart-live-code-editor' ),
 				),
 				403
 			);
@@ -100,7 +100,7 @@ class Rest_Save {
 					return new \WP_REST_Response(
 						array(
 							'ok'    => false,
-							'error' => __( 'Invalid payload.', 'codellia' ),
+							'error' => __( 'Invalid payload.', 'kayzart-live-code-editor' ),
 						),
 						400
 					);
@@ -121,8 +121,8 @@ class Rest_Save {
 			}
 		}
 
-		$tailwind_meta   = get_post_meta( $post_id, '_codellia_tailwind', true );
-		$tailwind_locked = '1' === get_post_meta( $post_id, '_codellia_tailwind_locked', true );
+		$tailwind_meta   = get_post_meta( $post_id, '_kayzart_tailwind', true );
+		$tailwind_locked = '1' === get_post_meta( $post_id, '_kayzart_tailwind_locked', true );
 		$has_tailwind    = '' !== $tailwind_meta;
 		if ( $tailwind_locked || $has_tailwind ) {
 			$tailwind_enabled = '1' === $tailwind_meta;
@@ -175,7 +175,7 @@ class Rest_Save {
 						'ok'    => false,
 						'error' => sprintf(
 							/* translators: %s: error message. */
-							__( 'Tailwind compile failed: %s', 'codellia' ),
+							__( 'Tailwind compile failed: %s', 'kayzart-live-code-editor' ),
 							$e->getMessage()
 						),
 					),
@@ -184,18 +184,18 @@ class Rest_Save {
 			}
 		}
 
-		update_post_meta( $post_id, '_codellia_css', wp_slash( $css_input ) );
+		update_post_meta( $post_id, '_kayzart_css', wp_slash( $css_input ) );
 		if ( $has_js ) {
-			update_post_meta( $post_id, '_codellia_js', wp_slash( $js_input ) );
+			update_post_meta( $post_id, '_kayzart_js', wp_slash( $js_input ) );
 		}
-		delete_post_meta( $post_id, '_codellia_js_enabled' );
+		delete_post_meta( $post_id, '_kayzart_js_enabled' );
 		if ( $tailwind_enabled ) {
-			update_post_meta( $post_id, '_codellia_generated_css', wp_slash( $compiled_css ) );
+			update_post_meta( $post_id, '_kayzart_generated_css', wp_slash( $compiled_css ) );
 		} else {
-			delete_post_meta( $post_id, '_codellia_generated_css' );
+			delete_post_meta( $post_id, '_kayzart_generated_css' );
 		}
-		update_post_meta( $post_id, '_codellia_tailwind', $tailwind_enabled ? '1' : '0' );
-		update_post_meta( $post_id, '_codellia_tailwind_locked', '1' );
+		update_post_meta( $post_id, '_kayzart_tailwind', $tailwind_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_kayzart_tailwind_locked', '1' );
 
 		if ( $has_settings && is_array( $prepared_updates ) ) {
 			$applied_updates = Rest_Settings::apply_prepared_updates( $post_id, $prepared_updates );
@@ -292,16 +292,16 @@ class Rest_Save {
 	private static function validate_tailwind_input_size( string $html, string $css ) {
 		if ( strlen( $html ) > Limits::MAX_TAILWIND_HTML_BYTES ) {
 			return new \WP_Error(
-				'codellia_tailwind_html_too_large',
-				__( 'Tailwind HTML input exceeds the maximum size.', 'codellia' ),
+				'kayzart_tailwind_html_too_large',
+				__( 'Tailwind HTML input exceeds the maximum size.', 'kayzart-live-code-editor' ),
 				array( 'status' => 400 )
 			);
 		}
 
 		if ( strlen( $css ) > Limits::MAX_TAILWIND_CSS_BYTES ) {
 			return new \WP_Error(
-				'codellia_tailwind_css_too_large',
-				__( 'Tailwind CSS input exceeds the maximum size.', 'codellia' ),
+				'kayzart_tailwind_css_too_large',
+				__( 'Tailwind CSS input exceeds the maximum size.', 'kayzart-live-code-editor' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -320,11 +320,11 @@ class Rest_Save {
 		$html      = (string) $request->get_param( 'html' );
 		$css_input = (string) $request->get_param( 'css' );
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_kayzart_post( $post_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid post type.', 'codellia' ),
+					'error' => __( 'Invalid post type.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -355,7 +355,7 @@ class Rest_Save {
 					'ok'    => false,
 					'error' => sprintf(
 						/* translators: %s: error message. */
-						__( 'Tailwind compile failed: %s', 'codellia' ),
+						__( 'Tailwind compile failed: %s', 'kayzart-live-code-editor' ),
 						$e->getMessage()
 					),
 				),

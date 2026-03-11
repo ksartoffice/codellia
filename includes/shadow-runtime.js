@@ -1,7 +1,7 @@
 (function () {
-  const payloadSelector = 'script[data-codellia-js]';
-  const processedAttr = 'data-codellia-js-run';
-  const waitAttr = 'data-codellia-js-wait';
+  const payloadSelector = 'script[data-kayzart-js]';
+  const processedAttr = 'data-kayzart-js-run';
+  const waitAttr = 'data-kayzart-js-wait';
 
   function decodePayload(value) {
     if (!value) return '';
@@ -14,7 +14,7 @@
 
   function runPayload(payload) {
     if (!payload || payload.hasAttribute(processedAttr)) return;
-    const host = payload.closest('codellia-output');
+    const host = payload.closest('kayzart-output');
     if (!host) {
       payload.setAttribute(processedAttr, '1');
       return;

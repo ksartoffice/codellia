@@ -2,10 +2,10 @@
 /**
  * REST handlers for preview rendering.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
-namespace Codellia;
+namespace KayzArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,11 +26,11 @@ class Rest_Preview {
 		$context_html = $request->get_param( 'context_html' );
 		$items        = $request->get_param( 'shortcodes' );
 
-		if ( ! $post_id || ! Post_Type::is_codellia_post( $post_id ) || ! $items || ! is_array( $items ) ) {
+		if ( ! $post_id || ! Post_Type::is_kayzart_post( $post_id ) || ! $items || ! is_array( $items ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid parameters.', 'codellia' ),
+					'error' => __( 'Invalid parameters.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -40,7 +40,7 @@ class Rest_Preview {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Too many shortcodes requested.', 'codellia' ),
+					'error' => __( 'Too many shortcodes requested.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -51,7 +51,7 @@ class Rest_Preview {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Post not found.', 'codellia' ),
+					'error' => __( 'Post not found.', 'kayzart-live-code-editor' ),
 				),
 				404
 			);

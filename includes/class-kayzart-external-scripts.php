@@ -1,11 +1,11 @@
 <?php
 /**
- * External script helpers for Codellia.
+ * External script helpers for KayzArt.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
-namespace Codellia;
+namespace KayzArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,15 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class External_Scripts {
 	/**
-	 * Fetch external scripts list for a Codellia post.
+	 * Fetch external scripts list for a KayzArt post.
 	 *
-	 * @param int      $post_id Codellia post ID.
+	 * @param int      $post_id KayzArt post ID.
 	 * @param int|null $max     Optional max items.
 	 * @return array
 	 */
 	public static function get_external_scripts( int $post_id, ?int $max = null ): array {
 
-		$raw  = get_post_meta( $post_id, '_codellia_external_scripts', true );
+		$raw  = get_post_meta( $post_id, '_kayzart_external_scripts', true );
 		$list = array();
 		if ( is_array( $raw ) ) {
 			$list = $raw;
@@ -53,7 +53,7 @@ class External_Scripts {
 		$sanitized = array();
 		foreach ( array_values( $raw ) as $script_url ) {
 			if ( ! is_string( $script_url ) ) {
-				$error = __( 'Invalid externalScripts value.', 'codellia' );
+				$error = __( 'Invalid externalScripts value.', 'kayzart-live-code-editor' );
 				return null;
 			}
 			$script_url = trim( $script_url );
@@ -62,7 +62,7 @@ class External_Scripts {
 			}
 			$clean_url = self::sanitize_url( $script_url );
 			if ( ! $clean_url ) {
-				$error = __( 'External scripts must be valid https:// URLs.', 'codellia' );
+				$error = __( 'External scripts must be valid https:// URLs.', 'kayzart-live-code-editor' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -70,7 +70,7 @@ class External_Scripts {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = __( 'External scripts exceed the maximum allowed.', 'codellia' );
+			$error = __( 'External scripts exceed the maximum allowed.', 'kayzart-live-code-editor' );
 			return null;
 		}
 

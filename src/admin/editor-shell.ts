@@ -1,4 +1,4 @@
-﻿import { __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 import { ImagePlus, Lightbulb, Play } from 'lucide';
 import { renderLucideIcon } from './lucide-icons';
@@ -106,34 +106,34 @@ export function buildEditorShell(root: HTMLElement): EditorShellRefs {
   const compactHtmlTab = document.createElement('button');
   compactHtmlTab.type = 'button';
   compactHtmlTab.className = 'cd-editorTab cd-compactEditorTab is-active';
-  compactHtmlTab.textContent = __( 'HTML', 'codellia' );
+  compactHtmlTab.textContent = __( 'HTML', 'kayzart-live-code-editor');
   const compactCssTab = document.createElement('button');
   compactCssTab.type = 'button';
   compactCssTab.className = 'cd-editorTab cd-compactEditorTab';
-  compactCssTab.textContent = __( 'CSS', 'codellia' );
+  compactCssTab.textContent = __( 'CSS', 'kayzart-live-code-editor');
   const compactJsTab = document.createElement('button');
   compactJsTab.type = 'button';
   compactJsTab.className = 'cd-editorTab cd-compactEditorTab';
-  compactJsTab.textContent = __( 'JavaScript', 'codellia' );
+  compactJsTab.textContent = __( 'JavaScript', 'kayzart-live-code-editor');
   compactEditorTabsList.append(compactHtmlTab, compactCssTab, compactJsTab);
   const compactAddMediaButton = createCompactActionButton(
     'cd-editorAction cd-compactEditorAction cd-compactEditorAction-media',
-    __( 'Add Media', 'codellia' ),
+    __( 'Add Media', 'kayzart-live-code-editor'),
     compactIcons.media
   );
   const compactRunButton = createCompactActionButton(
     'cd-editorAction cd-compactEditorAction cd-compactEditorAction-run',
-    __( 'Run', 'codellia' ),
+    __( 'Run', 'kayzart-live-code-editor'),
     compactIcons.run
   );
   const compactShadowHintButton = createCompactActionButton(
     'cd-editorAction cd-compactEditorAction cd-compactEditorAction-hint',
-    __( 'Shadow DOM Hint', 'codellia' ),
+    __( 'Shadow DOM Hint', 'kayzart-live-code-editor'),
     compactIcons.hint
   );
   const compactTailwindHintButton = createCompactActionButton(
     'cd-editorAction cd-compactEditorAction cd-compactEditorAction-hint',
-    __( 'Tailwind CSS Hint', 'codellia' ),
+    __( 'Tailwind CSS Hint', 'kayzart-live-code-editor'),
     compactIcons.hint
   );
   compactEditorActions.append(
@@ -147,12 +147,12 @@ export function buildEditorShell(root: HTMLElement): EditorShellRefs {
   const htmlPane = el('div', 'cd-editorPane cd-editorPane-html is-active');
   const htmlHeader = el('div', 'cd-editorHeader cd-editorHeader-tabs');
   const htmlTitle = el('span', 'cd-editorTitle');
-  htmlTitle.textContent = __( 'HTML', 'codellia' );
+  htmlTitle.textContent = __( 'HTML', 'kayzart-live-code-editor');
   const htmlActions = el('div', 'cd-editorActions');
   const addMediaButton = document.createElement('button');
   addMediaButton.type = 'button';
   addMediaButton.className = 'cd-editorAction cd-editorAction-media';
-  addMediaButton.textContent = __( 'Add Media', 'codellia' );
+  addMediaButton.textContent = __( 'Add Media', 'kayzart-live-code-editor');
   htmlActions.append(addMediaButton);
   htmlHeader.append(htmlTitle, htmlActions);
   const htmlWrap = el('div', 'cd-editorWrap');
@@ -166,26 +166,26 @@ export function buildEditorShell(root: HTMLElement): EditorShellRefs {
   const cssTab = document.createElement('button');
   cssTab.type = 'button';
   cssTab.className = 'cd-editorTab is-active';
-  cssTab.textContent = __( 'CSS', 'codellia' );
+  cssTab.textContent = __( 'CSS', 'kayzart-live-code-editor');
   const jsTab = document.createElement('button');
   jsTab.type = 'button';
   jsTab.className = 'cd-editorTab';
-  jsTab.textContent = __( 'JavaScript', 'codellia' );
+  jsTab.textContent = __( 'JavaScript', 'kayzart-live-code-editor');
   cssTabs.append(cssTab, jsTab);
 
   const jsControls = el('div', 'cd-editorActions');
   const runButton = document.createElement('button');
   runButton.type = 'button';
   runButton.className = 'cd-editorAction';
-  runButton.textContent = __( 'Run', 'codellia' );
+  runButton.textContent = __( 'Run', 'kayzart-live-code-editor');
   const shadowHintButton = document.createElement('button');
   shadowHintButton.type = 'button';
   shadowHintButton.className = 'cd-editorAction cd-editorAction-hint';
-  shadowHintButton.textContent = __( 'Shadow DOM Hint', 'codellia' );
+  shadowHintButton.textContent = __( 'Shadow DOM Hint', 'kayzart-live-code-editor');
   const tailwindHintButton = document.createElement('button');
   tailwindHintButton.type = 'button';
   tailwindHintButton.className = 'cd-editorAction cd-editorAction-hint';
-  tailwindHintButton.textContent = __( 'Tailwind CSS Hint', 'codellia' );
+  tailwindHintButton.textContent = __( 'Tailwind CSS Hint', 'kayzart-live-code-editor');
   jsControls.append(tailwindHintButton, shadowHintButton, runButton);
 
   cssHeader.append(cssTabs, jsControls);

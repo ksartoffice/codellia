@@ -1,11 +1,11 @@
 <?php
 /**
- * External style helpers for Codellia.
+ * External style helpers for KayzArt.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
-namespace Codellia;
+namespace KayzArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,15 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class External_Styles {
 	/**
-	 * Fetch external styles list for a Codellia post.
+	 * Fetch external styles list for a KayzArt post.
 	 *
-	 * @param int      $post_id Codellia post ID.
+	 * @param int      $post_id KayzArt post ID.
 	 * @param int|null $max     Optional max items.
 	 * @return array
 	 */
 	public static function get_external_styles( int $post_id, ?int $max = null ): array {
 
-		$raw  = get_post_meta( $post_id, '_codellia_external_styles', true );
+		$raw  = get_post_meta( $post_id, '_kayzart_external_styles', true );
 		$list = array();
 		if ( is_array( $raw ) ) {
 			$list = $raw;
@@ -53,7 +53,7 @@ class External_Styles {
 		$sanitized = array();
 		foreach ( array_values( $raw ) as $style_url ) {
 			if ( ! is_string( $style_url ) ) {
-				$error = __( 'Invalid externalStyles value.', 'codellia' );
+				$error = __( 'Invalid externalStyles value.', 'kayzart-live-code-editor' );
 				return null;
 			}
 			$style_url = trim( $style_url );
@@ -62,7 +62,7 @@ class External_Styles {
 			}
 			$clean_url = self::sanitize_url( $style_url );
 			if ( ! $clean_url ) {
-				$error = __( 'External styles must be valid https:// URLs.', 'codellia' );
+				$error = __( 'External styles must be valid https:// URLs.', 'kayzart-live-code-editor' );
 				return null;
 			}
 			$sanitized[] = $clean_url;
@@ -70,7 +70,7 @@ class External_Styles {
 
 		$sanitized = array_values( array_unique( $sanitized ) );
 		if ( null !== $max && $max < count( $sanitized ) ) {
-			$error = __( 'External styles exceed the maximum allowed.', 'codellia' );
+			$error = __( 'External styles exceed the maximum allowed.', 'kayzart-live-code-editor' );
 			return null;
 		}
 

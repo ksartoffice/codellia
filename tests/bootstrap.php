@@ -1,8 +1,8 @@
 <?php
 /**
- * PHPUnit bootstrap for Codellia.
+ * PHPUnit bootstrap for KayzArt.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
@@ -30,10 +30,10 @@ require_once $_tests_dir . '/includes/functions.php';
 /**
  * Manually load the plugin for the test suite.
  */
-function codellia_manually_load_plugin() {
-	require dirname( __DIR__ ) . '/codellia.php';
+function kayzart_manually_load_plugin() {
+	require dirname( __DIR__ ) . '/kayzart-live-code-editor.php';
 }
-tests_add_filter( 'muplugins_loaded', 'codellia_manually_load_plugin' );
+tests_add_filter( 'muplugins_loaded', 'kayzart_manually_load_plugin' );
 
 require $_tests_dir . '/includes/bootstrap.php';
 

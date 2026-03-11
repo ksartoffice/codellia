@@ -58,7 +58,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
         deps.onCssCompiled(res.css);
         deps.onStatusClear();
       } else {
-        deps.onStatus(__( 'Tailwind compile failed.', 'codellia' ));
+        deps.onStatus(__( 'Tailwind compile failed.', 'kayzart-live-code-editor'));
       }
     } catch (error: unknown) {
       if (currentToken !== tailwindCompileToken) {
@@ -66,7 +66,7 @@ export function createTailwindCompiler(deps: TailwindCompilerDeps): TailwindComp
       }
       const message = error instanceof Error ? error.message : String(error);
       /* translators: %s: error message. */
-      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'codellia' ), message));
+      deps.onStatus(sprintf(__( 'Tailwind error: %s', 'kayzart-live-code-editor'), message));
     } finally {
       if (currentToken === tailwindCompileToken) {
         tailwindCompileInFlight = false;
@@ -96,7 +96,7 @@ type SaveParams = {
   settingsUpdates?: Record<string, unknown>;
 };
 
-export async function saveCodellia(
+export async function saveKayzArt(
   params: SaveParams
 ): Promise<{ ok: boolean; error?: string; settings?: SettingsData }> {
   try {
@@ -154,7 +154,7 @@ type ExportParams = {
   liveHighlightEnabled: boolean;
 };
 
-export async function exportCodellia(
+export async function exportKayzArt(
   params: ExportParams
 ): Promise<{ ok: boolean; error?: string }> {
   try {
@@ -176,7 +176,7 @@ export async function exportCodellia(
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('[Codellia] Export compile failed', error);
+        console.error('[KayzArt] Export compile failed', error);
       }
     }
 
@@ -201,7 +201,7 @@ export async function exportCodellia(
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `codellia-${params.postId}.json`;
+    link.download = `kayzart-${params.postId}.json`;
     document.body.append(link);
     link.click();
     link.remove();

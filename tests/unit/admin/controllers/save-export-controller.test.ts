@@ -1,12 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { createSaveExportController } from '../../../../src/admin/controllers/save-export-controller';
-import { saveCodellia } from '../../../../src/admin/persistence';
+import { saveKayzArt } from '../../../../src/admin/persistence';
 
 vi.mock('../../../../src/admin/persistence', async () => {
   const actual = await vi.importActual('../../../../src/admin/persistence');
   return {
     ...actual,
-    saveCodellia: vi.fn(),
+    saveKayzArt: vi.fn(),
   };
 });
 
@@ -16,7 +16,7 @@ describe('save export controller', () => {
   });
 
   it('calls onSaveSuccess when save succeeds', async () => {
-    vi.mocked(saveCodellia).mockResolvedValue({ ok: true });
+    vi.mocked(saveKayzArt).mockResolvedValue({ ok: true });
 
     const onSaveSuccess = vi.fn();
     const createElement = () => document.createElement('div');

@@ -1,22 +1,22 @@
 <?php
 /**
- * Uninstall handler for Codellia.
+ * Uninstall handler for KayzArt.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-$codellia_delete_data = get_option( 'codellia_delete_on_uninstall', '0' );
-if ( '1' !== $codellia_delete_data ) {
+$kayzart_delete_data = get_option( 'kayzart_delete_on_uninstall', '0' );
+if ( '1' !== $kayzart_delete_data ) {
 	return;
 }
 
 $posts = get_posts(
 	array(
-		'post_type'              => 'codellia',
+		'post_type'              => 'kayzart',
 		'post_status'            => 'any',
 		'posts_per_page'         => -1,
 		'fields'                 => 'ids',
@@ -30,6 +30,6 @@ foreach ( $posts as $post_id ) {
 	wp_delete_post( $post_id, true );
 }
 
-delete_option( 'codellia_delete_on_uninstall' );
-delete_option( 'codellia_post_slug' );
-delete_option( 'codellia_flush_rewrite' );
+delete_option( 'kayzart_delete_on_uninstall' );
+delete_option( 'kayzart_post_slug' );
+delete_option( 'kayzart_flush_rewrite' );

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const clearGlobals = () => {
-  delete (window as any).CODELLIA_EXTENSION_API;
-  delete (window as any).CODELLIA_SETTINGS_TAB_QUEUE;
+  delete (window as any).KAYZART_EXTENSION_API;
+  delete (window as any).KAYZART_SETTINGS_TAB_QUEUE;
 };
 
 const loadRegistry = async () =>
@@ -17,7 +17,7 @@ describe('settings tab registry', () => {
 
   it('flushes queued tabs when the API initializes', async () => {
     const mount = vi.fn();
-    (window as any).CODELLIA_SETTINGS_TAB_QUEUE = [
+    (window as any).KAYZART_SETTINGS_TAB_QUEUE = [
       {
         id: 'ai',
         label: 'AI Editing',
@@ -31,8 +31,8 @@ describe('settings tab registry', () => {
 
     expect(tabs.map((tab) => tab.id)).toEqual(['ai']);
     expect(tabs[0].order).toBe(20);
-    expect(Array.isArray((window as any).CODELLIA_SETTINGS_TAB_QUEUE)).toBe(true);
-    expect((window as any).CODELLIA_SETTINGS_TAB_QUEUE).toHaveLength(0);
+    expect(Array.isArray((window as any).KAYZART_SETTINGS_TAB_QUEUE)).toBe(true);
+    expect((window as any).KAYZART_SETTINGS_TAB_QUEUE).toHaveLength(0);
 
     const host = document.createElement('div');
     tabs[0].mount(host);
@@ -41,7 +41,7 @@ describe('settings tab registry', () => {
 
   it('registers and unregisters tabs at runtime', async () => {
     const registry = await loadRegistry();
-    const api = (window as any).CODELLIA_EXTENSION_API;
+    const api = (window as any).KAYZART_EXTENSION_API;
     const listener = vi.fn();
     const unsubscribe = registry.subscribeExternalSettingsTabs(listener);
 
@@ -76,7 +76,7 @@ describe('settings tab registry', () => {
   it('rejects reserved, invalid, and duplicate tab registrations', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const registry = await loadRegistry();
-    const api = (window as any).CODELLIA_EXTENSION_API;
+    const api = (window as any).KAYZART_EXTENSION_API;
 
     api.registerSettingsTab({
       id: 'settings',

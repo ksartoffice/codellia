@@ -1,7 +1,7 @@
 {
-  "name": "codellia",
+  "name": "kayzart-live-code-editor",
   "version": "1.0.1",
-  "description": "Live HTML/CSS/JS editor with a custom Codellia post type, Monaco Editor, and live preview.",
+  "description": "Live HTML/CSS/JS editor with a custom KayzArt post type, Monaco Editor, and live preview.",
   "license": "GPL-2.0-or-later",
   "scripts": {
     "prepare:monaco": "node scripts/prepare-monaco.mjs",

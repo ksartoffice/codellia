@@ -1,4 +1,4 @@
-﻿import './style.css';
+import './style.css';
 import {
   initSettings,
   type PendingSettingsState,
@@ -38,14 +38,14 @@ declare const wp: any;
 
 declare global {
   interface Window {
-    CODELLIA: AppConfig;
+    KAYZART: AppConfig;
     monaco?: MonacoType;
     require?: any; // AMD loader
   }
 }
 
 const COMPACT_EDITOR_BREAKPOINT = 900;
-const HTML_WORD_WRAP_STORAGE_KEY = 'codellia.html.wordWrap';
+const HTML_WORD_WRAP_STORAGE_KEY = 'kayzart.html.wordWrap';
 type HtmlWordWrapMode = 'off' | 'on';
 
 const readHtmlWordWrapMode = (): HtmlWordWrapMode => {
@@ -65,9 +65,9 @@ const saveHtmlWordWrapMode = (mode: HtmlWordWrapMode) => {
 };
 
 async function main() {
-  const cfg = window.CODELLIA;
+  const cfg = window.KAYZART;
   const postId = cfg.post_id;
-  const mount = document.getElementById('codellia-app');
+  const mount = document.getElementById('kayzart-app');
   if (!mount) return;
   const notices = createNotices({ wp });
   const { createSnackbar, mountNotices, removeNotice, syncNoticeOffset } = notices;
@@ -107,7 +107,7 @@ async function main() {
 
   if (cfg.setupRequired) {
     if (!cfg.setupRestUrl || !wp?.apiFetch) {
-      ui.app.textContent = __( 'Setup wizard unavailable.', 'codellia' );
+      ui.app.textContent = __( 'Setup wizard unavailable.', 'kayzart-live-code-editor');
       return;
     }
 
@@ -127,8 +127,8 @@ async function main() {
       });
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('[Codellia] Setup failed', error);
-      ui.app.textContent = __( 'Setup failed.', 'codellia' );
+      console.error('[KayzArt] Setup failed', error);
+      ui.app.textContent = __( 'Setup failed.', 'kayzart-live-code-editor');
       return;
     } finally {
       setupHost.remove();
@@ -341,7 +341,7 @@ async function main() {
 
   async function handleSave(): Promise<{ ok: boolean; error?: string }> {
     if (!saveExportController) {
-      return { ok: false, error: __('Save failed.', 'codellia') };
+      return { ok: false, error: __('Save failed.', 'kayzart-live-code-editor') };
     }
     return await saveExportController.handleSave();
   }
@@ -354,8 +354,8 @@ async function main() {
     editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor
   ) => {
     editorInstance.addAction({
-      id: 'codellia.save',
-      label: __( 'Save', 'codellia' ),
+      id: 'kayzart.save',
+      label: __( 'Save', 'kayzart-live-code-editor'),
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       run: runSaveShortcut,
     });
@@ -365,8 +365,8 @@ async function main() {
     editorInstance: import('monaco-editor').editor.IStandaloneCodeEditor
   ) => {
     editorInstance.addAction({
-      id: 'codellia.toggleHtmlWordWrap',
-      label: __( 'Toggle HTML word wrap', 'codellia' ),
+      id: 'kayzart.toggleHtmlWordWrap',
+      label: __( 'Toggle HTML word wrap', 'kayzart-live-code-editor'),
       contextMenuGroupId: '1_modification',
       contextMenuOrder: 2.5,
       keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
@@ -386,9 +386,9 @@ async function main() {
     try {
       const previewUrl = new URL(url, window.location.origin);
       if (templateModeValue && templateModeValue !== 'default') {
-        previewUrl.searchParams.set('codellia_template_mode', templateModeValue);
+        previewUrl.searchParams.set('kayzart_template_mode', templateModeValue);
       } else {
-        previewUrl.searchParams.delete('codellia_template_mode');
+        previewUrl.searchParams.delete('kayzart_template_mode');
       }
       return previewUrl.toString();
     } catch {
@@ -402,12 +402,12 @@ async function main() {
     }
     try {
       const refreshUrl = new URL(url, window.location.origin);
-      refreshUrl.searchParams.set('codellia_refresh', Date.now().toString());
+      refreshUrl.searchParams.set('kayzart_refresh', Date.now().toString());
       return refreshUrl.toString();
     } catch {
       const hasQuery = url.includes('?');
       const hashIndex = url.indexOf('#');
-      const suffix = `${hasQuery ? '&' : '?'}codellia_refresh=${Date.now()}`;
+      const suffix = `${hasQuery ? '&' : '?'}kayzart_refresh=${Date.now()}`;
       if (hashIndex === -1) {
         return url + suffix;
       }
@@ -487,7 +487,7 @@ async function main() {
       onViewportChange: (mode) => viewportController.setViewportMode(mode),
       onUpdatePostIdentity: async ({ title, slug }) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
-          return { ok: false, error: __( 'Settings unavailable.', 'codellia' ) };
+          return { ok: false, error: __( 'Settings unavailable.', 'kayzart-live-code-editor') };
         }
         try {
           const response = await wp.apiFetch({
@@ -502,7 +502,7 @@ async function main() {
             },
           });
           if (!response?.ok) {
-            return { ok: false, error: response?.error || __( 'Update failed.', 'codellia' ) };
+            return { ok: false, error: response?.error || __( 'Update failed.', 'kayzart-live-code-editor') };
           }
           const nextSettings = response.settings as SettingsData | undefined;
           const nextTitle =
@@ -528,13 +528,13 @@ async function main() {
         } catch (error: any) {
           return {
             ok: false,
-            error: error?.message || __( 'Update failed.', 'codellia' ),
+            error: error?.message || __( 'Update failed.', 'kayzart-live-code-editor'),
           };
         }
       },
       onUpdateStatus: async (nextStatus) => {
         if (!cfg.settingsRestUrl || !wp?.apiFetch) {
-          return { ok: false, error: __( 'Settings unavailable.', 'codellia' ) };
+          return { ok: false, error: __( 'Settings unavailable.', 'kayzart-live-code-editor') };
         }
         const updates =
           nextStatus === 'private'
@@ -550,7 +550,7 @@ async function main() {
             },
           });
           if (!response?.ok) {
-            return { ok: false, error: response?.error || __( 'Update failed.', 'codellia' ) };
+            return { ok: false, error: response?.error || __( 'Update failed.', 'kayzart-live-code-editor') };
           }
           const nextSettings = response.settings as SettingsData | undefined;
           postStatus =
@@ -562,7 +562,7 @@ async function main() {
         } catch (error: any) {
           return {
             ok: false,
-            error: error?.message || __( 'Update failed.', 'codellia' ),
+            error: error?.message || __( 'Update failed.', 'kayzart-live-code-editor'),
           };
         }
       },
@@ -570,7 +570,7 @@ async function main() {
   );
   syncNoticeOffset();
   window.setTimeout(syncNoticeOffset, 0);
-  createSnackbar('info', __( 'Loading Monaco...', 'codellia' ), NOTICE_IDS.monaco);
+  createSnackbar('info', __( 'Loading Monaco...', 'kayzart-live-code-editor'), NOTICE_IDS.monaco);
 
   // iframe
   ui.iframe.src = getPreviewUrl();
@@ -605,7 +605,7 @@ async function main() {
       return;
     }
     event.preventDefault();
-    event.returnValue = __( 'You may have unsaved changes.', 'codellia' );
+    event.returnValue = __( 'You may have unsaved changes.', 'kayzart-live-code-editor');
   };
 
   window.addEventListener('beforeunload', handleBeforeUnload);
@@ -658,7 +658,7 @@ async function main() {
     if (typeof wp?.media !== 'function') {
       createSnackbar(
         'error',
-        __( 'Media library is unavailable.', 'codellia' ),
+        __( 'Media library is unavailable.', 'kayzart-live-code-editor'),
         NOTICE_IDS.media,
         NOTICE_ERROR_DURATION_MS
       );
@@ -668,9 +668,9 @@ async function main() {
     const frame = wp.media({
       frame: 'post',
       state: 'insert',
-      title: __( 'Select media to insert into HTML.', 'codellia' ),
+      title: __( 'Select media to insert into HTML.', 'kayzart-live-code-editor'),
       button: {
-        text: __( 'Insert into HTML', 'codellia' ),
+        text: __( 'Insert into HTML', 'kayzart-live-code-editor'),
       },
       multiple: false,
     });
@@ -695,7 +695,7 @@ async function main() {
       if (!html) {
         createSnackbar(
           'warning',
-          __( 'The selected media has no URL and was not inserted.', 'codellia' ),
+          __( 'The selected media has no URL and was not inserted.', 'kayzart-live-code-editor'),
           NOTICE_IDS.media,
           NOTICE_ERROR_DURATION_MS
         );
@@ -726,7 +726,7 @@ async function main() {
     const normalized: { name: string; value: string }[] = [];
     for (let i = attrs.length - 1; i >= 0; i -= 1) {
       const name = attrs[i].name.trim();
-      if (!name || name === 'data-codellia-id' || !isValidAttributeName(name) || seen.has(name)) {
+      if (!name || name === 'data-kayzart-id' || !isValidAttributeName(name) || seen.has(name)) {
         continue;
       }
       seen.add(name);
@@ -862,7 +862,7 @@ async function main() {
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('[Codellia] Shortcode render failed', error);
+        console.error('[KayzArt] Shortcode render failed', error);
       }
       return {};
     },

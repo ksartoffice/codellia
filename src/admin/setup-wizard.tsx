@@ -1,4 +1,4 @@
-﻿import {
+import {
   createElement,
   Fragment,
   createRoot,
@@ -80,7 +80,7 @@ function SetupWizard({
       }
       setImportPayload(result.data || null);
     } catch {
-      setError(__('Invalid JSON file.', 'codellia'));
+      setError(__('Invalid JSON file.', 'kayzart-live-code-editor'));
       setImportPayload(null);
     }
   };
@@ -92,10 +92,10 @@ function SetupWizard({
     try {
       if (mode === 'import') {
         if (!importRestUrl) {
-          throw new Error(__('Import unavailable.', 'codellia'));
+          throw new Error(__('Import unavailable.', 'kayzart-live-code-editor'));
         }
         if (!importPayload) {
-          throw new Error(__('Select a JSON file to import.', 'codellia'));
+          throw new Error(__('Select a JSON file to import.', 'kayzart-live-code-editor'));
         }
 
         const response = await apiFetch<ImportResponse>({
@@ -108,11 +108,11 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __('Import failed.', 'codellia'));
+          throw new Error(response?.error || __('Import failed.', 'kayzart-live-code-editor'));
         }
 
         if (response.importWarnings?.length) {
-          console.warn('[Codellia] Import warnings', response.importWarnings);
+          console.warn('[KayzArt] Import warnings', response.importWarnings);
         }
 
         const normalizedPayload = response.html
@@ -137,7 +137,7 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __('Setup failed.', 'codellia'));
+          throw new Error(response?.error || __('Setup failed.', 'kayzart-live-code-editor'));
         }
 
         onComplete({ tailwindEnabled: Boolean(response.tailwindEnabled) });
@@ -156,12 +156,10 @@ function SetupWizard({
   return (
     <div className="cd-setupOverlay">
       <div className="cd-setupCard" role="dialog" aria-modal="true">
-        <div className="cd-setupTitle">{__('Choose editor mode', 'codellia')}</div>
+        <div className="cd-setupTitle">{__('Choose editor mode', 'kayzart-live-code-editor')}</div>
         <div className="cd-setupIntro">
           {__(
-            'Select TailwindCSS or Normal mode. This choice cannot be changed later.',
-            'codellia'
-          )}
+            'Select TailwindCSS or Normal mode. This choice cannot be changed later.', 'kayzart-live-code-editor')}
         </div>
         <div className="cd-setupOptions">
           <label className={`cd-setupOption${mode === 'normal' ? ' is-active' : ''}`}>
@@ -174,10 +172,10 @@ function SetupWizard({
             />
             <span className="cd-setupOptionBody">
               <span className="cd-setupOptionTitle">
-                {__('Normal (HTML/CSS)', 'codellia')}
+                {__('Normal (HTML/CSS)', 'kayzart-live-code-editor')}
               </span>
               <span className="cd-setupOptionDesc">
-                {__('Edit HTML and CSS directly with Monaco.', 'codellia')}
+                {__('Edit HTML and CSS directly with Monaco.', 'kayzart-live-code-editor')}
               </span>
             </span>
           </label>
@@ -191,10 +189,10 @@ function SetupWizard({
             />
             <span className="cd-setupOptionBody">
               <span className="cd-setupOptionTitle">
-                {__('TailwindCSS', 'codellia')}
+                {__('TailwindCSS', 'kayzart-live-code-editor')}
               </span>
               <span className="cd-setupOptionDesc">
-                {__('Use utility classes. CSS is compiled automatically.', 'codellia')}
+                {__('Use utility classes. CSS is compiled automatically.', 'kayzart-live-code-editor')}
               </span>
             </span>
           </label>
@@ -208,10 +206,10 @@ function SetupWizard({
             />
             <span className="cd-setupOptionBody">
               <span className="cd-setupOptionTitle">
-                {__('Import JSON', 'codellia')}
+                {__('Import JSON', 'kayzart-live-code-editor')}
               </span>
               <span className="cd-setupOptionDesc">
-                {__('Restore from an exported Codellia JSON file.', 'codellia')}
+                {__('Restore from an exported KayzArt JSON file.', 'kayzart-live-code-editor')}
               </span>
             </span>
           </label>
@@ -219,7 +217,7 @@ function SetupWizard({
         {mode === 'import' ? (
           <div className="cd-setupImport">
             <label className="cd-btn cd-btn-secondary cd-setupFileLabel">
-              {__('Choose JSON file', 'codellia')}
+              {__('Choose JSON file', 'kayzart-live-code-editor')}
               <input
                 className="cd-setupFileInput"
                 type="file"
@@ -228,7 +226,7 @@ function SetupWizard({
               />
             </label>
             <div className="cd-setupFileName">
-              {importFileName || __('No file selected.', 'codellia')}
+              {importFileName || __('No file selected.', 'kayzart-live-code-editor')}
             </div>
           </div>
         ) : null}
@@ -236,7 +234,7 @@ function SetupWizard({
         <div className="cd-setupActions">
           {backUrl ? (
             <a className="cd-btn cd-btn-secondary" href={backUrl}>
-              {__('Back', 'codellia')}
+              {__('Back', 'kayzart-live-code-editor')}
             </a>
           ) : null}
           <button
@@ -245,7 +243,7 @@ function SetupWizard({
             onClick={handleSubmit}
             disabled={saving}
           >
-            {saving ? __('Saving...', 'codellia') : __('Continue', 'codellia')}
+            {saving ? __('Saving...', 'kayzart-live-code-editor') : __('Continue', 'kayzart-live-code-editor')}
           </button>
         </div>
       </div>
@@ -257,8 +255,8 @@ export function runSetupWizard(config: SetupWizardConfig): Promise<SetupWizardRe
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = __('Setup unavailable.', 'codellia');
-    return Promise.reject(new Error(__('wp.apiFetch is unavailable.', 'codellia')));
+    container.textContent = __('Setup unavailable.', 'kayzart-live-code-editor');
+    return Promise.reject(new Error(__('wp.apiFetch is unavailable.', 'kayzart-live-code-editor')));
   }
 
   return new Promise((resolve) => {

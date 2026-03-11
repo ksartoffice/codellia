@@ -1,4 +1,4 @@
-﻿import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
+import { createElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export type ElementPanelAttribute = {
@@ -122,9 +122,9 @@ export function ElementPanel({ api }: ElementPanelProps) {
   if (!isVisible) {
     return (
       <div className="cd-settingsSection">
-        <div className="cd-settingsSectionTitle">{__( 'Elements', 'codellia' )}</div>
+        <div className="cd-settingsSectionTitle">{__( 'Elements', 'kayzart-live-code-editor')}</div>
         <div className="cd-settingsHelp">
-          {__( 'Select an element in the preview to edit its content and attributes.', 'codellia' )}
+          {__( 'Select an element in the preview to edit its content and attributes.', 'kayzart-live-code-editor')}
         </div>
       </div>
     );
@@ -132,11 +132,11 @@ export function ElementPanel({ api }: ElementPanelProps) {
 
   return (
     <div className="cd-settingsSection">
-      <div className="cd-settingsSectionTitle">{__( 'Elements', 'codellia' )}</div>
+      <div className="cd-settingsSectionTitle">{__( 'Elements', 'kayzart-live-code-editor')}</div>
       {hasText ? (
         <div className="cd-formGroup">
           <label className="cd-formLabel" htmlFor={fieldId}>
-            {__( 'Text', 'codellia' )}
+            {__( 'Text', 'kayzart-live-code-editor')}
           </label>
           <textarea
             id={fieldId}
@@ -148,21 +148,21 @@ export function ElementPanel({ api }: ElementPanelProps) {
         </div>
       ) : null}
       <div className="cd-formGroup">
-        <div className="cd-formLabel">{__( 'Attributes', 'codellia' )}</div>
+        <div className="cd-formLabel">{__( 'Attributes', 'kayzart-live-code-editor')}</div>
         <div className="cd-settingsScriptList">
           {attributes.map((attr, index) => (
             <div className="cd-settingsScriptRow" key={`attr-${index}`}>
               <input
                 type="text"
                 className="cd-formInput cd-settingsAttrNameInput"
-                placeholder={__( 'Attribute name', 'codellia' )}
+                placeholder={__( 'Attribute name', 'kayzart-live-code-editor')}
                 value={attr.name}
                 onChange={(event) => handleAttributeNameChange(index, event.target.value)}
               />
               <input
                 type="text"
                 className="cd-formInput cd-settingsScriptInput"
-                placeholder={__( 'Value', 'codellia' )}
+                placeholder={__( 'Value', 'kayzart-live-code-editor')}
                 value={attr.value}
                 onChange={(event) => handleAttributeValueChange(index, event.target.value)}
               />
@@ -170,9 +170,9 @@ export function ElementPanel({ api }: ElementPanelProps) {
                 className="cd-btn cd-btn-danger cd-settingsScriptButton"
                 type="button"
                 onClick={() => handleRemoveAttribute(index)}
-                aria-label={__( 'Remove attribute', 'codellia' )}
+                aria-label={__( 'Remove attribute', 'kayzart-live-code-editor')}
               >
-                {__( 'Remove', 'codellia' )}
+                {__( 'Remove', 'kayzart-live-code-editor')}
               </button>
             </div>
           ))}
@@ -181,7 +181,7 @@ export function ElementPanel({ api }: ElementPanelProps) {
             type="button"
             onClick={handleAddAttribute}
           >
-            {__( 'Add attribute', 'codellia' )}
+            {__( 'Add attribute', 'kayzart-live-code-editor')}
           </button>
         </div>
       </div>

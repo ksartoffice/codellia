@@ -1,11 +1,11 @@
 <?php
 /**
- * REST handler for importing Codellia data.
+ * REST handler for importing KayzArt data.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
-namespace Codellia;
+namespace KayzArt;
 
 use TailwindPHP\tw;
 
@@ -14,12 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * REST callbacks for Codellia import.
+ * REST callbacks for KayzArt import.
  */
 class Rest_Import {
 
 	/**
-	 * Import a Codellia JSON payload into a post.
+	 * Import a KayzArt JSON payload into a post.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -28,11 +28,11 @@ class Rest_Import {
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		$payload = $request->get_param( 'payload' );
 
-		if ( ! Post_Type::is_codellia_post( $post_id ) ) {
+		if ( ! Post_Type::is_kayzart_post( $post_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid post type.', 'codellia' ),
+					'error' => __( 'Invalid post type.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -42,7 +42,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Permission denied.', 'codellia' ),
+					'error' => __( 'Permission denied.', 'kayzart-live-code-editor' ),
 				),
 				403
 			);
@@ -52,7 +52,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid import payload.', 'codellia' ),
+					'error' => __( 'Invalid import payload.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -63,7 +63,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Unsupported import version.', 'codellia' ),
+					'error' => __( 'Unsupported import version.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -73,7 +73,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid HTML value.', 'codellia' ),
+					'error' => __( 'Invalid HTML value.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -83,7 +83,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid CSS value.', 'codellia' ),
+					'error' => __( 'Invalid CSS value.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -93,7 +93,7 @@ class Rest_Import {
 			return new \WP_REST_Response(
 				array(
 					'ok'    => false,
-					'error' => __( 'Invalid tailwindEnabled value.', 'codellia' ),
+					'error' => __( 'Invalid tailwindEnabled value.', 'kayzart-live-code-editor' ),
 				),
 				400
 			);
@@ -104,7 +104,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid JavaScript value.', 'codellia' ),
+						'error' => __( 'Invalid JavaScript value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -118,7 +118,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid shadowDomEnabled value.', 'codellia' ),
+						'error' => __( 'Invalid shadowDomEnabled value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -132,7 +132,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid shortcodeEnabled value.', 'codellia' ),
+						'error' => __( 'Invalid shortcodeEnabled value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -146,7 +146,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid singlePageEnabled value.', 'codellia' ),
+						'error' => __( 'Invalid singlePageEnabled value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -160,7 +160,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid liveHighlightEnabled value.', 'codellia' ),
+						'error' => __( 'Invalid liveHighlightEnabled value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -174,7 +174,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid generatedCss value.', 'codellia' ),
+						'error' => __( 'Invalid generatedCss value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -188,7 +188,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid externalScripts value.', 'codellia' ),
+						'error' => __( 'Invalid externalScripts value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -204,7 +204,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : __( 'Invalid externalScripts value.', 'codellia' ),
+						'error' => null !== $error ? $error : __( 'Invalid externalScripts value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -217,7 +217,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => __( 'Invalid externalStyles value.', 'codellia' ),
+						'error' => __( 'Invalid externalStyles value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -233,7 +233,7 @@ class Rest_Import {
 				return new \WP_REST_Response(
 					array(
 						'ok'    => false,
-						'error' => null !== $error ? $error : __( 'Invalid externalStyles value.', 'codellia' ),
+						'error' => null !== $error ? $error : __( 'Invalid externalStyles value.', 'kayzart-live-code-editor' ),
 					),
 					400
 				);
@@ -280,7 +280,7 @@ class Rest_Import {
 							'ok'    => false,
 							'error' => sprintf(
 								/* translators: %s: error message. */
-								__( 'Tailwind compile failed: %s', 'codellia' ),
+								__( 'Tailwind compile failed: %s', 'kayzart-live-code-editor' ),
 								$e->getMessage()
 							),
 						),
@@ -290,43 +290,43 @@ class Rest_Import {
 			}
 		}
 
-		update_post_meta( $post_id, '_codellia_css', wp_slash( $css_input ) );
-		update_post_meta( $post_id, '_codellia_js', wp_slash( $js_input ) );
-		delete_post_meta( $post_id, '_codellia_js_enabled' );
-		update_post_meta( $post_id, '_codellia_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
-		update_post_meta( $post_id, '_codellia_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_kayzart_css', wp_slash( $css_input ) );
+		update_post_meta( $post_id, '_kayzart_js', wp_slash( $js_input ) );
+		delete_post_meta( $post_id, '_kayzart_js_enabled' );
+		update_post_meta( $post_id, '_kayzart_shadow_dom', $shadow_dom_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_kayzart_shortcode_enabled', $shortcode_enabled ? '1' : '0' );
 		if ( null !== $single_page_enabled ) {
-			update_post_meta( $post_id, '_codellia_single_page_enabled', $single_page_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_kayzart_single_page_enabled', $single_page_enabled ? '1' : '0' );
 		}
 		if ( null !== $live_highlight_enabled ) {
-			update_post_meta( $post_id, '_codellia_live_highlight', $live_highlight_enabled ? '1' : '0' );
+			update_post_meta( $post_id, '_kayzart_live_highlight', $live_highlight_enabled ? '1' : '0' );
 		}
-		update_post_meta( $post_id, '_codellia_tailwind', $tailwind_enabled ? '1' : '0' );
-		update_post_meta( $post_id, '_codellia_tailwind_locked', '1' );
-		delete_post_meta( $post_id, '_codellia_setup_required' );
+		update_post_meta( $post_id, '_kayzart_tailwind', $tailwind_enabled ? '1' : '0' );
+		update_post_meta( $post_id, '_kayzart_tailwind_locked', '1' );
+		delete_post_meta( $post_id, '_kayzart_setup_required' );
 
 		if ( $tailwind_enabled ) {
-			update_post_meta( $post_id, '_codellia_generated_css', wp_slash( $compiled_css ) );
+			update_post_meta( $post_id, '_kayzart_generated_css', wp_slash( $compiled_css ) );
 		} else {
-			delete_post_meta( $post_id, '_codellia_generated_css' );
+			delete_post_meta( $post_id, '_kayzart_generated_css' );
 		}
 
 		if ( empty( $external_scripts ) ) {
-			delete_post_meta( $post_id, '_codellia_external_scripts' );
+			delete_post_meta( $post_id, '_kayzart_external_scripts' );
 		} else {
 			update_post_meta(
 				$post_id,
-				'_codellia_external_scripts',
+				'_kayzart_external_scripts',
 				wp_json_encode( $external_scripts, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 			);
 		}
 
 		if ( empty( $external_styles ) ) {
-			delete_post_meta( $post_id, '_codellia_external_styles' );
+			delete_post_meta( $post_id, '_kayzart_external_styles' );
 		} else {
 			update_post_meta(
 				$post_id,
-				'_codellia_external_styles',
+				'_kayzart_external_styles',
 				wp_json_encode( $external_styles, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 			);
 		}

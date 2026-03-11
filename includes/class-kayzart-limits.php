@@ -1,11 +1,11 @@
 <?php
 /**
- * Shared numeric limits for Codellia.
+ * Shared numeric limits for KayzArt.
  *
- * @package Codellia
+ * @package KayzArt
  */
 
-namespace Codellia;
+namespace KayzArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
