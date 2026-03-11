@@ -1,11 +1,11 @@
 <?php
 /**
- * Tests for the CazeArt post type.
+ * Tests for the KayzArt post type.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Post_Type;
+use KayzArt\Post_Type;
 
 class Test_Post_Type extends WP_UnitTestCase {
 	public function test_post_type_is_registered() {

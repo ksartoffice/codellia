@@ -21,7 +21,7 @@ type RegistryEntry = {
 type Listener = () => void;
 type RegisterSettingsTab = (tab: ExternalSettingsTab) => () => void;
 
-type CazeArtExtensionApi = {
+type KayzArtExtensionApi = {
   registerSettingsTab: RegisterSettingsTab;
 };
 
@@ -35,14 +35,14 @@ let initialized = false;
 
 declare global {
   interface Window {
-    CAZEART_EXTENSION_API?: CazeArtExtensionApi;
-    CAZEART_SETTINGS_TAB_QUEUE?: unknown[];
+    KAYZART_EXTENSION_API?: KayzArtExtensionApi;
+    KAYZART_SETTINGS_TAB_QUEUE?: unknown[];
   }
 }
 
 function warnInvalidTab(message: string, tab: unknown) {
   // eslint-disable-next-line no-console
-  console.warn(`[CazeArt] ${message}`, tab);
+  console.warn(`[KayzArt] ${message}`, tab);
 }
 
 function normalizeTab(tab: ExternalSettingsTab): ResolvedExternalSettingsTab | null {
@@ -126,10 +126,10 @@ function registerSettingsTabInternal(tab: ExternalSettingsTab): () => void {
 }
 
 function flushQueuedTabs(registerSettingsTab: RegisterSettingsTab) {
-  const queue = Array.isArray(window.CAZEART_SETTINGS_TAB_QUEUE)
-    ? [...window.CAZEART_SETTINGS_TAB_QUEUE]
+  const queue = Array.isArray(window.KAYZART_SETTINGS_TAB_QUEUE)
+    ? [...window.KAYZART_SETTINGS_TAB_QUEUE]
     : [];
-  window.CAZEART_SETTINGS_TAB_QUEUE = [];
+  window.KAYZART_SETTINGS_TAB_QUEUE = [];
   queue.forEach((entry) => {
     registerSettingsTab(entry as ExternalSettingsTab);
   });
@@ -143,8 +143,8 @@ export function ensureSettingsTabRegistryApi() {
 
   const registerSettingsTab: RegisterSettingsTab = (tab) =>
     registerSettingsTabInternal(tab);
-  window.CAZEART_EXTENSION_API = {
-    ...(window.CAZEART_EXTENSION_API || {}),
+  window.KAYZART_EXTENSION_API = {
+    ...(window.KAYZART_EXTENSION_API || {}),
     registerSettingsTab,
   };
   flushQueuedTabs(registerSettingsTab);

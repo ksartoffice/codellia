@@ -1,12 +1,12 @@
 <?php
 /**
- * Editor bridge behavior tests for CazeArt.
+ * Editor bridge behavior tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Editor_Bridge;
-use CazeArt\Post_Type;
+use KayzArt\Editor_Bridge;
+use KayzArt\Post_Type;
 
 class Test_Editor_Bridge extends WP_UnitTestCase {
 	private array $original_get = array();
@@ -33,33 +33,33 @@ class Test_Editor_Bridge extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	public function test_maybe_mark_setup_required_sets_meta_for_new_cazeart_post(): void {
+	public function test_maybe_mark_setup_required_sets_meta_for_new_kayzart_post(): void {
 		$post_id = $this->create_post( Post_Type::POST_TYPE );
 		$post    = get_post( $post_id );
 		$this->assertInstanceOf( WP_Post::class, $post );
 
-		delete_post_meta( $post_id, '_cazeart_setup_required' );
+		delete_post_meta( $post_id, '_kayzart_setup_required' );
 		Editor_Bridge::maybe_mark_setup_required( $post_id, $post, false );
 
-		$this->assertSame( '1', get_post_meta( $post_id, '_cazeart_setup_required', true ) );
+		$this->assertSame( '1', get_post_meta( $post_id, '_kayzart_setup_required', true ) );
 	}
 
-	public function test_maybe_mark_setup_required_skips_updates_and_non_cazeart_posts(): void {
-		$cazeart_id = $this->create_post( Post_Type::POST_TYPE );
-		$cazeart    = get_post( $cazeart_id );
-		$this->assertInstanceOf( WP_Post::class, $cazeart );
+	public function test_maybe_mark_setup_required_skips_updates_and_non_kayzart_posts(): void {
+		$kayzart_id = $this->create_post( Post_Type::POST_TYPE );
+		$kayzart    = get_post( $kayzart_id );
+		$this->assertInstanceOf( WP_Post::class, $kayzart );
 
-		delete_post_meta( $cazeart_id, '_cazeart_setup_required' );
-		Editor_Bridge::maybe_mark_setup_required( $cazeart_id, $cazeart, true );
-		$this->assertSame( '', get_post_meta( $cazeart_id, '_cazeart_setup_required', true ) );
+		delete_post_meta( $kayzart_id, '_kayzart_setup_required' );
+		Editor_Bridge::maybe_mark_setup_required( $kayzart_id, $kayzart, true );
+		$this->assertSame( '', get_post_meta( $kayzart_id, '_kayzart_setup_required', true ) );
 
 		$normal_id = $this->create_post( 'post' );
 		$normal    = get_post( $normal_id );
 		$this->assertInstanceOf( WP_Post::class, $normal );
 
-		delete_post_meta( $normal_id, '_cazeart_setup_required' );
+		delete_post_meta( $normal_id, '_kayzart_setup_required' );
 		Editor_Bridge::maybe_mark_setup_required( $normal_id, $normal, false );
-		$this->assertSame( '', get_post_meta( $normal_id, '_cazeart_setup_required', true ) );
+		$this->assertSame( '', get_post_meta( $normal_id, '_kayzart_setup_required', true ) );
 	}
 
 	public function test_resolve_post_id_prefers_query_post_and_falls_back_to_global_post(): void {
@@ -76,7 +76,7 @@ class Test_Editor_Bridge extends WP_UnitTestCase {
 		$this->assertSame( $second_id, $this->invoke_private_int_method( 'resolve_post_id' ) );
 	}
 
-	public function test_enqueue_classic_assets_enqueues_only_for_cazeart_classic_editor(): void {
+	public function test_enqueue_classic_assets_enqueues_only_for_kayzart_classic_editor(): void {
 		$post_id = $this->create_post( Post_Type::POST_TYPE );
 		$_GET['post'] = (string) $post_id;
 
@@ -95,7 +95,7 @@ class Test_Editor_Bridge extends WP_UnitTestCase {
 		$this->assertFalse( wp_script_is( Editor_Bridge::SCRIPT_HANDLE, 'enqueued' ) );
 	}
 
-	public function test_enqueue_block_assets_runs_only_for_cazeart_screen(): void {
+	public function test_enqueue_block_assets_runs_only_for_kayzart_screen(): void {
 		set_current_screen( 'post' );
 		$screen            = get_current_screen();
 		$screen->post_type = Post_Type::POST_TYPE;

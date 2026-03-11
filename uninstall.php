@@ -1,22 +1,22 @@
 <?php
 /**
- * Uninstall handler for CazeArt.
+ * Uninstall handler for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-$cazeart_delete_data = get_option( 'cazeart_delete_on_uninstall', '0' );
-if ( '1' !== $cazeart_delete_data ) {
+$kayzart_delete_data = get_option( 'kayzart_delete_on_uninstall', '0' );
+if ( '1' !== $kayzart_delete_data ) {
 	return;
 }
 
 $posts = get_posts(
 	array(
-		'post_type'              => 'cazeart',
+		'post_type'              => 'kayzart',
 		'post_status'            => 'any',
 		'posts_per_page'         => -1,
 		'fields'                 => 'ids',
@@ -30,6 +30,6 @@ foreach ( $posts as $post_id ) {
 	wp_delete_post( $post_id, true );
 }
 
-delete_option( 'cazeart_delete_on_uninstall' );
-delete_option( 'cazeart_post_slug' );
-delete_option( 'cazeart_flush_rewrite' );
+delete_option( 'kayzart_delete_on_uninstall' );
+delete_option( 'kayzart_post_slug' );
+delete_option( 'kayzart_flush_rewrite' );

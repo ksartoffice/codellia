@@ -63,22 +63,22 @@ export function SettingsPanel({
   const hasScripts = externalScripts.length > 0;
   const canAddStyle = !disabled && externalStyles.length < externalStylesMax;
   const hasStyles = externalStyles.length > 0;
-  const shortcodeText = `[cazeart post_id="${postId}"]`;
+  const shortcodeText = `[kayzart post_id="${postId}"]`;
   const templateModeLabels: Record<'standalone' | 'frame' | 'theme', string> = {
-    standalone: __( 'Standalone', 'cazeart-live-code-editor'),
-    frame: __( 'Frame', 'cazeart-live-code-editor'),
-    theme: __( 'Theme', 'cazeart-live-code-editor'),
+    standalone: __( 'Standalone', 'kayzart-live-code-editor'),
+    frame: __( 'Frame', 'kayzart-live-code-editor'),
+    theme: __( 'Theme', 'kayzart-live-code-editor'),
   };
   const resolvedDefaultTemplateMode =
     templateModeLabels[defaultTemplateMode] || templateModeLabels.theme;
   const templateHelp =
     templateMode === 'default'
-      ? __( 'Use default follows the default template mode from plugin settings.', 'cazeart-live-code-editor')
+      ? __( 'Use default follows the default template mode from plugin settings.', 'kayzart-live-code-editor')
       : templateMode === 'standalone'
-        ? __( 'Standalone hides the theme header and footer.', 'cazeart-live-code-editor')
+        ? __( 'Standalone hides the theme header and footer.', 'kayzart-live-code-editor')
         : templateMode === 'frame'
-          ? __( 'Frame uses the theme header and footer.', 'cazeart-live-code-editor')
-          : __( 'Theme uses the active theme template.', 'cazeart-live-code-editor');
+          ? __( 'Frame uses the theme header and footer.', 'kayzart-live-code-editor')
+          : __( 'Theme uses the active theme template.', 'kayzart-live-code-editor');
 
   useEffect(() => {
     return () => {
@@ -169,7 +169,7 @@ export function SettingsPanel({
   return (
     <Fragment>
       <div className="cd-settingsSection">
-        <div className="cd-settingsSectionTitle">{__( 'Page template', 'cazeart-live-code-editor')}</div>
+        <div className="cd-settingsSectionTitle">{__( 'Page template', 'kayzart-live-code-editor')}</div>
         <div className="cd-settingsItem">
           <select
             className="cd-formSelect"
@@ -179,11 +179,11 @@ export function SettingsPanel({
                 event.target.value as 'default' | 'standalone' | 'frame' | 'theme'
               )
             }
-            aria-label={__( 'Template mode', 'cazeart-live-code-editor')}
+            aria-label={__( 'Template mode', 'kayzart-live-code-editor')}
             disabled={disabled}
           >
             <option value="default">
-              {sprintf(__( 'Use default (%s)', 'cazeart-live-code-editor'), resolvedDefaultTemplateMode)}
+              {sprintf(__( 'Use default (%s)', 'kayzart-live-code-editor'), resolvedDefaultTemplateMode)}
             </option>
             <option value="standalone">{templateModeLabels.standalone}</option>
             <option value="frame">{templateModeLabels.frame}</option>
@@ -195,17 +195,17 @@ export function SettingsPanel({
 
       <div className="cd-settingsSection">
         <div className="cd-settingsSectionTitle">
-          {__( 'Output settings', 'cazeart-live-code-editor')}
+          {__( 'Output settings', 'kayzart-live-code-editor')}
         </div>
         <div className="cd-settingsItem cd-settingsToggle">
           <div className="cd-settingsItemLabel">
-            {__( 'Enable shortcode', 'cazeart-live-code-editor')}
+            {__( 'Enable shortcode', 'kayzart-live-code-editor')}
           </div>
           <label className="cd-toggle">
             <input
               type="checkbox"
               checked={shortcodeEnabled}
-              aria-label={__( 'Enable shortcode', 'cazeart-live-code-editor')}
+              aria-label={__( 'Enable shortcode', 'kayzart-live-code-editor')}
               onChange={(event) => onToggleShortcode(event.target.checked)}
               disabled={disabled}
             />
@@ -221,34 +221,34 @@ export function SettingsPanel({
                 className="cd-formInput cd-settingsScriptInput"
                 value={shortcodeText}
                 readOnly
-                aria-label={__( 'CazeArt shortcode', 'cazeart-live-code-editor')}
+                aria-label={__( 'KayzArt shortcode', 'kayzart-live-code-editor')}
               />
               <button
                 className="cd-btn cd-btn-secondary"
                 type="button"
                 onClick={handleCopyShortcode}
-                aria-label={__( 'Copy shortcode', 'cazeart-live-code-editor')}
+                aria-label={__( 'Copy shortcode', 'kayzart-live-code-editor')}
               >
                 {copyState === 'copied'
-                  ? __( 'Copied', 'cazeart-live-code-editor')
-                  : __( 'Copy', 'cazeart-live-code-editor')}
+                  ? __( 'Copied', 'kayzart-live-code-editor')
+                  : __( 'Copy', 'kayzart-live-code-editor')}
               </button>
             </div>
             {copyState === 'copied' ? (
-              <div className="cd-settingsHelp">{__( 'Copied.', 'cazeart-live-code-editor')}</div>
+              <div className="cd-settingsHelp">{__( 'Copied.', 'kayzart-live-code-editor')}</div>
             ) : null}
             {copyState === 'error' ? (
-              <div className="cd-settingsError">{__( 'Copy failed.', 'cazeart-live-code-editor')}</div>
+              <div className="cd-settingsError">{__( 'Copy failed.', 'kayzart-live-code-editor')}</div>
             ) : null}
             <div className="cd-settingsItem cd-settingsToggle">
               <div className="cd-settingsItemLabel">
-                {__( 'Do not publish as single page', 'cazeart-live-code-editor')}
+                {__( 'Do not publish as single page', 'kayzart-live-code-editor')}
               </div>
               <label className="cd-toggle">
                 <input
                   type="checkbox"
                   checked={!singlePageEnabled}
-                  aria-label={__( 'Do not publish as single page', 'cazeart-live-code-editor')}
+                  aria-label={__( 'Do not publish as single page', 'kayzart-live-code-editor')}
                   onChange={(event) => onToggleSinglePage(!event.target.checked)}
                   disabled={disabled}
                 />
@@ -257,13 +257,13 @@ export function SettingsPanel({
             </div>
             <div className="cd-settingsHelp">
               {__(
-                'You can paste this into a shortcode block in Gutenberg or Elementor.', 'cazeart-live-code-editor')}
+                'You can paste this into a shortcode block in Gutenberg or Elementor.', 'kayzart-live-code-editor')}
             </div>
           </Fragment>
         ) : null}
         {disabled ? (
           <div className="cd-settingsHelp">
-            {__( 'Requires unfiltered_html capability.', 'cazeart-live-code-editor')}
+            {__( 'Requires unfiltered_html capability.', 'kayzart-live-code-editor')}
           </div>
         ) : null}
         {error ? <div className="cd-settingsError">{error}</div> : null}
@@ -271,17 +271,17 @@ export function SettingsPanel({
 
       <div className="cd-settingsSection">
         <div className="cd-settingsSectionTitle">
-          {__( 'Rendering settings', 'cazeart-live-code-editor')}
+          {__( 'Rendering settings', 'kayzart-live-code-editor')}
         </div>
         <div className="cd-settingsItem cd-settingsToggle">
           <div className="cd-settingsItemLabel">
-            {__( 'Enable Shadow DOM (DSD)', 'cazeart-live-code-editor')}
+            {__( 'Enable Shadow DOM (DSD)', 'kayzart-live-code-editor')}
           </div>
           <label className="cd-toggle">
             <input
               type="checkbox"
               checked={shadowDomEnabled}
-              aria-label={__( 'Enable Shadow DOM (DSD)', 'cazeart-live-code-editor')}
+              aria-label={__( 'Enable Shadow DOM (DSD)', 'kayzart-live-code-editor')}
               onChange={(event) => onToggleShadowDom(event.target.checked)}
               disabled={disabled}
             />
@@ -289,21 +289,21 @@ export function SettingsPanel({
           </label>
         </div>
         <div className="cd-settingsHelp">
-          {__( 'Prevents interference with existing theme CSS.', 'cazeart-live-code-editor')}
+          {__( 'Prevents interference with existing theme CSS.', 'kayzart-live-code-editor')}
         </div>
       </div>
 
       <div className="cd-settingsSection">
         <div className="cd-settingsSectionTitle">
-          {__( 'External resource settings', 'cazeart-live-code-editor')}
+          {__( 'External resource settings', 'kayzart-live-code-editor')}
         </div>
         <div className="cd-settingsHelp">
           {__(
-            'These files are requested from third-party servers in preview and front-end output. Add only trusted URLs.', 'cazeart-live-code-editor')}
+            'These files are requested from third-party servers in preview and front-end output. Add only trusted URLs.', 'kayzart-live-code-editor')}
         </div>
         {canEditJs ? (
           <Fragment>
-            <div className="cd-settingsItemLabel">{__( 'External scripts', 'cazeart-live-code-editor')}</div>
+            <div className="cd-settingsItemLabel">{__( 'External scripts', 'kayzart-live-code-editor')}</div>
             {hasScripts ? (
               <div className="cd-settingsScriptList">
                 {externalScripts.map((scriptUrl, index) => (
@@ -311,7 +311,7 @@ export function SettingsPanel({
                     <input
                       type="url"
                       className="cd-formInput cd-settingsScriptInput"
-                      placeholder={__( 'https://example.com/script.js', 'cazeart-live-code-editor')}
+                      placeholder={__( 'https://example.com/script.js', 'kayzart-live-code-editor')}
                       value={scriptUrl}
                       onChange={(event) => updateScriptAt(index, event.target.value, false)}
                       onBlur={(event) => updateScriptAt(index, event.target.value, true)}
@@ -328,9 +328,9 @@ export function SettingsPanel({
                       type="button"
                       onClick={() => handleRemoveScript(index)}
                       disabled={disabled}
-                      aria-label={__( 'Remove external script', 'cazeart-live-code-editor')}
+                      aria-label={__( 'Remove external script', 'kayzart-live-code-editor')}
                     >
-                      {__( 'Remove', 'cazeart-live-code-editor')}
+                      {__( 'Remove', 'kayzart-live-code-editor')}
                     </button>
                   </div>
                 ))}
@@ -339,9 +339,9 @@ export function SettingsPanel({
                   type="button"
                   onClick={handleAddScript}
                   disabled={!canAddScript}
-                  aria-label={__( 'Add external script', 'cazeart-live-code-editor')}
+                  aria-label={__( 'Add external script', 'kayzart-live-code-editor')}
                 >
-                  {`+ ${__( 'Add', 'cazeart-live-code-editor')}`}
+                  {`+ ${__( 'Add', 'kayzart-live-code-editor')}`}
                 </button>
               </div>
             ) : (
@@ -351,14 +351,14 @@ export function SettingsPanel({
                 onClick={handleAddScript}
                 disabled={!canAddScript}
               >
-                {__( 'Add external script', 'cazeart-live-code-editor')}
+                {__( 'Add external script', 'kayzart-live-code-editor')}
               </button>
             )}
             <div className="cd-settingsHelp">
               {/* translators: %d: maximum number of items. */}
               {sprintf(
                 __(
-                  'Only URLs starting with https:// are allowed. You can add up to %d items.', 'cazeart-live-code-editor'),
+                  'Only URLs starting with https:// are allowed. You can add up to %d items.', 'kayzart-live-code-editor'),
                 externalScriptsMax
               )}
             </div>
@@ -367,7 +367,7 @@ export function SettingsPanel({
             ) : null}
           </Fragment>
         ) : null}
-        <div className="cd-settingsItemLabel">{__( 'External styles', 'cazeart-live-code-editor')}</div>
+        <div className="cd-settingsItemLabel">{__( 'External styles', 'kayzart-live-code-editor')}</div>
         {hasStyles ? (
           <div className="cd-settingsScriptList">
             {externalStyles.map((styleUrl, index) => (
@@ -375,7 +375,7 @@ export function SettingsPanel({
                 <input
                   type="url"
                   className="cd-formInput cd-settingsScriptInput"
-                  placeholder={__( 'https://example.com/style.css', 'cazeart-live-code-editor')}
+                  placeholder={__( 'https://example.com/style.css', 'kayzart-live-code-editor')}
                   value={styleUrl}
                   onChange={(event) => updateStyleAt(index, event.target.value, false)}
                   onBlur={(event) => updateStyleAt(index, event.target.value, true)}
@@ -392,9 +392,9 @@ export function SettingsPanel({
                   type="button"
                   onClick={() => handleRemoveStyle(index)}
                   disabled={disabled}
-                  aria-label={__( 'Remove external style', 'cazeart-live-code-editor')}
+                  aria-label={__( 'Remove external style', 'kayzart-live-code-editor')}
                 >
-                  {__( 'Remove', 'cazeart-live-code-editor')}
+                  {__( 'Remove', 'kayzart-live-code-editor')}
                 </button>
               </div>
             ))}
@@ -403,9 +403,9 @@ export function SettingsPanel({
               type="button"
               onClick={handleAddStyle}
               disabled={!canAddStyle}
-              aria-label={__( 'Add external style', 'cazeart-live-code-editor')}
+              aria-label={__( 'Add external style', 'kayzart-live-code-editor')}
             >
-              {`+ ${__( 'Add', 'cazeart-live-code-editor')}`}
+              {`+ ${__( 'Add', 'kayzart-live-code-editor')}`}
             </button>
           </div>
         ) : (
@@ -415,13 +415,13 @@ export function SettingsPanel({
             onClick={handleAddStyle}
             disabled={!canAddStyle}
           >
-            {__( 'Add external style', 'cazeart-live-code-editor')}
+            {__( 'Add external style', 'kayzart-live-code-editor')}
           </button>
         )}
         <div className="cd-settingsHelp">
           {/* translators: %d: maximum number of items. */}
           {sprintf(
-            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'cazeart-live-code-editor'),
+            __( 'Only URLs starting with https:// are allowed. You can add up to %d items.', 'kayzart-live-code-editor'),
             externalStylesMax
           )}
         </div>
@@ -432,17 +432,17 @@ export function SettingsPanel({
 
       <div className="cd-settingsSection">
         <div className="cd-settingsSectionTitle">
-          {__( 'Display settings', 'cazeart-live-code-editor')}
+          {__( 'Display settings', 'kayzart-live-code-editor')}
         </div>
         <div className="cd-settingsItem cd-settingsToggle">
           <div className="cd-settingsItemLabel">
-            {__( 'Enable live edit highlight', 'cazeart-live-code-editor')}
+            {__( 'Enable live edit highlight', 'kayzart-live-code-editor')}
           </div>
           <label className="cd-toggle">
             <input
               type="checkbox"
               checked={liveHighlightEnabled}
-              aria-label={__( 'Enable live edit highlight', 'cazeart-live-code-editor')}
+              aria-label={__( 'Enable live edit highlight', 'kayzart-live-code-editor')}
               onChange={(event) => onToggleLiveHighlight(event.target.checked)}
             />
             <span className="cd-toggleTrack" aria-hidden="true" />

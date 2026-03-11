@@ -13,7 +13,7 @@
         }
       };
 
-  var data = window.CAZEART_EDITOR || {};
+  var data = window.KAYZART_EDITOR || {};
   var actionUrl = data.actionUrl || '';
 
   var getPostIdFromBlock = function () {
@@ -35,7 +35,7 @@
     return Number(input.value) || 0;
   };
 
-  var redirectToCazeArt = function (postId) {
+  var redirectToKayzArt = function (postId) {
     if (!actionUrl || !postId) {
       return;
     }
@@ -53,7 +53,7 @@
     }
 
     button.classList.add('is-busy');
-    button.textContent = __( 'Saving...', 'cazeart-live-code-editor');
+    button.textContent = __( 'Saving...', 'kayzart-live-code-editor');
 
     dispatch.savePost();
     var unsubscribe = wpRef.data.subscribe(function () {
@@ -64,7 +64,7 @@
       var id = getPostId();
       if (!isSaving && id) {
         unsubscribe();
-        redirectToCazeArt(id);
+        redirectToKayzArt(id);
       }
     });
   };
@@ -74,23 +74,23 @@
     if (!toolbar) {
       return;
     }
-    if (document.querySelector('.cazeart-editor-toolbar')) {
+    if (document.querySelector('.kayzart-editor-toolbar')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'cazeart-editor-toolbar';
+    container.className = 'kayzart-editor-toolbar';
 
     var button = document.createElement('a');
-    button.className = 'components-button is-primary cazeart-editor-toolbar__button';
+    button.className = 'components-button is-primary kayzart-editor-toolbar__button';
     button.href = '#';
-    button.textContent = __( 'Edit with CazeArt', 'cazeart-live-code-editor');
+    button.textContent = __( 'Edit with KayzArt', 'kayzart-live-code-editor');
 
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromBlock() || Number(data.postId) || 0;
       if (postId) {
-        redirectToCazeArt(postId);
+        redirectToKayzArt(postId);
         return;
       }
 
@@ -123,16 +123,16 @@
   };
 
   var setupClassicEditor = function () {
-    if (document.querySelector('.cazeart-editor-bridge')) {
+    if (document.querySelector('.kayzart-editor-bridge')) {
       return;
     }
 
     var container = document.createElement('div');
-    container.className = 'cazeart-editor-bridge';
+    container.className = 'kayzart-editor-bridge';
 
     var button = document.createElement('a');
-    button.className = 'button button-primary cazeart-editor-bridge__button';
-    button.textContent = __( 'Edit with CazeArt', 'cazeart-live-code-editor');
+    button.className = 'button button-primary kayzart-editor-bridge__button';
+    button.textContent = __( 'Edit with KayzArt', 'kayzart-live-code-editor');
     button.href = '#';
 
     container.appendChild(button);
@@ -150,12 +150,12 @@
     button.addEventListener('click', function (event) {
       event.preventDefault();
       var postId = getPostIdFromClassic() || Number(data.postId) || 0;
-      redirectToCazeArt(postId);
+      redirectToKayzArt(postId);
     });
   };
 
   domReady(function () {
-    if (!document.body.classList.contains('post-type-cazeart')) {
+    if (!document.body.classList.contains('post-type-kayzart')) {
       return;
     }
 

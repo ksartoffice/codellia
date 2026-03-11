@@ -1,12 +1,12 @@
 <?php
 /**
- * Admin settings and rewrite behavior tests for CazeArt.
+ * Admin settings and rewrite behavior tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Admin;
-use CazeArt\Post_Type;
+use KayzArt\Admin;
+use KayzArt\Post_Type;
 
 class Test_Admin_Settings extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -46,7 +46,7 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$this->assertSame( '0', Admin::sanitize_delete_on_uninstall( 1 ) );
 	}
 
-	public function test_filter_admin_url_rewrites_cazeart_add_new_url_with_nonce(): void {
+	public function test_filter_admin_url_rewrites_kayzart_add_new_url_with_nonce(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
@@ -65,7 +65,7 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$this->assertNotEmpty( $query['_wpnonce'] ?? '' );
 	}
 
-	public function test_filter_admin_url_keeps_non_cazeart_routes_unchanged(): void {
+	public function test_filter_admin_url_keeps_non_kayzart_routes_unchanged(): void {
 		$path   = 'post-new.php?post_type=post';
 		$url    = admin_url( $path );
 		$result = Admin::filter_admin_url( $url, $path, get_current_blog_id() );
@@ -97,10 +97,10 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 	public function test_handle_post_slug_update_sets_flush_flag_only_when_value_changes(): void {
 		update_option( Admin::OPTION_FLUSH_REWRITE, '0' );
 
-		Admin::handle_post_slug_update( 'cazeart', 'cazeart' );
+		Admin::handle_post_slug_update( 'kayzart', 'kayzart' );
 		$this->assertSame( '0', get_option( Admin::OPTION_FLUSH_REWRITE, '0' ) );
 
-		Admin::handle_post_slug_update( 'cazeart', 'cazeart-new' );
+		Admin::handle_post_slug_update( 'kayzart', 'kayzart-new' );
 		$this->assertSame( '1', get_option( Admin::OPTION_FLUSH_REWRITE, '0' ) );
 	}
 
@@ -140,7 +140,7 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 
 		$_GET = $original_get;
 
-		$this->assertTrue( wp_script_is( 'cazeart-admin', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'kayzart-admin', 'enqueued' ) );
 		$this->assertSame( $before + 1, did_action( 'wp_enqueue_media' ) );
 	}
 
@@ -158,7 +158,7 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$listener         = static function ( $context ) use ( &$captured_context ): void {
 			$captured_context = $context;
 		};
-		add_action( 'cazeart_editor_enqueue_assets', $listener, 10, 1 );
+		add_action( 'kayzart_editor_enqueue_assets', $listener, 10, 1 );
 
 		$original_get    = $_GET;
 		$_GET['post_id'] = (string) $post_id;
@@ -166,13 +166,13 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		Admin::enqueue_assets( 'admin_page_' . Admin::MENU_SLUG );
 
 		$_GET = $original_get;
-		remove_action( 'cazeart_editor_enqueue_assets', $listener, 10 );
+		remove_action( 'kayzart_editor_enqueue_assets', $listener, 10 );
 
 		$this->assertIsArray( $captured_context );
 		$this->assertSame( $post_id, $captured_context['post_id'] ?? null );
 		$this->assertSame( 'admin_page_' . Admin::MENU_SLUG, $captured_context['hook_suffix'] ?? null );
-		$this->assertSame( 'cazeart-admin', $captured_context['admin_script_handle'] ?? null );
-		$this->assertSame( 'cazeart-admin', $captured_context['admin_style_handle'] ?? null );
+		$this->assertSame( 'kayzart-admin', $captured_context['admin_script_handle'] ?? null );
+		$this->assertSame( 'kayzart-admin', $captured_context['admin_style_handle'] ?? null );
 	}
 
 	public function test_enqueue_assets_does_not_fire_editor_extension_hook_on_other_pages(): void {
@@ -180,11 +180,11 @@ class Test_Admin_Settings extends WP_UnitTestCase {
 		$listener = static function () use ( &$fired ): void {
 			$fired = true;
 		};
-		add_action( 'cazeart_editor_enqueue_assets', $listener, 10, 0 );
+		add_action( 'kayzart_editor_enqueue_assets', $listener, 10, 0 );
 
-		Admin::enqueue_assets( 'settings_page_cazeart-settings' );
+		Admin::enqueue_assets( 'settings_page_kayzart-settings' );
 
-		remove_action( 'cazeart_editor_enqueue_assets', $listener, 10 );
+		remove_action( 'kayzart_editor_enqueue_assets', $listener, 10 );
 		$this->assertFalse( $fired );
 	}
 }

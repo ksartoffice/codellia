@@ -134,32 +134,32 @@ function MissingMarkersModal({
 }
 
 export function createModalController(deps: ModalControllerDeps) {
-  const shadowHintTitle = __('Shadow DOM Hint', 'cazeart-live-code-editor');
+  const shadowHintTitle = __('Shadow DOM Hint', 'kayzart-live-code-editor');
   const shadowHintLead = __(
-    'When Shadow DOM is enabled, HTML is rendered inside the Shadow Root.', 'cazeart-live-code-editor');
+    'When Shadow DOM is enabled, HTML is rendered inside the Shadow Root.', 'kayzart-live-code-editor');
   const shadowHintDetail = __(
-    'Use the root below (scoped to this script) instead of document to query elements.', 'cazeart-live-code-editor');
+    'Use the root below (scoped to this script) instead of document to query elements.', 'kayzart-live-code-editor');
   const shadowHintCode =
-    "const root = document.currentScript?.closest('cazeart-output')?.shadowRoot || document;";
+    "const root = document.currentScript?.closest('kayzart-output')?.shadowRoot || document;";
   const shadowHintNote = __(
-    'Note: root can be Document or ShadowRoot; create* APIs are only on Document.', 'cazeart-live-code-editor');
-  const tailwindHintTitle = __('Tailwind CSS Hint', 'cazeart-live-code-editor');
+    'Note: root can be Document or ShadowRoot; create* APIs are only on Document.', 'kayzart-live-code-editor');
+  const tailwindHintTitle = __('Tailwind CSS Hint', 'kayzart-live-code-editor');
   const tailwindHintLead = __(
-    'To disable Tailwind CSS preflight (reset CSS), replace `@import "tailwindcss";` with the imports below.', 'cazeart-live-code-editor');
+    'To disable Tailwind CSS preflight (reset CSS), replace `@import "tailwindcss";` with the imports below.', 'kayzart-live-code-editor');
   const tailwindHintCode =
     '@layer theme, base, components, utilities;\n' +
     '@import "tailwindcss/theme.css" layer(theme);\n' +
     '@import "tailwindcss/utilities.css" layer(utilities);';
-  const closeLabel = __('Close', 'cazeart-live-code-editor');
-  const copyLabel = __('Copy', 'cazeart-live-code-editor');
-  const copiedLabel = __('Copied', 'cazeart-live-code-editor');
+  const closeLabel = __('Close', 'kayzart-live-code-editor');
+  const copyLabel = __('Copy', 'kayzart-live-code-editor');
+  const copiedLabel = __('Copied', 'kayzart-live-code-editor');
 
-  const missingMarkersTitle = __('Theme template unavailable', 'cazeart-live-code-editor');
+  const missingMarkersTitle = __('Theme template unavailable', 'kayzart-live-code-editor');
   const missingMarkersBody = __(
-    'This theme does not output "the_content", so the preview cannot be rendered. CazeArt will switch the template mode to Frame.', 'cazeart-live-code-editor');
-  const missingMarkersActionLabel = __('OK', 'cazeart-live-code-editor');
+    'This theme does not output "the_content", so the preview cannot be rendered. KayzArt will switch the template mode to Frame.', 'kayzart-live-code-editor');
+  const missingMarkersActionLabel = __('OK', 'kayzart-live-code-editor');
   const missingMarkersRetryNotice = __(
-    'Preview markers are still missing after switching template mode. The current template does not output "the_content".', 'cazeart-live-code-editor');
+    'Preview markers are still missing after switching template mode. The current template does not output "the_content".', 'kayzart-live-code-editor');
   const missingMarkersFallbackTemplateMode: 'standalone' | 'frame' = 'frame';
 
   let modalHost: HTMLDivElement | null = null;
@@ -386,7 +386,7 @@ export function createModalController(deps: ModalControllerDeps) {
     if (!deps.settingsRestUrl || !deps.apiFetch) {
       deps.createSnackbar(
         'error',
-        __('Settings unavailable.', 'cazeart-live-code-editor'),
+        __('Settings unavailable.', 'kayzart-live-code-editor'),
         deps.noticeIds.templateFallback,
         deps.noticeErrorMs
       );
@@ -406,7 +406,7 @@ export function createModalController(deps: ModalControllerDeps) {
       if (!response?.ok) {
         deps.createSnackbar(
           'error',
-          response?.error || __('Update failed.', 'cazeart-live-code-editor'),
+          response?.error || __('Update failed.', 'kayzart-live-code-editor'),
           deps.noticeIds.templateFallback,
           deps.noticeErrorMs
         );
@@ -427,7 +427,7 @@ export function createModalController(deps: ModalControllerDeps) {
     } catch (error: any) {
       deps.createSnackbar(
         'error',
-        error?.message || __('Update failed.', 'cazeart-live-code-editor'),
+        error?.message || __('Update failed.', 'kayzart-live-code-editor'),
         deps.noticeIds.templateFallback,
         deps.noticeErrorMs
       );

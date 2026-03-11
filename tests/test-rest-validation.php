@@ -1,13 +1,13 @@
 <?php
 /**
- * REST validation tests for CazeArt.
+ * REST validation tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Frontend;
-use CazeArt\Limits;
-use CazeArt\Post_Type;
+use KayzArt\Frontend;
+use KayzArt\Limits;
+use KayzArt\Post_Type;
 
 class Test_Rest_Validation extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -22,13 +22,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_version(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload               = $this->get_import_payload_base();
 		$payload['version']    = 2;
 		$response              = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -40,13 +40,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_tailwind_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['tailwindEnabled'] = 'yes';
 		$response                   = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -58,13 +58,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_external_scripts_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['externalScripts'] = array( 'http://example.com/script.js' );
 		$response                   = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -76,13 +76,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_js_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload        = $this->get_import_payload_base();
 		$payload['js']  = array( 'alert(1)' );
 		$response       = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -94,13 +94,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_generated_css_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload               = $this->get_import_payload_base();
 		$payload['generatedCss'] = array( 'body { color: red; }' );
 		$response              = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -112,13 +112,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_shadow_dom_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['shadowDomEnabled'] = 'yes';
 		$response                   = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -130,13 +130,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_shortcode_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                    = $this->get_import_payload_base();
 		$payload['shortcodeEnabled'] = 1;
 		$response                   = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -148,13 +148,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_single_page_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                     = $this->get_import_payload_base();
 		$payload['singlePageEnabled'] = 'true';
 		$response                    = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -166,13 +166,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_live_highlight_enabled_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                       = $this->get_import_payload_base();
 		$payload['liveHighlightEnabled'] = 'false';
 		$response                      = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -184,13 +184,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_external_styles_type(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                   = $this->get_import_payload_base();
 		$payload['externalStyles'] = 'https://example.com/style.css';
 		$response                  = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -202,13 +202,13 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_import_rejects_invalid_external_styles_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$payload                   = $this->get_import_payload_base();
 		$payload['externalStyles'] = array( 'http://example.com/style.css' );
 		$response                  = $this->dispatch_route(
-			'/cazeart/v1/import',
+			'/kayzart/v1/import',
 			array(
 				'post_id' => $post_id,
 				'payload' => $payload,
@@ -220,11 +220,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_non_array_updates(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => 'nope',
@@ -236,11 +236,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_scripts_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -266,11 +266,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_scripts_invalid_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -284,11 +284,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_styles_invalid_url(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -302,11 +302,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_rejects_external_styles_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -332,11 +332,11 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_slug_is_sanitized_before_save(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -357,8 +357,8 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_settings_slug_is_made_unique_by_wordpress(): void {
 		$admin_id         = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$existing_post_id = $this->create_cazeart_post( $admin_id );
-		$target_post_id   = $this->create_cazeart_post( $admin_id );
+		$existing_post_id = $this->create_kayzart_post( $admin_id );
+		$target_post_id   = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
@@ -371,7 +371,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		);
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $target_post_id,
 				'updates' => array(
@@ -395,12 +395,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_compile_tailwind_rejects_html_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/compile-tailwind',
+			'/kayzart/v1/compile-tailwind',
 			array(
 				'post_id' => $post_id,
 				'html'    => str_repeat( 'a', Limits::MAX_TAILWIND_HTML_BYTES + 1 ),
@@ -413,12 +413,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_compile_tailwind_rejects_css_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/compile-tailwind',
+			'/kayzart/v1/compile-tailwind',
 			array(
 				'post_id' => $post_id,
 				'html'    => '<div class="text-sm"></div>',
@@ -431,12 +431,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_compile_tailwind_accepts_exact_limit_sizes(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/compile-tailwind',
+			'/kayzart/v1/compile-tailwind',
 			array(
 				'post_id' => $post_id,
 				'html'    => str_repeat( 'a', Limits::MAX_TAILWIND_HTML_BYTES ),
@@ -449,12 +449,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_render_shortcodes_accepts_max_items_boundary(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/render-shortcodes',
+			'/kayzart/v1/render-shortcodes',
 			array(
 				'post_id'    => $post_id,
 				'shortcodes' => $this->build_shortcode_items( Limits::MAX_RENDER_SHORTCODES ),
@@ -469,12 +469,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_render_shortcodes_rejects_over_limit(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/render-shortcodes',
+			'/kayzart/v1/render-shortcodes',
 			array(
 				'post_id'    => $post_id,
 				'shortcodes' => $this->build_shortcode_items( Limits::MAX_RENDER_SHORTCODES + 1 ),
@@ -486,7 +486,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_save_rejects_invalid_settings_updates_and_preserves_content(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		wp_update_post(
@@ -497,7 +497,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		);
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/save',
+			'/kayzart/v1/save',
 			array(
 				'post_id'         => $post_id,
 				'html'            => 'After save',
@@ -518,7 +518,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_save_rejects_tailwind_input_over_limit_and_preserves_content(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		wp_update_post(
@@ -529,7 +529,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		);
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/save',
+			'/kayzart/v1/save',
 			array(
 				'post_id'         => $post_id,
 				'html'            => str_repeat( 'a', Limits::MAX_TAILWIND_HTML_BYTES + 1 ),
@@ -547,12 +547,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_save_strips_xss_from_html_for_author(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/save',
+			'/kayzart/v1/save',
 			array(
 				'post_id' => $post_id,
 				'html'    => '<p>Safe</p><script>alert(1)</script><img src="x" onerror="alert(1)"><a href="javascript:alert(1)">x</a>',
@@ -571,12 +571,12 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 	public function test_save_strips_style_breakout_from_css_for_author(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/save',
+			'/kayzart/v1/save',
 			array(
 				'post_id' => $post_id,
 				'html'    => '<p>CSS test</p>',
@@ -586,20 +586,20 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 
 		$this->assertSame( 200, $response->get_status(), 'Author saves should succeed without JS capability.' );
 
-		$stored_css = (string) get_post_meta( $post_id, '_cazeart_css', true );
+		$stored_css = (string) get_post_meta( $post_id, '_kayzart_css', true );
 		$this->assertStringNotContainsString( '</style', $stored_css, 'CSS should not contain closing style tags.' );
 		$this->assertStringContainsString( '&lt;/style', $stored_css, 'Closing style tags should be escaped.' );
 	}
 
 	public function test_frontend_escapes_style_breakout_in_css_output(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 		$post     = get_post( $post_id );
 
 		$this->assertInstanceOf( WP_Post::class, $post );
 
-		update_post_meta( $post_id, '_cazeart_shadow_dom', '1' );
-		update_post_meta( $post_id, '_cazeart_css', '</style><script>alert("test2");</script>body{color:red;}' );
+		update_post_meta( $post_id, '_kayzart_shadow_dom', '1' );
+		update_post_meta( $post_id, '_kayzart_css', '</style><script>alert("test2");</script>body{color:red;}' );
 
 		global $wp_query;
 		$original_wp_query = $wp_query ?? null;
@@ -619,7 +619,7 @@ class Test_Rest_Validation extends WP_UnitTestCase {
 		$this->assertStringContainsString( '&lt;/style', $output, 'Output should escape closing style tags.' );
 	}
 
-	private function create_cazeart_post( int $author_id ): int {
+	private function create_kayzart_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,

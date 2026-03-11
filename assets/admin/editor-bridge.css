@@ -1,37 +1,37 @@
-.cazeart-editor-bridge {
+.kayzart-editor-bridge {
   margin: 12px 0;
 }
 
-.cazeart-editor-bridge__title {
+.kayzart-editor-bridge__title {
   margin: 0 0 8px;
   font-size: 16px;
 }
 
-.cazeart-editor-bridge__description {
+.kayzart-editor-bridge__description {
   margin: 0 0 16px;
   color: #50575e;
 }
 
-.cazeart-editor-bridge__button.is-busy {
+.kayzart-editor-bridge__button.is-busy {
   opacity: 0.7;
   pointer-events: none;
 }
 
-.block-editor-page.post-type-cazeart .block-editor-inserter,
-.block-editor-page.post-type-cazeart .block-editor-inserter__toggle,
-.block-editor-page.post-type-cazeart .block-editor-default-block-appender,
-.block-editor-page.post-type-cazeart .block-editor-block-list__insertion-point,
-.block-editor-page.post-type-cazeart .block-editor-block-list__block-appender {
+.block-editor-page.post-type-kayzart .block-editor-inserter,
+.block-editor-page.post-type-kayzart .block-editor-inserter__toggle,
+.block-editor-page.post-type-kayzart .block-editor-default-block-appender,
+.block-editor-page.post-type-kayzart .block-editor-block-list__insertion-point,
+.block-editor-page.post-type-kayzart .block-editor-block-list__block-appender {
   display: none !important;
 }
 
-.block-editor-page.post-type-cazeart .block-editor-block-list__layout,
-.block-editor-page.post-type-cazeart .block-editor-writing-flow {
+.block-editor-page.post-type-kayzart .block-editor-block-list__layout,
+.block-editor-page.post-type-kayzart .block-editor-writing-flow {
   pointer-events: none;
   user-select: none;
 }
 
-.cazeart-editor-toolbar {
+.kayzart-editor-toolbar {
   margin-left: 8px;
   display: inline-flex;
   align-items: center;

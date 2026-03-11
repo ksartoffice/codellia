@@ -1,12 +1,12 @@
 <?php
 /**
- * Admin title tests for CazeArt.
+ * Admin title tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Admin;
-use CazeArt\Post_Type;
+use KayzArt\Admin;
+use KayzArt\Post_Type;
 
 class Test_Admin_Title extends WP_UnitTestCase {
 	private array $original_get = array();
@@ -26,46 +26,46 @@ class Test_Admin_Title extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	public function test_filter_admin_title_replaces_left_side_for_cazeart_editor(): void {
-		$post_id = $this->create_cazeart_post( 'Foo' );
+	public function test_filter_admin_title_replaces_left_side_for_kayzart_editor(): void {
+		$post_id = $this->create_kayzart_post( 'Foo' );
 
 		$_GET['page']    = Admin::MENU_SLUG;
 		$_GET['post_id'] = (string) $post_id;
 
 		$filtered = Admin::filter_admin_title(
-			'CazeArt &lsaquo; Test Site - WordPress',
-			'CazeArt'
+			'KayzArt &lsaquo; Test Site - WordPress',
+			'KayzArt'
 		);
 
-		$this->assertSame( 'CazeArt Live Code Editor: Foo &lsaquo; Test Site - WordPress', $filtered );
+		$this->assertSame( 'KayzArt Live Code Editor: Foo &lsaquo; Test Site - WordPress', $filtered );
 	}
 
 	public function test_filter_admin_title_uses_untitled_fallback_for_empty_post_title(): void {
-		$post_id = $this->create_cazeart_post( '' );
+		$post_id = $this->create_kayzart_post( '' );
 
 		$_GET['page']    = Admin::MENU_SLUG;
 		$_GET['post_id'] = (string) $post_id;
 
 		$filtered = Admin::filter_admin_title(
-			'CazeArt &lsaquo; Test Site - WordPress',
-			'CazeArt'
+			'KayzArt &lsaquo; Test Site - WordPress',
+			'KayzArt'
 		);
 
-		$this->assertSame( 'CazeArt Live Code Editor: Untitled &lsaquo; Test Site - WordPress', $filtered );
+		$this->assertSame( 'KayzArt Live Code Editor: Untitled &lsaquo; Test Site - WordPress', $filtered );
 	}
 
 	public function test_filter_admin_title_supports_utf8_separator_suffix(): void {
-		$post_id = $this->create_cazeart_post( 'Foo' );
+		$post_id = $this->create_kayzart_post( 'Foo' );
 
 		$_GET['page']    = Admin::MENU_SLUG;
 		$_GET['post_id'] = (string) $post_id;
 
 		$filtered = Admin::filter_admin_title(
-			'CazeArt ' . "\xE2\x80\xB9" . ' Test Site - WordPress',
-			'CazeArt'
+			'KayzArt ' . "\xE2\x80\xB9" . ' Test Site - WordPress',
+			'KayzArt'
 		);
 
-		$this->assertSame( 'CazeArt Live Code Editor: Foo ' . "\xE2\x80\xB9" . ' Test Site - WordPress', $filtered );
+		$this->assertSame( 'KayzArt Live Code Editor: Foo ' . "\xE2\x80\xB9" . ' Test Site - WordPress', $filtered );
 	}
 
 	public function test_filter_admin_title_does_not_change_other_admin_pages(): void {
@@ -78,17 +78,17 @@ class Test_Admin_Title extends WP_UnitTestCase {
 	}
 
 	public function test_filter_admin_title_returns_left_label_when_suffix_is_not_available(): void {
-		$post_id = $this->create_cazeart_post( 'Foo' );
+		$post_id = $this->create_kayzart_post( 'Foo' );
 
 		$_GET['page']    = Admin::MENU_SLUG;
 		$_GET['post_id'] = (string) $post_id;
 
-		$filtered = Admin::filter_admin_title( 'CazeArt', 'CazeArt' );
+		$filtered = Admin::filter_admin_title( 'KayzArt', 'KayzArt' );
 
-		$this->assertSame( 'CazeArt Live Code Editor: Foo', $filtered );
+		$this->assertSame( 'KayzArt Live Code Editor: Foo', $filtered );
 	}
 
-	private function create_cazeart_post( string $title ): int {
+	private function create_kayzart_post( string $title ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,

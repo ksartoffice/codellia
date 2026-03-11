@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<ruleset name="CazeArt">
-  <description>WordPress Coding Standards for CazeArt.</description>
+<ruleset name="KayzArt">
+  <description>WordPress Coding Standards for KayzArt.</description>
 
   <config name="testVersion" value="8.2-"/>
   <arg name="extensions" value="php"/>
 
-  <file>cazeart-live-code-editor.php</file>
+  <file>kayzart-live-code-editor.php</file>
   <file>includes</file>
 
   <exclude-pattern>vendor/*</exclude-pattern>

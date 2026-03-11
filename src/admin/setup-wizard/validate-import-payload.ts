@@ -8,57 +8,57 @@ const isStringArray = (value: unknown): value is string[] =>
 
 export function validateImportPayload(raw: unknown): ValidationResult {
   if (!raw || typeof raw !== 'object') {
-    return { error: __('Import file is not a valid JSON object.', 'cazeart-live-code-editor') };
+    return { error: __('Import file is not a valid JSON object.', 'kayzart-live-code-editor') };
   }
 
   const payload = raw as Record<string, unknown>;
 
   if (payload.version !== 1) {
-    return { error: __('Unsupported import version.', 'cazeart-live-code-editor') };
+    return { error: __('Unsupported import version.', 'kayzart-live-code-editor') };
   }
 
   if (typeof payload.html !== 'string') {
-    return { error: __('Invalid HTML value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid HTML value.', 'kayzart-live-code-editor') };
   }
 
   if (typeof payload.css !== 'string') {
-    return { error: __('Invalid CSS value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid CSS value.', 'kayzart-live-code-editor') };
   }
 
   if (typeof payload.tailwindEnabled !== 'boolean') {
-    return { error: __('Invalid tailwindEnabled value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid tailwindEnabled value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.generatedCss !== undefined && typeof payload.generatedCss !== 'string') {
-    return { error: __('Invalid generatedCss value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid generatedCss value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.js !== undefined && typeof payload.js !== 'string') {
-    return { error: __('Invalid JavaScript value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid JavaScript value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.shadowDomEnabled !== undefined && typeof payload.shadowDomEnabled !== 'boolean') {
-    return { error: __('Invalid shadowDomEnabled value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid shadowDomEnabled value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.shortcodeEnabled !== undefined && typeof payload.shortcodeEnabled !== 'boolean') {
-    return { error: __('Invalid shortcodeEnabled value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid shortcodeEnabled value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.singlePageEnabled !== undefined && typeof payload.singlePageEnabled !== 'boolean') {
-    return { error: __('Invalid singlePageEnabled value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid singlePageEnabled value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.liveHighlightEnabled !== undefined && typeof payload.liveHighlightEnabled !== 'boolean') {
-    return { error: __('Invalid liveHighlightEnabled value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid liveHighlightEnabled value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.externalScripts !== undefined && !isStringArray(payload.externalScripts)) {
-    return { error: __('Invalid externalScripts value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid externalScripts value.', 'kayzart-live-code-editor') };
   }
 
   if (payload.externalStyles !== undefined && !isStringArray(payload.externalStyles)) {
-    return { error: __('Invalid externalStyles value.', 'cazeart-live-code-editor') };
+    return { error: __('Invalid externalStyles value.', 'kayzart-live-code-editor') };
   }
 
   return {

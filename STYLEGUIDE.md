@@ -3,14 +3,14 @@
 This document captures project-wide naming conventions. Keep it in sync with the codebase.
 
 ## PHP
-- Namespace: CazeArt
+- Namespace: KayzArt
 - Class names: StudlyCaps with underscores for compound words (e.g., Post_Type, Rest_Save)
 - Methods and variables: snake_case
 - Constants: UPPER_SNAKE
-- Files: class-cazeart-*.php for classes, includes/rest for REST handlers
-- CPT: cazeart (slug: cazeart)
-- Option keys: cazeart_*
-- Post meta keys: _cazeart_*
+- Files: class-kayzart-*.php for classes, includes/rest for REST handlers
+- CPT: kayzart (slug: kayzart)
+- Option keys: kayzart_*
+- Post meta keys: _kayzart_*
 
 ## JS/TS
 - Local variables and functions: camelCase

@@ -1,17 +1,17 @@
 <?php
 /**
- * Admin route permission tests for CazeArt.
+ * Admin route permission tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Admin;
-use CazeArt\Post_Type;
+use KayzArt\Admin;
+use KayzArt\Post_Type;
 
-class CazeArt_Admin_Die_Exception extends Exception {
+class KayzArt_Admin_Die_Exception extends Exception {
 }
 
-class CazeArt_Admin_Redirect_Exception extends Exception {
+class KayzArt_Admin_Redirect_Exception extends Exception {
 	public string $location;
 
 	public function __construct( string $location ) {
@@ -39,7 +39,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 	public function test_action_redirect_denies_user_without_edit_permission(): void {
 		$author_id     = self::factory()->user->create( array( 'role' => 'author' ) );
 		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		$post_id       = $this->create_cazeart_post( $author_id );
+		$post_id       = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( $subscriber_id );
 
@@ -54,7 +54,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		$_GET = $original_get;
 
-		$this->assertStringContainsString( __( 'Permission denied.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'Permission denied.', 'kayzart-live-code-editor'), $message );
 	}
 
 	public function test_maybe_redirect_new_post_denies_user_without_create_posts(): void {
@@ -73,7 +73,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		$_GET = $original_get;
 
-		$this->assertStringContainsString( __( 'Permission denied.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'Permission denied.', 'kayzart-live-code-editor'), $message );
 	}
 
 	public function test_maybe_redirect_new_post_without_nonce_redirects_to_action_without_creating_post(): void {
@@ -81,7 +81,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 
-		$before       = $this->get_cazeart_post_ids();
+		$before       = $this->get_kayzart_post_ids();
 		$original_get = $_GET;
 		$_GET         = array(
 			'post_type' => Post_Type::POST_TYPE,
@@ -94,7 +94,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		);
 
 		$_GET = $original_get;
-		$after = $this->get_cazeart_post_ids();
+		$after = $this->get_kayzart_post_ids();
 
 		$this->assertStringNotContainsString( '&amp;', $location );
 		$parts = wp_parse_url( $location );
@@ -114,7 +114,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 
-		$before       = $this->get_cazeart_post_ids();
+		$before       = $this->get_kayzart_post_ids();
 		$original_get = $_GET;
 		$_GET         = array(
 			'post_type' => Post_Type::POST_TYPE,
@@ -128,9 +128,9 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		);
 
 		$_GET = $original_get;
-		$after = $this->get_cazeart_post_ids();
+		$after = $this->get_kayzart_post_ids();
 
-		$this->assertStringContainsString( __( 'Permission denied.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'Permission denied.', 'kayzart-live-code-editor'), $message );
 		$this->assertSame( $before, $after, 'Invalid nonce access must not create drafts.' );
 	}
 
@@ -139,7 +139,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 
-		$before       = $this->get_cazeart_post_ids();
+		$before       = $this->get_kayzart_post_ids();
 		$original_get = $_GET;
 		$_GET         = array(
 			'post_type' => Post_Type::POST_TYPE,
@@ -153,7 +153,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		);
 
 		$_GET = $original_get;
-		$after = $this->get_cazeart_post_ids();
+		$after = $this->get_kayzart_post_ids();
 
 		$this->assertStringNotContainsString( '&amp;', $location );
 		$parts = wp_parse_url( $location );
@@ -173,7 +173,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 
-		$before       = $this->get_cazeart_post_ids();
+		$before       = $this->get_kayzart_post_ids();
 		$original_get = $_GET;
 		$_GET         = array(
 			'post_type' => Post_Type::POST_TYPE,
@@ -186,9 +186,9 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		);
 
 		$_GET = $original_get;
-		$after = $this->get_cazeart_post_ids();
+		$after = $this->get_kayzart_post_ids();
 
-		$this->assertStringContainsString( __( 'Permission denied.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'Permission denied.', 'kayzart-live-code-editor'), $message );
 		$this->assertSame( $before, $after, 'Action without nonce must not create drafts.' );
 	}
 
@@ -197,7 +197,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 
-		$before_ids   = $this->get_cazeart_post_ids();
+		$before_ids   = $this->get_kayzart_post_ids();
 		$original_get = $_GET;
 		$_GET         = array(
 			'post_type' => Post_Type::POST_TYPE,
@@ -211,7 +211,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		);
 
 		$_GET = $original_get;
-		$after_ids = $this->get_cazeart_post_ids();
+		$after_ids = $this->get_kayzart_post_ids();
 		$created   = array_values( array_diff( $after_ids, $before_ids ) );
 
 		$this->assertCount( 1, $created, 'Exactly one draft should be created.' );
@@ -225,7 +225,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		$this->assertSame( Post_Type::get_editor_url( $created_id ), $location );
 	}
 
-	private function create_cazeart_post( int $author_id ): int {
+	private function create_kayzart_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,
@@ -235,7 +235,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		);
 	}
 
-	private function get_cazeart_post_ids(): array {
+	private function get_kayzart_post_ids(): array {
 		return get_posts(
 			array(
 				'post_type'              => Post_Type::POST_TYPE,
@@ -262,7 +262,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		} else {
 			$this->wp_die_message = (string) $message;
 		}
-		throw new CazeArt_Admin_Die_Exception();
+		throw new KayzArt_Admin_Die_Exception();
 	}
 
 	private function capture_wp_die( callable $callback ): string {
@@ -272,7 +272,7 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 		try {
 			$callback();
 			$this->fail( 'Expected wp_die to be called.' );
-		} catch ( CazeArt_Admin_Die_Exception $e ) {
+		} catch ( KayzArt_Admin_Die_Exception $e ) {
 			// Expected.
 		} finally {
 			remove_filter( 'wp_die_handler', array( $this, 'provide_wp_die_handler' ) );
@@ -283,14 +283,14 @@ class Test_Admin_Permissions extends WP_UnitTestCase {
 
 	private function capture_redirect( callable $callback ): string {
 		$redirect_filter = function ( $location ) {
-			throw new CazeArt_Admin_Redirect_Exception( (string) $location );
+			throw new KayzArt_Admin_Redirect_Exception( (string) $location );
 		};
 		add_filter( 'wp_redirect', $redirect_filter );
 
 		try {
 			$callback();
 			$this->fail( 'Expected redirect to be called.' );
-		} catch ( CazeArt_Admin_Redirect_Exception $e ) {
+		} catch ( KayzArt_Admin_Redirect_Exception $e ) {
 			return $e->location;
 		} finally {
 			remove_filter( 'wp_redirect', $redirect_filter );

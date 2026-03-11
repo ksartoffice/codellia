@@ -80,23 +80,23 @@ function updateReadmeChangelog(readmeText, version) {
 }
 
 async function updatePhpAndReadme(version) {
-  const [cazeartPhpRaw, readmeRaw] = await Promise.all([
-    readFile('cazeart-live-code-editor.php', 'utf8'),
+  const [kayzartPhpRaw, readmeRaw] = await Promise.all([
+    readFile('kayzart-live-code-editor.php', 'utf8'),
     readFile('readme.txt', 'utf8'),
   ]);
 
-  let cazeartPhp = cazeartPhpRaw;
-  cazeartPhp = replaceExactlyOne(
-    cazeartPhp,
+  let kayzartPhp = kayzartPhpRaw;
+  kayzartPhp = replaceExactlyOne(
+    kayzartPhp,
     /^(\s*\*\s+Version:\s*)\d+\.\d+\.\d+\s*$/m,
     `$1${version}`,
     'plugin header Version'
   );
-  cazeartPhp = replaceExactlyOne(
-    cazeartPhp,
-    /(define\(\s*'CAZEART_VERSION',\s*')\d+\.\d+\.\d+('\s*\);)/,
+  kayzartPhp = replaceExactlyOne(
+    kayzartPhp,
+    /(define\(\s*'KAYZART_VERSION',\s*')\d+\.\d+\.\d+('\s*\);)/,
     `$1${version}$2`,
-    'CAZEART_VERSION'
+    'KAYZART_VERSION'
   );
 
   let readme = readmeRaw;
@@ -109,8 +109,8 @@ async function updatePhpAndReadme(version) {
   readme = updateReadmeChangelog(readme, version);
 
   const writeTasks = [];
-  if (cazeartPhp !== cazeartPhpRaw) {
-    writeTasks.push(writeFile('cazeart-live-code-editor.php', cazeartPhp, 'utf8'));
+  if (kayzartPhp !== kayzartPhpRaw) {
+    writeTasks.push(writeFile('kayzart-live-code-editor.php', kayzartPhp, 'utf8'));
   }
   if (readme !== readmeRaw) {
     writeTasks.push(writeFile('readme.txt', readme, 'utf8'));

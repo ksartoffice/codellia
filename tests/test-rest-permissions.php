@@ -1,11 +1,11 @@
 <?php
 /**
- * REST permission tests for CazeArt.
+ * REST permission tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Post_Type;
+use KayzArt\Post_Type;
 
 class Test_Rest_Permissions extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -20,7 +20,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 	public function test_rest_routes_require_authentication(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( 0 );
 
@@ -33,7 +33,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	public function test_rest_routes_forbid_subscriber(): void {
 		$author_id     = self::factory()->user->create( array( 'role' => 'author' ) );
 		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		$post_id       = $this->create_cazeart_post( $author_id );
+		$post_id       = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( $subscriber_id );
 
@@ -45,7 +45,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 	public function test_rest_routes_allow_author_for_editable_post(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
@@ -58,7 +58,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	public function test_rest_routes_allow_editor_for_others_post(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$editor_id = self::factory()->user->create( array( 'role' => 'editor' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( $editor_id );
 
@@ -71,7 +71,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	public function test_rest_routes_forbid_author_for_others_post(): void {
 		$author_id       = self::factory()->user->create( array( 'role' => 'author' ) );
 		$other_author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id         = $this->create_cazeart_post( $author_id );
+		$post_id         = $this->create_kayzart_post( $author_id );
 
 		wp_set_current_user( $other_author_id );
 
@@ -81,38 +81,38 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		}
 	}
 
-	public function test_rest_routes_forbid_non_cazeart_post(): void {
+	public function test_rest_routes_forbid_non_kayzart_post(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id   = $this->create_non_cazeart_post( $author_id );
+		$post_id   = $this->create_non_kayzart_post( $author_id );
 
 		wp_set_current_user( $author_id );
 
 		foreach ( $this->get_rest_routes_with_params( $post_id ) as $route => $params ) {
 			$response = $this->dispatch_route( $route, $params );
-			$this->assertSame( 403, $response->get_status(), $route . ' should forbid non-cazeart posts.' );
+			$this->assertSame( 403, $response->get_status(), $route . ' should forbid non-kayzart posts.' );
 		}
 	}
 
 	public function test_rest_import_requires_unfiltered_html(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		$import_params = $this->get_import_params( $post_id );
 
 		wp_set_current_user( $author_id );
-		$response = $this->dispatch_route( '/cazeart/v1/import', $import_params );
+		$response = $this->dispatch_route( '/kayzart/v1/import', $import_params );
 		$this->assertSame( 403, $response->get_status(), 'Import should require unfiltered_html.' );
 
 		wp_set_current_user( $admin_id );
-		$response = $this->dispatch_route( '/cazeart/v1/import', $import_params );
+		$response = $this->dispatch_route( '/kayzart/v1/import', $import_params );
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to import.' );
 	}
 
 	public function test_rest_save_requires_unfiltered_html_for_js_payload(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		$params = array(
 			'post_id' => $post_id,
@@ -121,18 +121,18 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		);
 
 		wp_set_current_user( $author_id );
-		$response = $this->dispatch_route( '/cazeart/v1/save', $params );
+		$response = $this->dispatch_route( '/kayzart/v1/save', $params );
 		$this->assertSame( 403, $response->get_status(), 'Saving JS should require unfiltered_html.' );
 
 		wp_set_current_user( $admin_id );
-		$response = $this->dispatch_route( '/cazeart/v1/save', $params );
+		$response = $this->dispatch_route( '/kayzart/v1/save', $params );
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to save JS.' );
 	}
 
 	public function test_rest_save_requires_unfiltered_html_for_js_related_settings_updates(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		$params = array(
 			'post_id'         => $post_id,
@@ -145,18 +145,18 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		);
 
 		wp_set_current_user( $author_id );
-		$response = $this->dispatch_route( '/cazeart/v1/save', $params );
+		$response = $this->dispatch_route( '/kayzart/v1/save', $params );
 		$this->assertSame( 403, $response->get_status(), 'Saving JS-related settings should require unfiltered_html.' );
 
 		wp_set_current_user( $admin_id );
-		$response = $this->dispatch_route( '/cazeart/v1/save', $params );
+		$response = $this->dispatch_route( '/kayzart/v1/save', $params );
 		$this->assertSame( 200, $response->get_status(), 'Admins should be able to save JS-related settings.' );
 	}
 
 	public function test_rest_settings_requires_unfiltered_html_for_js_related_updates(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$admin_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id   = $this->create_cazeart_post( $author_id );
+		$post_id   = $this->create_kayzart_post( $author_id );
 
 		$updates = array(
 			'shadowDomEnabled'  => true,
@@ -167,7 +167,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $author_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => $updates,
@@ -177,7 +177,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin_id );
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => $updates,
@@ -188,12 +188,12 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 
 	public function test_rest_settings_forbid_publish_without_capability(): void {
 		$contributor_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
-		$post_id        = $this->create_cazeart_post( $contributor_id );
+		$post_id        = $this->create_kayzart_post( $contributor_id );
 
 		wp_set_current_user( $contributor_id );
 
 		$response = $this->dispatch_route(
-			'/cazeart/v1/settings',
+			'/kayzart/v1/settings',
 			array(
 				'post_id' => $post_id,
 				'updates' => array(
@@ -205,7 +205,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		$this->assertSame( 403, $response->get_status(), 'Contributors should not be able to publish posts.' );
 	}
 
-	private function create_cazeart_post( int $author_id ): int {
+	private function create_kayzart_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,
@@ -215,7 +215,7 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		);
 	}
 
-	private function create_non_cazeart_post( int $author_id ): int {
+	private function create_non_kayzart_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => 'post',
@@ -240,24 +240,24 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 	private function get_rest_routes_with_params( int $post_id ): array {
 		$tailwind_css = "@tailwind base;\n@tailwind components;\n@tailwind utilities;";
 		return array(
-			'/cazeart/v1/save' => array(
+			'/kayzart/v1/save' => array(
 				'post_id' => $post_id,
 				'html'    => '<p>Test</p>',
 			),
-			'/cazeart/v1/compile-tailwind' => array(
+			'/kayzart/v1/compile-tailwind' => array(
 				'post_id' => $post_id,
 				'html'    => '<div class="text-sm"></div>',
 				'css'     => $tailwind_css,
 			),
-			'/cazeart/v1/setup' => array(
+			'/kayzart/v1/setup' => array(
 				'post_id' => $post_id,
 				'mode'    => 'normal',
 			),
-			'/cazeart/v1/settings' => array(
+			'/kayzart/v1/settings' => array(
 				'post_id' => $post_id,
 				'updates' => array(),
 			),
-			'/cazeart/v1/render-shortcodes' => array(
+			'/kayzart/v1/render-shortcodes' => array(
 				'post_id'    => $post_id,
 				'shortcodes' => array(
 					array(
@@ -266,13 +266,13 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 					),
 				),
 			),
-			'/cazeart/v1/import' => $this->get_import_params( $post_id ),
+			'/kayzart/v1/import' => $this->get_import_params( $post_id ),
 		);
 	}
 
 	private function get_author_allowed_routes( int $post_id ): array {
 		$routes = $this->get_rest_routes_with_params( $post_id );
-		unset( $routes['/cazeart/v1/import'] );
+		unset( $routes['/kayzart/v1/import'] );
 		return $routes;
 	}
 

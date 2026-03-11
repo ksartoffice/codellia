@@ -25,7 +25,7 @@ export type ElementAttributesInfo = {
 };
 
 const ALLOWED_INLINE_TAGS = new Set(['br', 'span']);
-const CAZEART_ATTR_NAME = 'data-cazeart-id';
+const KAYZART_ATTR_NAME = 'data-kayzart-id';
 const VOID_TAGS = new Set([
   'area',
   'base',
@@ -84,7 +84,7 @@ function isEditableChild(node: DefaultTreeAdapterTypes.Node) {
 }
 
 function getExistingLcId(el: DefaultTreeAdapterTypes.Element): string | null {
-  const attr = el.attrs.find((item) => item.name === CAZEART_ATTR_NAME);
+  const attr = el.attrs.find((item) => item.name === KAYZART_ATTR_NAME);
   return attr ? attr.value : null;
 }
 
@@ -229,7 +229,7 @@ export function getEditableElementAttributes(html: string, lcId: string): Elemen
           const startTagText = html.slice(startOffset, endOffset);
           const selfClosing = /\/\s*>$/.test(startTagText);
           const attributes = child.attrs
-            .filter((attr) => attr.name !== CAZEART_ATTR_NAME)
+            .filter((attr) => attr.name !== KAYZART_ATTR_NAME)
             .map((attr) => ({
               name: attr.name,
               value: attr.value ?? '',

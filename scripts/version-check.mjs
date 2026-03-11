@@ -43,8 +43,8 @@ function extractTopChangelogVersion(readmeText) {
 }
 
 async function loadVersions() {
-  const [cazeartPhp, readme, packageJsonRaw] = await Promise.all([
-    readFile('cazeart-live-code-editor.php', 'utf8'),
+  const [kayzartPhp, readme, packageJsonRaw] = await Promise.all([
+    readFile('kayzart-live-code-editor.php', 'utf8'),
     readFile('readme.txt', 'utf8'),
     readFile('package.json', 'utf8'),
   ]);
@@ -55,11 +55,11 @@ async function loadVersions() {
   }
 
   return {
-    phpHeaderVersion: extractSingleValue(cazeartPhp, /^\s*\*\s+Version:\s*(\d+\.\d+\.\d+)\s*$/m, 'plugin header Version'),
+    phpHeaderVersion: extractSingleValue(kayzartPhp, /^\s*\*\s+Version:\s*(\d+\.\d+\.\d+)\s*$/m, 'plugin header Version'),
     phpConstantVersion: extractSingleValue(
-      cazeartPhp,
-      /define\(\s*'CAZEART_VERSION',\s*'(\d+\.\d+\.\d+)'\s*\);/,
-      'CAZEART_VERSION'
+      kayzartPhp,
+      /define\(\s*'KAYZART_VERSION',\s*'(\d+\.\d+\.\d+)'\s*\);/,
+      'KAYZART_VERSION'
     ),
     stableTagVersion: extractSingleValue(readme, /^Stable tag:\s*(\d+\.\d+\.\d+)\s*$/m, 'Stable tag'),
     changelogVersion: extractTopChangelogVersion(readme),

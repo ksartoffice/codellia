@@ -1,22 +1,22 @@
 <?php
 /**
- * Bridge the default editor screen to the CazeArt editor.
+ * Bridge the default editor screen to the KayzArt editor.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-namespace CazeArt;
+namespace KayzArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Handles the default editor experience for CazeArt posts.
+ * Handles the default editor experience for KayzArt posts.
  */
 class Editor_Bridge {
-	const SCRIPT_HANDLE = 'cazeart-editor-bridge';
-	const STYLE_HANDLE  = 'cazeart-editor-bridge';
+	const SCRIPT_HANDLE = 'kayzart-editor-bridge';
+	const STYLE_HANDLE  = 'kayzart-editor-bridge';
 
 	/**
 	 * Register hooks for the editor bridge.
@@ -32,7 +32,7 @@ class Editor_Bridge {
 	 */
 	public static function enqueue_block_assets(): void {
 		$screen = get_current_screen();
-		if ( ! self::is_cazeart_screen( $screen ) ) {
+		if ( ! self::is_kayzart_screen( $screen ) ) {
 			return;
 		}
 
@@ -50,7 +50,7 @@ class Editor_Bridge {
 		}
 
 		$screen = get_current_screen();
-		if ( ! self::is_cazeart_screen( $screen ) ) {
+		if ( ! self::is_kayzart_screen( $screen ) ) {
 			return;
 		}
 
@@ -67,17 +67,17 @@ class Editor_Bridge {
 	private static function enqueue_assets(): void {
 		wp_register_script(
 			self::SCRIPT_HANDLE,
-			CAZEART_URL . 'assets/admin/editor-bridge.js',
+			KAYZART_URL . 'assets/admin/editor-bridge.js',
 			array( 'wp-i18n', 'wp-dom-ready', 'wp-data' ),
-			CAZEART_VERSION,
+			KAYZART_VERSION,
 			true
 		);
 
 		wp_register_style(
 			self::STYLE_HANDLE,
-			CAZEART_URL . 'assets/admin/editor-bridge.css',
+			KAYZART_URL . 'assets/admin/editor-bridge.css',
 			array(),
-			CAZEART_VERSION
+			KAYZART_VERSION
 		);
 
 		wp_enqueue_script( self::SCRIPT_HANDLE );
@@ -86,24 +86,24 @@ class Editor_Bridge {
 		$data = array(
 			'postId'    => self::resolve_post_id(),
 			'postType'  => Post_Type::POST_TYPE,
-			'actionUrl' => admin_url( 'admin.php?action=cazeart' ),
+			'actionUrl' => admin_url( 'admin.php?action=kayzart' ),
 		);
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.CAZEART_EDITOR = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
+			'window.KAYZART_EDITOR = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . ';',
 			'before'
 		);
 
 		wp_set_script_translations(
 			self::SCRIPT_HANDLE,
-			'cazeart-live-code-editor',
-			CAZEART_PATH . 'languages'
+			'kayzart-live-code-editor',
+			KAYZART_PATH . 'languages'
 		);
 	}
 
 	/**
-	 * Mark new CazeArt posts as requiring setup.
+	 * Mark new KayzArt posts as requiring setup.
 	 *
 	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post Post object.
@@ -122,11 +122,11 @@ class Editor_Bridge {
 			return;
 		}
 
-		if ( get_post_meta( $post_id, '_cazeart_setup_required', true ) === '1' ) {
+		if ( get_post_meta( $post_id, '_kayzart_setup_required', true ) === '1' ) {
 			return;
 		}
 
-		update_post_meta( $post_id, '_cazeart_setup_required', '1' );
+		update_post_meta( $post_id, '_kayzart_setup_required', '1' );
 	}
 
 	/**
@@ -148,12 +148,12 @@ class Editor_Bridge {
 	}
 
 	/**
-	 * Check if the screen is for the CazeArt CPT.
+	 * Check if the screen is for the KayzArt CPT.
 	 *
 	 * @param \WP_Screen|null $screen Current screen.
 	 * @return bool
 	 */
-	private static function is_cazeart_screen( $screen ): bool {
+	private static function is_kayzart_screen( $screen ): bool {
 		return $screen && Post_Type::POST_TYPE === $screen->post_type;
 	}
 }

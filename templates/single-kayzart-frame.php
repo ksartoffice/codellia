@@ -1,8 +1,8 @@
 <?php
 /**
- * Frame layout template for CazeArt.
+ * Frame layout template for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_filter(
 	'body_class',
 	static function ( $classes ) {
-		$classes[] = 'cazeart-layout-frame';
+		$classes[] = 'kayzart-layout-frame';
 		return $classes;
 	}
 );

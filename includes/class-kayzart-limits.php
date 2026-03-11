@@ -1,11 +1,11 @@
 <?php
 /**
- * Shared numeric limits for CazeArt.
+ * Shared numeric limits for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-namespace CazeArt;
+namespace KayzArt;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

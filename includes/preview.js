@@ -5,15 +5,15 @@
   const shadowScriptsId = 'cd-shadow-scripts';
   const externalScriptAttr = 'data-cd-external-script';
   const externalStyleAttr = 'data-cd-external-style';
-  const CAZEART_ATTR_NAME = 'data-cazeart-id';
-  const config = window.CAZEART_PREVIEW || {};
+  const KAYZART_ATTR_NAME = 'data-kayzart-id';
+  const config = window.KAYZART_PREVIEW || {};
   const postId = config.post_id || null;
   const markerAttr =
-    config.markers && config.markers.attr ? String(config.markers.attr) : 'data-cazeart-marker';
+    config.markers && config.markers.attr ? String(config.markers.attr) : 'data-kayzart-marker';
   const markerPostAttr =
     config.markers && config.markers.postAttr
       ? String(config.markers.postAttr)
-      : 'data-cazeart-post-id';
+      : 'data-kayzart-post-id';
   const markerPostId = postId === null ? '' : String(postId);
   const markerStart = config.markers && config.markers.start ? String(config.markers.start) : 'start';
   const markerEnd = config.markers && config.markers.end ? String(config.markers.end) : 'end';
@@ -74,7 +74,7 @@
     range.setEndBefore(markers.end);
     range.deleteContents();
 
-    const host = document.createElement('cazeart-output');
+    const host = document.createElement('kayzart-output');
     if (postId) {
       host.setAttribute('data-post-id', String(postId));
     }
@@ -268,7 +268,7 @@
     button.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      reply('CAZEART_OPEN_ELEMENTS_TAB');
+      reply('KAYZART_OPEN_ELEMENTS_TAB');
     });
     document.body.appendChild(button);
     selectActionButton = button;
@@ -357,7 +357,7 @@
     if (typeof event.composedPath === 'function') {
       const path = event.composedPath();
       for (const node of path) {
-        if (node instanceof Element && node.hasAttribute(CAZEART_ATTR_NAME)) {
+        if (node instanceof Element && node.hasAttribute(KAYZART_ATTR_NAME)) {
           return node;
         }
       }
@@ -365,7 +365,7 @@
     if (!event.target || !(event.target instanceof Element)) {
       return null;
     }
-    return event.target.closest('[' + CAZEART_ATTR_NAME + ']');
+    return event.target.closest('[' + KAYZART_ATTR_NAME + ']');
   }
 
   function handlePointerMove(event) {
@@ -385,9 +385,9 @@
     event.preventDefault();
     event.stopPropagation();
     drawSelection(target);
-    const lcId = target.getAttribute(CAZEART_ATTR_NAME);
+    const lcId = target.getAttribute(KAYZART_ATTR_NAME);
     if (lcId) {
-      reply('CAZEART_SELECT', { lcId: lcId });
+      reply('KAYZART_SELECT', { lcId: lcId });
     }
   }
 
@@ -788,7 +788,7 @@
 
     if (shadowEnabled) {
       renderShadow(html, css);
-      reply('CAZEART_RENDERED');
+      reply('KAYZART_RENDERED');
       return;
     }
     clearShadowHost();
@@ -799,7 +799,7 @@
     if (styleEl) {
       styleEl.textContent = css || '';
     }
-    reply('CAZEART_RENDERED');
+    reply('KAYZART_RENDERED');
   }
 
   function hydrateDeclarativeShadowDom(root) {
@@ -844,18 +844,18 @@
   function notifyMissingMarkers() {
     if (missingMarkersNotified) return;
     missingMarkersNotified = true;
-    reply('CAZEART_MISSING_MARKERS');
+    reply('KAYZART_MISSING_MARKERS');
   }
 
   window.addEventListener('message', (event) => {
     if (allowedOrigin && event.origin !== allowedOrigin) return;
     const data = event.data || {};
-    if (data.type === 'CAZEART_INIT') {
+    if (data.type === 'KAYZART_INIT') {
       isReady = true;
-      reply('CAZEART_READY', { post_id: postId });
+      reply('KAYZART_READY', { post_id: postId });
       return;
     }
-    if (data.type === 'CAZEART_RENDER') {
+    if (data.type === 'KAYZART_RENDER') {
       if (!isReady) return;
       setShadowDomEnabled(Boolean(data.shadowDomEnabled));
       if ('liveHighlightEnabled' in data) {
@@ -863,33 +863,33 @@
       }
       render(data.canonicalHTML, data.cssText);
     }
-    if (data.type === 'CAZEART_SET_CSS') {
+    if (data.type === 'KAYZART_SET_CSS') {
       if (!isReady) return;
       setCssText(data.cssText);
     }
-    if (data.type === 'CAZEART_SET_HIGHLIGHT') {
+    if (data.type === 'KAYZART_SET_HIGHLIGHT') {
       if (!isReady) return;
       setDomSelectorEnabled(Boolean(data.liveHighlightEnabled));
     }
-    if (data.type === 'CAZEART_SET_ELEMENTS_TAB_OPEN') {
+    if (data.type === 'KAYZART_SET_ELEMENTS_TAB_OPEN') {
       if (!isReady) return;
       setElementsTabOpen(Boolean(data.open));
     }
-    if (data.type === 'CAZEART_RUN_JS') {
+    if (data.type === 'KAYZART_RUN_JS') {
       if (!isReady) return;
       jsEnabled = true;
       runJs(data.jsText || '');
     }
-    if (data.type === 'CAZEART_DISABLE_JS') {
+    if (data.type === 'KAYZART_DISABLE_JS') {
       if (!isReady) return;
       jsEnabled = false;
       removeScriptElement();
     }
-    if (data.type === 'CAZEART_EXTERNAL_SCRIPTS') {
+    if (data.type === 'KAYZART_EXTERNAL_SCRIPTS') {
       if (!isReady) return;
       setExternalScripts(data.urls || []);
     }
-    if (data.type === 'CAZEART_EXTERNAL_STYLES') {
+    if (data.type === 'KAYZART_EXTERNAL_STYLES') {
       if (!isReady) return;
       setExternalStyles(data.urls || []);
     }

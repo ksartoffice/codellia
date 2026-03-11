@@ -163,8 +163,8 @@ function Toolbar({
   const [saveMenuOpen, setSaveMenuOpen] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
   const toggleLabel = editorCollapsed
-    ? __( 'Show code', 'cazeart-live-code-editor')
-    : __( 'Hide code', 'cazeart-live-code-editor');
+    ? __( 'Show code', 'kayzart-live-code-editor')
+    : __( 'Hide code', 'kayzart-live-code-editor');
   const toggleIcon = compactEditorMode
     ? editorCollapsed
       ? ICONS.panelBottomClose
@@ -174,13 +174,13 @@ function Toolbar({
       : ICONS.panelClose;
   const isPublished = postStatus === 'publish' || postStatus === 'private';
   const isDraft = postStatus === 'draft' || postStatus === 'auto-draft';
-  const viewPostLabel = isPublished ? __( 'View post', 'cazeart-live-code-editor') : __( 'Preview', 'cazeart-live-code-editor');
+  const viewPostLabel = isPublished ? __( 'View post', 'kayzart-live-code-editor') : __( 'Preview', 'kayzart-live-code-editor');
   const settingsTitle = settingsOpen
-    ? __( 'Close settings', 'cazeart-live-code-editor')
-    : __( 'Settings', 'cazeart-live-code-editor');
-  const viewportDesktopLabel = __( 'Desktop', 'cazeart-live-code-editor');
-  const viewportTabletLabel = __( 'Tablet', 'cazeart-live-code-editor');
-  const viewportMobileLabel = __( 'Mobile', 'cazeart-live-code-editor');
+    ? __( 'Close settings', 'kayzart-live-code-editor')
+    : __( 'Settings', 'kayzart-live-code-editor');
+  const viewportDesktopLabel = __( 'Desktop', 'kayzart-live-code-editor');
+  const viewportTabletLabel = __( 'Tablet', 'kayzart-live-code-editor');
+  const viewportMobileLabel = __( 'Mobile', 'kayzart-live-code-editor');
   const isViewportDesktop = viewportMode === 'desktop';
   const isViewportTablet = viewportMode === 'tablet';
   const isViewportMobile = viewportMode === 'mobile';
@@ -188,30 +188,30 @@ function Toolbar({
   const targetUrl = isPublished ? viewPostUrl : previewLink;
   const showViewPost = Boolean(targetUrl);
   const showListLink = Boolean(listUrl);
-  const backLabel = __( 'Back to WordPress', 'cazeart-live-code-editor');
+  const backLabel = __( 'Back to WordPress', 'kayzart-live-code-editor');
   const showBackMenu = Boolean(backUrl) || showListLink;
-  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'cazeart-live-code-editor');
-  const draftSuffix = isDraft ? __( '(Draft)', 'cazeart-live-code-editor') : '';
+  const resolvedTitle = postTitle?.trim() || __( 'Untitled', 'kayzart-live-code-editor');
+  const draftSuffix = isDraft ? __( '(Draft)', 'kayzart-live-code-editor') : '';
   const titleText = draftSuffix ? `${resolvedTitle} ${draftSuffix}` : resolvedTitle;
   const titleTooltip = resolvedTitle;
   const normalizedStatus = postStatus === 'auto-draft' ? 'draft' : postStatus;
-  const tailwindBadgeLabel = __( 'Tailwind CSS', 'cazeart-live-code-editor');
-  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'cazeart-live-code-editor');
-  const listLabel = __( 'CazeArt pages', 'cazeart-live-code-editor');
+  const tailwindBadgeLabel = __( 'Tailwind CSS', 'kayzart-live-code-editor');
+  const tailwindTooltip = __( 'Editing in Tailwind CSS mode', 'kayzart-live-code-editor');
+  const listLabel = __( 'KayzArt pages', 'kayzart-live-code-editor');
   const saveLabel =
     normalizedStatus === 'draft'
-      ? __( 'Save draft', 'cazeart-live-code-editor')
+      ? __( 'Save draft', 'kayzart-live-code-editor')
       : normalizedStatus === 'pending'
-        ? __( 'Save for review', 'cazeart-live-code-editor')
+        ? __( 'Save for review', 'kayzart-live-code-editor')
         : normalizedStatus === 'private'
-          ? __( 'Update as private', 'cazeart-live-code-editor')
-          : __( 'Update', 'cazeart-live-code-editor');
-  const exportLabel = __( 'Export', 'cazeart-live-code-editor');
+          ? __( 'Update as private', 'kayzart-live-code-editor')
+          : __( 'Update', 'kayzart-live-code-editor');
+  const exportLabel = __( 'Export', 'kayzart-live-code-editor');
   const statusActions = [
-    { value: 'publish' as const, label: __( 'Publish', 'cazeart-live-code-editor') },
-    { value: 'pending' as const, label: __( 'Move to review', 'cazeart-live-code-editor') },
-    { value: 'private' as const, label: __( 'Make private', 'cazeart-live-code-editor') },
-    { value: 'draft' as const, label: __( 'Revert to draft', 'cazeart-live-code-editor') },
+    { value: 'publish' as const, label: __( 'Publish', 'kayzart-live-code-editor') },
+    { value: 'pending' as const, label: __( 'Move to review', 'kayzart-live-code-editor') },
+    { value: 'private' as const, label: __( 'Make private', 'kayzart-live-code-editor') },
+    { value: 'draft' as const, label: __( 'Revert to draft', 'kayzart-live-code-editor') },
   ];
   useEffect(() => {
     if (!titleModalOpen) {
@@ -248,7 +248,7 @@ function Toolbar({
     if (result.ok) {
       setTitleModalOpen(false);
     } else {
-      setTitleError(result.error || __( 'Update failed.', 'cazeart-live-code-editor'));
+      setTitleError(result.error || __( 'Update failed.', 'kayzart-live-code-editor'));
     }
     setTitleSaving(false);
   };
@@ -342,8 +342,8 @@ function Toolbar({
           type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          aria-label={__( 'Undo', 'cazeart-live-code-editor')}
-          data-tooltip={__( 'Undo', 'cazeart-live-code-editor')}
+          aria-label={__( 'Undo', 'kayzart-live-code-editor')}
+          data-tooltip={__( 'Undo', 'kayzart-live-code-editor')}
         >
           <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.undo }} />
         </button>
@@ -352,8 +352,8 @@ function Toolbar({
           type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          aria-label={__( 'Redo', 'cazeart-live-code-editor')}
-          data-tooltip={__( 'Redo', 'cazeart-live-code-editor')}
+          aria-label={__( 'Redo', 'kayzart-live-code-editor')}
+          data-tooltip={__( 'Redo', 'kayzart-live-code-editor')}
         >
           <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.redo }} />
         </button>
@@ -422,12 +422,12 @@ function Toolbar({
           <div className="cd-modalBackdrop" onClick={closeTitleModal} />
           <div className="cd-modalDialog" role="dialog" aria-modal="true">
             <div className="cd-modalHeader">
-              <div className="cd-modalTitle">{__( 'Title', 'cazeart-live-code-editor')}</div>
+              <div className="cd-modalTitle">{__( 'Title', 'kayzart-live-code-editor')}</div>
               <button
                 className="cd-modalClose"
                 type="button"
                 onClick={closeTitleModal}
-                aria-label={__( 'Close', 'cazeart-live-code-editor')}
+                aria-label={__( 'Close', 'kayzart-live-code-editor')}
               >
                 <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS.close }} />
               </button>
@@ -442,7 +442,7 @@ function Toolbar({
               >
                 <div className="cd-formGroup">
                   <label className="cd-formLabel" htmlFor="cd-title-modal-input">
-                    {__( 'Title', 'cazeart-live-code-editor')}
+                    {__( 'Title', 'kayzart-live-code-editor')}
                   </label>
                   <input
                     id="cd-title-modal-input"
@@ -456,7 +456,7 @@ function Toolbar({
                 </div>
                 <div className="cd-formGroup">
                   <label className="cd-formLabel" htmlFor="cd-slug-modal-input">
-                    {__( 'Slug', 'cazeart-live-code-editor')}
+                    {__( 'Slug', 'kayzart-live-code-editor')}
                   </label>
                   <input
                     id="cd-slug-modal-input"
@@ -474,10 +474,10 @@ function Toolbar({
                     type="button"
                     onClick={closeTitleModal}
                   >
-                    {__( 'Cancel', 'cazeart-live-code-editor')}
+                    {__( 'Cancel', 'kayzart-live-code-editor')}
                   </button>
                   <button className="cd-btn cd-btn-primary" type="submit" disabled={titleSaving}>
-                    {titleSaving ? __( 'Saving...', 'cazeart-live-code-editor') : __( 'Save', 'cazeart-live-code-editor')}
+                    {titleSaving ? __( 'Saving...', 'kayzart-live-code-editor') : __( 'Save', 'kayzart-live-code-editor')}
                   </button>
                 </div>
               </form>
@@ -501,8 +501,8 @@ function Toolbar({
               type="button"
               aria-haspopup="menu"
               aria-expanded={saveMenuOpen}
-              aria-label={__( 'Save options', 'cazeart-live-code-editor')}
-              data-tooltip={__( 'Save options', 'cazeart-live-code-editor')}
+              aria-label={__( 'Save options', 'kayzart-live-code-editor')}
+              data-tooltip={__( 'Save options', 'kayzart-live-code-editor')}
               onClick={toggleSaveMenu}
             >
               <span className="cd-btnIcon" dangerouslySetInnerHTML={{ __html: ICONS.chevronDown }} />
@@ -516,16 +516,16 @@ function Toolbar({
                 <div className="cd-splitMenuTitle">
                   {/* translators: %s: current status label. */}
                   {sprintf(
-                    __( 'Status: %s', 'cazeart-live-code-editor'),
+                    __( 'Status: %s', 'kayzart-live-code-editor'),
                     normalizedStatus === 'draft'
-                      ? __( 'Draft', 'cazeart-live-code-editor')
+                      ? __( 'Draft', 'kayzart-live-code-editor')
                       : normalizedStatus === 'pending'
-                        ? __( 'Pending', 'cazeart-live-code-editor')
+                        ? __( 'Pending', 'kayzart-live-code-editor')
                         : normalizedStatus === 'private'
-                          ? __( 'Private', 'cazeart-live-code-editor')
+                          ? __( 'Private', 'kayzart-live-code-editor')
                           : normalizedStatus === 'future'
-                            ? __( 'Scheduled', 'cazeart-live-code-editor')
-                            : __( 'Published', 'cazeart-live-code-editor')
+                            ? __( 'Scheduled', 'kayzart-live-code-editor')
+                            : __( 'Published', 'kayzart-live-code-editor')
                   )}
                 </div>
                 <div className="cd-splitMenuList">

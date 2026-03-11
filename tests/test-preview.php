@@ -1,14 +1,14 @@
 <?php
 /**
- * Preview/nonce tests for CazeArt.
+ * Preview/nonce tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Post_Type;
-use CazeArt\Preview;
+use KayzArt\Post_Type;
+use KayzArt\Preview;
 
-class CazeArt_Die_Exception extends Exception {
+class KayzArt_Die_Exception extends Exception {
 }
 
 class Test_Preview extends WP_UnitTestCase {
@@ -43,12 +43,12 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'post_id is required.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'post_id is required.', 'kayzart-live-code-editor'), $message );
 	}
 
 	public function test_preview_denies_invalid_token(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
 		$this->set_preview_query_vars( $post_id, 'invalid' );
@@ -59,14 +59,14 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'Invalid preview token.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'Invalid preview token.', 'kayzart-live-code-editor'), $message );
 	}
 
 	public function test_preview_denies_user_without_edit_permission(): void {
 		$author_id     = self::factory()->user->create( array( 'role' => 'author' ) );
 		$subscriber_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		$post_id       = $this->create_cazeart_post( $author_id );
-		$token         = wp_create_nonce( 'cazeart_preview_' . $post_id );
+		$post_id       = $this->create_kayzart_post( $author_id );
+		$token         = wp_create_nonce( 'kayzart_preview_' . $post_id );
 
 		wp_set_current_user( $subscriber_id );
 		$this->set_preview_query_vars( $post_id, $token );
@@ -77,10 +77,10 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'Permission denied.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'Permission denied.', 'kayzart-live-code-editor'), $message );
 	}
 
-	public function test_preview_denies_non_cazeart_post(): void {
+	public function test_preview_denies_non_kayzart_post(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		$post_id  = self::factory()->post->create(
 			array(
@@ -91,7 +91,7 @@ class Test_Preview extends WP_UnitTestCase {
 		);
 
 		wp_set_current_user( $admin_id );
-		$token = wp_create_nonce( 'cazeart_preview_' . $post_id );
+		$token = wp_create_nonce( 'kayzart_preview_' . $post_id );
 		$this->set_preview_query_vars( (int) $post_id, $token );
 
 		$message = $this->capture_wp_die(
@@ -100,15 +100,15 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 		);
 
-		$this->assertStringContainsString( __( 'Invalid post type.', 'cazeart-live-code-editor'), $message );
+		$this->assertStringContainsString( __( 'Invalid post type.', 'kayzart-live-code-editor'), $message );
 	}
 
 	public function test_preview_allows_valid_request(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		wp_set_current_user( $admin_id );
-		$token = wp_create_nonce( 'cazeart_preview_' . $post_id );
+		$token = wp_create_nonce( 'kayzart_preview_' . $post_id );
 		$this->set_preview_query_vars( $post_id, $token );
 
 		Preview::maybe_handle_preview();
@@ -128,7 +128,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_skips_target_post_outside_loop(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -140,7 +140,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_wraps_target_post_in_main_loop(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -153,7 +153,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_skips_non_main_query_loop(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -166,7 +166,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_waits_for_main_loop_when_called_outside_loop_first(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -181,8 +181,8 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_skips_non_target_post(): void {
 		$admin_id        = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$target_post_id  = $this->create_cazeart_post( $admin_id );
-		$another_post_id = $this->create_cazeart_post( $admin_id );
+		$target_post_id  = $this->create_kayzart_post( $admin_id );
+		$another_post_id = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $target_post_id, $admin_id );
 		$this->set_global_post( $another_post_id );
@@ -195,7 +195,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_wraps_each_main_loop_call_without_shared_state(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -210,7 +210,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_respects_existing_markers(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -226,7 +226,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_skips_nested_the_content_calls(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -251,7 +251,7 @@ class Test_Preview extends WP_UnitTestCase {
 			}
 
 			if ( 2 === $depth ) {
-				$inner_had_markers = false !== strpos( $content, 'data-cazeart-marker="start"' );
+				$inner_had_markers = false !== strpos( $content, 'data-kayzart-marker="start"' );
 			}
 
 			return $content;
@@ -272,7 +272,7 @@ class Test_Preview extends WP_UnitTestCase {
 
 	public function test_filter_content_wraps_when_markers_belong_to_different_post(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id );
+		$post_id  = $this->create_kayzart_post( $admin_id );
 
 		$this->start_preview_request( $post_id, $admin_id );
 		$this->set_global_post( $post_id );
@@ -285,7 +285,7 @@ class Test_Preview extends WP_UnitTestCase {
 		$this->assertSame( $this->wrap_with_markers( $other_post_marked, $post_id ), $actual );
 	}
 
-	private function create_cazeart_post( int $author_id ): int {
+	private function create_kayzart_post( int $author_id ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'   => Post_Type::POST_TYPE,
@@ -302,14 +302,14 @@ class Test_Preview extends WP_UnitTestCase {
 		}
 		$wp_the_query = $wp_query;
 
-		$wp_query->set( 'cazeart_preview', '1' );
+		$wp_query->set( 'kayzart_preview', '1' );
 		$wp_query->set( 'post_id', $post_id ? (string) $post_id : '' );
 		$wp_query->set( 'token', $token ?? '' );
 	}
 
 	private function start_preview_request( int $post_id, int $user_id ): void {
 		wp_set_current_user( $user_id );
-		$token = wp_create_nonce( 'cazeart_preview_' . $post_id );
+		$token = wp_create_nonce( 'kayzart_preview_' . $post_id );
 		$this->set_preview_query_vars( $post_id, $token );
 		Preview::maybe_handle_preview();
 	}
@@ -374,7 +374,7 @@ class Test_Preview extends WP_UnitTestCase {
 		} else {
 			$this->wp_die_message = (string) $message;
 		}
-		throw new CazeArt_Die_Exception();
+		throw new KayzArt_Die_Exception();
 	}
 
 	private function capture_wp_die( callable $callback ): string {
@@ -384,7 +384,7 @@ class Test_Preview extends WP_UnitTestCase {
 		try {
 			$callback();
 			$this->fail( 'Expected wp_die to be called.' );
-		} catch ( CazeArt_Die_Exception $e ) {
+		} catch ( KayzArt_Die_Exception $e ) {
 			// Expected.
 		} finally {
 			remove_filter( 'wp_die_handler', array( $this, 'provide_wp_die_handler' ) );
@@ -394,9 +394,9 @@ class Test_Preview extends WP_UnitTestCase {
 	}
 
 	private function wrap_with_markers( string $content, int $post_id ): string {
-		return '<span data-cazeart-marker="start" data-cazeart-post-id="' . $post_id . '" aria-hidden="true" hidden></span>'
+		return '<span data-kayzart-marker="start" data-kayzart-post-id="' . $post_id . '" aria-hidden="true" hidden></span>'
 			. $content
-			. '<span data-cazeart-marker="end" data-cazeart-post-id="' . $post_id . '" aria-hidden="true" hidden></span>';
+			. '<span data-kayzart-marker="end" data-kayzart-post-id="' . $post_id . '" aria-hidden="true" hidden></span>';
 	}
 }
 

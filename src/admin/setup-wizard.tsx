@@ -80,7 +80,7 @@ function SetupWizard({
       }
       setImportPayload(result.data || null);
     } catch {
-      setError(__('Invalid JSON file.', 'cazeart-live-code-editor'));
+      setError(__('Invalid JSON file.', 'kayzart-live-code-editor'));
       setImportPayload(null);
     }
   };
@@ -92,10 +92,10 @@ function SetupWizard({
     try {
       if (mode === 'import') {
         if (!importRestUrl) {
-          throw new Error(__('Import unavailable.', 'cazeart-live-code-editor'));
+          throw new Error(__('Import unavailable.', 'kayzart-live-code-editor'));
         }
         if (!importPayload) {
-          throw new Error(__('Select a JSON file to import.', 'cazeart-live-code-editor'));
+          throw new Error(__('Select a JSON file to import.', 'kayzart-live-code-editor'));
         }
 
         const response = await apiFetch<ImportResponse>({
@@ -108,11 +108,11 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __('Import failed.', 'cazeart-live-code-editor'));
+          throw new Error(response?.error || __('Import failed.', 'kayzart-live-code-editor'));
         }
 
         if (response.importWarnings?.length) {
-          console.warn('[CazeArt] Import warnings', response.importWarnings);
+          console.warn('[KayzArt] Import warnings', response.importWarnings);
         }
 
         const normalizedPayload = response.html
@@ -137,7 +137,7 @@ function SetupWizard({
         });
 
         if (!response?.ok) {
-          throw new Error(response?.error || __('Setup failed.', 'cazeart-live-code-editor'));
+          throw new Error(response?.error || __('Setup failed.', 'kayzart-live-code-editor'));
         }
 
         onComplete({ tailwindEnabled: Boolean(response.tailwindEnabled) });
@@ -156,10 +156,10 @@ function SetupWizard({
   return (
     <div className="cd-setupOverlay">
       <div className="cd-setupCard" role="dialog" aria-modal="true">
-        <div className="cd-setupTitle">{__('Choose editor mode', 'cazeart-live-code-editor')}</div>
+        <div className="cd-setupTitle">{__('Choose editor mode', 'kayzart-live-code-editor')}</div>
         <div className="cd-setupIntro">
           {__(
-            'Select TailwindCSS or Normal mode. This choice cannot be changed later.', 'cazeart-live-code-editor')}
+            'Select TailwindCSS or Normal mode. This choice cannot be changed later.', 'kayzart-live-code-editor')}
         </div>
         <div className="cd-setupOptions">
           <label className={`cd-setupOption${mode === 'normal' ? ' is-active' : ''}`}>
@@ -172,10 +172,10 @@ function SetupWizard({
             />
             <span className="cd-setupOptionBody">
               <span className="cd-setupOptionTitle">
-                {__('Normal (HTML/CSS)', 'cazeart-live-code-editor')}
+                {__('Normal (HTML/CSS)', 'kayzart-live-code-editor')}
               </span>
               <span className="cd-setupOptionDesc">
-                {__('Edit HTML and CSS directly with Monaco.', 'cazeart-live-code-editor')}
+                {__('Edit HTML and CSS directly with Monaco.', 'kayzart-live-code-editor')}
               </span>
             </span>
           </label>
@@ -189,10 +189,10 @@ function SetupWizard({
             />
             <span className="cd-setupOptionBody">
               <span className="cd-setupOptionTitle">
-                {__('TailwindCSS', 'cazeart-live-code-editor')}
+                {__('TailwindCSS', 'kayzart-live-code-editor')}
               </span>
               <span className="cd-setupOptionDesc">
-                {__('Use utility classes. CSS is compiled automatically.', 'cazeart-live-code-editor')}
+                {__('Use utility classes. CSS is compiled automatically.', 'kayzart-live-code-editor')}
               </span>
             </span>
           </label>
@@ -206,10 +206,10 @@ function SetupWizard({
             />
             <span className="cd-setupOptionBody">
               <span className="cd-setupOptionTitle">
-                {__('Import JSON', 'cazeart-live-code-editor')}
+                {__('Import JSON', 'kayzart-live-code-editor')}
               </span>
               <span className="cd-setupOptionDesc">
-                {__('Restore from an exported CazeArt JSON file.', 'cazeart-live-code-editor')}
+                {__('Restore from an exported KayzArt JSON file.', 'kayzart-live-code-editor')}
               </span>
             </span>
           </label>
@@ -217,7 +217,7 @@ function SetupWizard({
         {mode === 'import' ? (
           <div className="cd-setupImport">
             <label className="cd-btn cd-btn-secondary cd-setupFileLabel">
-              {__('Choose JSON file', 'cazeart-live-code-editor')}
+              {__('Choose JSON file', 'kayzart-live-code-editor')}
               <input
                 className="cd-setupFileInput"
                 type="file"
@@ -226,7 +226,7 @@ function SetupWizard({
               />
             </label>
             <div className="cd-setupFileName">
-              {importFileName || __('No file selected.', 'cazeart-live-code-editor')}
+              {importFileName || __('No file selected.', 'kayzart-live-code-editor')}
             </div>
           </div>
         ) : null}
@@ -234,7 +234,7 @@ function SetupWizard({
         <div className="cd-setupActions">
           {backUrl ? (
             <a className="cd-btn cd-btn-secondary" href={backUrl}>
-              {__('Back', 'cazeart-live-code-editor')}
+              {__('Back', 'kayzart-live-code-editor')}
             </a>
           ) : null}
           <button
@@ -243,7 +243,7 @@ function SetupWizard({
             onClick={handleSubmit}
             disabled={saving}
           >
-            {saving ? __('Saving...', 'cazeart-live-code-editor') : __('Continue', 'cazeart-live-code-editor')}
+            {saving ? __('Saving...', 'kayzart-live-code-editor') : __('Continue', 'kayzart-live-code-editor')}
           </button>
         </div>
       </div>
@@ -255,8 +255,8 @@ export function runSetupWizard(config: SetupWizardConfig): Promise<SetupWizardRe
   const { container, apiFetch } = config;
 
   if (!apiFetch) {
-    container.textContent = __('Setup unavailable.', 'cazeart-live-code-editor');
-    return Promise.reject(new Error(__('wp.apiFetch is unavailable.', 'cazeart-live-code-editor')));
+    container.textContent = __('Setup unavailable.', 'kayzart-live-code-editor');
+    return Promise.reject(new Error(__('wp.apiFetch is unavailable.', 'kayzart-live-code-editor')));
   }
 
   return new Promise((resolve) => {

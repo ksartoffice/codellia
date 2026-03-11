@@ -1,12 +1,12 @@
 <?php
 /**
- * Front-end rendering success tests for CazeArt.
+ * Front-end rendering success tests for KayzArt.
  *
- * @package CazeArt
+ * @package KayzArt
  */
 
-use CazeArt\Frontend;
-use CazeArt\Post_Type;
+use KayzArt\Frontend;
+use KayzArt\Post_Type;
 
 class Test_Frontend_Output extends WP_UnitTestCase {
 	protected function setUp(): void {
@@ -16,7 +16,7 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 			Post_Type::register();
 		}
 
-		if ( ! shortcode_exists( 'cazeart' ) ) {
+		if ( ! shortcode_exists( 'kayzart' ) ) {
 			Frontend::init();
 		}
 
@@ -31,22 +31,22 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 
 	public function test_filter_content_wraps_shadow_dom_with_assets(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id, 'publish' );
+		$post_id  = $this->create_kayzart_post( $admin_id, 'publish' );
 		$post     = get_post( $post_id );
 
 		$this->assertInstanceOf( WP_Post::class, $post );
 
-		update_post_meta( $post_id, '_cazeart_shadow_dom', '1' );
-		update_post_meta( $post_id, '_cazeart_css', 'body{color:red;}' );
-		update_post_meta( $post_id, '_cazeart_js', 'console.log("x");' );
+		update_post_meta( $post_id, '_kayzart_shadow_dom', '1' );
+		update_post_meta( $post_id, '_kayzart_css', 'body{color:red;}' );
+		update_post_meta( $post_id, '_kayzart_js', 'console.log("x");' );
 		update_post_meta(
 			$post_id,
-			'_cazeart_external_styles',
+			'_kayzart_external_styles',
 			wp_json_encode( array( 'https://example.com/app.css' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
 		update_post_meta(
 			$post_id,
-			'_cazeart_external_scripts',
+			'_kayzart_external_scripts',
 			wp_json_encode( array( 'https://example.com/app.js' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
 
@@ -54,105 +54,105 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 		$output            = Frontend::filter_content( (string) $post->post_content );
 		$this->restore_query( $original_wp_query );
 
-		$this->assertStringContainsString( '<cazeart-output data-post-id="' . $post_id . '">', $output );
+		$this->assertStringContainsString( '<kayzart-output data-post-id="' . $post_id . '">', $output );
 		$this->assertStringContainsString( '<template shadowrootmode="open">', $output );
 		$this->assertStringContainsString( '<link rel="stylesheet" href="https://example.com/app.css">', $output );
 		$this->assertStringContainsString( '<style id="cd-style">body{color:red;}</style>', $output );
-		$this->assertStringContainsString( '<p>CazeArt content</p>', $output );
+		$this->assertStringContainsString( '<p>KayzArt content</p>', $output );
 		$this->assertStringNotContainsString( '<script src="https://example.com/app.js"></script>', $output );
 		$this->assertStringNotContainsString( '<script id="cd-script">console.log("x");</script>', $output );
-		$this->assertStringContainsString( 'data-cazeart-js="1"', $output );
+		$this->assertStringContainsString( 'data-kayzart-js="1"', $output );
 		$this->assertStringContainsString( '</template>', $output );
-		$this->assertStringContainsString( '</cazeart-output>', $output );
+		$this->assertStringContainsString( '</kayzart-output>', $output );
 	}
 
 	public function test_shortcode_renders_shadow_dom_with_unique_ids(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id, 'publish' );
+		$post_id  = $this->create_kayzart_post( $admin_id, 'publish' );
 
-		update_post_meta( $post_id, '_cazeart_shadow_dom', '1' );
-		update_post_meta( $post_id, '_cazeart_shortcode_enabled', '1' );
-		update_post_meta( $post_id, '_cazeart_css', 'body{background:#000;}' );
-		update_post_meta( $post_id, '_cazeart_js', 'console.log("shortcode");' );
+		update_post_meta( $post_id, '_kayzart_shadow_dom', '1' );
+		update_post_meta( $post_id, '_kayzart_shortcode_enabled', '1' );
+		update_post_meta( $post_id, '_kayzart_css', 'body{background:#000;}' );
+		update_post_meta( $post_id, '_kayzart_js', 'console.log("shortcode");' );
 		update_post_meta(
 			$post_id,
-			'_cazeart_external_styles',
+			'_kayzart_external_styles',
 			wp_json_encode( array( 'https://example.com/shortcode.css' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
 		update_post_meta(
 			$post_id,
-			'_cazeart_external_scripts',
+			'_kayzart_external_scripts',
 			wp_json_encode( array( 'https://example.com/shortcode.js' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
 
 		wp_set_current_user( $admin_id );
 
-		$output = do_shortcode( '[cazeart post_id="' . $post_id . '"]' );
+		$output = do_shortcode( '[kayzart post_id="' . $post_id . '"]' );
 
-		$this->assertStringContainsString( '<cazeart-output data-post-id="' . $post_id . '">', $output );
+		$this->assertStringContainsString( '<kayzart-output data-post-id="' . $post_id . '">', $output );
 		$this->assertStringContainsString( '<link rel="stylesheet" href="https://example.com/shortcode.css">', $output );
 		$this->assertStringContainsString( 'id="cd-style-' . $post_id . '-1"', $output );
-		$this->assertStringContainsString( '<p>CazeArt content</p>', $output );
+		$this->assertStringContainsString( '<p>KayzArt content</p>', $output );
 		$this->assertStringNotContainsString( '<script src="https://example.com/shortcode.js"></script>', $output );
 		$this->assertStringNotContainsString( 'id="cd-script-' . $post_id . '-1"', $output );
 	}
 
 	public function test_shortcode_non_shadow_inlines_assets_once(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id, 'publish' );
+		$post_id  = $this->create_kayzart_post( $admin_id, 'publish' );
 
-		update_post_meta( $post_id, '_cazeart_shortcode_enabled', '1' );
-		update_post_meta( $post_id, '_cazeart_css', 'body{font-size:16px;}' );
-		update_post_meta( $post_id, '_cazeart_js', 'console.log("inline");' );
+		update_post_meta( $post_id, '_kayzart_shortcode_enabled', '1' );
+		update_post_meta( $post_id, '_kayzart_css', 'body{font-size:16px;}' );
+		update_post_meta( $post_id, '_kayzart_js', 'console.log("inline");' );
 		update_post_meta(
 			$post_id,
-			'_cazeart_external_styles',
+			'_kayzart_external_styles',
 			wp_json_encode( array( 'https://example.com/inline.css' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
 		update_post_meta(
 			$post_id,
-			'_cazeart_external_scripts',
+			'_kayzart_external_scripts',
 			wp_json_encode( array( 'https://example.com/inline.js' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 		);
 
 		wp_set_current_user( $admin_id );
 
-		$first  = do_shortcode( '[cazeart post_id="' . $post_id . '"]' );
-		$second = do_shortcode( '[cazeart post_id="' . $post_id . '"]' );
+		$first  = do_shortcode( '[kayzart post_id="' . $post_id . '"]' );
+		$second = do_shortcode( '[kayzart post_id="' . $post_id . '"]' );
 
 		$this->assertStringContainsString( '<link rel="stylesheet" href="https://example.com/inline.css">', $first );
 		$this->assertStringContainsString( 'id="cd-style-' . $post_id . '"', $first );
-		$this->assertStringContainsString( '<p>CazeArt content</p>', $first );
+		$this->assertStringContainsString( '<p>KayzArt content</p>', $first );
 		$this->assertStringContainsString( '<script src="https://example.com/inline.js"></script>', $first );
 		$this->assertStringContainsString( 'id="cd-script-' . $post_id . '"', $first );
 
 		$this->assertStringNotContainsString( '<link rel="stylesheet" href="https://example.com/inline.css">', $second );
 		$this->assertStringNotContainsString( 'id="cd-style-' . $post_id . '"', $second );
-		$this->assertStringContainsString( '<p>CazeArt content</p>', $second );
+		$this->assertStringContainsString( '<p>KayzArt content</p>', $second );
 		$this->assertStringNotContainsString( '<script src="https://example.com/inline.js"></script>', $second );
 		$this->assertStringNotContainsString( 'id="cd-script-' . $post_id . '"', $second );
 	}
 
 	public function test_enqueue_css_preserves_tailwind_escaped_arbitrary_values(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$post_id  = $this->create_cazeart_post( $admin_id, 'publish' );
+		$post_id  = $this->create_kayzart_post( $admin_id, 'publish' );
 		$post     = get_post( $post_id );
 
 		$this->assertInstanceOf( WP_Post::class, $post );
 
-		update_post_meta( $post_id, '_cazeart_tailwind', '1' );
+		update_post_meta( $post_id, '_kayzart_tailwind', '1' );
 
 		$generated_css = '.text-\\[2rem\\]{font-size:2rem;}';
-		update_post_meta( $post_id, '_cazeart_generated_css', wp_slash( $generated_css ) );
+		update_post_meta( $post_id, '_kayzart_generated_css', wp_slash( $generated_css ) );
 
 		$original_wp_query = $this->set_query_for_post( $post_id, $post );
 		Frontend::enqueue_css();
 		$this->restore_query( $original_wp_query );
 
-		$this->assertTrue( wp_style_is( 'cazeart', 'enqueued' ) );
+		$this->assertTrue( wp_style_is( 'kayzart', 'enqueued' ) );
 
 		$styles       = wp_styles();
-		$inline_rules = $styles->get_data( 'cazeart', 'after' );
+		$inline_rules = $styles->get_data( 'kayzart', 'after' );
 		$this->assertIsArray( $inline_rules );
 		$inline_css = implode( "\n", $inline_rules );
 
@@ -160,13 +160,13 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '.text-[2rem]', $inline_css );
 	}
 
-	private function create_cazeart_post( int $author_id, string $status ): int {
+	private function create_kayzart_post( int $author_id, string $status ): int {
 		return (int) self::factory()->post->create(
 			array(
 				'post_type'    => Post_Type::POST_TYPE,
 				'post_status'  => $status,
 				'post_author'  => $author_id,
-				'post_content' => '<p>CazeArt content</p>',
+				'post_content' => '<p>KayzArt content</p>',
 			)
 		);
 	}
@@ -180,7 +180,7 @@ class Test_Frontend_Output extends WP_UnitTestCase {
 		$wp_query->queried_object       = $post;
 		$wp_query->is_singular          = true;
 		$wp_query->is_single            = true;
-		$wp_query->set( 'cazeart_preview', '' );
+		$wp_query->set( 'kayzart_preview', '' );
 
 		return $original_wp_query;
 	}
