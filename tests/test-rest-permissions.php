@@ -55,6 +55,23 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_rest_routes_require_nonce_for_authorized_user(): void {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		$post_id   = $this->create_kayzart_post( $author_id );
+
+		wp_set_current_user( $author_id );
+
+		$response = $this->dispatch_route(
+			'/kayzart/v1/save',
+			array(
+				'post_id' => $post_id,
+				'html'    => '<p>Test</p>',
+			),
+			false
+		);
+		$this->assertSame( 403, $response->get_status(), 'Authorized users must provide a valid REST nonce.' );
+	}
+
 	public function test_rest_routes_allow_editor_for_others_post(): void {
 		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		$editor_id = self::factory()->user->create( array( 'role' => 'editor' ) );
@@ -225,10 +242,13 @@ class Test_Rest_Permissions extends WP_UnitTestCase {
 		);
 	}
 
-	private function dispatch_route( string $route, array $params ): WP_REST_Response {
+	private function dispatch_route( string $route, array $params, bool $with_nonce = true ): WP_REST_Response {
 		$request = new WP_REST_Request( 'POST', $route );
 		foreach ( $params as $key => $value ) {
 			$request->set_param( $key, $value );
+		}
+		if ( $with_nonce && get_current_user_id() > 0 ) {
+			$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
 		}
 		$response = rest_do_request( $request );
 		if ( is_wp_error( $response ) ) {

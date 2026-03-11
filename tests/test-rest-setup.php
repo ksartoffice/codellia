@@ -122,6 +122,9 @@ class Test_Rest_Setup extends WP_UnitTestCase {
 		foreach ( $params as $key => $value ) {
 			$request->set_param( $key, $value );
 		}
+		if ( get_current_user_id() > 0 ) {
+			$request->set_header( 'X-WP-Nonce', wp_create_nonce( 'wp_rest' ) );
+		}
 
 		$response = rest_do_request( $request );
 		if ( is_wp_error( $response ) ) {

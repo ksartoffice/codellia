@@ -21,6 +21,7 @@ class Admin {
 	const SETTINGS_GROUP               = 'kayzart_settings';
 	const NEW_POST_ACTION              = 'kayzart_new';
 	const NEW_POST_NONCE_ACTION        = 'kayzart_new_post';
+	const REDIRECT_NONCE_ACTION        = 'kayzart_redirect';
 	const OPTION_POST_SLUG             = 'kayzart_post_slug';
 	const OPTION_DEFAULT_TEMPLATE_MODE = 'kayzart_default_template_mode';
 	const OPTION_FLUSH_REWRITE         = 'kayzart_flush_rewrite';
@@ -158,6 +159,10 @@ class Admin {
 		if ( ! $post_id ) {
 			wp_die( esc_html__( 'post_id is required.', 'kayzart-live-code-editor' ) );
 		}
+		$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! wp_verify_nonce( $nonce, self::REDIRECT_NONCE_ACTION ) ) {
+			wp_die( esc_html__( 'Permission denied.', 'kayzart-live-code-editor' ) );
+		}
 		if ( ! Post_Type::is_kayzart_post( $post_id ) ) {
 			wp_die( esc_html__( 'This editor is only available for KayzArt posts.', 'kayzart-live-code-editor' ) );
 		}
@@ -224,6 +229,21 @@ class Admin {
 
 		wp_safe_redirect( Post_Type::get_editor_url( (int) $post_id ) );
 		exit;
+	}
+
+	/**
+	 * Build nonce-protected admin action URL for opening the KayzArt editor bridge.
+	 *
+	 * @return string
+	 */
+	public static function get_action_redirect_url(): string {
+		return add_query_arg(
+			array(
+				'action'   => 'kayzart',
+				'_wpnonce' => wp_create_nonce( self::REDIRECT_NONCE_ACTION ),
+			),
+			admin_url( 'admin.php' )
+		);
 	}
 
 	/**

@@ -153,9 +153,9 @@ class Rest {
 	 * Permission check for KayzArt REST routes.
 	 *
 	 * @param \WP_REST_Request $request REST request.
-	 * @return bool
+	 * @return bool|\WP_Error
 	 */
-	public static function permission_check( \WP_REST_Request $request ): bool {
+	public static function permission_check( \WP_REST_Request $request ) {
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		if ( 0 >= $post_id ) {
 			return false;
@@ -163,7 +163,25 @@ class Rest {
 		if ( ! Post_Type::is_kayzart_post( $post_id ) ) {
 			return false;
 		}
-		return current_user_can( 'edit_post', $post_id );
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return false;
+		}
+
+		$nonce = (string) $request->get_header( 'X-WP-Nonce' );
+		if ( '' === $nonce ) {
+			$nonce = (string) $request->get_param( '_wpnonce' );
+		}
+		$nonce = sanitize_text_field( wp_unslash( $nonce ) );
+
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new \WP_Error(
+				'kayzart_invalid_nonce',
+				__( 'Permission denied.', 'kayzart-live-code-editor' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
